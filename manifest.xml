@@ -1,0 +1,24 @@
+<package>
+  <description brief="raven_2">
+
+     raven_2
+
+  </description>
+  <author></author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/raven_2</url>
+  <depend package="std_msgs"/>
+  <depend package="roscpp"/>
+  <depend package="sensor_msgs"/>
+  <depend package="visualization_msgs"/>
+  <depend package="tf"/>
+  <depend package="dynamic_reconfigure" />
+  <depend package="geometry_msgs" />
+  <export>
+	<cpp cflags="-I${prefix}/include -I${prefix}/include/raven -Wno-unused-result -Wno-missing-field-initializers" lflags="-Lpthread -lrt"/>
+  </export>
+
+</package>
+
+

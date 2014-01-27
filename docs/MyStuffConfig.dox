@@ -1,0 +1,19 @@
+\subsubsection parameters ROS parameters
+
+Reads and maintains the following parameters on the ROS server
+
+- \b "~shoulder_l" : \b [double] An offet to add to the shoulder_l min: -50.0, default: 0.0, max: 50.0
+- \b "~elbow_l" : \b [double] An offet to add to the elbow_l min: -50.0, default: 0.0, max: 50.0
+- \b "~insertion_l" : \b [double] An offet to add to the insertion_l min: -50.0, default: 0.0, max: 50.0
+- \b "~roll_l" : \b [double] An offet to add to the roll_l min: -50.0, default: 0.0, max: 50.0
+- \b "~wrist_l" : \b [double] An offet to add to the wrist_l min: -50.0, default: 0.0, max: 50.0
+- \b "~grasp1_l" : \b [double] An offet to add to the grasp1_l min: -50.0, default: 0.0, max: 50.0
+- \b "~grasp2_l" : \b [double] An offet to add to the grasp2_l min: -50.0, default: 0.0, max: 50.0
+- \b "~shoulder_r" : \b [double] An offet to add to the shoulder_r min: -50.0, default: 0.0, max: 50.0
+- \b "~elbow_r" : \b [double] An offet to add to the elbow_r min: -50.0, default: 0.0, max: 50.0
+- \b "~insertion_r" : \b [double] An offet to add to the shoulder_r min: -50.0, default: 0.0, max: 50.0
+- \b "~roll_r" : \b [double] An offet to add to the roll_r min: -50.0, default: 0.0, max: 50.0
+- \b "~wrist_r" : \b [double] An offet to add to the wrist_r min: -50.0, default: 0.0, max: 50.0
+- \b "~grasp1_r" : \b [double] An offet to add to the grasp1_r min: -50.0, default: 0.0, max: 50.0
+- \b "~grasp2_r" : \b [double] An offet to add to the grasp2_r min: -50.0, default: 0.0, max: 50.0
+

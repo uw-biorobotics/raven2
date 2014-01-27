@@ -1,0 +1,212 @@
+# depslib dependency file v1.0
+1304639599 source:/misc/users/home1/hawkeye1/projects/raven_ros/raven_2/src/raven/USB_init.cpp
+	"USB_init.h"
+	<string.h>
+
+1303950394 source:/misc/users/home1/hawkeye1/projects/raven_ros/raven_2/src/raven/asinw.cpp
+	"asinw.h"
+
+1303950394 source:/misc/users/home1/hawkeye1/projects/raven_ros/raven_2/src/raven/dof.cpp
+	"dof.h"
+
+1303950410 source:/misc/users/home1/hawkeye1/projects/raven_ros/raven_2/src/raven/fwd_cable_coupling.cpp
+	"fwd_cable_coupling.h"
+
+1303950395 source:/misc/users/home1/hawkeye1/projects/raven_ros/raven_2/src/raven/fwd_kinematics.cpp
+	"fwd_kinematics.h"
+
+1303950410 source:/misc/users/home1/hawkeye1/projects/raven_ros/raven_2/src/raven/get_USB_packet.cpp
+	"get_USB_packet.h"
+
+1303950394 source:/misc/users/home1/hawkeye1/projects/raven_ros/raven_2/src/raven/globals.cpp
+	"struct.h"
+	"USB_init.h"
+	"trajectory_gen.h"
+
+1304714356 source:/misc/users/home1/hawkeye1/projects/raven_ros/raven_2/src/raven/grasp.cpp
+	"grasp.h"
+
+1303950394 source:/misc/users/home1/hawkeye1/projects/raven_ros/raven_2/src/raven/grav_comp.cpp
+	"grav_comp.h"
+
+1304710240 source:/misc/users/home1/hawkeye1/projects/raven_ros/raven_2/src/raven/init.cpp
+	"init.h"
+	"local_io.h"
+
+1303950394 source:/misc/users/home1/hawkeye1/projects/raven_ros/raven_2/src/raven/inv_cable_coupling.cpp
+	"inv_cable_coupling.h"
+
+1304640603 source:/misc/users/home1/hawkeye1/projects/raven_ros/raven_2/src/raven/inv_kinematics.cpp
+	"inv_kinematics.h"
+
+1303950395 source:/misc/users/home1/hawkeye1/projects/raven_ros/raven_2/src/raven/linear_parabolic_traj.cpp
+	"linear_parabolic_traj.h"
+
+1304714442 source:/misc/users/home1/hawkeye1/projects/raven_ros/raven_2/src/raven/local_io.cpp
+	"log.h"
+	<string.h>
+	<pthread.h>
+	"local_io.h"
+	"mapping.h"
+
+1304710727 source:/misc/users/home1/hawkeye1/projects/raven_ros/raven_2/src/raven/log.cpp
+	<stdio.h>
+	<stdarg.h>
+
+1303950408 source:/misc/users/home1/hawkeye1/projects/raven_ros/raven_2/src/raven/mapping.cpp
+	"mapping.h"
+
+1303950395 source:/misc/users/home1/hawkeye1/projects/raven_ros/raven_2/src/raven/motor.cpp
+	"motor.h"
+
+1304639599 source:/users/home1/hawkeye1/projects/raven_ros/raven_2/src/raven/USB_init.cpp
+	"USB_init.h"
+	<string.h>
+
+1303950394 source:/users/home1/hawkeye1/projects/raven_ros/raven_2/src/raven/asinw.cpp
+	"asinw.h"
+
+1303950394 source:/users/home1/hawkeye1/projects/raven_ros/raven_2/src/raven/dof.cpp
+	"dof.h"
+
+1303950410 source:/users/home1/hawkeye1/projects/raven_ros/raven_2/src/raven/fwd_cable_coupling.cpp
+	"fwd_cable_coupling.h"
+
+1303950395 source:/users/home1/hawkeye1/projects/raven_ros/raven_2/src/raven/fwd_kinematics.cpp
+	"fwd_kinematics.h"
+
+1303950410 source:/users/home1/hawkeye1/projects/raven_ros/raven_2/src/raven/get_USB_packet.cpp
+	"get_USB_packet.h"
+
+1303950394 source:/users/home1/hawkeye1/projects/raven_ros/raven_2/src/raven/globals.cpp
+	"struct.h"
+	"USB_init.h"
+	"trajectory_gen.h"
+
+1304714356 source:/users/home1/hawkeye1/projects/raven_ros/raven_2/src/raven/grasp.cpp
+	"grasp.h"
+
+1303950394 source:/users/home1/hawkeye1/projects/raven_ros/raven_2/src/raven/grav_comp.cpp
+	"grav_comp.h"
+
+1304710240 source:/users/home1/hawkeye1/projects/raven_ros/raven_2/src/raven/init.cpp
+	"init.h"
+	"local_io.h"
+
+1303950394 source:/users/home1/hawkeye1/projects/raven_ros/raven_2/src/raven/inv_cable_coupling.cpp
+	"inv_cable_coupling.h"
+
+1304640603 source:/users/home1/hawkeye1/projects/raven_ros/raven_2/src/raven/inv_kinematics.cpp
+	"inv_kinematics.h"
+
+1303950395 source:/users/home1/hawkeye1/projects/raven_ros/raven_2/src/raven/linear_parabolic_traj.cpp
+	"linear_parabolic_traj.h"
+
+1304714442 source:/users/home1/hawkeye1/projects/raven_ros/raven_2/src/raven/local_io.cpp
+	"log.h"
+	<string.h>
+	<pthread.h>
+	"local_io.h"
+	"mapping.h"
+
+1304710727 source:/users/home1/hawkeye1/projects/raven_ros/raven_2/src/raven/log.cpp
+	<stdio.h>
+	<stdarg.h>
+
+1303950408 source:/users/home1/hawkeye1/projects/raven_ros/raven_2/src/raven/mapping.cpp
+	"mapping.h"
+
+1303950395 source:/users/home1/hawkeye1/projects/raven_ros/raven_2/src/raven/motor.cpp
+	"motor.h"
+
+1304983067 source:/users/home1/hawkeye1/projects/raven_ros/raven_2/src/raven/network_layer.cpp
+	<sys/types.h>
+	<sys/socket.h>
+	<sys/time.h>
+	<netinet/in.h>
+	<netdb.h>
+	<arpa/inet.h>
+	<ctype.h>
+	<errno.h>
+	<stdio.h>
+	<fcntl.h>
+	<time.h>
+	<stdlib.h>
+	<string.h>
+	<unistd.h>
+	"itp_teleoperation.h"
+	"DS0.h"
+	"DS1.h"
+
+1303950394 source:/users/home1/hawkeye1/projects/raven_ros/raven_2/src/raven/overdrive_detect.cpp
+	"overdrive_detect.h"
+
+1303950408 source:/users/home1/hawkeye1/projects/raven_ros/raven_2/src/raven/parallel.cpp
+	"parallel.h"
+
+1303950395 source:/users/home1/hawkeye1/projects/raven_ros/raven_2/src/raven/pd_control.cpp
+	"pd_control.h"
+
+1303950395 source:/users/home1/hawkeye1/projects/raven_ros/raven_2/src/raven/pulley_board_init.cpp
+	"pulley_board_init.h"
+
+1303950394 source:/users/home1/hawkeye1/projects/raven_ros/raven_2/src/raven/pulley_board_kinematics.cpp
+	"pulley_board_kinematics.h"
+
+1303950395 source:/users/home1/hawkeye1/projects/raven_ros/raven_2/src/raven/put_USB_packet.cpp
+	"put_USB_packet.h"
+	"USB_init.h"
+
+1304722020 source:/users/home1/hawkeye1/projects/raven_ros/raven_2/src/raven/rt_process_preempt.cpp
+	"rt_process_preempt.h"
+	<stdlib.h>
+	<stdio.h>
+	<sys/mman.h>
+	<unistd.h>
+	<malloc.h>
+	<sys/time.h>
+	<sys/resource.h>
+	<sched.h>
+	<signal.h>
+	<stropts.h>
+	<time.h>
+	<pthread.h>
+	<string.h>
+	<iostream>
+	<ros/ros.h>
+	<fcntl.h>
+	<sys/stat.h>
+
+1303950410 source:/users/home1/hawkeye1/projects/raven_ros/raven_2/src/raven/state_estimate.cpp
+	"state_estimate.h"
+
+1303950395 source:/users/home1/hawkeye1/projects/raven_ros/raven_2/src/raven/state_machine.cpp
+	"state_machine.h"
+	<sys/times.h>
+
+1304714934 source:/users/home1/hawkeye1/projects/raven_ros/raven_2/src/raven/system_id.cpp
+	"system_id.h"
+
+1303950410 source:/users/home1/hawkeye1/projects/raven_ros/raven_2/src/raven/t_to_DAC_val.cpp
+	"t_to_DAC_val.h"
+
+1303950395 source:/users/home1/hawkeye1/projects/raven_ros/raven_2/src/raven/trajectory_gen.cpp
+	"trajectory_gen.h"
+	"defines.h"
+
+1304641659 source:/users/home1/hawkeye1/projects/raven_ros/raven_2/src/raven/trajectory_gen_ee449.cpp
+	"trajectory_gen_ee449.h"
+	"trajectory_gen.h"
+
+1303950394 source:/users/home1/hawkeye1/projects/raven_ros/raven_2/src/raven/update_atmel_io.cpp
+	"update_atmel_io.h"
+
+1303950410 source:/users/home1/hawkeye1/projects/raven_ros/raven_2/src/raven/update_device_state.cpp
+	"update_device_state.h"
+
+1303950408 source:/users/home1/hawkeye1/projects/raven_ros/raven_2/src/raven/utils.cpp
+	"utils.h"
+
+1303950394 source:/users/home1/hawkeye1/projects/raven_ros/raven_2/src/raven/velocity.cpp
+	"velocity.h"
+

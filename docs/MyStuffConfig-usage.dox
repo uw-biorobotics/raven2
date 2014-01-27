@@ -1,0 +1,20 @@
+\subsubsection usage Usage
+\verbatim
+<node name="dynamic_reconfigure_node" pkg="raven_2" type="dynamic_reconfigure_node">
+  <param name="shoulder_l" type="double" value="0.0" />
+  <param name="elbow_l" type="double" value="0.0" />
+  <param name="insertion_l" type="double" value="0.0" />
+  <param name="roll_l" type="double" value="0.0" />
+  <param name="wrist_l" type="double" value="0.0" />
+  <param name="grasp1_l" type="double" value="0.0" />
+  <param name="grasp2_l" type="double" value="0.0" />
+  <param name="shoulder_r" type="double" value="0.0" />
+  <param name="elbow_r" type="double" value="0.0" />
+  <param name="insertion_r" type="double" value="0.0" />
+  <param name="roll_r" type="double" value="0.0" />
+  <param name="wrist_r" type="double" value="0.0" />
+  <param name="grasp1_r" type="double" value="0.0" />
+  <param name="grasp2_r" type="double" value="0.0" />
+</node>
+\endverbatim
+
