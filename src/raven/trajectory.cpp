@@ -18,11 +18,12 @@
  */
 
 /**
-*    File: trajectory.h
-*    Created by Hawkeye 10/2011
+*    \file trajectory.h
+*    \author  Hawkeye
+*    \version 10/2011
 *
 *    Generate joint and cartesian trajectories.
-*    Internal datastructures track trajectory state, and update DOFs as needed upon calling.
+*    Internal data structures track trajectory state, and update DOFs as needed upon calling.
 */
 
 #include <ros/ros.h>
@@ -35,6 +36,16 @@
 extern unsigned long int gTime;
 
 // Store trajectory parameters
+/**  \var trajectory        A global array of _trajectories, one for each DOF in each Mechanism
+ *
+ *
+ *     \var startTime       must be in ROS's ros::Time format
+ *     \var end_pos         Final position (units are context dependent)
+ *     \var magnitude       Amplitude of a sinusoidal trajectory
+ *     \var period          Period of sinusoid (seconds)
+ *     \var startPos        Starting position
+ *     \var startVel        Initial velocity
+ */
 struct _trajectory
 {
     ros::Time startTime;
@@ -49,7 +60,27 @@ struct _trajectory trajectory[MAX_MECH*MAX_DOF_PER_MECH];
 
 /**
 *  start_velocity_trajectory()
-*    initialize trajectory parameters
+*    initialize trajectory parameters. Magnitude is set according to difference between _endPos and current joint position.
+*
+*   \param  _joint    DOF struct for specific joint
+*   \param  _endPos   ending position
+*   \param _period    duration ( of one cycle)
+*
+*  The following types of trajectories can be generated (all using the global variable trajectory).  There are two ways to start all trajectories,
+*
+*  - start_trajectory(), a trajectory relative to current position and velocity with specified ending position
+*  - start_trajectory_mag(),  a trajectory relative to current position and velocity with specified magnitude
+*
+*
+*Then each trajectory is updated at each control cycle  in one of 5 ways;
+*   -# Sinusoidal Velocity    SHOULDER_GOLD only (update_sinusoid_velocity_trajectory())
+*   -# Sinusoidal Velocity    GOLD arm 1st three joints only (update_linear_sinusoid_velocity_trajectory())
+*   -# Sinusoidal Position    All joints (update_sinusoid_position_trajectory())
+*   -# Single 1/2 cycle           All joints (update_linear_sinusoid_position_trajectory())
+*   -# Single full cycle      All joints (update_position_trajectory())
+*
+* \todo The trajectory generator seems to have a lot of hacks and special cases.  Need more general refactoring.  Also consider polynomial trajectories.
+*
 */
 int start_trajectory(struct DOF* _joint, float _endPos, float _period)
 {
@@ -70,7 +101,10 @@ int start_trajectory(struct DOF* _joint, float _endPos, float _period)
 }
 /**
 *  start_velocity_trajectory()
-*    initialize trajectory parameters
+*    initialize trajectory parameters.  Start of this trajectory will be the current state: i.e. the position and velocity at this time.
+*   \param  _joint    DOF struct for specific joint
+*   \param  _mag      how big a move
+*   \param _period    duration ( of one cycle)
 */
 int start_trajectory_mag(struct DOF* _joint, float _mag, float _period)
 {
@@ -89,6 +123,9 @@ int start_trajectory_mag(struct DOF* _joint, float _mag, float _period)
 *   stop_velocity_trajectory()
 *      Set jvel zero
 *      Zero torque
+*
+*   \param  _joint    DOF struct for specific joint
+*
 */
 int stop_trajectory(struct DOF* _joint)
 {
@@ -106,7 +143,9 @@ int stop_trajectory(struct DOF* _joint)
 /**
 *  update_sinusoid_trajectory()
 *        find next trajectory waypoint
-*        Sinusoid trajcetory
+*        Sinusoid trajectory
+*
+* \todo This seems to only work for a single joint of the GOLD arm???
 */
 int update_sinusoid_velocity_trajectory(struct DOF* _joint)
 {
@@ -135,6 +174,8 @@ int update_sinusoid_velocity_trajectory(struct DOF* _joint)
 *  update_linear_sinusoid_trajectory()
 *     find next trajectory waypoint.
 *     Sinusoid ramp up and linear velocity after peak.
+*
+* \todo Why is this specific to the GOLD arm 1st three joints only?
 */
 int update_linear_sinusoid_velocity_trajectory(struct DOF* _joint)
 {
@@ -166,6 +207,8 @@ int update_linear_sinusoid_velocity_trajectory(struct DOF* _joint)
 *  update_sinusoid_position_trajectory()
 *     find next trajectory waypoint.
 *     Sinusoidal position trajectory
+*
+*   /todo What is the underlying equation?  Why piecewise at f_period/4??
 */
 int update_sinusoid_position_trajectory(struct DOF* _joint)
 {

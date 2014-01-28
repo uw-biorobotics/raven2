@@ -19,7 +19,7 @@
 
 /**
 *
-*   \file homing.cpp
+*   \file homing.h
 *
 *   Created 3-Nov-2011 by Hawkeye King
 *
