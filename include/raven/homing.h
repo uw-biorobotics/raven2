@@ -19,7 +19,7 @@
 
 /**
 *
-*   File: homing.cpp
+*   \file homing.cpp
 *
 *   Created 3-Nov-2011 by Hawkeye King
 *
@@ -28,5 +28,10 @@
 */
 #include "DS0.h"
 
+/** prototype for homing()
+ */
 void homing(struct DOF*);
+
+/** prototype for check_homing_condition()
+ */
 int check_homing_condition(struct DOF*);
