@@ -38,23 +38,23 @@ end
 
  *********************************************/
 
-#include <sys/types.h>  // provides FD_SET, FD_CLR, etc.
-#include <sys/socket.h> // provides socket constants
-#include <sys/time.h>   // provides timers
-#include <netinet/in.h> // defines socket ip protocols/address structs
-#include <netdb.h>      // port/hostname lookup features.
-#include <arpa/inet.h>
-#include <ctype.h>
-#include <errno.h>
-#include <stdio.h>
-#include <fcntl.h>
-#include <time.h>
-#include <ros/ros.h>     // Use ROS
-#include <ros/console.h>
+#include <sys/types.h>  // POSIX library: defines data types, provides FD_SET, FD_CLR, etc.
+#include <sys/socket.h> // POSIX library: Internet Protocol family, provides socket constants
+#include <sys/time.h>   // POSIX library: provides timers, time types and structures
+#include <netinet/in.h> // POSIX library: defines socket ip protocols/address structs
+#include <netdb.h>      // POSIX library: Definitions for network database operations, port/hostname lookup features.
+#include <arpa/inet.h>  // POSIX library: Definitions for internet operations
+#include <ctype.h>      // C Standard library: declares a set of functions to classify and transfrom individual characters
+#include <errno.h>      // C Standard library: Defines macros to report error conditions
+#include <stdio.h>      // C Standard library: Input and output operations
+#include <fcntl.h>      // C Standard library: File control options
+#include <time.h>       // C Standard library: timer, time types and structures
+#include <ros/ros.h>    // Use ROS
+#include <ros/console.h>// ROS console output header for ROS_DEBUG, unused  
 
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
+#include <stdlib.h>     // C Standard library: General Utilities Library
+#include <string.h>     // C Standard library: String operations
+#include <unistd.h>     // POSIX library: standard symbolic constants and types
 //#include <rtai_fifos.h>
 
 #include "itp_teleoperation.h"
@@ -62,12 +62,17 @@ end
 #include "DS1.h"
 #include "log.h"
 
-#define SERVER_PORT  "36000"
+#define SERVER_PORT  "36000"             // used if the robot needs to send data to the server
 //#define SERVER_ADDR  "192.168.0.102"
-#define SERVER_ADDR  "128.95.205.206"
+#define SERVER_ADDR  "128.95.205.206"    // used only if the robot needs to send data to the server
 
-extern int recieveUserspace(void *u,int size);
+extern int recieveUserspace(void *u,int size);  // Defined in the local_io.cpp
 
+/*! int initSock (const char* port );
+  \brief This function initializes a socket
+  \param port is a constant character pointer
+  \return 0 if unitialized; non-negative integer(request_sock) if initialized sucessfully
+ */
 int initSock (const char* port )
 {
     int request_sock;
@@ -115,7 +120,13 @@ int initSock (const char* port )
     return request_sock;
 }
 
-// Calculate checksum for a teleop packet
+
+/*! int UDPChecksum(struct u_struct *u);
+  \brief Calculate chesum for a teleoperation packet, not called anywhere
+  \param u a u_struct pointer
+  \struct u_struct structure passed from master to slave itp_teleoperation.h 
+  \return positive integer number
+ */
 int UDPChecksum(struct u_struct *u)
 {
     int chk=0;
@@ -129,12 +140,18 @@ int UDPChecksum(struct u_struct *u)
 }
 
 
+// \todo DELET line 144-147? why volatile v_struct?
 // Chek packet validity, incl. sequence numbering and checksumming
 //int checkPacket(struct u_struct &u, int seq);
-
 // main //
 volatile struct v_struct v;
 
+
+/*! void* network_process(void*);
+  \brief This function receives and reads the udp package from the network in realtime, executed as an rt thread in rt_process_preempt.cpp 
+  \param param1 void pointer
+  \return void 
+*/
 void* network_process(void* param1)
 {
     int sock;              // sockets.
@@ -190,8 +207,8 @@ void* network_process(void* param1)
     clientLength=sizeof(clientName);
 
     ///// initialize data polling
-    FD_ZERO(&mask);
-    FD_SET(sock, &mask);
+    FD_ZERO(&mask);            // initialize a descriptor set fdset mask to the null set
+    FD_SET(sock, &mask);       // add the descriptor sock in fdset mask
     maxfd=sock;
 
     log_msg("Network layer ready.");
@@ -204,6 +221,7 @@ void* network_process(void* param1)
         timeout.tv_usec = 0; //        ""
 
         // wait for i/o lines to change state //
+        // Select() examines the I/O descriptor sets whose addresses are passed in fe_sets and returns the total number of ready descriptors in all the sets
         nfound = select(maxfd+1, &rmask, (fd_set *)0, (fd_set *)0, &timeout);
 
         // Select error
@@ -226,7 +244,7 @@ void* network_process(void* param1)
         }
 
         // Select: data on socket
-        if (FD_ISSET( sock, &rmask))
+        if (FD_ISSET( sock, &rmask))   // check whether the diescriptor sock is added to the fdset mask
         {
             bytesread = recvfrom(sock,
                                  &u,
@@ -236,7 +254,7 @@ void* network_process(void* param1)
                                  NULL);
             if (bytesread != uSize){
                 ROS_ERROR("ERROR: Rec'd wrong ustruct size on socket!\n");
-                FD_CLR(sock, &rmask);
+                FD_CLR(sock, &rmask);   // remove the descriptor sock from fdset rmask
                 continue;
             }
 
@@ -285,7 +303,7 @@ void* network_process(void* param1)
             else if (u.sequence > seq)       // Valid packet
             {
                 seq = u.sequence;
-                recieveUserspace(&u,uSize);
+                recieveUserspace(&u,uSize);   // coordinates transform from ITP frame to robot 0 frame
             }
 
 
@@ -312,7 +330,7 @@ void* network_process(void* param1)
                  (struct sockaddr *) &clientName, clientLength);
 #endif
 
-    } // while(1)
+    } // end while(ros::ok())
 
     close(sock);
 
