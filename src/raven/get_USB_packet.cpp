@@ -17,14 +17,13 @@
  * along with Raven 2 Control.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/*
- * get_USB_packet.c
- *
- * Kenneth Fodero
- * Biorobotics Lab
- * 2005
- *
- */
+ /**\file get_USB_packet.cpp
+ * \author Kenneth Fodero
+ * \date 2005
+ * \brief contains functions for initializing the robot
+ * intializes the DOF structure AND runs initialization routine
+*/
+
 
 #include "get_USB_packet.h"
 #include "parallel.h"
@@ -32,11 +31,12 @@
 extern unsigned long int gTime;
 extern USBStruct USBBoards;
 
+/**\fn void initiateUSBGet(struct device *device0)
+  \brief Initiate data request from USB Board. Must be called before read
+  \struct device  
+  \param device0 pointer to device struct
+*/
 
-/**
- * initiateUSBGet() - Initiate data request from USB Board. Must be called before read
- *   DS0 data structure.
- */
 void initiateUSBGet(struct device *device0)
 {
   int i;
@@ -53,15 +53,14 @@ void initiateUSBGet(struct device *device0)
     }
 }
 
-/**
- * getUSBPackets() - Takes data from USB packet(s) and uses it to fill the
- *   DS0 data structure.
- *
- * inputs - device - the data structure to fill
- * outputs - returns zero on success
- *           returns negative on failure
- *
- */
+/**\fn int getUSBPackets(struct device *device0)
+  \brief Takes data from USB packet(s) and uses it to fill the
+ *   DS0 data structure
+  \struct device  
+  \param device0 pointer to device struct
+  \return zero on success and negative on failure
+*/
+
 int getUSBPackets(struct device *device0)
 {
     int ret = 0;
@@ -85,17 +84,15 @@ int getUSBPackets(struct device *device0)
     return ret;
 }
 
-/**
- * getUSBPacket() - Takes data from a USB packet and uses it to fill the
- *   DS0 data structure.
- *
- * inputs - mechanism - the data structure to fill
- *          id - the USB board to read from
- *
- * output - returns zero
- *          returns negative on failure
- *
- */
+/**\fn int getUSBPacket(int id, struct mechanism *mech)
+  \brief Takes data from a USB packet and uses it to fill the
+ *   DS0 data structure
+  \struct mechanism the data structure to fill
+  \param mech pointer to mechanism struct
+  \param id the USB board to read from
+  \return zero on success and negative on failure
+*/
+
 int getUSBPacket(int id, struct mechanism *mech)
 {
     int result, type;
@@ -128,6 +125,11 @@ int getUSBPacket(int id, struct mechanism *mech)
     return 0;
 }
 
+/**\fn void processEncoderPacket(struct mechanism* mech, unsigned char buffer[])
+  \struct mechanism the data structure to fill
+  \param mech pointer to mechanism struct
+  \param buffer
+*/
 void processEncoderPacket(struct mechanism* mech, unsigned char buffer[])
 {
     int i, numChannels;
