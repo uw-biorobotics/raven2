@@ -16,19 +16,13 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Raven 2 Control.  If not, see <http://www.gnu.org/licenses/>.
  */
-
-
-/**
- * init.c - contains functions for initializing the robot
- *
- * Kenneth Fodero
- * Mitch Lum
- * Biorobotics Lab
- * Started July 29, 2005
- *
- * Modified by Hawkeye King, Peter Felts, Brian and Jason.
- *
- */
+ 
+ /**\file init.cpp
+ * \author Hawkeye King
+ * \date 7/29/2005
+ * \version 
+ * \brief contains functions for initializing the robot
+*/
 
 #include <ros/console.h>
 
