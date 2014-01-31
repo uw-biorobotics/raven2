@@ -18,8 +18,9 @@
  */
 
 /**
-* File: rt_raven.cpp
-* Created 13-oct-2011 by Hawkeye
+* \file rt_raven.cpp
+* \author Hawkeye
+* \version 10/2011
 *
 *   Runs all raven control functions.
 *   Code split out from rt_process_preempt.cpp, in order to provide more flexibility.
@@ -47,10 +48,10 @@
 #include "update_device_state.h"
 #include "parallel.h"
 
-extern int NUM_MECH;
-extern unsigned long int gTime;
-extern struct DOF_type DOF_types[];
-extern t_controlmode newRobotControlMode;
+extern int NUM_MECH; //Defined in rt_process_preempt.cpp
+extern unsigned long int gTime; //Defined in rt_process_preempt.cpp
+extern struct DOF_type DOF_types[]; //Defined in DOF_type.h
+extern t_controlmode newRobotControlMode; //Defined in struct.h
 
 int raven_cartesian_space_command(struct device *device0, struct param_pass *currParams);
 int raven_joint_velocity_control(struct device *device0, struct param_pass *currParams);
@@ -59,7 +60,7 @@ int raven_homing(struct device *device0, struct param_pass *currParams, int begi
 int applyTorque(struct device *device0, struct param_pass *currParams);
 int raven_sinusoidal_joint_motion(struct device *device0, struct param_pass *currParams);
 
-extern int initialized;
+extern int initialized; //Defined in rt_process_preempt.cpp
 
 /**
 * controlRaven()
@@ -68,13 +69,25 @@ extern int initialized;
 *                    runlevel has been set
 *     postcondition: robot state is reflected in device0,
 *                    DAC outputs are set in device0
+* \param device0 robot_device struct defined in DS0.h
+* \param currParam param_pass struct defined in DS1.h
+* This function first initializes the robot and then it computes Mpos and Velocities by calling
+* stateEstimate() and then it calls fwdCableCoupling() and r2_fwd_kin() to calculate the forward cable coupling
+* inverse kinematics respectively. 
+* The following types of control can be selected from the control mode:
+*  -No control
+*  -Cartesian Space Control
+*  -Motor PD Control
+*  -Joint Velocity Control
+*  -Homing mode
+*  -Applying arbitrary torque
 *
 */
 int controlRaven(struct device *device0, struct param_pass *currParams){
     int ret = 0;
     t_controlmode controlmode = (t_controlmode)currParams->robotControlMode;
 
-    //Initi zalization code
+    //Initialization code
     initRobotData(device0, currParams->runlevel, currParams);
 
     //Compute Mpos & Velocities
