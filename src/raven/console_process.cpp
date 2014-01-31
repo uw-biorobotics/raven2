@@ -18,9 +18,12 @@
  */
 
 /**
-*  File: console_process.cpp
-*
-*  Outputs data to the console periodically, so that we know our robot is alives.
+*  \file: console_process.cpp
+*  \author Hawkeye
+*  \version 
+*  \brief Lets the user to set different control modes and outputs data to the console periodically.
+*   User can toggle to either specify joint torque, set control mode, or toggle console messages.
+*  
 */
 
 #include <stdio.h>
@@ -34,9 +37,9 @@
 using namespace std;
 
 // from rt_process.cpp
-extern struct device device0;
+extern struct device device0;//robot_device struct defined in DS0.h 
 
-extern unsigned long int gTime;
+extern unsigned long int gTime;//Defined in rt_process
 extern int soft_estopped;
 extern struct DOF_type DOF_types[];
 extern std::queue<char*> msgqueue;
