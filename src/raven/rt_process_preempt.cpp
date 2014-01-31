@@ -17,6 +17,7 @@
  * along with Raven 2 Control.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+
 /**
  * PREEMPT_RT Raven control implementation
  * RTAI version info
@@ -27,6 +28,14 @@
  * BioRobotics Lab, University of Washington
  * ken@ee.washington.edu
  *
+ */
+
+ /**
+ *  \file rt_process_preempt.cpp 
+ *  \author Hawkeye King and Ken Fodero
+ *  \brief PREEMPT_RT Raven control implementation
+ *  
+ *  Configures and starts the RAVEN control RT process.
  */
 
 #include <stdlib.h>
@@ -88,7 +97,10 @@ extern struct DOF_type DOF_types[];
 // flag to kill loops and stuff
 int r2_kill = 0;
 
-// End process on ctrl-c.
+/**
+* Traps the Ctrl-C Signal
+* \param sig The signal number sent.
+*/
 void sigTrap(int sig){
   log_msg("r2_control terminating on signal %d\n", sig);
   r2_kill = 1;
@@ -96,9 +108,9 @@ void sigTrap(int sig){
 }
 
 /**
- *From PREEMPT_RT Dynamic memory allocation tips page.
- *This function creates a pool of memory in ram for use with any malloc or new calls so that they do not cause page faults.
- *https://rt.wiki.kernel.org/index.php/Dynamic_memory_allocation_example
+ *  From PREEMPT_RT Dynamic memory allocation tips page.
+ *  This function creates a pool of memory in ram for use with any malloc or new calls so that they do not cause page faults.
+ *  https://rt.wiki.kernel.org/index.php/Dynamic_memory_allocation_example
  */
 int initialize_rt_memory_pool()
 {
@@ -299,7 +311,9 @@ static void *rt_process(void* )
 
 
 
-/**Initialize by initializing usb boards, etc*/
+/**
+* Initializes USB boards.
+*/
 int init_module(void)
 {
   log_msg("Initializing USB I/O...");
@@ -318,6 +332,11 @@ int init_module(void)
   return 0;
 }
 
+/**
+* Initializes the raven ROS node
+* \param argc Number of string arguments
+* \param argv Arguments as character arrays
+*/
 int init_ros(int argc, char **argv)
 {
   /**
@@ -332,6 +351,11 @@ int init_ros(int argc, char **argv)
   return 0;
 }
 
+/**
+* Main entry point for the raven RT control system.
+* \param argc Number of string arguments
+* \param argv Arguments as character arrays
+*/
 int main(int argc, char **argv)
 { 
   // set ctrl-C handler (override ROS b/c it's slow to cancel)
