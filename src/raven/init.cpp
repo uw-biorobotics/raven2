@@ -53,6 +53,15 @@ extern int soft_estopped;
  * \param currParams pointer to param struct containing current params?
  */
 
+/**\fn void initRobotData (struct device *device0, int runlevel, struct param_pass *currParams)
+  \brief This function initializes the robot data
+  \struct device  
+  \struct param_pass 
+  \param device0
+  \param runlevel
+  \param currParams
+  \return 
+*/
 void initRobotData(struct device *device0, int runlevel, struct param_pass *currParams)
 {
     // init_wait_loop is a klugy way to wait a few times through the loop for our kinematics to propogate.
@@ -108,12 +117,13 @@ void initRobotData(struct device *device0, int runlevel, struct param_pass *curr
     return;
 }
 
-/**
- * initDOFStructs() - intializes all structures which are not DOF specific
- *
- * \param device0 pointer to device struct.
- *
- */
+
+ /**\fn void initDOFs(struct device *device0)
+  \brief This function intializes all structures which are not DOF specific
+  \struct device  
+  \param device0 pointer to device struct
+  \return 
+*/
 void initDOFs(struct device *device0)
 {
     static int dofs_inited=0;
@@ -377,17 +387,16 @@ void initDOFs(struct device *device0)
     dofs_inited=1;
 }
 
-/**
- * init_ravengains( ros::NodeHandle n)
- *
- *  Get ravengains from ROS parameter server.
- *
- *  WARNING:
- *      The order of gains in the parameter is very important.
- *      Make sure that numerical order of parameters matches the numerical order of the dof types.
- *
- *  postcondition: dof_types[].kp and dof_types[].kd have been set from ROS parameters
- */
+
+/**\fn int init_ravengains(ros::NodeHandle n, struct device *device0)
+  \brief Get ravengains from ROS parameter server.
+  \struct device  
+  \param device0 pointer to device struct
+  \warning The order of gains in the parameter is very important.
+ *      Make sure that numerical order of parameters matches the numerical order of the dof types
+  \post dof_types[].kp and dof_types[].kd have been set from ROS parameters
+  \return 
+*/ 
 int init_ravengains(ros::NodeHandle n, struct device *device0)
 {
     XmlRpc::XmlRpcValue kp_green, kp_gold, kd_green, kd_gold, ki_green, ki_gold;
@@ -486,12 +495,13 @@ int init_ravengains(ros::NodeHandle n, struct device *device0)
     return 0;
 }
 
-/**
- * setStartXYZ() - set the starting xyz coordinate (pos_d = pos)
- *
- * \param device0 - pointer to device
- *
- */
+ 
+/**\fn void setStartXYZ(struct device *device0)
+  \brief set the starting xyz coordinate (pos_d = pos)
+  \struct device  
+  \param device0 pointer to device 
+  \return 
+*/ 
 void setStartXYZ(struct device *device0)
 {
     int i;
@@ -525,7 +535,7 @@ void setStartXYZ(struct device *device0)
 }
 
 
-
+/** \todo what is the function of the following commented code; shall we get rid of them??
 
 
 
