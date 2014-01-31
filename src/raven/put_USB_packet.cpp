@@ -17,14 +17,10 @@
  * along with Raven 2 Control.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/**
- * put_USB_packet.c
- *
- * Kenneth Fodero
- * Biorobotics Lab
- * 2005
- *
- */
+ /**\file get_USB_packet.cpp
+ * \author Kenneth Fodero
+ * \date 2005
+*/
 
 #include "put_USB_packet.h"
 #include "USB_init.h"
@@ -34,12 +30,12 @@
 extern unsigned long int gTime;
 extern USBStruct USBBoards;
 
-/**
- * putUSBPackets() - Takes data from robot to send to USB board(s)
- *
- * inputs - device - the device data structure
- *
- */
+/**\fn void putUSBPackets(struct device *device0)
+  \brief Takes data from robot to send to USB board(s)
+  \struct device  
+  \param device0 pointer to device struct
+*/
+
 void putUSBPackets(struct device *device0)
 {
     //Loop through all USB Boards
@@ -52,16 +48,16 @@ void putUSBPackets(struct device *device0)
     }
 }
 
-/**
- * putUSBPacket() - Takes data from mech struct and uses it to fill a USB
+
+/**\fn int putUSBPacket(int id, struct mechanism *mech)
+  \brief Takes data from mech struct and uses it to fill a USB
  *   packet on specified board
- *
- * inputs - id - the usb board id number (serial#)
- *          mech - the data structure to get data from
- *
- * output - success of the operation
- *
- */
+  \struct mechanism the data structure to get data from
+  \param mech pointer to mechanism struct
+  \param id the usb board id number (serial#)
+  \return success of the operation
+*/
+
 int putUSBPacket(int id, struct mechanism *mech)
 {
     int i = 0;
