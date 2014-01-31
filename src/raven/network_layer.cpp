@@ -17,26 +17,23 @@
  * along with Raven 2 Control.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/**********************************************
- *
- * file: network_layer.cpp
- * author: Hawkeye King
- * create date: 3/13/2004
- *
- *  I read data out of fifo0 and put it on the network
- *  I listen to a network socket and put incoming data on fifo1
- *
- *  I output a message every 1000 packets
- *
- *********************************************
+/**\file network_layer.cpp
+ * \author Hawkeye King
+ * \date 3/13/2004
+ * \brief network thread
+ *  read data out of fifo0 and put it on the network, 
+ *  listen to a network socket and put incoming data on fifo1, 
+ *  output a message every 1000 packets.
+ * \version
+ * ------------------------------------------
+ * start
+ * open socket on port 36000
+ * listen on socket.
+ * print whatever comes in over socket.
+ * end
+ * -------------------------------------------
+*/
 
-start
-  open socket on port 36000
-  listen on socket.
-  print whatever comes in over socket.
-end
-
- *********************************************/
 
 #include <sys/types.h>  // POSIX library: defines data types, provides FD_SET, FD_CLR, etc.
 #include <sys/socket.h> // POSIX library: Internet Protocol family, provides socket constants
@@ -68,11 +65,11 @@ end
 
 extern int recieveUserspace(void *u,int size);  // Defined in the local_io.cpp
 
-/*! int initSock (const char* port );
+/**\fn int initSock (const char* port )
   \brief This function initializes a socket
   \param port is a constant character pointer
   \return 0 if unitialized; non-negative integer(request_sock) if initialized sucessfully
- */
+*/
 int initSock (const char* port )
 {
     int request_sock;
@@ -121,12 +118,12 @@ int initSock (const char* port )
 }
 
 
-/*! int UDPChecksum(struct u_struct *u);
+/**\fn int UDPChecksum(struct u_struct *u)
   \brief Calculate chesum for a teleoperation packet, not called anywhere
   \param u a u_struct pointer
   \struct u_struct structure passed from master to slave itp_teleoperation.h 
   \return positive integer number
- */
+*/
 int UDPChecksum(struct u_struct *u)
 {
     int chk=0;
@@ -147,7 +144,7 @@ int UDPChecksum(struct u_struct *u)
 volatile struct v_struct v;
 
 
-/*! void* network_process(void*);
+/**\fn void* network_process(void*)
   \brief This function receives and reads the udp package from the network in realtime, executed as an rt thread in rt_process_preempt.cpp 
   \param param1 void pointer
   \return void 
