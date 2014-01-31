@@ -22,6 +22,7 @@
  * \date 7/29/2005
  * \version 
  * \brief contains functions for initializing the robot
+ * intializes the DOF structure AND runs initialization routine
 */
 
 #include <ros/console.h>
@@ -45,21 +46,14 @@ extern USBStruct USBBoards;
 extern int NUM_MECH;
 extern int soft_estopped;
 
-/**
- * init() - intializes the DOF structure AND runs initialization routine.  *sigh*
- *
- * \param device0 pointer to device struct.
- * \param runlevel Runlevel
- * \param currParams pointer to param struct containing current params?
- */
 
 /**\fn void initRobotData (struct device *device0, int runlevel, struct param_pass *currParams)
   \brief This function initializes the robot data
   \struct device  
   \struct param_pass 
-  \param device0
-  \param runlevel
-  \param currParams
+  \param device0 pointer to device struct
+  \param runlevel 
+  \param currParams pointer to param struct containing current params
   \return 
 */
 void initRobotData(struct device *device0, int runlevel, struct param_pass *currParams)
