@@ -21,13 +21,13 @@
 * \file rt_raven.cpp
 * \author Hawkeye
 * \version 10/2011
-*
+* \brief raven control functions
 *   Runs all raven control functions.
 *   Code split out from rt_process_preempt.cpp, in order to provide more flexibility.
 *
 */
 
-#include <ros/ros.h>
+#include <ros/ros.h>  //ROS libraries
 
 #include "rt_raven.h"
 #include "defines.h"
@@ -69,6 +69,8 @@ extern int initialized; //Defined in rt_process_preempt.cpp
 *                    runlevel has been set
 *     postcondition: robot state is reflected in device0,
 *                    DAC outputs are set in device0
+* \fn int controlRaven(struct device *device0, struct param_pass *currParams)
+* \brief This funtion controls the Raven based on the desired control mode.
 * \param device0 robot_device struct defined in DS0.h
 * \param currParam param_pass struct defined in DS1.h
 * This function first initializes the robot and then it computes Mpos and Velocities by calling
@@ -85,6 +87,7 @@ extern int initialized; //Defined in rt_process_preempt.cpp
 */
 int controlRaven(struct device *device0, struct param_pass *currParams){
     int ret = 0;
+    //Desired control mode
     t_controlmode controlmode = (t_controlmode)currParams->robotControlMode;
 
     //Initialization code
@@ -102,7 +105,7 @@ int controlRaven(struct device *device0, struct param_pass *currParams){
 
     switch (controlmode){
 
-
+        //CHECK ME: what is the purpose of this mode?
         case no_control:
         {
             initialized = false;
@@ -121,21 +124,21 @@ int controlRaven(struct device *device0, struct param_pass *currParams){
 
         	break;
         }
-
+	//Cartesian Space Control is called to control the robot in cartesian space
         case cartesian_space_control:
 	  ret = raven_cartesian_space_command(device0,currParams);
 	  break;
-
+        //Motor PD control runs PD control on motor position
         case motor_pd_control:
             initialized = false;
             ret = raven_motor_position_control(device0,currParams);
             break;
-
+	//Runs joint velocity control
         case joint_velocity_control:
             initialized = false;
             ret = raven_joint_velocity_control(device0, currParams);
             break;
-
+	//Runs homing mode
         case homing_mode:
             initialized = false;
             //initialized = robot_ready(device0) ? true:false;
@@ -149,12 +152,12 @@ int controlRaven(struct device *device0, struct param_pass *currParams){
                 newRobotControlMode = cartesian_space_control;
             }
             break;
-
+	//Runs applyTorque() to set torque command (tau_d) to a joint for debugging purposes
         case apply_arbitrary_torque:
             initialized = false;
             ret = applyTorque(device0, currParams);
             break;
-
+	//Apply sinusoidal trajectory to all joints
         case multi_dof_sinusoid:
             initialized = false;
             ret = raven_sinusoidal_joint_motion(device0, currParams);
@@ -169,9 +172,18 @@ int controlRaven(struct device *device0, struct param_pass *currParams){
     return ret;
 }
 
-/**
-* raven_cartesian_space_command()
-*     runs pd_control on motor position.
+/**\fn int raven_cartesian_space_command(struct device *device0, struct param_pass *currParams)
+*  \brief  This function runs pd_control on motor position.
+*  \param device0 robot_device struct defined in DS0.h
+*  \param currParams param_pass struct defined in DS1.h
+*  \return -1 if Pedal is up and 0 when torque is applied to DAC
+* This function:
+*  1. calls the r2_inv_kin() to calculate the inverse kinematics
+*  2. call the invCableCoupling() to calculate the inverse cable coupling
+*  3. set all the joints to zero if pedal is not down otherwise it calls mpos_PD_control() to run the PD control law
+*  4. calls getGravityTorque() to calulate gravity torques on each joints.
+*  5. calls TorqueToDAC() to apply write torque value's on DAC
+* 
 */
 int raven_cartesian_space_command(struct device *device0, struct param_pass *currParams){
 
