@@ -19,6 +19,9 @@
 
 /**
  * \file init.h
+ * \author Hawkeye
+ * \version 2012
+ * \brief Raven 2 Control Software
  *
  */
 
