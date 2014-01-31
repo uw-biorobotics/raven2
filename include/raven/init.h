@@ -18,7 +18,7 @@
  */
 
 /**
- * \file pulley_board_init.h
+ * \file init.h
  *
  */
 
