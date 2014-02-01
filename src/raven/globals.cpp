@@ -17,16 +17,14 @@
  * along with Raven 2 Control.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/*
- * globals.c - Global variables
- *
- * Kenneth Fodero
- * Biorobotics Lab
- * 2005
- *
+/**\file globals.cpp
+ * \brief define Global variables
+ * \author Kenneth Fodero
+ * \authour Biorobotics Lab
+ * \date 2005
  */
 
-#include "struct.h" /* DS0, DS1, DOF_types defines */
+#include "struct.h"  // DS0, DS1, DOF_types defines
 #include "USB_init.h"
 
 //unsigned long int gTime = 0;
