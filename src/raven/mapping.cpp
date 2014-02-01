@@ -29,13 +29,6 @@
 #include "log.h"
 #include <iostream>
 
-/**
- *
- * masterToSlave() - express the incrimental change in position
- *	from master to slave coordinate frame
- * Will eventually use X-Y-Z fixed frame rotation from fixed (Master) frame
- *
-**/
 
 const int USE_ITP = 1;
 
