@@ -18,11 +18,11 @@
  */
 
 
-/**
- * mapping.c - contains functions involving mapping from master to slave
- * Mitch Lum, July 25, 2006
- * BioRobotics Lab
- *
+/**\file mapping.cpp
+ * \brief contains functions involving mapping from master to slave
+ * \author Mitch Lum
+ * \author BioRobotics Lab
+ * \date July 25, 2006
  */
 
 #include "mapping.h"
@@ -39,12 +39,14 @@
 
 const int USE_ITP = 1;
 
-///
-/// Transform a position increment and an orientation increment from ITP coordinate frame
-/// into local robot coordinate frame.
-///
-///  Do this using inv(R)*C*R : R= transform, C= increment
-///
+/** \fn void fromITP(struct position *delpos, btQuaternion &delrot, int armserial)
+ * \brief Transform a position increment and an orientation increment from ITP coordinate frame into local robot coordinate frame.
+ *        Do this using inv(R)*C*R : R= transform, C= increment
+ * \param delpos - a pointer points to a position struct
+ * \param delrot - a reference of a btQuanternion class
+ * \param armserial - an integer number of of mechanisam id
+ * \question why post multiply with R inverse?
+*/
 void fromITP(struct position *delpos, btQuaternion &delrot, int armserial)
 {
     const btTransform ITP2Gold ( btMatrix3x3 (0,0,-1,  -1,0,0,  0,1,0), btVector3 (0,0,0) );
