@@ -17,16 +17,13 @@
  * along with Raven 2 Control.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/*
- * r2_kinematics.cpp
- *
- *  Created on: Jun 18, 2012
- *      Author: Hawkeye King
- *
- *
- *  Degenerate cases in inverse kinematics:
- *    All rotational joints have problems around +/-180.  (Unhandled exception)
- *    As tool tip approaches RCM, IK fails.  This case returns -2.
+/**\file r2_kinematics.cpp
+ * \brief kinematic calculation of robot
+ * 	  Degenerate cases in inverse kinematics:
+ *        All rotational joints have problems around +/-180.  (Unhandled exception)
+ *       As tool tip approaches RCM, IK fails.  This case returns -2.
+ * \author Hawkeye King
+ * \date Jun 18, 2012
  */
 
 #include <iostream>
@@ -65,7 +62,7 @@ const double aas[2][6]    = {{0,    0,    0,          La3, 0,      Lw},
                              {0,    0,    0,          La3, 0,      Lw}};
 double ds[2][6]           = {{0,    0,    V,          d4,  0,      0},
                              {0,    0,    V,          d4,  0,      0}};
-double robot_thetas[2][6]       = {{V,    V,    M_PI/2,     V,   V,      V},
+double robot_thetas[2][6] = {{V,    V,    M_PI/2,     V,   V,      V},
                              {V,    V,    -M_PI/2,    V,   V,      V}};
 
 
@@ -78,13 +75,11 @@ int apply_joint_limits(double *Js, double *Js_sat);
 //  Calculate a transform between two links
 //////////////////////////////////////////////////////////////////////////////////
 
-/**
- * getFKTransform (int a, int b)
- *
- *    Retrieve the forward kinematics transform from a to b, i.e., ^a_bT
- *
- *    Inputs: a, starting link frame
- *            b, ending link frame
+/**\fn btTransform getFKTransform (int a, int b)
+ * \brief Retrieve the forward kinematics transform from a to b, i.e., ^a_bT
+ * \param a - an integer value, starting link frame id
+ * \param b - an integer value, ending link frame id
+ * \return a btTransform object transforms link a to link b
  */
 btTransform getFKTransform(int a, int b)
 {
@@ -118,8 +113,11 @@ btTransform getFKTransform(int a, int b)
 //  Forward kinematics
 //////////////////////////////////////////////////////////////////////////////////
 
-/***
- * rw_fwd_kin() - run the ravenII forward kinematics from
+/**\fn int r2_fwd_kin(struct device *d0, int runlevel)
+ * \brief ravenII forward kinematics from
+ * \param d0 - a pointer points to the device struct, equivalent as robot_device struct, see define.h
+ * \param runlevel - an integer value of the current runlevel
+ * \return 0 on success -1 on failure
  */
 int r2_fwd_kin(struct device *d0, int runlevel)
 {
@@ -188,12 +186,12 @@ int r2_fwd_kin(struct device *d0, int runlevel)
 	return 0;
 }
 
-/** fwd_kin()
- *   Runs the Raven II forward kinematics to determine end effector position.
- *   Inputs:  6 element array of joint angles ( float j[] = {shoulder, elbow, ins, roll, wrist, grasp} )
- *            Arm type, left / right ( kin.armtype arm = left/right)
- *   Outputs: cartesian transform as 4x4 transformation matrix ( bullet transform.  WHAT'S THE SYNTAX FOR THAT???)
- *   Return: 0 on success, -1 on failure
+/**\fn int fwd_kin (double in_j[6], l_r in_arm, btTransform &out_xform )
+ * \brief Runs the Raven II forward kinematics to determine end effector position of one arm
+ * \param in_j[6] - 6 element array of joint angles ( float j[] = {shoulder, elbow, ins, roll, wrist, grasp} )
+ * \param in_arm - Arm type, left / right ( kin.armtype arm = left/right)
+ * \param out_xform - a reference of btTransform object represents the forward kinematic transfrom from zero frame to endeffector frame of one arm
+ * \return: 0 on success, -1 on failure
  */
 int fwd_kin (double in_j[6], l_r in_arm, btTransform &out_xform )
 {
@@ -230,13 +228,13 @@ int fwd_kin (double in_j[6], l_r in_arm, btTransform &out_xform )
 
 
 
-/** getATransform()
- *   Runs the Raven II forward kinematics to determine the desired transform from frame A to frame B
-
- *   Inputs:  6 element array of joint angles ( float j[] = {shoulder, elbow, ins, roll, wrist, grasp} )
- *            Arm type, left / right ( kin.armtype arm = left/right)
- *   Outputs: cartesian transform as 4x4 transformation matrix ( bullet transform.  WHAT'S THE SYNTAX FOR THAT???)
- *   Return: 0 on success, -1 on failure
+/**\fn int getATransform (struct mechanism &in_mch, btTransform &out_xform, int frameA, int frameB)
+ * \brief Runs the Raven II forward kinematics to determine the desired transform from frame A to frame B
+ * \param in_mch - a reference of one arm
+ * \param out_xform - a reference of a btTransform obejct represents the output transfrom
+ * \param frameA - an integer value, starting frame id
+ * \param frameB - an integer value, ending frame id
+ * \return 0 on success, -1 on failure
  */
 int getATransform (struct mechanism &in_mch, btTransform &out_xform, int frameA, int frameB)
 {
@@ -313,8 +311,11 @@ int getATransform (struct mechanism &in_mch, btTransform &out_xform, int frameA,
 //  Inverse kinematics
 //////////////////////////////////////////////////////////////////////////////////
 
-/***
- * rw_inv_kin() - run the ravenII inverse kinematics from device struct
+/**\fn int r2_inv_kin(struct device *d0, int runlevel)
+ * \brief run the ravenII inverse kinematics from device struct
+ * \param d0  - a pointer points to robot_device struct
+ * \param runlevel - an integer value represents the runlevel
+ * \return 0 on success -1 on failure
  */
 int r2_inv_kin(struct device *d0, int runlevel)
 {
@@ -455,18 +456,15 @@ int r2_inv_kin(struct device *d0, int runlevel)
 	return 0;
 }
 
-/**
- * inv_kin() -
- *   Runs the Raven II INVERSE kinematics to determine end effector position.
- *   Inputs:  cartesian transform as 4x4 transformation matrix ( bullit transform.  WHAT'S THE SYNTAX FOR THAT???)
- *            Arm type, left / right ( kin.armtype arm = left/right)
- *   Outputs: 6 element array of joint angles ( float j[] = {shoulder, elbow, ins, roll, wrist, grasp} )
-
- *   Return:
- *   	0  : success,
- *   	-1 : bad arm
- *   	-2 : too close to RCM.
+/**\fn int  __attribute__ ((optimize("0"))) inv_kin(btTransform in_T06, l_r in_arm, ik_solution iksol[8])
+ * \brief Runs the Raven II INVERSE kinematics to determine end effector position.
+ * \param in_T06 - a btTransfrom obejct, transforms the end effector frame to zero frame
+ * \param in_arm - Arm type, left / right ( kin.armtype arm = left/right)
+ * \param ik_solution iksol[8] - 8 element array of joint angles ( float j[] = {shoulder, elbow, vacant joint, ins,roll, wrist, grasp1, grasp2} )
+ * \return 0 - success, -1 - bad arm, -2 - too close to RCM.
+ * \question  __attribute__ ((optimize("0")))? why this?
  */
+ 
 int  __attribute__ ((optimize("0"))) inv_kin(btTransform in_T06, l_r in_arm, ik_solution iksol[8])
 {
 	dh_theta = robot_thetas[in_arm];
@@ -646,11 +644,11 @@ int  __attribute__ ((optimize("0"))) inv_kin(btTransform in_T06, l_r in_arm, ik_
 	return 0;
 }
 
-/*********
- * Apply joint limit on the selected inverse kinematics solution
- *
- * Input: Inverse Kinematics Solution Js
- * Output: Saturated Inverse Kinematics Solution Js_sat
+/**\fn int apply_joint_limits(double *Js, double *Js_sat)
+ * \brief Apply joint limit on the selected inverse kinematics solution
+ * \param Js - a double type pointer, Inverse Kinematics Solution Js
+ * \param Js_sat - a double type pointer, Saturated Inverse Kinematics Solution Js_sat
+ * \return 1 limit value of joint angle is appied, 0 inverse solution has not reached joint limit
  */
 int apply_joint_limits(double *Js, double *Js_sat){
 	int limited = 0;
@@ -728,11 +726,13 @@ int apply_joint_limits(double *Js, double *Js_sat){
 	return limited;
 }
 
-/*********
- * Check_solutions
- *
- * Input: set of inverse kinematics solutions
- * Output: the correct solution
+/**\fn int check_solutions(double *in_thetas, ik_solution * iksol, int &out_idx, double &out_err)
+ * \brief check the inverse kinematic solutions
+ * \param in_thetas a double type pointer points to the joint angle array
+ * \param ik_sol 
+ * \param out_idx
+ * \param out_error
+ * \return 0 on success -1 on failure
  */
 int check_solutions(double *in_thetas, ik_solution * iksol, int &out_idx, double &out_err)
 {
@@ -807,9 +807,10 @@ int check_solutions(double *in_thetas, ik_solution * iksol, int &out_idx, double
 // Utility functions to print out transforms
 //////////////////////////////////////////////////////////////////////////////////
 
-/**
- * print_btTransform() -
- *      print a btTransform
+/**\fn void print_btTransform(btTransform xf)
+ * \brief print a btTransform object
+ * \param xf - a btTransform object to print
+ * \return void
  */
 void print_btTransform(btTransform xf)
 {
@@ -829,9 +830,10 @@ void print_btTransform(btTransform xf)
 }
 
 
-/**
- * print_btVector() -
- *      print a btVector
+/**\fn void print_btVector(btVector3 vv)
+ * \brief print a btVector3 object
+ * \param vv - a btVector3 obejct to print
+ * \return void
  */
 void print_btVector(btVector3 vv)
 {
@@ -871,6 +873,15 @@ const static double TH6A_J5_R = 0;     //add this to J5 to get \theta6a (in deg)
 const static double TH6B_J6_R = 0;     //add this to J6 to get \theta6b (in deg)
 
 //void joint2thetaCallback(const sensor_msgs::JointStateConstPtr joint_state)
+
+/**\fn void joint2theta(double *out_iktheta, double *in_J, l_r in_arm)
+ * \brief converts the inverse kinematic solution to the thethas (detailes refer to the kinematic report)
+ * \param out_iktheta - a double type pointer of the converted output
+ * \param in_J - a double type pointer of the inverse kinetmatic solution
+ * \param in_arm - Arm type gold/green
+ * \return void
+ * \question why just remove this conversion, set theta the same as joint angle????
+ */
 void joint2theta(double *out_iktheta, double *in_J, l_r in_arm)
 {
 	//convert J to theta
@@ -909,6 +920,14 @@ void joint2theta(double *out_iktheta, double *in_J, l_r in_arm)
 
 
 //void joint2thetaCallback(const sensor_msgs::JointStateConstPtr joint_state)
+
+/**\fn void theta2joint(ik_solution in_iktheta, double *out_J)
+ * \brief converts theta values to the joint angles (detailes refer to the kinematic report)
+ * \param out_iktheta - a double type pointer of the theta values
+ * \param in_J - a double type pointer of joint angles
+ * \return void
+ * \question why just remove this conversion, set theta the same as joint angle????
+ */
 void theta2joint(ik_solution in_iktheta, double *out_J)
 {
 	//convert J to theta
@@ -947,7 +966,12 @@ void theta2joint(ik_solution in_iktheta, double *out_J)
 
 }
 
-
+/**\fn void showInverseKinematicsSolutions(struct device *d0, int runlevel)
+ * \brief 
+ * \param d0
+ * \param runlevel
+ * \return void
+ */
 
 void showInverseKinematicsSolutions(struct device *d0, int runlevel)
 {
