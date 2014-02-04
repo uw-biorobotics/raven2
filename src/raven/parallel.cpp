@@ -18,17 +18,22 @@
  */
 
 /**
- * parallel.c
- *
- * Kenneth Fodero
- * Biorobotics Lab
- * 2005
- *
- */
+* \file parallel.cpp
+*
+* \author Kenneth Fodero
+* \date 2005
+*
+*/
 
 #include "parallel.h"
 #include "log.h"
 #include <sys/io.h>
+
+/**\fn void parallelUpdate(int runlevel, int endOfLoop)
+*  \brief 
+*  \param runlevel
+*  \param endOfLoop
+*/
 
 void parallelUpdate(int runlevel, int endOfLoop)
 {
