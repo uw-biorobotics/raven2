@@ -40,7 +40,6 @@ extern int NUM_MECH;
 * \return void
 * \todo Remove runlevel from args.
 */
-
 void fwdCableCoupling(struct device *device0, int runlevel)
 {
 	//Run fwd cable coupling for each mechanism.
@@ -195,7 +194,6 @@ void fwdMechCableCoupling(struct mechanism *mech)
 * \return void
 * \todo Remove runlevel from args.
 */
-
 void fwdTorqueCoupling(struct device *device0, int runlevel)
 {
 	//Run fwd cable coupling for each mechanism.
