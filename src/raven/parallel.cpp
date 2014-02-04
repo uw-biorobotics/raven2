@@ -33,6 +33,7 @@
 *  \brief 
 *  \param runlevel
 *  \param endOfLoop
+*  \return void
 */
 
 void parallelUpdate(int runlevel, int endOfLoop)
