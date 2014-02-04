@@ -17,14 +17,12 @@
  * along with Raven 2 Control.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/*******************************
- *
- *  File: fwd_cable_coupling.c
- *
- *  Calculate the forward cable coupling from a motor space Pose,
- *  (m1, m2,m3) express the desired joint pose (th1, th2, d3)
- *
- **********************************/
+/**
+*  \file fwd_cable_coupling.cpp
+*  \brief Calculate the forward cable coupling from a motor space Pose,
+*         (m1, m2,m3) express the desired joint pose (th1, th2, d3)
+*  \author Hawkeye
+*/
 
 #include "fwd_cable_coupling.h"
 #include "log.h"
@@ -34,13 +32,15 @@ extern struct DOF_type DOF_types[];
 extern int NUM_MECH;
 
 /**
- * fwdCableCoupling - Calls fwdMechCableCoupling for each mechanism in device
- *
- * \param device0 pointer to device struct
- * \param runlevel current runlevel
- *
- */
-// TODO: Remove runlevel from args.
+* \fn void fwdCableCoupling(struct device *device0, int runlevel)
+* \brief Calls fwdMechCableCoupling for each mechanism in device
+* \struct device
+* \param device0 - pointer to device struct
+* \param runlevel - current runlevel
+* \return void
+* \todo Remove runlevel from args.
+*/
+
 void fwdCableCoupling(struct device *device0, int runlevel)
 {
 	//Run fwd cable coupling for each mechanism.
@@ -49,6 +49,12 @@ void fwdCableCoupling(struct device *device0, int runlevel)
 		fwdMechCableCoupling(&(device0->mech[i]));
 }
 
+/**
+* \fn void fwdMechCableCoupling(struct mechanism *mech)
+* \struct mechanism
+* \param mech
+* \return void
+*/
 void fwdMechCableCoupling(struct mechanism *mech)
 {
 	float th1, th2, th3, th5, th6, th7;
@@ -181,13 +187,15 @@ void fwdMechCableCoupling(struct mechanism *mech)
 
 
 /**
- * fwdTorqueCoupling - Calls fwdMechTorqueCoupling for each mechanism in device
- *
- * \param device0 pointer to device struct
- * \param runlevel current runlevel
- *
- */
-// TODO: Remove runlevel from args.
+* \fn void fwdTorqueCoupling(struct device *device0, int runlevel)
+* \brief Calls fwdMechTorqueCoupling for each mechanism in device
+* \struct device
+* \param device0 - pointer to device struct
+* \param runlevel - current runlevel
+* \return void
+* \todo Remove runlevel from args.
+*/
+
 void fwdTorqueCoupling(struct device *device0, int runlevel)
 {
 	//Run fwd cable coupling for each mechanism.
@@ -196,6 +204,12 @@ void fwdTorqueCoupling(struct device *device0, int runlevel)
 		fwdMechTorqueCoupling(&(device0->mech[i]));
 }
 
+/**
+* \fn void fwdMechTorqueCoupling(struct mechanism *mech)
+* \struct mechanism
+* \param mech
+* \return void
+*/
 void fwdMechTorqueCoupling(struct mechanism *mech)
 {
 	float th1, th2, th3, th5, th6, th7;
