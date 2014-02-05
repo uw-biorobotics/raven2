@@ -19,9 +19,11 @@
 
 
 /**
-Generic logging function
+* \file log.cpp
+* \brief Generic logging function
+*
+*/
 
-**/
 #include <stdio.h>
 #include <stdarg.h>
 #include <ros/console.h>
@@ -29,6 +31,13 @@ Generic logging function
 
 std::queue<char*> msgqueue;
 const static size_t MAX_MSG_LEN =1024;
+
+
+/**\fn int log_msg_later(const char* fmt,...)
+*  \brief 
+*  \param fmt
+*  \return 0 on success -1 on failure
+*/
 
 int log_msg_later(const char* fmt,...)
 {
@@ -49,6 +58,12 @@ int log_msg_later(const char* fmt,...)
   return 0;
 }
 
+/**\fn int log_msg(const char* fmt,...)
+*  \brief 
+*  \param fmt
+*  \return 0 on success -1 on failure
+*/
+
 int log_msg(const char* fmt,...)
 {
   static char buf[MAX_MSG_LEN];
@@ -62,6 +77,11 @@ int log_msg(const char* fmt,...)
     return 0;
 }
 
+/**\fn int err_msg(const char* fmt,...)
+*  \brief 
+*  \param fmt
+*  \return 0 on success -1 on failure
+*/
 
 int err_msg(const char* fmt,...)
 {
