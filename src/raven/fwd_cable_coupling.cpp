@@ -34,7 +34,6 @@ extern int NUM_MECH;
 /**
 * \fn void fwdCableCoupling(struct device *device0, int runlevel)
 * \brief Calls fwdMechCableCoupling for each mechanism in device
-* \struct device
 * \param device0 - pointer to device struct
 * \param runlevel - current runlevel
 * \return void
@@ -51,7 +50,6 @@ void fwdCableCoupling(struct device *device0, int runlevel)
 
 /**
 * \fn void fwdMechCableCoupling(struct mechanism *mech)
-* \struct mechanism
 * \param mech
 * \return void
 */
@@ -190,7 +188,6 @@ void fwdMechCableCoupling(struct mechanism *mech)
 /**
 * \fn void fwdTorqueCoupling(struct device *device0, int runlevel)
 * \brief Calls fwdMechTorqueCoupling for each mechanism in device
-* \struct device
 * \param device0 - pointer to device struct
 * \param runlevel - current runlevel
 * \return void
@@ -207,7 +204,6 @@ void fwdTorqueCoupling(struct device *device0, int runlevel)
 
 /**
 * \fn void fwdMechTorqueCoupling(struct mechanism *mech)
-* \struct mechanism
 * \param mech
 * \return void
 */
