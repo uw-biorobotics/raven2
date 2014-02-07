@@ -17,7 +17,7 @@
  * along with Raven 2 Control.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/**
+/*
  * update_device_state.c
  *
  */
@@ -37,7 +37,7 @@ unsigned int newDofTorqueDof = 0;       //
 int newDofTorqueTorque = 0;             // float for torque value in mNm
 t_controlmode newRobotControlMode = homing_mode;
 
-/*
+/**
  * updateDeviceState - Function that update the device state based on parameters passed from
  *       the user interface
  *
@@ -109,7 +109,7 @@ int updateDeviceState(struct param_pass *currParams, struct param_pass *rcvdPara
     return 0;
 }
 
-/*
+/**
 *  setRobotControlMode()
 *       Change controller mode, i.e. position control, velocity control, visual servoing, etc
 *   \param t_controlmode    current control mode.
@@ -120,7 +120,7 @@ void setRobotControlMode(t_controlmode in_controlMode){
     isUpdated = TRUE;
 }
 
-/*
+/**
 *  setDofTorque()
 *    Set a torque to output on a joint.
 *     Torque input is mNm
