@@ -19,28 +19,27 @@
 
 
 /**
- * overdrive_detect.c - Functions related to checking for motor over heating
- *
- * Kenneth Fodero
- * Biorobotics Lab
- * 2005
+ * \file: overdrive_detect.c 
+ * \author Kenneth Fodero
+ * \version 2005
+ * \brief  Functions related to checking for motor over heating
  *
  * 5/06 Modified by Hawkeye King
  */
 
 #include "overdrive_detect.h"
 
-extern struct DOF_type DOF_types[];
-extern int NUM_MECH;
-extern int soft_estopped;
-extern unsigned long int gTime;
+extern struct DOF_type DOF_types[];//Defined in globals.cpp
+extern int NUM_MECH; //Defined in rt_process_preempt.cpp
+extern int soft_estopped;//Defined in rt_process_preempt.cpp
+extern unsigned long int gTime;//Defined in rt_process_preempt.cpp
 
-/*
- * overdriveDetect - Functions to loop through all active joints to detect
- *   current situations that could cause overheating.
- *
- * input - device0 - pointer to device to check
- *
+/**\fn int overdriveDetect(struct device *device0)
+ * \brief detect over current
+ * \param device0 pointer to robot_device struct defined in DS0.h
+ * This function loops through all active joints to detect currrent situations
+ * that could cause overheating, it checks joint current_cmd against MAX_INST_DAC that is
+ * defined in defines.h
  */
 int overdriveDetect(struct device *device0)
 {
