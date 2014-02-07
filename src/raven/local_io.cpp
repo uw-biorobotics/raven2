@@ -210,12 +210,14 @@ int checkLocalUpdates()
     return isUpdated;
 }
 
-// Give the latest updated DS1 to the caller.
-// Precondition: d1 is a pointer to allocated memory
-// Postcondition: memory location of d1 contains latest DS1 Data from network/toolkit.
+/** Give the latest updated DS1 to the caller.
+*   Precondition: d1 is a pointer to allocated memory
+*   Postcondition: memory location of d1 contains latest DS1 Data from network/toolkit.
+*   \todo Check performance of trylock / default priority inversion scheme
+*/
 struct param_pass * getRcvdParams(struct param_pass* d1)
 {
-    ///TODO: Check performance of trylock / default priority inversion scheme
+    // \todo Check performance of trylock / default priority inversion scheme
     if (pthread_mutex_trylock(&data1Mutex)!=0)   //Use trylock since this function is called form rt-thread. return immediately with old values if unable to lock
         return d1;
     //pthread_mutex_lock(&data1Mutex); //Priority inversion enabled. Should force completion of other parts and enter into this section.
@@ -225,7 +227,8 @@ struct param_pass * getRcvdParams(struct param_pass* d1)
     return d1;
 }
 
-// Reset writable copy of DS1
+/** Reset writable copy of DS1
+*/
 void updateMasterRelativeOrigin(struct device *device0)
 {
 	int armidx;
