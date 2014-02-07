@@ -139,9 +139,7 @@ int recieveUserspace(void *u,int size)
  * Takes the data from the master structure and places it into the parameter passing structure.
  *
  * \question why is setting the sequence number like this a hack?
- *
  * \param us_t a pointer to the user input structure
- *
  */
 void teleopIntoDS1(struct u_struct *us_t)
 {
@@ -209,12 +207,15 @@ void teleopIntoDS1(struct u_struct *us_t)
     pthread_mutex_unlock(&data1Mutex);
 }
 
-// checkLocalUpdates()
-//
-//  returns true if updates have been recieved from master or toolkit since last module update
-//  returns false otherwise
-//  Also, checks the last time updates were made from master.  If it has been to long
-//  surgeon_mode state is set to pedal-up.
+/**
+ * \brief Checks if there has been a recent update from master
+ *
+ * Checks if there has been a recent update from master. If it has been too long since last update it sets state to pedal-up.
+ *
+ * \return true if updates have been received from master or toolkit since last module update
+ * \return false otherwise
+ *
+ */
 int checkLocalUpdates()
 {
     static unsigned long int lastUpdated;
@@ -237,10 +238,15 @@ int checkLocalUpdates()
     return isUpdated;
 }
 
-/** Give the latest updated DS1 to the caller.
+/** \brief Give the latest updated DS1 to the caller.
+*
 *   Precondition: d1 is a pointer to allocated memory
 *   Postcondition: memory location of d1 contains latest DS1 Data from network/toolkit.
-*   \todo Check performance of trylock / default priority inversion scheme
+*
+*   \param d1 pointer to the protected data structure
+*   \return a copy of the data as a param_pass structure
+*
+*   \todo HK Check performance of trylock / default priority inversion scheme
 */
 struct param_pass * getRcvdParams(struct param_pass* d1)
 {
