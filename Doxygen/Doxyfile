@@ -7,9 +7,25 @@ PROJECT_BRIEF			= "An open source surgical robot"
 PROJECT_NUMBER 			= 2014
 
 INPUT					= ../src \
-						  ../include
+						  ../include \
+						  /specialFiles \
+						  ../msg
+EXTRACT_ALL				= YES
+RECURSIVE 				= YES
+
+OUTPUT_DIRECTORY		= ../../../doxygen
 
 SOURCE_BROWSER 			= YES
+
+REFERENCED_BY_RELATION 	= YES
+REFERENCES_RELATION		= YES
+
+STRIP_CODE_COMMENTS		= NO
+
+GENERATE_HTML			= YES
+GENERATE_LATEX 			= NO
+
+GENERATE_TREEVIEW		= YES
 
 ALIASES 				+= "question=\xrefitem questions \"Question\""
 ALIASES 				+= "reminder=\xrefitem reminders \"Reminder\"" 

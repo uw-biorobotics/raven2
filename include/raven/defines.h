@@ -49,7 +49,7 @@
 //     0: Trivial   1: Normal/informational    2: Critical/Important
 //  Log Codes:
 //     0-3: Entered runlevel 0-3   4: RT_Process started  5: RT_Process ended
-///TODO: Redefine rt_printk to suitable debugging function
+// \todo Redefine rt_printk to suitable debugging function
 #define ROBOT_LOG(logLevel, logCode, fmt, args...) //rt_printk("ROBOT LOG[%d/%d]: " fmt, logLevel, logCode, ##args)
 
 //Include current clipping

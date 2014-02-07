@@ -150,7 +150,7 @@ int USBInit(struct device *device0)
         boardStr += files[i];
         boardid = get_board_id_from_filename(files[i]);
 
-        /// Open usb dev
+        // Open usb dev
         int tmp_fileHandle = open(boardStr.c_str(), O_RDWR|O_NONBLOCK);    //Is NONBLOCK mode required??// open board chardev
         if (tmp_fileHandle <=0 )
         {
@@ -159,7 +159,7 @@ int USBInit(struct device *device0)
             continue; //Failed to open board, move to next one
         }
 
-        /// Setup usb dev.  ioctl() performs an initialization in driver.
+        // Setup usb dev.  ioctl() performs an initialization in driver.
         if ( ioctl(tmp_fileHandle, BRL_RESET_BOARD) != 0)
         {
             ROS_ERROR("ERROR: ioctl error opening board %s", boardStr.c_str());
@@ -167,7 +167,7 @@ int USBInit(struct device *device0)
         }
 
         device0->mech[i].type = 0;
-        /// Set mechanism type Green or Gold surgical robot
+        // Set mechanism type Green or Gold surgical robot
         if (boardid == GREEN_ARM_SERIAL)
         {
             okboards++;
@@ -185,17 +185,13 @@ int USBInit(struct device *device0)
             log_msg("*** WARNING: USB BOARD #%d NOT CONNECTED TO MECH (update defines?).",boardid);
         }
 
-        /// Store usb dev parameters
+        // Store usb dev parameters
         boardFile.push_back(tmp_fileHandle);  // Store file handle
         USBBoards.boards.push_back(boardid);  // Store board array index
         boardFPs[boardid] = tmp_fileHandle;   // Map serial (i) to fileHandle (tmp_fileHandle)
         USBBoards.activeAtStart++;            // Increment board count
 
-    // DELETEME:::
-    //        while (read(boardFile[i],buf,10)>0); //Clear buffers
-        ///TODO: Needs request encoder test. Not implemented in driver yet.
-        ///TODO: Clear read buffers.
-    // ::: DELETEME
+
 
         if ( write_zeros_to_board(boardid) != 0){
             ROS_ERROR("Warning: failed initial board reset (set-to-zero)");
