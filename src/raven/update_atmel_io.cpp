@@ -17,14 +17,12 @@
  * along with Raven 2 Control.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/**
- * update_atmel_io.c
- *
- * Kenneth Fodero
- * Biorobotics Lab
- * 2005
- *
- * Modified by Hawkeye King 5/2006
+
+/**\file update_atmel_io.cpp
+ * \brief 
+ * \author Kenneth Fodero
+ * \author Hawkeye King
+ * \date 2005
  */
 
 #include "update_atmel_io.h"
@@ -35,6 +33,13 @@ extern int soft_estopped;
 extern int NUM_MECH;
 extern unsigned long int gTime;
 
+/**\fn void updateAtmelOutputs(struct device *device0, int runlevel)
+ * \brief
+ * \struct device
+ * \param device0 - pointer to device struct
+ * \param runlevel - current runlevel
+ * \return void 
+ */
 void updateAtmelOutputs(struct device *device0, int runlevel)
 {
     static int counter;
@@ -71,6 +76,13 @@ void updateAtmelOutputs(struct device *device0, int runlevel)
     counter++;
 }
 
+/**\fn void updateAtmelInputs(struct device device0, int runlevel)
+ * \brief
+ * \struct device
+ * \param device0 - device struct
+ * \param runlevel - current runlevel
+ * \return void 
+ */
 void updateAtmelInputs(struct device device0, int runlevel)
 {
     //unsigned char inputs;

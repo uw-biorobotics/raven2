@@ -17,17 +17,13 @@
  * along with Raven 2 Control.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/*
- * USB Initialization Module
- *
- * written by Ken Fodero
- * BioRobotics Lab, University of Washington
- * ken@ee.washington.edu
- *
- * Modified by Hawkeye King
- *
- */
 
+/**\file USB_init.cpp
+ * \brief USB initialization module
+ * \author Ken Fodero
+ * \author Hawkeye King
+ */
+ 
 #include <string.h>
 #include <vector>
 #include <map>
@@ -45,7 +41,7 @@
 #define NUM_BOARDS 99
 #define BOARD_FILE_STR_LEN sizeof(BOARD_FILE_STR)
 #define BRL_RESET_BOARD     10
-#define BRL_START_READ		4
+#define BRL_START_READ      4
 
 // Keep board information
 std::vector<int> boardFile;
@@ -56,10 +52,14 @@ extern int NUM_MECH;
 
 using namespace std;
 
-/**
-* List directory contents matching BOARD_FILE_STR
-*/
-int getdir (string dir, vector<string> &files)
+
+/**\fn int getdir(string dir, vector<string> &files)
+ * \brief List directory contents matching BOARD_FILE_STR
+ * \param dir - directory name of interest
+ * \param &files - adress to write list of files in dir 
+ * \return 0 on success, error otherwise
+ */
+int getdir(string dir, vector<string> &files)
 {
     DIR *dp;
     struct dirent *dirp;
@@ -78,12 +78,24 @@ int getdir (string dir, vector<string> &files)
     return 0;
 }
 
+
+/**\fn int get_board_id_from_filename(string s)
+ * \brief Gets the board ID number related to the file of interest
+ * \param s - filename
+ * \return board ID number
+ */
 int get_board_id_from_filename(string s)
 {
     string tmp = s.substr(7,s.length()-7);
-	return atoi(tmp.c_str());
+    return atoi(tmp.c_str());
 }
 
+
+/**\fn int write_zeros_to_board(int boardid)
+ * \brief 
+ * \param boardid - 
+ * \return 0 on success, 
+ */
 int write_zeros_to_board(int boardid)
 {
     short int tmp = DAC_OFFSET;
@@ -106,17 +118,12 @@ int write_zeros_to_board(int boardid)
 
 }
 
-/**
- * USBInit() - initialize the USB modules
- *
- * input: none
- *
- * Set the number of starting USB boards
- * Make Sure a USB board is attached
- * Store data about the boards attached
- *
- * \return status of initialization: 0 if no USB board found, USB_INIT_ERROR if an error was encountered or # of boards if initialized successfully
- *
+
+ /**\fn int USBInit(struct device *device0)
+ * \brief initialize the USB modules
+ * \struct device
+ * \param device0 - pointer to device struct
+ * \return 0 if no USB board found, USB_INIT_ERROR if error was encountered, or # of boards if initialized successfully 
  */
 int USBInit(struct device *device0)
 {
@@ -184,11 +191,11 @@ int USBInit(struct device *device0)
         boardFPs[boardid] = tmp_fileHandle;   // Map serial (i) to fileHandle (tmp_fileHandle)
         USBBoards.activeAtStart++;            // Increment board count
 
-	// DELETEME:::
-	//        while (read(boardFile[i],buf,10)>0); //Clear buffers
+    // DELETEME:::
+    //        while (read(boardFile[i],buf,10)>0); //Clear buffers
         ///TODO: Needs request encoder test. Not implemented in driver yet.
         ///TODO: Clear read buffers.
-	// ::: DELETEME
+    // ::: DELETEME
 
         if ( write_zeros_to_board(boardid) != 0){
             ROS_ERROR("Warning: failed initial board reset (set-to-zero)");
@@ -205,13 +212,10 @@ int USBInit(struct device *device0)
     return USBBoards.activeAtStart;
 }
 
-/**
- * USBShutdown() - shutsdown the USB modules. The function sets the DAC outputs to zero before shutting down.
- *
- * input: none
- *
- * \return none
- *
+
+ /**\fn void USBShutdown(void)
+ * \brief shutsdown the USB modules, setting DAC outputs to zero before shutting down
+ * \return void
  */
 void USBShutdown(void)
 {
@@ -235,11 +239,12 @@ void USBShutdown(void)
 }
 
 
-/*
- * Initiate data retrieval from a USB board
- *  This must be run before usb_read.
+ /**\fn int startUSBRead(int id)
+ * \brief initialize data retrieval from a USB board. Must be run before usb_read
+ * \param id - serial number of board of interest
+ * \return  
  */
-int startUSBRead( int id )
+int startUSBRead(int id)
 {
   // Initiate read
   int ret = ioctl(boardFPs[id], BRL_START_READ, MAX_IN_LENGTH);
@@ -251,12 +256,14 @@ int startUSBRead( int id )
   return ret;
 }
 
-/**
-Read from usb board with serial number id
-* \param id serial number of board to read
-* \param buffer pointer to buffer to read into
-* \param len length to read
-*/
+
+/**\fn int usb_read(int id, void *buffer, size_t len)
+ * \brief read from usb board with serial number id
+ * \param id - serial number of board to read
+ * \param buffer - pointer to buffer to read into
+ * \param len - length to read
+ * \return  
+ */
 int usb_read(int id, void *buffer, size_t len)
 {
   int fp = boardFPs[id]; // file pointer
@@ -268,12 +275,14 @@ int usb_read(int id, void *buffer, size_t len)
   return ret;
 }
 
-/**
-Write to usb board with serial number id
-* \param id serial number of board to read
-* \param buffer pointer to buffer to read into
-* \param len length to read
-*/
+
+/**\fn int usb_write(int id, void *buffer, size_t len)
+ * \brief write to usb board with serial number id
+ * \param id - serial number of board to write
+ * \param buffer - pointer to buffer to write into
+ * \param len - length to write
+ * \return  
+ */
 int usb_write(int id, void *buffer, size_t len)
 {
     // write to board
@@ -285,11 +294,10 @@ int usb_write(int id, void *buffer, size_t len)
 }
 
 
-/**
- * Board Reset() - reset the encoder chips on the board
- *
- * input: board number to reset
- *
+ /**\fn int usb_reset_encoders(int boardid)
+ * \brief reset the encoder chips on the board
+ * \param boardid - serial number of board to reset
+ * \return 0 
  */
 int usb_reset_encoders(int boardid)
 {
