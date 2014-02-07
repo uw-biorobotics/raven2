@@ -17,11 +17,6 @@
  * along with Raven 2 Control.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/*
- * update_device_state.c
- *
- */
-
 #include "update_device_state.h"
 #include "log.h"
 
