@@ -1,5 +1,5 @@
 <launch>
-    <rosparam file="/home/biorobotics/square_raven_ws/raven_ros/raven_2/params/r2params.yaml" command="load" output="screen" />
+    <rosparam file="$(find raven_2)/params/r2params.yaml" command="load" output="screen" />
     <node name ="r2_control" pkg="raven_2" type="r2_control" output="screen"/>
 
 </launch>
