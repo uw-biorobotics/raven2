@@ -63,7 +63,7 @@
 //#define SERVER_ADDR  "192.168.0.102"
 #define SERVER_ADDR  "128.95.205.206"    // used only if the robot needs to send data to the server
 
-extern int recieveUserspace(void *u,int size);  // Defined in the local_io.cpp
+extern int receiveUserspace(void *u,int size);  // Defined in the local_io.cpp
 
 /**\fn int initSock (const char* port )
   \brief This function initializes a socket
@@ -285,7 +285,7 @@ void* network_process(void* param1)
                 retval = write(logFile,logbuffer, strlen(logbuffer));
                 seq = u.sequence;
 
-                // TODO:: should this include a "recieveUserspace" call?
+                // TODO:: should this include a "receiveUserspace" call?
 
             }
             else if (u.sequence == seq)     // Repeated sequence number
@@ -300,7 +300,7 @@ void* network_process(void* param1)
             else if (u.sequence > seq)       // Valid packet
             {
                 seq = u.sequence;
-                recieveUserspace(&u,uSize);   // coordinates transform from ITP frame to robot 0 frame
+                receiveUserspace(&u,uSize);   // coordinates transform from ITP frame to robot 0 frame
             }
 
 
