@@ -54,8 +54,8 @@ double *dh_theta;
 double *dh_d;
 
 // DH Parameters.
-//  Variable entries are marked "V" for clarity.
-//  Entered in table form, so alphas[0][0] is alpha_0 and thetas[0][0] is theta_1.
+// Variable entries are marked "V" for clarity.
+// Entered in table form, so alphas[0][0] is alpha_0 and thetas[0][0] is theta_1.
 const double alphas[2][6] = {{0,    La12, M_PI- La23, 0,   M_PI/2, M_PI/2},
                              {M_PI, La12, La23,       0,   M_PI/2, M_PI/2}};  // Left / Right
 const double aas[2][6]    = {{0,    0,    0,          La3, 0,      Lw},
@@ -71,9 +71,9 @@ void print_btVector(btVector3 vv);
 int check_solutions(double *in_thetas, ik_solution * iksol, int &out_idx, double &out_err);
 int apply_joint_limits(double *Js, double *Js_sat);
 
-//////////////////////////////////////////////////////////////////////////////////
+//--------------------------------------------------------------------------------
 //  Calculate a transform between two links
-//////////////////////////////////////////////////////////////////////////////////
+//--------------------------------------------------------------------------------
 
 /**\fn btTransform getFKTransform (int a, int b)
  * \brief Retrieve the forward kinematics transform from a to b, i.e., ^a_bT
@@ -109,9 +109,9 @@ btTransform getFKTransform(int a, int b)
 
 
 
-//////////////////////////////////////////////////////////////////////////////////
+//-------------------------------------------------------------------------------
 //  Forward kinematics
-//////////////////////////////////////////////////////////////////////////////////
+//--------------------------------------------------------------------------------
 
 /**\fn int r2_fwd_kin(struct device *d0, int runlevel)
  * \brief ravenII forward kinematics from
@@ -307,9 +307,9 @@ int getATransform (struct mechanism &in_mch, btTransform &out_xform, int frameA,
 
 
 
-//////////////////////////////////////////////////////////////////////////////////
+//------------------------------------------------------------------------------/
 //  Inverse kinematics
-//////////////////////////////////////////////////////////////////////////////////
+//-------------------------------------------------------------------------------
 
 /**\fn int r2_inv_kin(struct device *d0, int runlevel)
  * \brief run the ravenII inverse kinematics from device struct
@@ -324,10 +324,10 @@ int r2_inv_kin(struct device *d0, int runlevel)
 	struct orientation * ori_d;
 	struct position    * pos_d;
 
-	/// Do FK for each mechanism
+	//  Do FK for each mechanism
 	for (int m=0; m<NUM_MECH; m++)
 	{
-		/// get arm type and wrist actuation angle
+		// get arm type and wrist actuation angle
 		if (d0->mech[m].type == GOLD_ARM_SERIAL)
 			arm = dh_left;
 		else
@@ -376,7 +376,7 @@ int r2_inv_kin(struct device *d0, int runlevel)
 				wrist2
 		};
 
-		/// convert from joint angle representation to DH theta convention
+		// convert from joint angle representation to DH theta convention
 		double lo_thetas[6];
 		joint2theta(lo_thetas, joints, arm);
 		int sol_idx=0;
@@ -495,7 +495,7 @@ int  __attribute__ ((optimize("0"))) inv_kin(btTransform in_T06, l_r in_arm, ik_
 		p05[4*i] = p05[4*i+1] = p05[4*i+2] = p05[4*i+3] = in_T06 * p65;
 	}
 
-	//
+       
 	//  Step 2, compute displacement of prismatic joint d3
 	for (int i=0;i<2;i++)
 	{
@@ -543,7 +543,7 @@ int  __attribute__ ((optimize("0"))) inv_kin(btTransform in_T06, l_r in_arm, ik_
 		}
 	}
 
-	//
+       
 	//  Step 4: Compute theta 1
 	for (int i=0;i<8;i++)
 	{
@@ -574,7 +574,7 @@ int  __attribute__ ((optimize("0"))) inv_kin(btTransform in_T06, l_r in_arm, ik_
 		iksol[i].th1 = atan2(scth1[1],scth1[0]);
 	}
 
-	//
+       
 	//  Step 5: get theta 4, 5, 6
 	for (int i=0; i<8;i++)
 	{
@@ -849,9 +849,9 @@ void print_btVector(btVector3 vv)
 
 //------------------------------------------------------------------------------------------
 // Conversion of J to Theta
-//  J represents the physical robot joint angles.
-//  Theta is used by the kinematics.
-//  Theta convention was easier to solve the equations, while J was already coded in software.
+// J represents the physical robot joint angles.
+// Theta is used by the kinematics.
+// Theta convention was easier to solve the equations, while J was already coded in software.
 //-----------------------------------------------------------------------------------------
 
 const static double TH1_J0_L  = -180;//-205;   //add this to J0 to get \theta1 (in deg)
@@ -931,7 +931,7 @@ void theta2joint(ik_solution in_iktheta, double *out_J)
 	//convert J to theta
 	if (in_iktheta.arm == dh_left)
 	{
-		//======================LEFT ARM===========================
+	//======================LEFT ARM===========================
 		out_J[0] = in_iktheta.th1 - TH1_J0_L * d2r;
 		out_J[1] = in_iktheta.th2 - TH2_J1_L * d2r;
 		out_J[2] = in_iktheta.d3  - D3_J2_L;
