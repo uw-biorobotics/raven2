@@ -18,12 +18,12 @@
  */
 
 
-/***************************************
- *
- * File: local_io.c
- *
+/***************************************//**
 
-Local_io keeps its own copy of DS1 for incorporating new
+  \file local_io.c
+
+
+\description Local_io keeps its own copy of DS1 for incorporating new
 network-layer and toolkit updates.
 
 The local DS1 copy is protected by a mutex.
@@ -58,21 +58,26 @@ extern int NUM_MECH;
 extern USBStruct USBBoards;
 extern unsigned long int gTime;
 
-const static double d2r = M_PI/180;
-const static double r2d = 180/M_PI;
+const static double d2r = M_PI/180; //degrees to radians
+const static double r2d = 180/M_PI; //radians to degrees
 
-static struct param_pass data1;
+static struct param_pass data1;		//local data structure that needs mutex protection
 tf::Quaternion Q_ori[2];
 pthread_mutexattr_t data1MutexAttr;
 pthread_mutex_t data1Mutex;
 
-volatile int isUpdated; //volatile int instead of atomic_t ///Should we use atomic builtins? http://gcc.gnu.org/onlinedocs/gcc-4.1.2/gcc/Atomic-Builtins.html
+volatile int isUpdated; //TODO: HK volatile int instead of atomic_t ///Should we use atomic builtins? http://gcc.gnu.org/onlinedocs/gcc-4.1.2/gcc/Atomic-Builtins.html
 
 extern struct offsets offsets_l;
 extern struct offsets offsets_r;
 
-// initialize data arrays to zero
-// create mutex
+
+/**
+ * \brief Initialize data arrays to zero and create mutex
+ *
+ *
+ */
+
 int initLocalioData(void)
 {
     int i;
@@ -102,6 +107,17 @@ int initLocalioData(void)
 // - Recieve userspace data  - //
 //---------------------------- //
 //int recieveUserspace(unsigned int fifo)
+
+/**
+ * \brief Callback to update data1 local paramater structure
+ *
+ * \question is this used?
+ * \todo this is misspelled
+ *
+ * \param u pointer to new data
+ * \param size
+ */
+
 int recieveUserspace(void *u,int size)
 {
     if (size==sizeof(struct u_struct))
@@ -112,10 +128,21 @@ int recieveUserspace(void *u,int size)
     return 0;
 }
 
-// teleopIntoDS1()
+//
 //
 //   Input from the master is put into DS1 as pos_d.
 //
+
+/**
+ * \brief Actually puts the master data into protected structure
+ *
+ * Takes the data from the master structure and places it into the parameter passing structure.
+ *
+ * \question why is setting the sequence number like this a hack?
+ *
+ * \param us_t a pointer to the user input structure
+ *
+ */
 void teleopIntoDS1(struct u_struct *us_t)
 {
     struct position p;
