@@ -18,32 +18,31 @@
  */
 
 /**
- * state_machine.c
- *
- * Kenneth Fodero
- * Biorobotics Lab
- * 2005
- *
+ * \file state_machine.c
+ * \author Kenneth Fodero
+ * \version 2005
+ * \brief this file gets the desired runlevel from the rcvdParams or PLC
  */
 
 #include "state_machine.h"
 #include "log.h"
 
-extern int initialized;
-extern int NUM_MECH;
-extern int soft_estopped;
+extern int initialized;//Defined in rt_process_preempt
+extern int NUM_MECH;//Defined in rt_process_preempt
+extern int soft_estopped; //Defined in rt_process_preempt
 extern int globalTime;
 #include <sys/times.h>
 struct tms dummy_times;
 
-/**
- * stateMachine() - Function to put data in a state machine
- *
+/**\fn void stateMachine(struct device *device0, struct param_pass *currParams, struct param_pass *rcvdParams)
+ * \brief This function puts data in a state machine
+ * \param device0 robot_device struct defined in DS0.h
+ * \param currParam param_pass struct defined in DS1.h
+ * \param rcvdParams param_pass struct
+ * 
  * In SOFTWARE_RUNLEVEL mode, get desired runlevel from the rcvdParams.
  * In PLC_RUNLEVELS mode, get desired runlevel from the PLC via atmel inputs.
- *    If the two PLC's give different runlevels, select  the lowest of the two.
- *
- * inputs - state, stateD
+ * If the two PLC's give different runlevels, select  the lowest of the two.
  *
  */
 void stateMachine(struct device *device0, struct param_pass *currParams, struct param_pass *rcvdParams)
