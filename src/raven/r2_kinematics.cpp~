@@ -457,12 +457,12 @@ int r2_inv_kin(struct device *d0, int runlevel)
 }
 
 /**\fn int  __attribute__ ((optimize("0"))) inv_kin(btTransform in_T06, l_r in_arm, ik_solution iksol[8])
- * \brief Rus  the Raven II INVERSE kinematics to determine end effector position.
+ * \brief Runs the Raven II INVERSE kinematics to determine end effector position.
  * \param in_T06 - a btTransfrom obejct, transforms the end effector frame to zero frame
  * \param in_arm - Arm type, left / right ( kin.armtype arm = left/right)
  * \param ik_solution iksol[8] - 8 element array of joint angles ( float j[] = {shoulder, elbow, vacant joint, ins,roll, wrist, grasp1, grasp2} )
  * \return 0 - success, -1 - bad arm, -2 - too close to RCM.
- * \question  why this? attribute optimize(0)
+ * \question  __attribute__ ((optimize("0")))? why this?
  */
  
 int  __attribute__ ((optimize("0"))) inv_kin(btTransform in_T06, l_r in_arm, ik_solution iksol[8])
@@ -482,8 +482,8 @@ int  __attribute__ ((optimize("0"))) inv_kin(btTransform in_T06, l_r in_arm, ik_
 
 	for (int i=0;i<8;i++)    iksol[i].arm = in_arm;
 
- 
-	//  Step 1, Compute P5
+	/////
+	///  Step 1, Compute P5
 	btTransform  T60 = in_T06.inverse();
 	btVector3    p6rcm = T60.getOrigin();
 	btVector3    p05[8];
@@ -495,8 +495,8 @@ int  __attribute__ ((optimize("0"))) inv_kin(btTransform in_T06, l_r in_arm, ik_
 		p05[4*i] = p05[4*i+1] = p05[4*i+2] = p05[4*i+3] = in_T06 * p65;
 	}
 
-	//
-	//  Step 2, compute displacement of prismatic joint d3
+	/////
+	///  Step 2, compute displacement of prismatic joint d3
 	for (int i=0;i<2;i++)
 	{
 		double insertion = 0;
@@ -515,8 +515,8 @@ int  __attribute__ ((optimize("0"))) inv_kin(btTransform in_T06, l_r in_arm, ik_
 
 
 
-	
-	//  Step 3, calculate theta 2
+	/////
+	///  Step 3, calculate theta 2
 	for (int i=0; i<8; i+=2) // p05 solutions
 	{
 		double z0p5 = p05[i][2];
@@ -543,8 +543,8 @@ int  __attribute__ ((optimize("0"))) inv_kin(btTransform in_T06, l_r in_arm, ik_
 		}
 	}
 
-	//
-	//  Step 4: Compute theta 1
+	/////
+	///  Step 4: Compute theta 1
 	for (int i=0;i<8;i++)
 	{
 		if (iksol[i].invalid == ik_invalid)
@@ -574,8 +574,8 @@ int  __attribute__ ((optimize("0"))) inv_kin(btTransform in_T06, l_r in_arm, ik_
 		iksol[i].th1 = atan2(scth1[1],scth1[0]);
 	}
 
-	//
-	//  Step 5: get theta 4, 5, 6
+	/////
+	///  Step 5: get theta 4, 5, 6
 	for (int i=0; i<8;i++)
 	{
 		if (iksol[i].invalid == ik_invalid)
@@ -803,9 +803,9 @@ int check_solutions(double *in_thetas, ik_solution * iksol, int &out_idx, double
 
 
 
-//-------------------------------------------------------------------------------
+//////////////////////////////////////////////////////////////////////////////////
 // Utility functions to print out transforms
-//-------------------------------------------------------------------------------
+//////////////////////////////////////////////////////////////////////////////////
 
 /**\fn void print_btTransform(btTransform xf)
  * \brief print a btTransform object
@@ -847,12 +847,14 @@ void print_btVector(btVector3 vv)
 
 
 
-//------------------------------------------------------------------------------------------
+//////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////
 // Conversion of J to Theta
 //  J represents the physical robot joint angles.
 //  Theta is used by the kinematics.
 //  Theta convention was easier to solve the equations, while J was already coded in software.
-//-----------------------------------------------------------------------------------------
+//////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////
 
 const static double TH1_J0_L  = -180;//-205;   //add this to J0 to get \theta1 (in deg)
 const static double TH2_J1_L  = -180;   //add this to J1 to get \theta2 (in deg)
