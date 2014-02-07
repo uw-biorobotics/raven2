@@ -22,8 +22,9 @@
 * \author Hawkeye
 * \version 10/2011
 * \brief raven control functions
+*
 *   Runs all raven control functions.
-*   Code split out from rt_process_preempt.cpp, in order to provide more flexibility.
+*   This a thread run in parallel with rt_process_preempt in order to provide more flexibility.
 *
 */
 
@@ -63,16 +64,15 @@ int raven_sinusoidal_joint_motion(struct device *device0, struct param_pass *cur
 extern int initialized; //Defined in rt_process_preempt.cpp
 
 /**
-* controlRaven()
-*   Implements control for one loop cycle.
-*     precondition:  encoders values have been read,
-*                    runlevel has been set
-*     postcondition: robot state is reflected in device0,
-*                    DAC outputs are set in device0
-* \fn int controlRaven(struct device *device0, struct param_pass *currParams)
+*  \brief Implements control for one loop cycle.
+*
+* \post encoders values have been read, runlevel has been set
+* \pre robot state is reflected in device0, DAC outputs are set in device0
+*
 * \brief This funtion controls the Raven based on the desired control mode.
 * \param device0 robot_device struct defined in DS0.h
 * \param currParam param_pass struct defined in DS1.h
+*
 * This function first initializes the robot and then it computes Mpos and Velocities by calling
 * stateEstimate() and then it calls fwdCableCoupling() and r2_fwd_kin() to calculate the forward cable coupling
 * inverse kinematics respectively. 
@@ -100,7 +100,6 @@ int controlRaven(struct device *device0, struct param_pass *currParams){
     fwdCableCoupling(device0, currParams->runlevel);
 
     //Forward kinematics
-//    fwdKin(device0, currParams->runlevel);
     r2_fwd_kin(device0, currParams->runlevel);
 
     switch (controlmode){
@@ -172,11 +171,12 @@ int controlRaven(struct device *device0, struct param_pass *currParams){
     return ret;
 }
 
-/**\fn int raven_cartesian_space_command(struct device *device0, struct param_pass *currParams)
+/**
 *  \brief  This function runs pd_control on motor position.
 *  \param device0 robot_device struct defined in DS0.h
 *  \param currParams param_pass struct defined in DS1.h
 *  \return -1 if Pedal is up and 0 when torque is applied to DAC
+*
 * This function:
 *  1. calls the r2_inv_kin() to calculate the inverse kinematics
 *  2. call the invCableCoupling() to calculate the inverse cable coupling
@@ -237,11 +237,12 @@ int raven_cartesian_space_command(struct device *device0, struct param_pass *cur
 }
 
 
-/**\fn int raven_sinusoidal_joint_motion(struct device *device0, struct param_pass *currParams)
+/**
 *  \brief  This function applies a sinusoidal trajectory to all joints
 *  \param device0 is robot_device struct defined in DS0.h
 *  \param currParams is param_pass struct defined in DS1.h
 *  \return 0 
+*
 * This function: 
 *  1. returns 0 if not in pedal down or init.init (do nothing)
 *  2. it sets trajectory on all the joints
@@ -325,11 +326,12 @@ int raven_sinusoidal_joint_motion(struct device *device0, struct param_pass *cur
 }
 
 
-/**\fn int applyTorque(struct device *device0, struct param_pass *currParams)
+/**
 *  \brief For debugging robot,  apply a set torque command (tau_d) to a joint.
 *  \param device0 is robot_device struct defined in DS0.h
 *  \param currParams is param_pass struct defined in DS1.h
 *  \return 0 
+*
 * This function: only run in runlevel 1.2
 *  1. It checks the run level
 *  2. loops over all the joints and mechanisim to set the torque value
@@ -364,11 +366,12 @@ int applyTorque(struct device *device0, struct param_pass *currParams)
 }
 
 
-/**\fn int raven_motor_position_control(struct device *device0, struct param_pass *currParams)
+/**\
 *  \brief This function runs PD control on motor position
 *  \param device0 is robot_device struct defined in DS0.h
 *  \param currParams is param_pass struct defined in DS1.h
 *  \return 0 
+*
 *  This function:
 *    1. checks to see if it's in pedal down mode, if not it sets all joints to zero torque and return 0
 *    2. set trajectory on all joints
@@ -439,11 +442,12 @@ int raven_motor_position_control(struct device *device0, struct param_pass *curr
     return 0;
 }
 
-/**fn int raven_joint_velocity_control(struct device *device0, struct param_pass *currParams)
+/**
 * \brief This function runs pi_control on joint velocity
 * \param device0 is robot_device struct defined in DS0.h
 * \param currParams is param_pass struct defined in DS1.h
 * \return 0 
+*
 *  This function:
 *  1. if pedal is down or RL_INIT and SL_AUTO_INIT, it Loops over all the joints and all the mechanisim to initialize 
 *  velocity trajectory by calling start_trajectory() which is in trajectory.cpp
