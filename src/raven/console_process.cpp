@@ -39,16 +39,17 @@ using namespace std;
 // from rt_process.cpp
 extern struct device device0;//robot_device struct defined in DS0.h 
 
-extern unsigned long int gTime;//Defined in rt_process
-extern int soft_estopped;
-extern struct DOF_type DOF_types[];
-extern std::queue<char*> msgqueue;
+extern unsigned long int gTime;//Defined in rt_process_preempt.cpp
+extern int soft_estopped;//Defined in rt_process_preempt.cpp
+extern struct DOF_type DOF_types[];//Defined in globals.cpp
+extern std::queue<char*> msgqueue; 
 
 void outputRobotState();
 int getkey();
 
-/**
-* This is the thread dedicated to console io
+/**\fn void *console_process(void *)
+ * \brief this thread dedicated to console io
+ * \param a pointer to void
 */
 void *console_process(void *)
 {
@@ -182,6 +183,10 @@ void *console_process(void *)
     return(NULL);
 }
 
+/**\fn int getkey()
+ * \brief gets keyboard character for switch case's of console_process()
+ * \return return keyboard character
+ */
 int getkey() {
     int character;
     struct termios orig_term_attr;
@@ -205,6 +210,10 @@ int getkey() {
     return character;
 }
 
+/**\fn void outputRobotState()
+ * \brief prints out all the robots states on the console window
+ * \return void
+ */
 void outputRobotState(){
     cout<<"Runevel: "<< static_cast<unsigned short int>(device0.runlevel)<<"\n";
     for (int j = 0; j < 2; j++)
