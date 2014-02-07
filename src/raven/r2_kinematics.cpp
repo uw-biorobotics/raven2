@@ -457,7 +457,7 @@ int r2_inv_kin(struct device *d0, int runlevel)
 }
 
 /**\fn int  __attribute__ ((optimize("0"))) inv_kin(btTransform in_T06, l_r in_arm, ik_solution iksol[8])
- * \brief Rus  the Raven II INVERSE kinematics to determine end effector position.
+ * \brief Runs the Raven II INVERSE kinematics to determine end effector position.
  * \param in_T06 - a btTransfrom obejct, transforms the end effector frame to zero frame
  * \param in_arm - Arm type, left / right ( kin.armtype arm = left/right)
  * \param ik_solution iksol[8] - 8 element array of joint angles ( float j[] = {shoulder, elbow, vacant joint, ins,roll, wrist, grasp1, grasp2} )
