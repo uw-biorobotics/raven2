@@ -62,10 +62,10 @@
 /// Encoder ticks per motor revolution
 #define ENC_CNTS_PER_REV ENC_CNTS_PER_REV_R_II
 
-void getMotorIMax(int joint, float *iMax);
-void getMotorTR(int joint, float *tr);
-int getMotorType(int joint);
-void getMotorTF(int joint, float *tfMotor);
+//void getMotorIMax(int joint, float *iMax);
+//void getMotorTR(int joint, float *tr);
+//int getMotorType(int joint);
+//void getMotorTF(int joint, float *tfMotor);
 
 
 

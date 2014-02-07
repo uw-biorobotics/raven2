@@ -41,9 +41,9 @@ t_controlmode newRobotControlMode = homing_mode;
  * updateDeviceState - Function that update the device state based on parameters passed from
  *       the user interface
  *
- * inputs - params_current - the current set of parameters
- *          params_update - the new set of parameters
- *          device0 - pointer to device informaiton
+ * \param params_current    the current set of parameters
+ * \param arams_update      the new set of parameters
+ * \param device0           pointer to device informaiton
  *
  */
 int updateDeviceState(struct param_pass *currParams, struct param_pass *rcvdParams, struct device *device0)
@@ -112,6 +112,7 @@ int updateDeviceState(struct param_pass *currParams, struct param_pass *rcvdPara
 /*
 *  setRobotControlMode()
 *       Change controller mode, i.e. position control, velocity control, visual servoing, etc
+*   \param t_controlmode    current control mode.
 */
 void setRobotControlMode(t_controlmode in_controlMode){
     log_msg("Robot control mode: %d",in_controlMode);
@@ -122,8 +123,10 @@ void setRobotControlMode(t_controlmode in_controlMode){
 /*
 *  setDofTorque()
 *    Set a torque to output on a joint.
-*
 *     Torque input is mNm
+*   \param in_mech      Mechinism number of the joint
+*   \param in_dof       DOF number
+*   \param in_torque    Torque to set the DOF to (in mNm)
 */
 void setDofTorque(unsigned int in_mech, unsigned int in_dof, int in_torque){
     if (    ((int)in_mech < NUM_MECH)        &&
