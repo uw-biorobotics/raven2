@@ -20,10 +20,9 @@
 
 /***************************************//**
 
-  \file local_io.c
+\brief This is where the USB, ITP, and ROS interfaces live
 
-
-\description Local_io keeps its own copy of DS1 for incorporating new
+Local_io keeps its own copy of DS1 for incorporating new
 network-layer and toolkit updates.
 
 The local DS1 copy is protected by a mutex.
@@ -75,7 +74,7 @@ extern struct offsets offsets_r;
 /**
  * \brief Initialize data arrays to zero and create mutex
  *
- *
+ * The mutex is a method to protect the data from being overwritten while it's being used
  */
 
 int initLocalioData(void)
@@ -103,22 +102,15 @@ int initLocalioData(void)
     return 0;
 }
 
-// --------------------------- //
-// - Recieve userspace data  - //
-//---------------------------- //
-//int recieveUserspace(unsigned int fifo)
 
 /**
- * \brief Callback to update data1 local paramater structure
- *
- * \question is this used?
- * \todo this is misspelled
+ * \brief Initiates update of data1 local paramater structure from userspace
  *
  * \param u pointer to new data
  * \param size
  */
 
-int recieveUserspace(void *u,int size)
+int receiveUserspace(void *u,int size)
 {
     if (size==sizeof(struct u_struct))
     {
@@ -128,13 +120,9 @@ int recieveUserspace(void *u,int size)
     return 0;
 }
 
-//
-//
-//   Input from the master is put into DS1 as pos_d.
-//
 
 /**
- * \brief Actually puts the master data into protected structure
+ * \brief Puts the master data into protected structure
  *
  * Takes the data from the master structure and places it into the parameter passing structure.
  *
@@ -192,6 +180,7 @@ void teleopIntoDS1(struct u_struct *us_t)
 		else if(data1.rd[i].grasp<graspmin) data1.rd[i].grasp=graspmin;
     }
 
+    /// \question HK: why is this a hack?
     // HACK HACK HACK
     // HACK HACK HACK
     // HACK HACK HACK
@@ -240,8 +229,8 @@ int checkLocalUpdates()
 
 /** \brief Give the latest updated DS1 to the caller.
 *
-*   Precondition: d1 is a pointer to allocated memory
-*   Postcondition: memory location of d1 contains latest DS1 Data from network/toolkit.
+*   \pre d1 is a pointer to allocated memory
+*   \post memory location of d1 contains latest DS1 Data from network/toolkit.
 *
 *   \param d1 pointer to the protected data structure
 *   \return a copy of the data as a param_pass structure
@@ -260,7 +249,14 @@ struct param_pass * getRcvdParams(struct param_pass* d1)
     return d1;
 }
 
-/** Reset writable copy of DS1
+/**
+ * \brief Resets the desired position to the robot's current position
+ *
+ * Resetting the desired position when the robot is idle will prevent it from accumulating deltas.
+ * This function is particularly useful to prevent the grasp position from changing too much
+ * while the robot is moving
+ *
+ * Reset writable copy of DS1
 */
 void updateMasterRelativeOrigin(struct device *device0)
 {
@@ -324,7 +320,14 @@ ros::Publisher vis_pub1;
 ros::Publisher vis_pub2;
 
 /**
-*    init_ravenstate_publishing()  - initialize publishing data to ros.
+*  \brief Initiates all ROS publishers and subscribers
+*
+*  Currently advertises ravenstate, joint states, and 2 visualization markers.
+*  Subscribes to automove
+*
+*  \param n the address of a nodeHandle
+*
+*  \todo rename this functionto reflect it's current use as a general ROS topic initializer
 */
 int init_ravenstate_publishing(ros::NodeHandle &n){
     pub_ravenstate = n.advertise<raven_state>("ravenstate", 1 ); //, ros::TransportHints().unreliable().tcpNoDelay() );
@@ -340,8 +343,13 @@ int init_ravenstate_publishing(ros::NodeHandle &n){
 
 
 /*
- * autoincrCallback()
- *   Apply motion increments from someplace cool.
+ *\brief Callback for the automove topic - Updates the data1 structure
+ *
+ * Callback for the automove topic. Updates the data1 structure with the information from the
+ * ROS topic. Properly locks the data1 mutex. Accepts cartesian or quaternion increments.
+ *
+ * \param msg the
+ *
  */
 void autoincrCallback(raven_2::raven_automove msg)
 {
@@ -378,9 +386,10 @@ void autoincrCallback(raven_2::raven_automove msg)
 
 
 /*
-* publish_ravenstate_ros()
+* \brief Publishes the raven_state message from the robot and currParams structures
 *
-*   Copy robot data over to ros message type and publish.
+*   \param dev robot device structure with the current state of the robot
+*   \param currParams the parameters being passed from the interfaces
 */
 void publish_ravenstate_ros(struct robot_device *dev,struct param_pass *currParams){
     static int count=0;
@@ -451,7 +460,11 @@ void publish_ravenstate_ros(struct robot_device *dev,struct param_pass *currPara
 }
 
 /**
-*   publish_joints() - publish joint angles to visualization
+*  \brief Publishes the joint angles for the visualization
+*
+*  \param device0 the robot and its state
+*
+*
 */
 void publish_joints(struct robot_device* device0){
 
@@ -561,7 +574,14 @@ void publish_joints(struct robot_device* device0){
 
 }
 
-
+/**
+ * \brief Publish the visualization marker for the robot visualization
+ *
+ * \param device0 the robot device and all of its ins and outs
+ *
+ * \author Sina?
+ *
+ */
 void publish_marker(struct robot_device* device0)
 {
     visualization_msgs::Marker marker1, marker2;
