@@ -8,7 +8,7 @@ PROJECT_NUMBER 			= 2014
 
 INPUT					= ../src \
 						  ../include \
-						  /specialFiles \
+						  ./specialFiles \
 						  ../msg
 EXTRACT_ALL				= YES
 RECURSIVE 				= YES
