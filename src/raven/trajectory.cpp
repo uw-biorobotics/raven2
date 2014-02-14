@@ -21,7 +21,7 @@
 *    \file trajectory.h
 *    \author  Hawkeye
 *    \version 10/2011
-*
+*    \ingroup Control
 *    Generate joint and cartesian trajectories.
 *    Internal data structures track trajectory state, and update DOFs as needed upon calling.
 */
@@ -36,7 +36,7 @@
 extern unsigned long int gTime;
 
 // Store trajectory parameters
-/**  \var trajectory        A global array of _trajectories, one for each DOF in each Mechanism
+/**  \brief A struct to hold trajectory parameters
  *
  *
  *     \var startTime       must be in ROS's ros::Time format
@@ -59,7 +59,6 @@ struct _trajectory trajectory[MAX_MECH*MAX_DOF_PER_MECH];
 
 
 /**
-*  start_velocity_trajectory()
 *    initialize trajectory parameters. Magnitude is set according to difference between _endPos and current joint position.
 *
 *   \param  _joint    DOF struct for specific joint
@@ -100,8 +99,7 @@ int start_trajectory(struct DOF* _joint, float _endPos, float _period)
     return 0;
 }
 /**
-*  start_velocity_trajectory()
-*    initialize trajectory parameters.  Start of this trajectory will be the current state: i.e. the position and velocity at this time.
+*  initialize trajectory parameters.  Start of this trajectory will be the current state: i.e. the position and velocity at this time.
 *   \param  _joint    DOF struct for specific joint
 *   \param  _mag      how big a move
 *   \param _period    duration ( of one cycle)
