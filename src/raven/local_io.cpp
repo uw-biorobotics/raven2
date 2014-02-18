@@ -30,6 +30,11 @@ The local DS1 copy is protected by a mutex.
 This transient copy should then be read to another copy for
 active use.
 
+\ingroup ROS
+\ingroup Control
+\ingroup DataLogging
+\ingroup Networking
+
 ROS publishing is at the bottom half of this file.
 
 ***************************************/
@@ -108,6 +113,8 @@ int initLocalioData(void)
  *
  * \param u pointer to new data
  * \param size
+ *
+ * \todo check checksum, figure out what to do if the checksum fails
  */
 
 int receiveUserspace(void *u,int size)
@@ -127,6 +134,7 @@ int receiveUserspace(void *u,int size)
  * Takes the data from the master structure and places it into the parameter passing structure.
  *
  * \question why is setting the sequence number like this a hack?
+ * \todo Apply transform to incoming data </capslock>
  * \param us_t a pointer to the user input structure
  */
 void teleopIntoDS1(struct u_struct *us_t)
@@ -199,7 +207,8 @@ void teleopIntoDS1(struct u_struct *us_t)
 /**
  * \brief Checks if there has been a recent update from master
  *
- * Checks if there has been a recent update from master. If it has been too long since last update it sets state to pedal-up.
+ * Checks if there has been a recent update from master.
+ * If it has been too long since last update it sets state to pedal-up.
  *
  * \return true if updates have been received from master or toolkit since last module update
  * \return false otherwise
@@ -239,7 +248,7 @@ int checkLocalUpdates()
 */
 struct param_pass * getRcvdParams(struct param_pass* d1)
 {
-    // \todo Check performance of trylock / default priority inversion scheme
+    // \TODO Check performance of trylock / default priority inversion scheme
     if (pthread_mutex_trylock(&data1Mutex)!=0)   //Use trylock since this function is called form rt-thread. return immediately with old values if unable to lock
         return d1;
     //pthread_mutex_lock(&data1Mutex); //Priority inversion enabled. Should force completion of other parts and enter into this section.
