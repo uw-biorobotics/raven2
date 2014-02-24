@@ -30,5 +30,5 @@
 #include "DS0.h"
 #include "DS1.h"
 /** prototype for controlRaven()
- * /
+ */
 int controlRaven(struct robot_device*, struct param_pass*);
