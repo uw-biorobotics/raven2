@@ -18,11 +18,15 @@
  */
 
 /*
- *  FILE: GravComp.c
+ *  \brief Functions for calculating gravity torques
+ *
+ *  These functions will calculate gravity loads on each of the first 3 DOFs with predefined mass properties.
+ *  However, arbitrary gravity vectors can be specified in the currParams data structure, which are then
+ *  used in these calculations.
  *
  *  Re-written March 2013 by Andy Lewis and Hawkeye King
  *    Equations re-derived for UW Kinematics formulations for Raven II
- *    See forthcoming technical report for details.
+ *    See Andy's MS thesis or ICRA '14 paper for technical details.
  *
  *
  *
@@ -60,12 +64,12 @@ const static double M3 = 0.231; // kg --> ? lb
 // masses updated using fresh links from raven 2.1 build 6/13
 
 
-
+btVector3 getCurrentG(struct device *d0, int m);
 void getMotorTorqueFromJointTorque(int, double, double, double, double&, double&, double&);
 
 /*
  * getCurrentG()
- *    Return the current gravity vector from whatever power knows of it.
+ * \brief Return the current gravity vector from whatever power knows it.
  */
 btVector3 getCurrentG(struct device *d0, int m)
 {
@@ -94,7 +98,20 @@ btVector3 getCurrentG(struct device *d0, int m)
 
 /*
  * getGravityTorque()
- *    Calculate and set the gravity torque for each of the first three joints on both arms
+ * \brief Calculate and set the gravity torque for each of the first three joints on both arms
+ *
+ * Using the current gravity vector in the input parameter struct and predefined COM information,
+ * this function calculates the desired gravity compensation torque and sets the corresponding value in the
+ * device struct.
+ *
+ * \param &d0		the robot device
+ * \param &params	the current robot parameters struct
+ *
+ * 	 Calculate Torque: T_i = sum( j=i..3 , (M_j * G_i) x ^iCOM_j )
+		GT1 = (M1*G1) x ^1COM_1 + (M2*G1) x ^1COM_2 + (M3*G1) x ^1COM_3
+		GT2 = (M2*G2) x ^2COM_2 + (M3*G2) x ^2COM_3
+		GT3 = (M3 * G3)
+ *
  *
  *    Notation:
  *    Txy    - Transform from frame 0 to frame 1
@@ -197,7 +214,7 @@ void getGravityTorque(struct device &d0, struct param_pass &params)
 		// Set motor g-torque
 		_mech->joint[SHOULDER].tau = MT1; 
 		_mech->joint[ELBOW   ].tau = MT2;
-		_mech->joint[Z_INS   ].tau= MT3;
+		_mech->joint[Z_INS   ].tau = MT3;
 
 	}
 
@@ -207,34 +224,27 @@ void getGravityTorque(struct device &d0, struct param_pass &params)
 	return;
 }
 
+/**
+ * \brief Calculates the motor torque required to output a specified joint torque
+ *
+ * \param	arm 		the type of mechanism that the output is calculate for
+ * \param 	in_GZ1		the desired joint torque at DOF1
+ * \param  	in_GZ2 		the desired joint torque at DOF2
+ * \param  	in_GZ3 		the desired joint torque at DOF3
+ * \param 	&out_MT1	an output pointer for calculated motor torque 1
+ * \param 	&out_MT2	an output pointer for calculated motor torque 2
+ * \param 	&out_MT3	an output pointer for calculated motor torque 3
+ *
+ */
+
 // TODO: this function will need to be updated when cable coupling between first three axes is implemented as non-diagonal.
 void getMotorTorqueFromJointTorque(int arm, double in_GZ1, double in_GZ2, double in_GZ3, double &out_MT1, double &out_MT2, double &out_MT3)
 {
-
-	// Get capstan transmission ratios
-	double tr1, tr2, tr3;
-	if (arm == GOLD_ARM)
-	{
-		tr1 = DOF_types[SHOULDER_GOLD ].TR / GEAR_BOX_GP42_TR; // GEARBOX ratios are included in
-		tr2 = DOF_types[ELBOW_GOLD    ].TR / GEAR_BOX_GP42_TR; // TR calculation in defines.h
-		tr3 = DOF_types[Z_INS_GOLD    ].TR / GEAR_BOX_GP42_TR; // This cancels the term out so
-															   // that the effect isn't squared
-															   // at tToDACVal. Love, Andy.
-
-	}
-	else
-	{
-		tr1 = DOF_types[SHOULDER_GREEN ].TR / GEAR_BOX_GP42_TR;
-		tr2 = DOF_types[ELBOW_GREEN    ].TR / GEAR_BOX_GP42_TR;
-		tr3 = DOF_types[Z_INS_GREEN    ].TR / GEAR_BOX_GP42_TR;
-	}
-
-
 	// claculate motor torques from joint torques
 	// TODO:: add in additional cable-coupling terms
-	out_MT1 = in_GZ1 / GEAR_BOX_GP42_TR;//* tr1;	//(1/tr1) * in_GZ1;
-	out_MT2 = in_GZ2 / GEAR_BOX_GP42_TR;//* tr2;	//(1/tr2) * in_GZ2;
-	out_MT3 = in_GZ3 / GEAR_BOX_GP42_TR;//* tr3;	//(1/tr3) * in_GZ3;
+	out_MT1 = in_GZ1 / GEAR_BOX_GP42_TR;
+	out_MT2 = in_GZ2 / GEAR_BOX_GP42_TR;
+	out_MT3 = in_GZ3 / GEAR_BOX_GP42_TR;
 
 	return;
 }
