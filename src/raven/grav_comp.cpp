@@ -192,7 +192,6 @@ void getGravityTorque(struct device &d0, struct param_pass &params)
 
 		// Get motor torque from joint torque
 		double MT1, MT2, MT3;
-		double MT1s = 0, MT2s = 0, MT3s = 0;
 		getMotorTorqueFromJointTorque(_mech->type, GZ1, GZ2, GZ3, MT1, MT2, MT3);
 
 		// Set motor g-torque
