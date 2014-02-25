@@ -38,6 +38,6 @@
 /*
  * Calculate gravity load on joints 1,2,3 on both arms
  */
-void getGravityTorque(struct device &d0);
+void getGravityTorque(struct device &d0, struct param_pass &params);
 
 #endif

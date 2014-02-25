@@ -50,6 +50,8 @@ struct param_pass {
   struct position xd[MAX_MECH_PER_DEV];		                // desired end-point position
   struct orientation rd[MAX_MECH_PER_DEV];	              // desired end-point orientation
   int    torque_vals[MAX_MECH_PER_DEV * MAX_DOF_PER_MECH];// desired force/torque
+  float	 grav_mag;	    //gravity magnitude
+  struct position grav_dir; //gravity direction
   char   cmdStr[200];          
   int    surgeon_mode;
   int    robotControlMode;

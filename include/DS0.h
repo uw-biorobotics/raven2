@@ -156,6 +156,8 @@ struct robot_device {
   u_08 sublevel;	// which experimental mode are we running
   int  surgeon_mode;	// Clutching/indexing state - 1==engaged; 0==disengaged
   struct mechanism mech [MAX_MECH_PER_DEV];
+  float	 grav_mag;	    //gravity magnitude
+  struct position grav_dir; //gravity direction
 };
 
 #endif

@@ -61,6 +61,14 @@ void initRobotData(struct device *device0, int runlevel, struct param_pass *curr
     // init_wait_loop is a klugy way to wait a few times through the loop for our kinematics to propogate.
     static int init_wait_loop=0;
 
+    //initialize gravity direction data
+    if(!initialized){	
+    currParams->grav_dir.x = -980;
+    currParams->grav_dir.y = 0;
+    currParams->grav_dir.z = 0;
+    currParams->grav_mag = 9.8;
+    }
+
     //In ESTOP reset initialization
     if (runlevel == RL_E_STOP)
         initialized = FALSE;

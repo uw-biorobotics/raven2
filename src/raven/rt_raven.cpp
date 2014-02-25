@@ -114,7 +114,7 @@ int controlRaven(struct device *device0, struct param_pass *currParams){
             int i=0,j=0;
 
             // Gravity compensation calculation
-            getGravityTorque(*device0);
+            getGravityTorque(*device0, *currParams);
 
             while ( loop_over_joints(device0, _mech, _joint, i,j) )
                 _joint->tau_d = _joint->tau_g;  // Add gravity torque
@@ -224,7 +224,7 @@ int raven_cartesian_space_command(struct device *device0, struct param_pass *cur
     }
 
     // Gravity compensation calculation
-    getGravityTorque(*device0);
+    getGravityTorque(*device0, *currParams);
     _mech = NULL;  _joint = NULL;
     while ( loop_over_joints(device0, _mech, _joint, i,j) )
     {
