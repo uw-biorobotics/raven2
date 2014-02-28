@@ -19,9 +19,11 @@
 
 /**\file r2_kinematics.cpp
  * \brief kinematic calculation of robot
+ *
  * 	  Degenerate cases in inverse kinematics:
- *        All rotational joints have problems around +/-180.  (Unhandled exception)
- *       As tool tip approaches RCM, IK fails.  This case returns -2.
+ *    1. All rotational joints have problems around +/-180.  (Unhandled exception)
+ *    2. As tool tip approaches RCM, IK fails.  This case returns -2.
+ *
  * \author Hawkeye King
  * \date Jun 18, 2012
  */
@@ -109,12 +111,12 @@ btTransform getFKTransform(int a, int b)
 
 
 
-//-------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------
 //  Forward kinematics
 //--------------------------------------------------------------------------------
 
 /**\fn int r2_fwd_kin(struct device *d0, int runlevel)
- * \brief ravenII forward kinematics from
+ * \brief ravenII forward kinematics
  * \param d0 - a pointer points to the device struct, equivalent as robot_device struct, see define.h
  * \param runlevel - an integer value of the current runlevel
  * \return 0 on success -1 on failure
@@ -453,7 +455,7 @@ int r2_inv_kin(struct device *d0, int runlevel)
  * \param in_arm - Arm type, left / right ( kin.armtype arm = left/right)
  * \param ik_solution iksol[8] - 8 element array of joint angles ( float j[] = {shoulder, elbow, vacant joint, ins,roll, wrist, grasp1, grasp2} )
  * \return 0 - success, -1 - bad arm, -2 - too close to RCM.
- * \question  why this? attribute optimize(0)
+ * \question  why this? attribute_optimize("0")
  */
  
 int  __attribute__ ((optimize("0"))) inv_kin(btTransform in_T06, l_r in_arm, ik_solution iksol[8])
