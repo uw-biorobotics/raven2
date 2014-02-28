@@ -18,6 +18,15 @@
  */
 
 /**
+ * brief Provide functionality for determining the correct DAC value for a given torque
+ *
+ * \author Kenneth Fodero
+ * \author Hawkeye King
+ *
+ * \ingroup Control
+ */
+
+/*
  * t_to_DAC_val.c
  *
  * Kenneth Fodero
@@ -26,6 +35,7 @@
  *
  * Modified by Hawkeye King
  */
+
 
 #include "t_to_DAC_val.h"
 #include "motor.h"
@@ -39,11 +49,13 @@ extern unsigned int soft_estopped;
 
 
 /**
- * TorqueToDAC() - Converts desired torque on each joint to desired DAC level
+ * \brief Converts desired torque on each joint to desired DAC level
  *
- * Precondition - tau_d has been set for each joint
+ *	This function loops over all of the joints in the device to cal the conversion calculation for the desired torque values.
+ *	There are checks for the mechanism connection status and software e-stops.
  *
- * Postcondition - current_cmd is set for each joint
+ * \pre tau_d has been set for each joint
+ * \post current_cmd is set for each joint
  * \param device0 pointer to device structure
  *
  */
@@ -66,14 +78,14 @@ int TorqueToDAC(struct device *device0)
 }
 
 /**
-    * t_to_DAC_val() - Takes a torque value and DOF and returns the appropriate
+ * \brief Takes a torque value and DOF and returns the appropriate
  *   encoder value.  This function could be reduced to one line, but that would be un-readable.
  *
  * inputs - torque - the desired torque
  *          dof - the degree of freedom we are using
  *
- * output - encoder value
  * \param joint pointer to DOF structure
+ * \output DAC value
  */
 short int tToDACVal(struct DOF *joint)
 {
@@ -96,8 +108,9 @@ short int tToDACVal(struct DOF *joint)
     return result;
 }
 
+
 /**
- * clearDACs() - sets DACs to 0V
+ * /brief sets DACs to 0V
  *
  * input: buffer_out
  * \param device0 pointer to device structure
