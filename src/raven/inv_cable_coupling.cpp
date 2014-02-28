@@ -22,8 +22,15 @@
  *
  *  File: inv_cable_coupling.c
  *
- *  Calculate the inverse cable coupling from a Joint Space Pose,
- *  (th1, th2,d3) express the desired motor pose (m1, m2, m3)
+ *  \ingroup Control
+ *  \ingroup Tool
+ *
+ *  \brief Calculate the inverse cable coupling from a Joint Space Pose,
+ *  (th1, th2, d3) express the desired motor pose (m1, m2, m3)
+ *
+ *  \todo standardize numbering system 0 or 1 origin for motor designation
+ *  \todo standardize 3 or 4 insertion axis
+ *  \todo analyze (DANYING) coupling and convert to matrix maths
  *
  **********************************/
 
@@ -63,9 +70,9 @@ void invMechCableCoupling(struct mechanism *mech, int no_use_actual)
   	return;
   }
 
-  float th1, th2, th3, th5, th6, th7;
+  float th1, th2, th3, th5, th6, th7; //joint angles
   float d4;
-  float m1, m2, m3, m4, m5, m6, m7;
+  float m1, m2, m3, m4, m5, m6, m7; //motor angles
   float tr1=0, tr2=0, tr3=0, tr4=0, tr5=0, tr6=0, tr7=0;
 
   th1 = mech->joint[SHOULDER].jpos_d;
@@ -96,9 +103,6 @@ void invMechCableCoupling(struct mechanism *mech, int no_use_actual)
   }
 
   m1 = tr1 * th1;
-  // DELETEME
-//  m2 = tr2 * th2;   // additional terms added 3/13
-//  m4 = tr4 * d4;
   m2 = tr2 * (th2 + CABLE_COUPLING_01*th1);
   m4 = tr4 * (d4 + CABLE_COUPLING_02*th1 + CABLE_COUPLING_12*th2);
 
@@ -162,8 +166,8 @@ void invMechCableCoupling(struct mechanism *mech, int no_use_actual)
   /*Now have solved for desired motor positions mpos_d*/
   mech->joint[SHOULDER].mpos_d 	= m1;
   mech->joint[ELBOW].mpos_d 	= m2;
-  mech->joint[TOOL_ROT].mpos_d 	= m3;
   mech->joint[Z_INS].mpos_d 	= m4;
+  mech->joint[TOOL_ROT].mpos_d 	= m3;
   mech->joint[WRIST].mpos_d 	= m5;
   mech->joint[GRASP1].mpos_d 	= m6;
   mech->joint[GRASP2].mpos_d 	= m7;

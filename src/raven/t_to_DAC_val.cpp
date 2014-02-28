@@ -125,6 +125,10 @@ void clearDACs(struct device *device0)
             device0->mech[i].joint[j].current_cmd = 0;
 }
 
+/**
+ * \brief testing function for validating the control boards
+ */
+
 int TorqueToDACTest(struct device *device0)
 {
     static int count;

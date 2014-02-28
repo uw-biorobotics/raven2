@@ -23,6 +23,8 @@
 * \version 10/2011
 * \brief raven control functions
 *
+* \ingroup control
+*
 *   Runs all raven control functions.
 *   This a thread run in parallel with rt_process_preempt in order to provide more flexibility.
 *

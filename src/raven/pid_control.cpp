@@ -17,7 +17,7 @@
  * along with Raven 2 Control.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/**
+/*
  * pid_control.c - control law
  *     pdControl - PD controller
  *
@@ -31,6 +31,14 @@
  *   Modified for Raven_II
  */
 
+/**
+ * \brief PD and PI controllers for control
+ *
+ * \ingroup Control
+ *
+ * \todo play with the feed-forward friction term in the PD controller
+ */
+
 #include <stdlib.h>
 #include "pid_control.h"
 #include "log.h"
@@ -40,6 +48,10 @@
 
 extern struct DOF_type DOF_types[];
 extern unsigned long int gTime;
+
+/**
+ * \brief calculates PD control (or PI) for
+ */
 
 void mpos_PD_control(struct DOF *joint, int reset_I)
 {
@@ -55,7 +67,7 @@ void mpos_PD_control(struct DOF *joint, int reset_I)
 
     /* PD CONTROL LAW */
 
-    //Calcualte error
+    //Calculate error
     err    = joint->mpos_d - joint->mpos;
     errVel = joint->mvel_d - joint->mvel;
 

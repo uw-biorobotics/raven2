@@ -40,11 +40,11 @@
 //1- elbow
 //2- insertion and tool DOFs
 //cable coupling from joint 0 to joint 1
-#define CABLE_COUPLING_01 (float)(0.14545)
+#define CABLE_COUPLING_01 (float)(0.14545) //averaged from Ji's calculations
 //cable coupling from joint 0 to joint 2
-#define CABLE_COUPLING_02 (float)(0.0077973826)
+#define CABLE_COUPLING_02 (float)(0.0077973826) //averaged from Ji's calcs
 //cable coupling from joint 1 to joint 2
-#define CABLE_COUPLING_12 (float)(0.008077387)
+#define CABLE_COUPLING_12 (float)(0.008077387) //averaged from Ji's calcs
 
 
 void fwdCableCoupling(struct device *device0, int runlevel);

@@ -224,10 +224,10 @@
 #define SHOULDER_MAX_DAC   5000   // 2000 usually moves 1000 doesn't
 #define ELBOW_MAX_DAC      5000   //  ""
 #define Z_INS_MAX_DAC      4000   //  1000 moves but doesn't overcome friction in tool joints
-#define TOOL_ROT_MAX_DAC   3500  // 10000   These are set really low for safety sake
-#define WRIST_MAX_DAC      2500  // up from 1900 on 10/10/2013
-#define GRASP1_MAX_DAC     2500  // up from 2000 on 10/10/2013
-#define GRASP2_MAX_DAC     2500  // up from 2000 on 10/10/2013
+#define TOOL_ROT_MAX_DAC   4500  // 10000   These are set really low for safety sake //up from 3500 on 2/28/14
+#define WRIST_MAX_DAC      4500  // up from 1900 on 10/10/2013 //up from 2500 on 2/28/14
+#define GRASP1_MAX_DAC     4500  // up from 2000 on 10/10/2013 //up from 2500 on 2/28/14
+#define GRASP2_MAX_DAC     4500  // up from 2000 on 10/10/2013 //up from 2500 on 2/28/14
 
 #else
 #define MAX_INST_DAC 20000 //32000

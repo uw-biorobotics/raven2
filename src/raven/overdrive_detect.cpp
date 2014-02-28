@@ -24,6 +24,8 @@
  * \version 2005
  * \brief  Functions related to checking for motor over heating
  *
+ * \ingroup Control
+ *
  * 5/06 Modified by Hawkeye King
  */
 
@@ -34,9 +36,13 @@ extern int NUM_MECH; //Defined in rt_process_preempt.cpp
 extern int soft_estopped;//Defined in rt_process_preempt.cpp
 extern unsigned long int gTime;//Defined in rt_process_preempt.cpp
 
-/**\fn int overdriveDetect(struct device *device0)
+/**
  * \brief detect over current
  * \param device0 pointer to robot_device struct defined in DS0.h
+ *
+ * \output TRUE if the instant DAC value is too high
+ * \output FALSE otherwise
+ *
  * This function loops through all active joints to detect currrent situations
  * that could cause overheating, it checks joint current_cmd against MAX_INST_DAC that is
  * defined in defines.h
@@ -65,7 +71,7 @@ int overdriveDetect(struct device *device0)
             else if ( _joint->current_cmd > _dac_max )
             {
                 //Clip current to max_torque
-                if (gTime %100 == 0)
+                if (gTime %100 == 0) //don't saturate the console
                     err_msg("Joint type %d is current clipped high (%d) at DAC:%d\n", _joint->type, _dac_max, _joint->current_cmd);
                 _joint->current_cmd = _dac_max;
             }

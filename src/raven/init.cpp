@@ -132,8 +132,8 @@ void initDOFs(struct device *device0)
     if (dofs_inited)
         return;
     /// Set transmission ratios
-    //    Yes, the numbering is wierd (TOOL_ROT and Z_INS are physically 4th & 3rd respectively
-    //    See defines.h for explaination
+    //    Yes, the numbering is weird (TOOL_ROT and Z_INS are physically 4th & 3rd respectively
+    //    See defines.h for explanation
     DOF_types[SHOULDER_GOLD].TR   = SHOULDER_TR_GOLD_ARM;
     DOF_types[ELBOW_GOLD].TR      = ELBOW_TR_GOLD_ARM;
     DOF_types[Z_INS_GOLD].TR      = Z_INS_TR_GOLD_ARM;
