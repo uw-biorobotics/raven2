@@ -102,6 +102,55 @@ void invMechCableCoupling(struct mechanism *mech, int no_use_actual)
 	tr7 = DOF_types[GRASP2_GREEN   ].TR;
   }
 
+// --------------Coupling and Transmission Matrix---------------------------------------------------
+// trs are transmission ration for each joint defined in define.h
+// GB_RATIO = (GEAR_BOX_GP42_TR/GEAR_BOX_GP32_TR * ( CAPSTAN_RADIUS_GP32/CAPSTAN_RADIUS_GP42))
+// js and d are joint angles/placement; ms are motor angles
+// Numeration: 1-shoulder; 2-eblow; 3-insertion; 4-tool rotation; 5-wrist; 6-upper grasper; 7- lower grasper
+// -------------------------------------------------------------------------------------------------
+// Tool Type: Raven Diamond Tool
+// Gold Arm - Left Arm: 
+// M_l = C_l * J_l ----[m1,m2,m3,m4,m5,m6,m7]'= C_l*[j1,j2,d3,j4,j5,j6,j7]
+// C_l = [tr1 				 0 				 0 	       0   0   0  0;
+//        tr2*CABLE_COUPLING_01          tr2 				 0 	       0   0   0  0;
+//        tr3*CABLE_COUPLING_02          tr3*CABLE_COUPLING_12           tr3           0   0   0  0;
+//        tr3*CABLE_COUPLING_02/GB_RATIO tr3*CABLE_COUPLING_12G/B_RATIO  tr3/GB_RATIO  tr4 0   0  0;
+//        tr3*CABLE_COUPLING_02/GB_RATIO tr3*CABLE_COUPLING_12G/B_RATIO  tr3/GB_RATIO  0   tr5 0  0;
+//        tr3*CABLE_COUPLING_02/GB_RATIO tr3*CABLE_COUPLING_12G/B_RATIO  tr3/GB_RATIO  0   0  tr6 0;
+//        tr3*CABLE_COUPLING_02/GB_RATIO tr3*CABLE_COUPLING_12G/B_RATIO  tr3/GB_RATIO  0   0  0  tr7;]
+//
+// Green Arm - Right Arm: 
+// M_r = C_r * J_r ----[m1,m2,m3,m4,m5,m6,m7]'= C_l*[j1,j2,d3,j4,j5,j6,j7]
+// C_r = [tr1 				   0 				   0 	          0   0   0  0;
+//        tr2*CABLE_COUPLING_01            tr2 				   0 	          0   0   0  0;
+//        tr3*CABLE_COUPLING_02            tr3*CABLE_COUPLING_12           tr3            0   0   0  0;
+//        -tr3*CABLE_COUPLING_02/GB_RATIO -tr3*CABLE_COUPLING_12G/B_RATIO  -tr3/GB_RATIO  tr4 0   0  0;
+//        -tr3*CABLE_COUPLING_02/GB_RATIO -tr3*CABLE_COUPLING_12G/B_RATIO  -tr3/GB_RATIO  0   tr5 0  0;
+//        -tr3*CABLE_COUPLING_02/GB_RATIO -tr3*CABLE_COUPLING_12G/B_RATIO  -tr3/GB_RATIO  0   0  tr6 0;
+//        -tr3*CABLE_COUPLING_02/GB_RATIO -tr3*CABLE_COUPLING_12G/B_RATIO  -tr3/GB_RATIO  0   0  0  tr7;]
+// -------------------------------------------------------------------------------------------------
+// Tool Type: Raven Square Tool
+// C_l=C_r 
+//      = [tr1 				   0 				   0 	          0   0   0  0;
+//        tr2*CABLE_COUPLING_01            tr2 				   0 	          0   0   0  0;
+//        tr3*CABLE_COUPLING_02            tr3*CABLE_COUPLING_12           tr3            0   0   0  0;
+//        -tr3*CABLE_COUPLING_02/GB_RATIO -tr3*CABLE_COUPLING_12G/B_RATIO  -tr3/GB_RATIO  tr4 0   0  0;
+//        -tr3*CABLE_COUPLING_02/GB_RATIO -tr3*CABLE_COUPLING_12G/B_RATIO  -tr3/GB_RATIO  0   tr5 0  0;
+//        -tr3*CABLE_COUPLING_02/GB_RATIO -tr3*CABLE_COUPLING_12G/B_RATIO  -tr3/GB_RATIO  0   0  tr6 0;
+//        -tr3*CABLE_COUPLING_02/GB_RATIO -tr3*CABLE_COUPLING_12G/B_RATIO  -tr3/GB_RATIO  0   0  0  tr7;]
+// -------------------------------------------------------------------------------------------------
+// Tool Type: DaVinci Square Tool
+// C_l=C_r 
+//      = [tr1 				   0 				   0 	          0   0       0   0;
+//        tr2*CABLE_COUPLING_01            tr2 				   0 	          0   0       0   0;
+//        tr3*CABLE_COUPLING_02            tr3*CABLE_COUPLING_12           tr3            0   0       0   0;
+//        -tr3*CABLE_COUPLING_02/GB_RATIO -tr3*CABLE_COUPLING_12G/B_RATIO  -tr3/GB_RATIO  tr4 0       0   0;
+//        -tr3*CABLE_COUPLING_02/GB_RATIO -tr3*CABLE_COUPLING_12G/B_RATIO  -tr3/GB_RATIO  0   tr      0   0;
+//        -tr3*CABLE_COUPLING_02/GB_RATIO -tr3*CABLE_COUPLING_12G/B_RATIO  -tr3/GB_RATIO  0   tr6/2   tr6 0;
+//        -tr3*CABLE_COUPLING_02/GB_RATIO -tr3*CABLE_COUPLING_12G/B_RATIO  -tr3/GB_RATIO  0   -tr7/2  0   tr7;]
+
+
+
   m1 = tr1 * th1;
   m2 = tr2 * (th2 + CABLE_COUPLING_01*th1);
   m4 = tr4 * (d4 + CABLE_COUPLING_02*th1 + CABLE_COUPLING_12*th2);
