@@ -121,7 +121,8 @@ typedef enum {TOOL_NONE,
 	TOOL_GRASPER_8MM,
 	RII_square_type,
 	davinci_square_type,
-	ricks_tools_type
+	ricks_tools_type,
+	dv_adapter
 } e_tool_type;
 
 

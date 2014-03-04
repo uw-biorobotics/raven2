@@ -250,7 +250,7 @@ int set_joints_known_pos(struct mechanism* _mech, int tool_only)
         if (
         		( _mech->type == GOLD_ARM && !is_toolDOF(_joint) )
         		||
-        		( _mech->type == GREEN_ARM && is_toolDOF(_joint) )
+        		( _mech->type == GREEN_ARM && is_toolDOF(_joint) ) //Green arm tools are also reversed with square pattern
         	)
              f_enc_val *= -1.0;
 #else
@@ -332,12 +332,12 @@ void homing(struct DOF* _joint)
 
 
 #ifdef RAVEN_II_SQUARE
-// RII_Square has higher limits on tool b/c there's more friction.  Basically, it sucks.
+// RII_Square has higher limits on tool b/c there's more friction
 const int homing_max_dac[8] = {2500,  //shoulder
                             2500,  //elbow
                             1200,  //z-ins
                             0,
-                            2800,  //tool_rot // was 1400, lowered to reduce calibration error
+                            2800,  //tool_rot // was 1400, lowered to reduce calibration error //I think this is labeled improperly - AL
                             2200,  //wrist
                             2300,  //grasp1
                             2300};  // grasp2

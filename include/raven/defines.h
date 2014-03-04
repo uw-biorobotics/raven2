@@ -32,9 +32,12 @@
 #define RAVEN_MODULE_VERSION RAVEN_II_RELEASE_02
 #define device robot_device
 
-#define SURGICAL_ROBOT     1
-#define RAVEN_II           1
-#define RAVEN_II_SQUARE    1
+#define SURGICAL_ROBOT     	1
+#define RAVEN_II        	1
+#define DV_ADAPTER			1
+
+//#define RAVEN_II_SQUARE    1 //for Santa Cruz style tool carriage
+#undef RAVEN_II_SQUARE
 
 // Two arm identification
 // Change this to match device ID in /dev/brl_usbXX
@@ -197,7 +200,7 @@
 
 
 //InvKinematic Software Stops
-//   Kinematics equations for R+IIare apparently formulated so that joint ranges are identical on each arm.
+//   Kinematics equations for R+II are apparently formulated so that joint ranges are identical on each arm.
 #define SHOULDER_MIN_LIMIT (float)(   0.0 DEG2RAD)
 #define SHOULDER_MAX_LIMIT (float)(  90.0 DEG2RAD)
 #define ELBOW_MIN_LIMIT (float)(  45.0 DEG2RAD)
@@ -216,10 +219,6 @@
 #ifdef RAVEN_II_SQUARE
 #define MAX_INST_DAC 12000 //20000 //32000
 
-//#define SHOULDER_MAX_DAC   2500   // 2000 usually moves 1000 doesn't
-//#define ELBOW_MAX_DAC      2500   //  ""
-//#define Z_INS_MAX_DAC      2000   //  1000 moves but doesn't overcome friction in tool joints
-
 // Doubled position joints 4-Apr-2013 by HK
 #define SHOULDER_MAX_DAC   5000   // 2000 usually moves 1000 doesn't
 #define ELBOW_MAX_DAC      5000   //  ""
@@ -232,10 +231,6 @@
 #else
 #define MAX_INST_DAC 20000 //32000
 
-//#define SHOULDER_MAX_DAC   2500   // 2000 usually moves 1000 doesn't
-//#define ELBOW_MAX_DAC      2500   //  ""
-//#define Z_INS_MAX_DAC      2000   //  1000 moves but doesn't overcome friction in tool joints
-
 // Doubled position joints 4-Apr-2013 by HK
 #define SHOULDER_MAX_DAC   5000   // 2000 usually moves 1000 doesn't
 #define ELBOW_MAX_DAC      5000   //  ""
@@ -246,6 +241,7 @@
 #define GRASP2_MAX_DAC     3000
 
 #endif
+
 
 #define SHOULDER_MAX_ANGLE   0.0
 #define ELBOW_MAX_ANGLE      3*M_PI/4 + (2.5*M_PI/180)

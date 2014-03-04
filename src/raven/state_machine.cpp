@@ -21,6 +21,7 @@
  * \file state_machine.c
  * \author Kenneth Fodero
  * \version 2005
+ *
  * \brief this file gets the desired runlevel from the rcvdParams or PLC
  */
 
@@ -34,7 +35,7 @@ extern int globalTime;
 #include <sys/times.h>
 struct tms dummy_times;
 
-/**\fn void stateMachine(struct device *device0, struct param_pass *currParams, struct param_pass *rcvdParams)
+/**
  * \brief This function puts data in a state machine
  * \param device0 robot_device struct defined in DS0.h
  * \param currParam param_pass struct defined in DS1.h

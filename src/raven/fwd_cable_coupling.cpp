@@ -128,7 +128,16 @@ void fwdMechCableCoupling(struct mechanism *mech)
 		th7 = (1.0/tr7) * (m7 - sgn*m4/GB_RATIO);
 	}
 
-	if (mech->tool_type == RII_square_type)
+	else if (mech->tool_type == dv_adapter)
+	{
+		int sgn = (mech->type == GOLD_ARM) ? 1 : -1;
+		th3 = (1.0/tr3) * (m3 - sgn*m4/GB_RATIO);
+		th5 = (1.0/tr5) * (m5 - sgn*m4/GB_RATIO);
+		th6 = (1.0/tr6) * (m6 - sgn*m4/GB_RATIO);
+		th7 = (1.0/tr7) * (m7 - sgn*m4/GB_RATIO);
+	}
+
+	else if (mech->tool_type == RII_square_type)
 	{
 		int sgn = -1;
 		th3 = (1.0/tr3) * (m3 - sgn*m4/GB_RATIO);

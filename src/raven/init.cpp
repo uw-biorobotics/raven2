@@ -34,7 +34,7 @@
 // TOOLS defines
 #include "tool.h"
 
-const e_tool_type use_tool = davinci_square_type;
+const e_tool_type use_tool = dv_adapter; //davinci_square_type;
 
 extern int initialized;
 

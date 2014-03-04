@@ -124,10 +124,10 @@ void invMechCableCoupling(struct mechanism *mech, int no_use_actual)
 // C_r = [tr1 				   0 				   0 	          0   0   0  0;
 //        tr2*CABLE_COUPLING_01            tr2 				   0 	          0   0   0  0;
 //        tr3*CABLE_COUPLING_02            tr3*CABLE_COUPLING_12           tr3            0   0   0  0;
-//        -tr3*CABLE_COUPLING_02/GB_RATIO -tr3*CABLE_COUPLING_12G/B_RATIO  -tr3/GB_RATIO  tr4 0   0  0;
-//        -tr3*CABLE_COUPLING_02/GB_RATIO -tr3*CABLE_COUPLING_12G/B_RATIO  -tr3/GB_RATIO  0   tr5 0  0;
-//        -tr3*CABLE_COUPLING_02/GB_RATIO -tr3*CABLE_COUPLING_12G/B_RATIO  -tr3/GB_RATIO  0   0  tr6 0;
-//        -tr3*CABLE_COUPLING_02/GB_RATIO -tr3*CABLE_COUPLING_12G/B_RATIO  -tr3/GB_RATIO  0   0  0  tr7;]
+//        -tr3*CABLE_COUPLING_02/GB_RATIO -tr3*CABLE_COUPLING_12/GB_RATIO  -tr3/GB_RATIO  tr4 0   0  0;
+//        -tr3*CABLE_COUPLING_02/GB_RATIO -tr3*CABLE_COUPLING_12/GB_RATIO  -tr3/GB_RATIO  0   tr5 0  0;
+//        -tr3*CABLE_COUPLING_02/GB_RATIO -tr3*CABLE_COUPLING_12/GB_RATIO  -tr3/GB_RATIO  0   0  tr6 0;
+//        -tr3*CABLE_COUPLING_02/GB_RATIO -tr3*CABLE_COUPLING_12/GB_RATIO  -tr3/GB_RATIO  0   0  0  tr7;]
 // -------------------------------------------------------------------------------------------------
 // Tool Type: Raven Square Tool
 // C_l=C_r 
@@ -167,6 +167,15 @@ void invMechCableCoupling(struct mechanism *mech, int no_use_actual)
 //  m5 = tr5 * th5 + m4/GB_RATIO;
 
   if (mech->tool_type == TOOL_GRASPER_10MM)
+  {
+		int sgn = (mech->type == GOLD_ARM) ? 1 : -1;
+		m3 = tr3 * th3 + sgn * m4_actual/GB_RATIO;
+		m5 = tr5 * th5 + sgn * m4_actual/GB_RATIO;
+		m6 = tr6 * th6 + sgn * m4_actual/GB_RATIO;
+		m7 = tr7 * th7 + sgn * m4_actual/GB_RATIO;
+  }
+
+  if (mech->tool_type == dv_adapter)
   {
 		int sgn = (mech->type == GOLD_ARM) ? 1 : -1;
 		m3 = tr3 * th3 + sgn * m4_actual/GB_RATIO;
