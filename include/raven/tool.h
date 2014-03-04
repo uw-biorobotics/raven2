@@ -34,7 +34,7 @@
 #define GRASP1_MAX_ANGLE_RICK     120 DEG2RAD
 #define GRASP2_MAX_ANGLE_RICK     130 DEG2RAD
 
-// Raven II davinci-style fucking sonofagoddamn bitchass square pattern tools @!#$*
+// Raven II davinci-style
 #define Z_INS_MAX_ANGLE_RII_SQUARE      0.1    // 10cm  // NOT THE REAL LIMIT- approximate measurement
 #define TOOL_ROT_MAX_ANGLE_RII_SQUARE   -330 DEG2RAD
 #define WRIST_MAX_ANGLE_RII_SQUARE      115 DEG2RAD

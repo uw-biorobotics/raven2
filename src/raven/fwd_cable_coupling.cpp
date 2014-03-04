@@ -219,7 +219,7 @@ void fwdTorqueCoupling(struct device *device0, int runlevel)
 
 void fwdMechTorqueCoupling(struct mechanism *mech)
 {
-	float th1, th2, th3, th5, th6, th7;
+	float th1=0, th2=0, th3=0, th5=0, th6=0, th7=0;
 	float th1_dot, th2_dot;
 	float d4;
 	float d4_dot;

@@ -1,6 +1,6 @@
 # r2params.yaml
 # Contains PD control gains for Raven.
-#   Warning: the order of the gains is very importannt.
+#   Warning: the order of the gains is very important.
 #     Of particular note, the order is different for R_I vs R_II.221
 #     Position axes are 1-3.  4th is not used.  5-8 are tool axes.
 #

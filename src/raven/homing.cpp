@@ -39,6 +39,8 @@
 #include "state_estimate.h"
 #include "log.h"
 
+#include <iostream>
+
 
 int set_joints_known_pos(struct mechanism* _mech, int tool_only);
 
@@ -74,10 +76,12 @@ int raven_homing(struct device *device0, struct param_pass *currParams, int begi
 
 #ifdef RICKS_TOOLS
     _mech = NULL;  _joint = NULL;
+    std::cout<<"test1"<<std::endl;
     while (loop_over_joints(device0, _mech, _joint, i,j) )
     {
        if (is_toolDOF(_joint))
-         _joint->state = jstate_ready;
+         {_joint->state = jstate_ready;
+         std::cout<<"test2"<<std::endl;}
     }
 #endif
 

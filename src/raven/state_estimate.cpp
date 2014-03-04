@@ -96,7 +96,6 @@ void getStateLPF(struct DOF *joint)
          ||
 #ifndef RAVEN_II_SQUARE
 
-         //DEFINE RII SQUARE, fool!!
          (joint->type == TOOL_ROT_GOLD) ||
          (joint->type == WRIST_GOLD)    ||
          (joint->type == GRASP1_GOLD)   ||

@@ -34,7 +34,7 @@
 
 #define SURGICAL_ROBOT     	1
 #define RAVEN_II        	1
-#define DV_ADAPTER			1
+//#define DV_ADAPTER			1
 
 //#define RAVEN_II_SQUARE    1 //for Santa Cruz style tool carriage
 #undef RAVEN_II_SQUARE
@@ -246,7 +246,8 @@
 #define SHOULDER_MAX_ANGLE   0.0
 #define ELBOW_MAX_ANGLE      3*M_PI/4 + (2.5*M_PI/180)
 
-#undef RICKS_TOOLS
+#define RICKS_TOOLS
+//#undef RICKS_TOOLS
 
 #define SHOULDER_HOME_ANGLE   M_PI/6
 #define ELBOW_HOME_ANGLE      M_PI/2
