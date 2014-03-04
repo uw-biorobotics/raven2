@@ -538,6 +538,9 @@ void setStartXYZ(struct device *device0)
 
 
 /** \todo what is the function of the following commented code; shall we get rid of them??
+ * 			(AL - This code automatically bumps the encoders, so that the user doesn't need to.
+ * 				I don't think it worked...)
+ */
 
 
 
