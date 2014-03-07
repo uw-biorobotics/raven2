@@ -39,9 +39,10 @@ const double La12 = 75 * M_PI/180;
 const double La23 = 52 * M_PI/180;
 const double La3 = 0;
 const double V = 0;
-//const double d4 = -0.47;  // m
-const double d4 = -0.482; // 0.482 for daVinci tools  // m test value with connector
-const double Lw = 0.009;   // m // .013 for raven II tools, 0.009 for daVinci tools
+const double d4 = -0.47;  // m
+//const double d4 = -0.482; // 0.482 for daVinci tools  // m test value with connector
+//const double Lw = 0.009;   // m
+const double Lw = 0.013;   // m // .013 for raven II tools, 0.009 for daVinci tools
 const double GM1 = sin(La12), GM2 = cos(La12), GM3 = sin(La23), GM4 = cos(La23);
 
 

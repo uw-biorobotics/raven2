@@ -34,7 +34,7 @@
 // TOOLS defines
 #include "tool.h"
 
-const e_tool_type use_tool = ricks_tools_type;//TOOL_GRASPER_10MM;//dv_adapter;
+const e_tool_type use_tool = TOOL_GRASPER_10MM; //dv_adapter; //;//
 
 extern int initialized;
 
@@ -254,8 +254,12 @@ void initDOFs(struct device *device0)
             }
             else
             {
-                //_dof->tau_per_amp = -1 *             (float)(T_PER_AMP_SMALL_MOTOR  * GEAR_BOX_TR_SMALL_MOTOR);  // Amps to torque
-                _dof->tau_per_amp = -1 * torque_sign * (float)(T_PER_AMP_SMALL_MOTOR  * GEAR_BOX_TR_SMALL_MOTOR);  // Amps to torque
+#ifdef RAVEN_II_SQUARE
+                _dof->tau_per_amp = torque_sign * (float)(T_PER_AMP_SMALL_MOTOR  * GEAR_BOX_TR_SMALL_MOTOR);  // Amps to torque \todo why is this line not used?
+#else
+                _dof->tau_per_amp = -1 *             (float)(T_PER_AMP_SMALL_MOTOR  * GEAR_BOX_TR_SMALL_MOTOR);  // Amps to torque
+#endif
+
                 _dof->DAC_per_amp = (float)(K_DAC_PER_AMP_LOW_CURRENT);                         // DAC counts to AMPS
                 _dof->i_max = (float)(I_MAX_SMALL_MOTOR);
                 _dof->i_cont = (float)(I_CONT_SMALL_MOTOR);

@@ -3,6 +3,8 @@
  *
  *  Created on: Jun 4, 2013
  *      Author: biorobotics
+ *
+ *  \todo is this file used?
  */
 
 #ifndef TOOL_H_

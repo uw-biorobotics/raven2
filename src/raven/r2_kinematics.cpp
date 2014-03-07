@@ -716,6 +716,8 @@ int apply_joint_limits(double *Js, double *Js_sat){
 	Js_sat[4] = Js[4];
 	Js_sat[5] = Js[5];*/
 
+	if (limited) std::cout<<"A joint has been saturated"<<std::endl;
+
 	return limited;
 }
 

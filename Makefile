@@ -549,21 +549,6 @@ src/raven/inv_cable_coupling.s:
 .PHONY : src/raven/inv_cable_coupling.s
 
 # target to build an object file
-src/raven/inv_kinematics.o:
-	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/inv_kinematics.o
-.PHONY : src/raven/inv_kinematics.o
-
-# target to preprocess a source file
-src/raven/inv_kinematics.i:
-	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/inv_kinematics.i
-.PHONY : src/raven/inv_kinematics.i
-
-# target to generate assembly for a file
-src/raven/inv_kinematics.s:
-	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/inv_kinematics.s
-.PHONY : src/raven/inv_kinematics.s
-
-# target to build an object file
 src/raven/local_io.o:
 	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/local_io.o
 .PHONY : src/raven/local_io.o
@@ -928,9 +913,6 @@ help:
 	@echo "... src/raven/inv_cable_coupling.o"
 	@echo "... src/raven/inv_cable_coupling.i"
 	@echo "... src/raven/inv_cable_coupling.s"
-	@echo "... src/raven/inv_kinematics.o"
-	@echo "... src/raven/inv_kinematics.i"
-	@echo "... src/raven/inv_kinematics.s"
 	@echo "... src/raven/local_io.o"
 	@echo "... src/raven/local_io.i"
 	@echo "... src/raven/local_io.s"

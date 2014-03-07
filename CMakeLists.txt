@@ -58,7 +58,7 @@ src/raven/grav_comp.cpp
 src/raven/hmatrix.cpp
 src/raven/init.cpp
 src/raven/inv_cable_coupling.cpp
-src/raven/inv_kinematics.cpp
+#src/raven/inv_kinematics.cpp
 #src/raven/linear_parabolic_traj.cpp
 src/raven/local_io.cpp
 src/raven/log.cpp

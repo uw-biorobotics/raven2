@@ -121,6 +121,7 @@ void fwdMechCableCoupling(struct mechanism *mech)
 	// Tool degrees of freedom ===========================================
 	if (mech->tool_type == TOOL_GRASPER_10MM)
 	{
+
 		int sgn = (mech->type == GOLD_ARM) ? 1 : -1;
 		th3 = (1.0/tr3) * (m3 - sgn*m4/GB_RATIO);
 		th5 = (1.0/tr5) * (m5 - sgn*m4/GB_RATIO);
@@ -133,7 +134,7 @@ void fwdMechCableCoupling(struct mechanism *mech)
 		int sgn = (mech->type == GOLD_ARM) ? 1 : -1;
 		th3 = (1.0/tr3) * (m3 - sgn*m4/GB_RATIO);
 		th5 = (1.0/tr5) * (m5 - sgn*m4/GB_RATIO);
-		th6 = (1.0/tr6) * (m6 - sgn*m4/GB_RATIO);
+		th6 = (1.0/tr6) * (m6 - sgn*m4/GB_RATIO); //added negative
 		th7 = (1.0/tr7) * (m7 - sgn*m4/GB_RATIO);
 	}
 
@@ -176,15 +177,15 @@ void fwdMechCableCoupling(struct mechanism *mech)
 		th7 = (1.0/tr7) * (m7 - m4/GB_RATIO);
 	}
 	// Now have solved for th1, th2, d3, th4, th5, th6
-	mech->joint[SHOULDER].jpos 	= th1;// - mech->joint[SHOULDER].jpos_off;
+	mech->joint[SHOULDER].jpos 		= th1;// - mech->joint[SHOULDER].jpos_off;
 	mech->joint[ELBOW].jpos 		= th2;// - mech->joint[ELBOW].jpos_off;
-	mech->joint[TOOL_ROT].jpos 	= th3;// - mech->joint[TOOL_ROT].jpos_off;
+	mech->joint[TOOL_ROT].jpos 		= th3;// - mech->joint[TOOL_ROT].jpos_off;
 	mech->joint[Z_INS].jpos 		= d4;//  - mech->joint[Z_INS].jpos_off;
 	mech->joint[WRIST].jpos 		= th5;// - mech->joint[WRIST].jpos_off;
 	mech->joint[GRASP1].jpos 		= th6;// - mech->joint[GRASP1].jpos_off;
 	mech->joint[GRASP2].jpos 		= th7;// - mech->joint[GRASP2].jpos_off;
 
-	mech->joint[SHOULDER].jvel 	= th1_dot;// - mech->joint[SHOULDER].jpos_off;
+	mech->joint[SHOULDER].jvel 		= th1_dot;// - mech->joint[SHOULDER].jpos_off;
 	mech->joint[ELBOW].jvel 		= th2_dot;// - mech->joint[ELBOW].jpos_off;
 	mech->joint[Z_INS].jvel 		= d4_dot;//  - mech->joint[Z_INS].jpos_off;
 

@@ -95,13 +95,12 @@ void getStateLPF(struct DOF *joint)
          (joint->type == Z_INS_GOLD)
          ||
 #ifndef RAVEN_II_SQUARE
-
          (joint->type == TOOL_ROT_GOLD) ||
          (joint->type == WRIST_GOLD)    ||
          (joint->type == GRASP1_GOLD)   ||
          (joint->type == GRASP2_GOLD)
-         ||
 #endif
+         ||
          (joint->type == TOOL_ROT_GREEN) ||
          (joint->type == WRIST_GREEN)    ||
          (joint->type == GRASP1_GREEN)   ||

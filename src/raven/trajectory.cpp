@@ -99,7 +99,10 @@ int start_trajectory(struct DOF* _joint, float _endPos, float _period)
     return 0;
 }
 /**
-*  initialize trajectory parameters.  Start of this trajectory will be the current state: i.e. the position and velocity at this time.
+*  initialize trajectory parameters.
+*
+*  Start of this trajectory will be the current state: i.e. the position and velocity at this time.
+*
 *   \param  _joint    DOF struct for specific joint
 *   \param  _mag      how big a move
 *   \param _period    duration ( of one cycle)
@@ -118,9 +121,9 @@ int start_trajectory_mag(struct DOF* _joint, float _mag, float _period)
 }
 
 /**
-*   stop_velocity_trajectory()
-*      Set jvel zero
-*      Zero torque
+*   \brief stop velocity trajectory()
+*
+*   Set jvel zero + zero torque
 *
 *   \param  _joint    DOF struct for specific joint
 *

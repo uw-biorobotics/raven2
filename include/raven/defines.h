@@ -34,10 +34,18 @@
 
 #define SURGICAL_ROBOT     	1
 #define RAVEN_II        	1
-//#define DV_ADAPTER			1
 
+
+#define RAVEN_TOOLS
+//#define DV_ADAPTER			1
 //#define RAVEN_II_SQUARE    1 //for Santa Cruz style tool carriage
+//#define RICKS_TOOLS
+
+//#undef RAVEN_TOOLS
+#undef DV_ADAPTER
 #undef RAVEN_II_SQUARE
+#undef RICKS_TOOLS
+
 
 // Two arm identification
 // Change this to match device ID in /dev/brl_usbXX
@@ -99,7 +107,7 @@
 #define SHOULDER_GOLD   0
 #define ELBOW_GOLD      1
 #define Z_INS_GOLD      2
-
+//<not connected>    3
 #define TOOL_ROT_GOLD   4
 #define WRIST_GOLD      5
 #define GRASP1_GOLD     6
@@ -200,7 +208,7 @@
 
 
 //InvKinematic Software Stops
-//   Kinematics equations for R+II are apparently formulated so that joint ranges are identical on each arm.
+//   Kinematics equations for R+II are formulated so that joint ranges are identical on each arm.
 #define SHOULDER_MIN_LIMIT (float)(   0.0 DEG2RAD)
 #define SHOULDER_MAX_LIMIT (float)(  90.0 DEG2RAD)
 #define ELBOW_MIN_LIMIT (float)(  45.0 DEG2RAD)
@@ -246,12 +254,11 @@
 #define SHOULDER_MAX_ANGLE   0.0
 #define ELBOW_MAX_ANGLE      3*M_PI/4 + (2.5*M_PI/180)
 
-#define RICKS_TOOLS
-//#undef RICKS_TOOLS
+
 
 #define SHOULDER_HOME_ANGLE   M_PI/6
 #define ELBOW_HOME_ANGLE      M_PI/2
-#define Z_INS_HOME_ANGLE      0.4
+#define Z_INS_HOME_ANGLE      -.1 //0.4
 #define TOOL_ROT_HOME_ANGLE   0
 #define WRIST_HOME_ANGLE      0
 #define GRASP1_HOME_ANGLE     M_PI/4

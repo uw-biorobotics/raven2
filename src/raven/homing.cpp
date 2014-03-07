@@ -76,12 +76,13 @@ int raven_homing(struct device *device0, struct param_pass *currParams, int begi
 
 #ifdef RICKS_TOOLS
     _mech = NULL;  _joint = NULL;
-    std::cout<<"test1"<<std::endl;
+
     while (loop_over_joints(device0, _mech, _joint, i,j) )
     {
        if (is_toolDOF(_joint))
-         {_joint->state = jstate_ready;
-         std::cout<<"test2"<<std::endl;}
+         {
+    	   _joint->state = jstate_ready;
+        }
     }
 #endif
 
@@ -198,7 +199,7 @@ int raven_homing(struct device *device0, struct param_pass *currParams, int begi
 *     \param tool_only   flag which initializes only the tool/wrist joints
 *
 *       Set all the mechanism joints to known reference angles.
-*       Propogate the joint angle to motor position and encoder offset.
+*       Propagate the joint angle to motor position and encoder offset.
 *
 * \todo
 *    Rationalize the sign changes on GREEN_ARM vs GOLD_ARM (see IFDEF below).
@@ -209,6 +210,8 @@ int set_joints_known_pos(struct mechanism* _mech, int tool_only)
     struct DOF* _joint=NULL;
     int j=0;
 
+    int offset = 0;
+    if (_mech->type == GREEN_ARM) offset = 8;
     /// Set joint position reference for just tools, or all DOFS
     _joint = NULL;
     while ( loop_over_joints(_mech, _joint ,j) )
@@ -222,11 +225,13 @@ int set_joints_known_pos(struct mechanism* _mech, int tool_only)
 
         // when positioning joints finish, set tool joints to nothing special
         else if (!tool_only && is_toolDOF(_joint->type) )
+        {
             _joint->jpos_d = _joint->jpos;
-
+        }
         // when tool or positioning joints finish, set them to max_angle
         else
         {
+
             // Set jpos_d to the joint limit value.
             _joint->jpos_d = DOF_types[ _joint->type ].max_position;
 
@@ -234,8 +239,8 @@ int set_joints_known_pos(struct mechanism* _mech, int tool_only)
             _joint->state = jstate_homing1;
         }
     }
-
     /// Inverse cable coupling: jpos_d  ---> mpos_d
+    // use_actual flag triggered for insertion axis
     invMechCableCoupling(_mech, 1);
 
     _joint = NULL;
@@ -285,11 +290,17 @@ int set_joints_known_pos(struct mechanism* _mech, int tool_only)
 void homing(struct DOF* _joint)
 {
     // duration for homing of each joint
-    const float f_period[MAX_MECH*MAX_DOF_PER_MECH] = {1, 1, 1, 9999999, 1, 1, 30, 30,
-                                                        1, 1, 1, 9999999, 1, 1, 30, 30};
+    const float f_period[MAX_MECH*MAX_DOF_PER_MECH] = {1, 1, 1, 9999999, 1, 1, 1, 1,
+                                                        1, 1, 1, 9999999, 1, 1, 1, 1};
     // degrees for homing of each joint
+#ifdef RAVEN_II_SQUARE
+    //roll is backwards because of the 'click' in the mechanism
     const float f_magnitude[MAX_MECH*MAX_DOF_PER_MECH] = {-10 DEG2RAD, 10 DEG2RAD, 0.02, 9999999, -80 DEG2RAD, 40 DEG2RAD, 40 DEG2RAD, 40 DEG2RAD,
                                                           -10 DEG2RAD, 10 DEG2RAD, 0.02, 9999999, -80 DEG2RAD, 40 DEG2RAD, 40 DEG2RAD, 40 DEG2RAD};
+#else
+    const float f_magnitude[MAX_MECH*MAX_DOF_PER_MECH] = {-10 DEG2RAD, 10 DEG2RAD, 0.02, 9999999, 80 DEG2RAD, 40 DEG2RAD, 40 DEG2RAD, 40 DEG2RAD,
+                                                          -10 DEG2RAD, 10 DEG2RAD, 0.02, 9999999, 80 DEG2RAD, 40 DEG2RAD, 40 DEG2RAD, 40 DEG2RAD};
+#endif
 
     switch (_joint->state)
     {
@@ -309,6 +320,7 @@ void homing(struct DOF* _joint)
 
         case jstate_hard_stop:
             // Wait for all joints. No trajectory here.
+
             break;
 
         case jstate_homing1:
@@ -348,9 +360,9 @@ const int homing_max_dac[8] = {2500,  //shoulder
 #else
 const int homing_max_dac[8] = {2500,  //shoulder
                             2500,  //elbow
-                            1900,  //tool_rot
+                            2500, //1900,  //z_ins
                             0,
-                            1400,  //z_ins
+                            1900,  //tool_rot  //rasised from 1400 alewis 3/4/14
                             1900,  //wrist
                             1900,  //grasp1
                             1900};  // grasp2
@@ -361,6 +373,7 @@ const int homing_max_dac[8] = {2500,  //shoulder
  *   check_homing_condition()
  *
  *   \param _joint    A joint struct
+ *
  *
  *  Checks to see if a joint current is above a certain max value which indicates that the joint has reached it's mechanical limit.
  *
