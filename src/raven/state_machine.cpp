@@ -44,6 +44,8 @@ struct tms dummy_times;
  * In PLC_RUNLEVELS mode, get desired runlevel from the PLC via atmel inputs.
  * If the two PLC's give different runlevels, select  the lowest of the two.
  *
+ * \todo diagram of state machine and its effects on other functions
+ *
  */
 void stateMachine(struct device *device0, struct param_pass *currParams, struct param_pass *rcvdParams)
 {

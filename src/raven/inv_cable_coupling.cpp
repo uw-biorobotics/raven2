@@ -61,6 +61,11 @@ void invCableCoupling(struct device *device0, int runlevel)
     invMechCableCoupling(&(device0->mech[i]));
 }
 
+/**
+ * \brief Calculates desired motor positions from desired joint positions
+ *
+ * \todo update to matrix calculations for the coupling (here and fwd)
+ */
 
 
 void invMechCableCoupling(struct mechanism *mech, int no_use_actual)
@@ -101,6 +106,8 @@ void invMechCableCoupling(struct mechanism *mech, int no_use_actual)
 	tr6 = DOF_types[GRASP1_GREEN   ].TR;
 	tr7 = DOF_types[GRASP2_GREEN   ].TR;
   }
+
+
 
 // --------------Coupling and Transmission Matrix---------------------------------------------------
 // trs are transmission ration for each joint defined in define.h
