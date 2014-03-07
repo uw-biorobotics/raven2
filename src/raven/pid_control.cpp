@@ -17,7 +17,7 @@
  * along with Raven 2 Control.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/*
+/**
  * pid_control.c - control law
  *     pdControl - PD controller
  *
@@ -29,6 +29,8 @@
  *   Rewrote jointLimits function
  * Modified 8/26/11 by Hawkeye
  *   Modified for Raven_II
+ *
+ *   \todo update motor velocity data from zero
  */
 
 /**
