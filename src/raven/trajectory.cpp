@@ -36,24 +36,20 @@
 extern unsigned long int gTime;
 
 // Store trajectory parameters
-/**  \brief A struct to hold trajectory parameters
+/**    Holds trajectory paramters
  *
- *
- *     \var startTime       must be in ROS's ros::Time format
- *     \var end_pos         Final position (units are context dependent)
- *     \var magnitude       Amplitude of a sinusoidal trajectory
- *     \var period          Period of sinusoid (seconds)
- *     \var startPos        Starting position
- *     \var startVel        Initial velocity
  */
 struct _trajectory
 {
-    ros::Time startTime;
-    float end_pos;
-    float magnitude;
-    float period;
-    float startPos;
-    float startVel;
+   /*@{*/
+    ros::Time startTime;   /**<must be in ROS's ros::Time format             */
+    float end_pos;         /**<Final position (units are context dependent)  */
+    float magnitude;       /**<Amplitude of a sinusoidal trajectory          */
+    float period;          /**<Period of sinusoid (seconds)                  */
+    float startPos;        /**<Starting position                             */
+    float startVel;        /**<Initial velocity                              */
+   /*@{*/
+
 };
 struct _trajectory trajectory[MAX_MECH*MAX_DOF_PER_MECH];
 
