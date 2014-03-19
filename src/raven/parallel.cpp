@@ -30,10 +30,11 @@
 #include <sys/io.h>
 
 /**\fn void parallelUpdate(int runlevel, int endOfLoop)
-*  \brief 
+*  \brief
 *  \param runlevel
 *  \param endOfLoop
 *  \return void
+*  \ingroup IO
 */
 
 void parallelUpdate(int runlevel, int endOfLoop)
@@ -56,11 +57,20 @@ void parallelUpdate(int runlevel, int endOfLoop)
 
 }
 /* increment counter and write to parallelport */
+/**
+ * \brief increment counter and write it to parallelport
+ * \ingroup IO
+ */
 void parport_out(void)
 {
   static unsigned char state=0;
   outb(state++,PARPORT);
 }
+/**
+ * \brief put data out in the parallel port
+ * \param out_byte  the actual bits to output
+ * \ingroup IO
+ */
 void parport_out(unsigned char out_byte)
 {
   outb(out_byte,PARPORT);

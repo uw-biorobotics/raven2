@@ -20,6 +20,7 @@
  /**\file get_USB_packet.cpp
  * \author Kenneth Fodero
  * \date 2005
+ * \ingroup Network
 */
 
 #include "put_USB_packet.h"
@@ -32,8 +33,9 @@ extern USBStruct USBBoards;
 
 /**\fn void putUSBPackets(struct device *device0)
   \brief Takes data from robot to send to USB board(s)
-  \struct device  
+  \struct device
   \param device0 pointer to device struct
+  \ingroup Network
 */
 
 void putUSBPackets(struct device *device0)
@@ -56,6 +58,7 @@ void putUSBPackets(struct device *device0)
   \param mech pointer to mechanism struct
   \param id the usb board id number (serial#)
   \return success of the operation
+  \ingroup Network
 */
 
 int putUSBPacket(int id, struct mechanism *mech)

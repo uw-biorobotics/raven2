@@ -38,6 +38,7 @@ extern unsigned long int gTime;
 // Store trajectory parameters
 /**    Holds trajectory paramters
  *
+ *   \ingroup Control
  */
 struct _trajectory
 {
@@ -56,6 +57,8 @@ struct _trajectory trajectory[MAX_MECH*MAX_DOF_PER_MECH];
 
 /**
 *    initialize trajectory parameters. Magnitude is set according to difference between _endPos and current joint position.
+*
+*   \ingroup Control
 *
 *   \param  _joint    DOF struct for specific joint
 *   \param  _endPos   ending position
@@ -97,6 +100,7 @@ int start_trajectory(struct DOF* _joint, float _endPos, float _period)
 /**
 *  initialize trajectory parameters.
 *
+*  \ingroup Control
 *  Start of this trajectory will be the current state: i.e. the position and velocity at this time.
 *
 *   \param  _joint    DOF struct for specific joint
@@ -122,6 +126,7 @@ int start_trajectory_mag(struct DOF* _joint, float _mag, float _period)
 *   Set jvel zero + zero torque
 *
 *   \param  _joint    DOF struct for specific joint
+*   \ingroup Control
 *
 */
 int stop_trajectory(struct DOF* _joint)
@@ -141,6 +146,8 @@ int stop_trajectory(struct DOF* _joint)
 *  update_sinusoid_trajectory()
 *        find next trajectory waypoint
 *        Sinusoid trajectory
+*
+*  \ingroup Control
 *
 * \todo This seems to only work for a single joint of the GOLD arm???
 */
@@ -171,6 +178,7 @@ int update_sinusoid_velocity_trajectory(struct DOF* _joint)
 *  update_linear_sinusoid_trajectory()
 *     find next trajectory waypoint.
 *     Sinusoid ramp up and linear velocity after peak.
+*     \ingroup Control
 *
 * \todo Why is this specific to the GOLD arm 1st three joints only?
 */
@@ -204,6 +212,7 @@ int update_linear_sinusoid_velocity_trajectory(struct DOF* _joint)
 *  update_sinusoid_position_trajectory()
 *     find next trajectory waypoint.
 *     Sinusoidal position trajectory
+*     \ingroup Control
 *
 *   /todo What is the underlying equation?  Why piecewise at f_period/4??
 */
@@ -228,6 +237,7 @@ int update_sinusoid_position_trajectory(struct DOF* _joint)
 *  update_sinusoid_position_trajectory()
 *     find next trajectory waypoint.
 *     Sinusoidal position trajectory
+*     \ingroup Control
 */
 int update_linear_sinusoid_position_trajectory(struct DOF* _joint)
 {
@@ -251,6 +261,7 @@ int update_linear_sinusoid_position_trajectory(struct DOF* _joint)
 *  update_sinusoid_position_trajectory()
 *     find next trajectory waypoint.
 *     Sinusoidal position trajectory
+*     \ingroup Control
 */
 int update_position_trajectory(struct DOF* _joint)
 {

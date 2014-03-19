@@ -26,6 +26,7 @@
  *
  * \author Hawkeye King
  * \date Jun 18, 2012
+ * \ingroup Kinematics
  */
 
 #include <iostream>
@@ -82,6 +83,7 @@ int apply_joint_limits(double *Js, double *Js_sat);
  * \param a - an integer value, starting link frame id
  * \param b - an integer value, ending link frame id
  * \return a btTransform object transforms link a to link b
+ *  \ingroup Kinematics
  */
 btTransform getFKTransform(int a, int b)
 {
@@ -120,6 +122,7 @@ btTransform getFKTransform(int a, int b)
  * \param d0 - a pointer points to the device struct, equivalent as robot_device struct, see define.h
  * \param runlevel - an integer value of the current runlevel
  * \return 0 on success -1 on failure
+ *  \ingroup Kinematics
  */
 int r2_fwd_kin(struct device *d0, int runlevel)
 {
@@ -194,6 +197,7 @@ int r2_fwd_kin(struct device *d0, int runlevel)
  * \param in_arm - Arm type, left / right ( kin.armtype arm = left/right)
  * \param out_xform - a reference of btTransform object represents the forward kinematic transfrom from zero frame to endeffector frame of one arm
  * \return: 0 on success, -1 on failure
+ *  \ingroup Kinematics
  */
 int fwd_kin (double in_j[6], l_r in_arm, btTransform &out_xform )
 {
@@ -237,6 +241,7 @@ int fwd_kin (double in_j[6], l_r in_arm, btTransform &out_xform )
  * \param frameA - an integer value, starting frame id
  * \param frameB - an integer value, ending frame id
  * \return 0 on success, -1 on failure
+ *  \ingroup Kinematics
  */
 int getATransform (struct mechanism &in_mch, btTransform &out_xform, int frameA, int frameB)
 {
@@ -309,6 +314,7 @@ int getATransform (struct mechanism &in_mch, btTransform &out_xform, int frameA,
  * \param d0  - a pointer points to robot_device struct
  * \param runlevel - an integer value represents the runlevel
  * \return 0 on success -1 on failure
+ *  \ingroup Kinematics
  */
 int r2_inv_kin(struct device *d0, int runlevel)
 {
@@ -456,8 +462,9 @@ int r2_inv_kin(struct device *d0, int runlevel)
  * \param ik_solution iksol[8] - 8 element array of joint angles ( float j[] = {shoulder, elbow, vacant joint, ins,roll, wrist, grasp1, grasp2} )
  * \return 0 - success, -1 - bad arm, -2 - too close to RCM.
  * \question  why this? attribute_optimize("0")
+ * \ingroup Kinematics
  */
- 
+
 int  __attribute__ ((optimize("0"))) inv_kin(btTransform in_T06, l_r in_arm, ik_solution iksol[8])
 {
 	dh_theta = robot_thetas[in_arm];
@@ -475,7 +482,7 @@ int  __attribute__ ((optimize("0"))) inv_kin(btTransform in_T06, l_r in_arm, ik_
 
 	for (int i=0;i<8;i++)    iksol[i].arm = in_arm;
 
- 
+
 	//  Step 1, Compute P5
 	btTransform  T60 = in_T06.inverse();
 	btVector3    p6rcm = T60.getOrigin();
@@ -488,7 +495,7 @@ int  __attribute__ ((optimize("0"))) inv_kin(btTransform in_T06, l_r in_arm, ik_
 		p05[4*i] = p05[4*i+1] = p05[4*i+2] = p05[4*i+3] = in_T06 * p65;
 	}
 
-       
+
 	//  Step 2, compute displacement of prismatic joint d3
 	for (int i=0;i<2;i++)
 	{
@@ -508,7 +515,7 @@ int  __attribute__ ((optimize("0"))) inv_kin(btTransform in_T06, l_r in_arm, ik_
 
 
 
-	
+
 	//  Step 3, calculate theta 2
 	for (int i=0; i<8; i+=2) // p05 solutions
 	{
@@ -536,7 +543,7 @@ int  __attribute__ ((optimize("0"))) inv_kin(btTransform in_T06, l_r in_arm, ik_
 		}
 	}
 
-       
+
 	//  Step 4: Compute theta 1
 	for (int i=0;i<8;i++)
 	{
@@ -567,7 +574,7 @@ int  __attribute__ ((optimize("0"))) inv_kin(btTransform in_T06, l_r in_arm, ik_
 		iksol[i].th1 = atan2(scth1[1],scth1[0]);
 	}
 
-       
+
 	//  Step 5: get theta 4, 5, 6
 	for (int i=0; i<8;i++)
 	{
@@ -642,6 +649,7 @@ int  __attribute__ ((optimize("0"))) inv_kin(btTransform in_T06, l_r in_arm, ik_
  * \param Js - a double type pointer, Inverse Kinematics Solution Js
  * \param Js_sat - a double type pointer, Saturated Inverse Kinematics Solution Js_sat
  * \return 1 limit value of joint angle is appied, 0 inverse solution has not reached joint limit
+ *  \ingroup Kinematics
  */
 int apply_joint_limits(double *Js, double *Js_sat){
 	int limited = 0;
@@ -724,10 +732,11 @@ int apply_joint_limits(double *Js, double *Js_sat){
 /**\fn int check_solutions(double *in_thetas, ik_solution * iksol, int &out_idx, double &out_err)
  * \brief check the inverse kinematic solutions
  * \param in_thetas a double type pointer points to the joint angle array
- * \param ik_sol 
+ * \param ik_sol
  * \param out_idx
  * \param out_error
  * \return 0 on success -1 on failure
+ *  \ingroup Kinematics
  */
 int check_solutions(double *in_thetas, ik_solution * iksol, int &out_idx, double &out_err)
 {
@@ -806,6 +815,7 @@ int check_solutions(double *in_thetas, ik_solution * iksol, int &out_idx, double
  * \brief print a btTransform object
  * \param xf - a btTransform object to print
  * \return void
+ *  \ingroup Kinematics
  */
 void print_btTransform(btTransform xf)
 {
@@ -829,6 +839,7 @@ void print_btTransform(btTransform xf)
  * \brief print a btVector3 object
  * \param vv - a btVector3 obejct to print
  * \return void
+ *  \ingroup Kinematics
  */
 void print_btVector(btVector3 vv)
 {
@@ -874,6 +885,7 @@ const static double TH6B_J6_R = 0;     //add this to J6 to get \theta6b (in deg)
  * \param in_arm - Arm type gold/green
  * \return void
  * \question why just remove this conversion, set theta the same as joint angle????
+ *  \ingroup Kinematics
  */
 void joint2theta(double *out_iktheta, double *in_J, l_r in_arm)
 {
@@ -960,12 +972,12 @@ void theta2joint(ik_solution in_iktheta, double *out_J)
 }
 
 /**\fn void showInverseKinematicsSolutions(struct device *d0, int runlevel)
- * \brief 
+ * \brief
  * \param d0
  * \param runlevel
  * \return void
+ *  \ingroup Kinematics
  */
-
 void showInverseKinematicsSolutions(struct device *d0, int runlevel)
 {
 	log_msg("print_ik_plz");
