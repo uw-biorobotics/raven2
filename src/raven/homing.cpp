@@ -57,13 +57,16 @@ extern unsigned int soft_estopped;
 *  \param device0           Which  (top level) device to home (usually only one device per system)
 *  \param currParams        Current parameters (for Run Level)
 *  \param begin_homing      Flag to start the homing process
+* \ingroup Control
 *
-* This function operates in two phases:
+*  \brief  Move to hard stops in controled way, "zero" the joint value, and then move to "home" position
+*
+*   This function operates in two phases:
 *    -# Discover joint position by running to hard stop.  Using PD control (I term zero'd) we move the joint at a smooth rate until
 *            current increases which indicates hitting hard mechanical stop.
 *    -# Move joints to "home" position.  In this phase the robot moves from the joint limits to a designated pose in the center of the workspace.
 *   \todo   Homing limits should be Amps not DAC units (see homing()  ).
-*
+*   \todo   Eliminate or comment out Enders Game code!!
 */
 int raven_homing(struct device *device0, struct param_pass *currParams, int begin_homing)
 {
@@ -74,7 +77,8 @@ int raven_homing(struct device *device0, struct param_pass *currParams, int begi
     int i=0,j=0;
 
 
-#ifdef RICKS_TOOLS
+#ifdef RICKS_TOOLS      // Refers to Enders Game Prop manager!!
+                        //  these were wooden dummy tools for the movie.
     _mech = NULL;  _joint = NULL;
 
     while (loop_over_joints(device0, _mech, _joint, i,j) )
@@ -198,12 +202,16 @@ int raven_homing(struct device *device0, struct param_pass *currParams, int begi
 *     \param _mech       which mechanism (gold/green)
 *     \param tool_only   flag which initializes only the tool/wrist joints
 *
+* \brief  Set joint angles to known values after hard stops are reached.
+*
 *       Set all the mechanism joints to known reference angles.
 *       Propagate the joint angle to motor position and encoder offset.
 *
 * \todo
 *    Rationalize the sign changes on GREEN_ARM vs GOLD_ARM (see IFDEF below).
+* \todo
 *   This needs to be setup so that device specific parameter changes are read from a config file.
+* \ingroup Control
 */
 int set_joints_known_pos(struct mechanism* _mech, int tool_only)
 {
@@ -281,11 +289,15 @@ int set_joints_known_pos(struct mechanism* _mech, int tool_only)
 *
 *   \param _joint    The joint being controlled.
 *
-*   set trajectory behavior for each joint during the homing process.
+* \brief   Set trajectory behavior for each joint during the homing process.
 *
 *   \todo   Explain why sinusoid is used for homing???
 *
 *   \todo   Homing limits should be Amps not DAC units
+*
+*   \todo  Change square vs. diamond to a config-file based runtime system instead of #ifdef
+*
+*  \ingroup Control
 */
 void homing(struct DOF* _joint)
 {
@@ -374,10 +386,13 @@ const int homing_max_dac[8] = {2500,  //shoulder
  *
  *   \param _joint    A joint struct
  *
+ * \brief  Monitor joint currents to end the homing cycle at hard stop.
  *
  *  Checks to see if a joint current is above a certain max value which indicates that the joint has reached it's mechanical limit.
  *
  *   \todo   Homing limits should be Amps not DAC units (see homing()  ).
+ *
+ *  \ingroup Control
  */
 int check_homing_condition(struct DOF *_joint)
 {
