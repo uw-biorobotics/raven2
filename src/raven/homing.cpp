@@ -207,10 +207,8 @@ int raven_homing(struct device *device0, struct param_pass *currParams, int begi
 *       Set all the mechanism joints to known reference angles.
 *       Propagate the joint angle to motor position and encoder offset.
 *
-* \todo
-*    Rationalize the sign changes on GREEN_ARM vs GOLD_ARM (see IFDEF below).
-* \todo
-*   This needs to be setup so that device specific parameter changes are read from a config file.
+* \todo  Rationalize the sign changes on GREEN_ARM vs GOLD_ARM (see IFDEF below).
+* \todo  This MAYBE needs to be changed to support device specific parameter changes read from a config file or ROS service.
 * \ingroup Control
 */
 int set_joints_known_pos(struct mechanism* _mech, int tool_only)
