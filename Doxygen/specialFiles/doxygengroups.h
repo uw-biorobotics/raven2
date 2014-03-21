@@ -6,6 +6,7 @@
 *	\defgroup DataLogging
 *	\defgroup DataStructures
 *	\defgroup IO IO (Physical low-level IO (usb and parallel))
-* 	\defgroup Kinematics 
+*  \defgroup Kinematics 
+*  \defgroup Examples
 */
 
