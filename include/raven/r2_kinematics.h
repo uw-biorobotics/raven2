@@ -21,15 +21,19 @@ enum ik_valid_sol {
 	ik_invalid = 1,
 	ik_valid_sol_last = 2,
 };
+/** \struct ik_solution
+ *  \brief  Holds a solution to the Raven inverse kinematics
+ *
+ */
 typedef struct {
-	int invalid;
-	l_r arm;
-	double th1;
-	double th2;
-	double d3;
-	double th4;
-	double th5;
-	double th6;
+	int invalid;  	///< set to ik_invalid if a solution is not allowed for any reason
+	l_r arm;      	///< Which arm (Left or Right)
+	double th1;	///< Theta 1
+	double th2;	///< Theta 2
+	double d3;	///< prismatic joint
+	double th4;	///< Theta 4 (tool roll)
+	double th5;	///< Theta 5
+	double th6;	///< Theta 6 (jaw)
 } ik_solution;
 
 const ik_solution ik_zerosol={ik_valid,dh_left, 0,0,0, 0,0,0};

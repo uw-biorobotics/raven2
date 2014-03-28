@@ -455,13 +455,16 @@ int r2_inv_kin(struct device *d0, int runlevel)
 	return 0;
 }
 
-/**\fn int  __attribute__ ((optimize("0"))) inv_kin(btTransform in_T06, l_r in_arm, ik_solution iksol[8])
+/**\fn  inv_kin(btTransform in_T06, l_r in_arm, ik_solution iksol[8])
  * \brief Runs the Raven II INVERSE kinematics to determine end effector position.
+ *
+ * See Hawkeye King, Sina Nia Kosari, Blake Hannaford, Ji Ma, 'Kinematic Analysis of the Raven-II(tm) Research Surgical Robot Platform,' University of Washington Electrical Engineering Department Technical Report ,Number 2012-0006, June 29, 2012. (Revised March 2014)
+ *
  * \param in_T06 - a btTransfrom obejct, transforms the end effector frame to zero frame
  * \param in_arm - Arm type, left / right ( kin.armtype arm = left/right)
- * \param ik_solution iksol[8] - 8 element array of joint angles ( float j[] = {shoulder, elbow, vacant joint, ins,roll, wrist, grasp1, grasp2} )
+ * \param ik_solution iksol[8] - The 8 solutions:  8 element array of joint angles ( float j[] = {shoulder, elbow, vacant joint, ins,roll, wrist, grasp1, grasp2} )
  * \return 0 - success, -1 - bad arm, -2 - too close to RCM.
- * \question  why this? attribute_optimize("0")
+ * \question  why __attribute__ optimize?
  * \ingroup Kinematics
  */
 
