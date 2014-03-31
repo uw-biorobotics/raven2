@@ -31,10 +31,11 @@
  */
 
  /**
- *  \file rt_process_preempt.cpp 
+ *  \file rt_process_preempt.cpp
  *  \author Hawkeye King and Ken Fodero
  *  \brief PREEMPT_RT Raven control implementation
- *  
+ *     \ingroup Control
+ *
  *  Configures and starts the RAVEN control RT process.
  */
 
@@ -100,6 +101,7 @@ int r2_kill = 0;
 /**
 * Traps the Ctrl-C Signal
 * \param sig The signal number sent.
+*     \ingroup Control
 */
 void sigTrap(int sig){
   log_msg("r2_control terminating on signal %d\n", sig);
@@ -111,6 +113,7 @@ void sigTrap(int sig){
  *  From PREEMPT_RT Dynamic memory allocation tips page.
  *  This function creates a pool of memory in ram for use with any malloc or new calls so that they do not cause page faults.
  *  https://rt.wiki.kernel.org/index.php/Dynamic_memory_allocation_example
+ *     \ingroup Control
  */
 int initialize_rt_memory_pool()
 {
@@ -143,6 +146,7 @@ int initialize_rt_memory_pool()
 /**
  * This is the real time thread.
  *
+ *     \ingroup Control
  */
 static void *rt_process(void* )
 {
@@ -167,7 +171,7 @@ static void *rt_process(void* )
   //     perror("sched_setaffinity() failed");
   //     exit(-1);
   //   }
-  
+
   // set thread priority and stuff
   struct sched_param param;                    // process / thread priority settings
   param.sched_priority = 99;
@@ -205,7 +209,7 @@ static void *rt_process(void* )
   // TODO: Break when board becomes disconnected.
   while (ros::ok() && !r2_kill)
     {
-      
+
       // Initiate USB Read
       initiateUSBGet(&device0);
 
@@ -231,7 +235,7 @@ static void *rt_process(void* )
       // Get and Process USB Packets
 
       // HACK HACK HACK
-      // loop until data ready 
+      // loop until data ready
       // better to ensure realtime access to driver
       int loops = 0;
       int ret;
@@ -243,13 +247,13 @@ static void *rt_process(void* )
 	  tbz.tv_nsec+=10*US; //Update timer count for next clock interrupt
 	  tsnorm(&tbz);
 	  clock_nanosleep(0, TIMER_ABSTIME, &tbz, NULL);
-	  loops++; 
+	  loops++;
         }
       clock_gettime(CLOCK_REALTIME,&t2);
       t2 = tsSubtract(t2, tnow);
-      if (loops!=0) 
+      if (loops!=0)
 	std::cout<< "bzlup"<<loops<<"0us time:" << (double)t2.tv_sec + (double)t2.tv_nsec/SEC <<std::endl;
-      
+
       //Run Safety State Machine
       stateMachine(&device0, &currParams, &rcvdParams);
 
@@ -355,14 +359,15 @@ int init_ros(int argc, char **argv)
 * Main entry point for the raven RT control system.
 * \param argc Number of string arguments
 * \param argv Arguments as character arrays
+*     \ingroup Control
 */
 int main(int argc, char **argv)
-{ 
+{
   // set ctrl-C handler (override ROS b/c it's slow to cancel)
   signal( SIGINT,&sigTrap);
 
   // set parallelport permissions
-  ioperm(PARPORT,1,1); 
+  ioperm(PARPORT,1,1);
 
   // init stuff (usb, local-io, rt-memory, etc.);
   if ( init_module() )
@@ -390,8 +395,8 @@ int main(int argc, char **argv)
 
   pthread_create(&net_thread, NULL, network_process, NULL); //Start the network thread
   pthread_create(&console_thread, NULL, console_process, NULL);
-  pthread_create(&rt_thread, NULL, rt_process, NULL); 
-  
+  pthread_create(&rt_thread, NULL, rt_process, NULL);
+
   ros::spin();
 
   USBShutdown();

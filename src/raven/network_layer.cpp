@@ -21,8 +21,8 @@
  * \author Hawkeye King
  * \date 3/13/2004
  * \brief network thread
- *  read data out of fifo0 and put it on the network, 
- *  listen to a network socket and put incoming data on fifo1, 
+ *  read data out of fifo0 and put it on the network,
+ *  listen to a network socket and put incoming data on fifo1,
  *  output a message every 1000 packets.
  * \version
  * ------------------------------------------
@@ -47,7 +47,7 @@
 #include <fcntl.h>      // C Standard library: File control options
 #include <time.h>       // C Standard library: timer, time types and structures
 #include <ros/ros.h>    // Use ROS
-#include <ros/console.h>// ROS console output header for ROS_DEBUG, unused  
+#include <ros/console.h>// ROS console output header for ROS_DEBUG, unused
 
 #include <stdlib.h>     // C Standard library: General Utilities Library
 #include <string.h>     // C Standard library: String operations
@@ -69,6 +69,8 @@ extern int receiveUserspace(void *u,int size);  // Defined in the local_io.cpp
   \brief This function initializes a socket
   \param port is a constant character pointer
   \return 0 if unitialized; non-negative integer(request_sock) if initialized sucessfully
+
+  \ingroup Network
 */
 int initSock (const char* port )
 {
@@ -121,8 +123,9 @@ int initSock (const char* port )
 /**\fn int UDPChecksum(struct u_struct *u)
   \brief Calculate chesum for a teleoperation packet, not called anywhere
   \param u a u_struct pointer
-  \struct u_struct structure passed from master to slave itp_teleoperation.h 
+  \struct u_struct structure passed from master to slave itp_teleoperation.h
   \return positive integer number
+  \ingroup Network
 */
 int UDPChecksum(struct u_struct *u)
 {
@@ -145,9 +148,10 @@ volatile struct v_struct v;
 
 
 /**\fn void* network_process(void*)
-  \brief This function receives and reads the udp package from the network in realtime, executed as an rt thread in rt_process_preempt.cpp 
+  \brief This function receives and reads the udp package from the network in realtime, executed as an rt thread in rt_process_preempt.cpp
   \param param1 void pointer
-  \return void 
+  \return void
+  \ingroup Network
 */
 void* network_process(void* param1)
 {

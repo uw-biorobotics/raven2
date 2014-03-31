@@ -19,10 +19,11 @@
 
 
 /**\file update_atmel_io.cpp
- * \brief 
+ * \brief
  * \author Kenneth Fodero
  * \author Hawkeye King
  * \date 2005
+ * \ingroup Network
  */
 
 #include "update_atmel_io.h"
@@ -38,7 +39,8 @@ extern unsigned long int gTime;
  * \struct device
  * \param device0 - pointer to device struct
  * \param runlevel - current runlevel
- * \return void 
+ * \return void
+ * \ingroup Network
  */
 void updateAtmelOutputs(struct device *device0, int runlevel)
 {
@@ -81,7 +83,8 @@ void updateAtmelOutputs(struct device *device0, int runlevel)
  * \struct device
  * \param device0 - device struct
  * \param runlevel - current runlevel
- * \return void 
+ * \return void
+ * \ingroup Network
  */
 void updateAtmelInputs(struct device device0, int runlevel)
 {

@@ -22,8 +22,9 @@
  * \brief USB initialization module
  * \author Ken Fodero
  * \author Hawkeye King
+ * \ingroup IO
  */
- 
+
 #include <string.h>
 #include <vector>
 #include <map>
@@ -56,8 +57,9 @@ using namespace std;
 /**\fn int getdir(string dir, vector<string> &files)
  * \brief List directory contents matching BOARD_FILE_STR
  * \param dir - directory name of interest
- * \param &files - adress to write list of files in dir 
+ * \param &files - adress to write list of files in dir
  * \return 0 on success, error otherwise
+ *  \ingroup IO
  */
 int getdir(string dir, vector<string> &files)
 {
@@ -83,6 +85,7 @@ int getdir(string dir, vector<string> &files)
  * \brief Gets the board ID number related to the file of interest
  * \param s - filename
  * \return board ID number
+ * \ingroup IO
  */
 int get_board_id_from_filename(string s)
 {
@@ -92,9 +95,9 @@ int get_board_id_from_filename(string s)
 
 
 /**\fn int write_zeros_to_board(int boardid)
- * \brief 
- * \param boardid - 
- * \return 0 on success, 
+ * \brief
+ * \param boardid -
+ * \return 0 on success,
  */
 int write_zeros_to_board(int boardid)
 {
@@ -123,7 +126,8 @@ int write_zeros_to_board(int boardid)
  * \brief initialize the USB modules
  * \struct device
  * \param device0 - pointer to device struct
- * \return 0 if no USB board found, USB_INIT_ERROR if error was encountered, or # of boards if initialized successfully 
+ * \return 0 if no USB board found, USB_INIT_ERROR if error was encountered, or # of boards if initialized successfully
+ * \ingroup IO
  */
 int USBInit(struct device *device0)
 {
@@ -212,6 +216,7 @@ int USBInit(struct device *device0)
  /**\fn void USBShutdown(void)
  * \brief shutsdown the USB modules, setting DAC outputs to zero before shutting down
  * \return void
+ * \ingroup IO
  */
 void USBShutdown(void)
 {
@@ -238,14 +243,15 @@ void USBShutdown(void)
  /**\fn int startUSBRead(int id)
  * \brief initialize data retrieval from a USB board. Must be run before usb_read
  * \param id - serial number of board of interest
- * \return  
+ * \return
+ * \ingroup IO
  */
 int startUSBRead(int id)
 {
   // Initiate read
   int ret = ioctl(boardFPs[id], BRL_START_READ, MAX_IN_LENGTH);
-  
-  if (ret < 0 ) 
+
+  if (ret < 0 )
     {
       ret = -errno;
     }
@@ -258,7 +264,8 @@ int startUSBRead(int id)
  * \param id - serial number of board to read
  * \param buffer - pointer to buffer to read into
  * \param len - length to read
- * \return  
+ * \return
+ * \ingroup IO
  */
 int usb_read(int id, void *buffer, size_t len)
 {
@@ -277,7 +284,8 @@ int usb_read(int id, void *buffer, size_t len)
  * \param id - serial number of board to write
  * \param buffer - pointer to buffer to write into
  * \param len - length to write
- * \return  
+ * \return
+ * \ingroup IO
  */
 int usb_write(int id, void *buffer, size_t len)
 {
@@ -293,7 +301,8 @@ int usb_write(int id, void *buffer, size_t len)
  /**\fn int usb_reset_encoders(int boardid)
  * \brief reset the encoder chips on the board
  * \param boardid - serial number of board to reset
- * \return 0 
+ * \return 0
+ * \ingroup IO
  */
 int usb_reset_encoders(int boardid)
 {
@@ -307,7 +316,7 @@ int usb_reset_encoders(int boardid)
 
     memset(buf, reset_byte, bufsize);
 
-    write(fp,buf,bufsize); //Clear buffers 
+    write(fp,buf,bufsize); //Clear buffers
     ioctl(fp, BRL_START_READ, MAX_IN_LENGTH);
     read(fp,buf,bufsize); //Clear buffers
     return 0;

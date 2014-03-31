@@ -16,11 +16,11 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Raven 2 Control.  If not, see <http://www.gnu.org/licenses/>.
  */
- 
+
  /**\file init.cpp
  * \author Hawkeye King
  * \date 7/29/2005
- * \version 
+ * \version
  * \brief contains functions for initializing the robot
  * intializes the DOF structure AND runs initialization routine
 */
@@ -49,12 +49,13 @@ extern int soft_estopped;
 
 /**\fn void initRobotData (struct device *device0, int runlevel, struct param_pass *currParams)
   \brief This function initializes the robot data
-  \struct device  
-  \struct param_pass 
+  \struct device
+  \struct param_pass
   \param device0 pointer to device struct
-  \param runlevel 
+  \param runlevel
   \param currParams pointer to param struct containing current params
-  \return 
+  \return
+  \ingroup  DataStructures
 */
 void initRobotData(struct device *device0, int runlevel, struct param_pass *currParams)
 {
@@ -62,7 +63,7 @@ void initRobotData(struct device *device0, int runlevel, struct param_pass *curr
     static int init_wait_loop=0;
 
     //initialize gravity direction data
-    if(!initialized){	
+    if(!initialized){
     currParams->grav_dir.x = -980;
     currParams->grav_dir.y = 0;
     currParams->grav_dir.z = 0;
@@ -122,9 +123,12 @@ void initRobotData(struct device *device0, int runlevel, struct param_pass *curr
 
  /**\fn void initDOFs(struct device *device0)
   \brief This function intializes all structures which are not DOF specific
-  \struct device  
+  \struct device
   \param device0 pointer to device struct
-  \return 
+  \return
+  \ingroup  DataStructures
+  \todo Add runtime config file (or use ROS parameter server) to elminate square/diamond #ifdefs. And support new tool types
+
 */
 void initDOFs(struct device *device0)
 {
@@ -412,13 +416,14 @@ void initDOFs(struct device *device0)
 
 /**\fn int init_ravengains(ros::NodeHandle n, struct device *device0)
   \brief Get ravengains from ROS parameter server.
-  \struct device  
+  \struct device
   \param device0 pointer to device struct
   \warning The order of gains in the parameter is very important.
  *      Make sure that numerical order of parameters matches the numerical order of the dof types
   \post dof_types[].kp and dof_types[].kd have been set from ROS parameters
-  \return 
-*/ 
+  \return
+  \ingroup DataStructures
+*/
 int init_ravengains(ros::NodeHandle n, struct device *device0)
 {
     XmlRpc::XmlRpcValue kp_green, kp_gold, kd_green, kd_gold, ki_green, ki_gold;
@@ -517,13 +522,19 @@ int init_ravengains(ros::NodeHandle n, struct device *device0)
     return 0;
 }
 
- 
+
 /**\fn void setStartXYZ(struct device *device0)
-  \brief set the starting xyz coordinate (pos_d = pos)
-  \struct device  
-  \param device0 pointer to device 
-  \return 
-*/ 
+  \brief set the starting desired xyz coordinate (pos_d = pos)
+
+  Set the initial desired position equal to the actual position so that
+  system starts without error.
+
+  \struct device
+  \param device0 pointer to device
+  \return
+  \ingroup Control
+  (could also be [ ]ingroup DataStructures )
+*/
 void setStartXYZ(struct device *device0)
 {
     int i;

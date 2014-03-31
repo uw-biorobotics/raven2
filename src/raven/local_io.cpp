@@ -30,11 +30,6 @@ The local DS1 copy is protected by a mutex.
 This transient copy should then be read to another copy for
 active use.
 
-\ingroup ROS
-\ingroup Control
-\ingroup DataLogging
-\ingroup Networking
-
 ROS publishing is at the bottom half of this file.
 
 ***************************************/
@@ -80,6 +75,7 @@ extern struct offsets offsets_r;
  * \brief Initialize data arrays to zero and create mutex
  *
  * The mutex is a method to protect the data from being overwritten while it's being used
+ * \ingroup DataStructures
  */
 
 int initLocalioData(void)
@@ -114,6 +110,7 @@ int initLocalioData(void)
  * \param u pointer to new data
  * \param size
  *
+ * \ingroup DataStructures
  * \todo check checksum, figure out what to do if the checksum fails
  */
 
@@ -136,6 +133,8 @@ int receiveUserspace(void *u,int size)
  * \question why is setting the sequence number like this a hack?
  * \todo Apply transform to incoming data </capslock>
  * \param us_t a pointer to the user input structure
+ *
+ *  \ingroup DataStructures
  */
 void teleopIntoDS1(struct u_struct *us_t)
 {
@@ -213,6 +212,8 @@ void teleopIntoDS1(struct u_struct *us_t)
  * \return true if updates have been received from master or toolkit since last module update
  * \return false otherwise
  *
+ * \ingroup Networking
+ *
  */
 int checkLocalUpdates()
 {
@@ -245,6 +246,7 @@ int checkLocalUpdates()
 *   \return a copy of the data as a param_pass structure
 *
 *   \todo HK Check performance of trylock / default priority inversion scheme
+*  \ingroup DataStructures
 */
 struct param_pass * getRcvdParams(struct param_pass* d1)
 {
@@ -266,6 +268,7 @@ struct param_pass * getRcvdParams(struct param_pass* d1)
  * while the robot is moving
  *
  * Reset writable copy of DS1
+ *  \ingroup Networking
 */
 void updateMasterRelativeOrigin(struct device *device0)
 {
@@ -335,7 +338,7 @@ ros::Publisher vis_pub2;
 *  Subscribes to automove
 *
 *  \param n the address of a nodeHandle
-*
+* \ingroup ROS
 *  \todo rename this functionto reflect it's current use as a general ROS topic initializer
 */
 int init_ravenstate_publishing(ros::NodeHandle &n){
@@ -351,13 +354,14 @@ int init_ravenstate_publishing(ros::NodeHandle &n){
 }
 
 
-/*
+/**
  *\brief Callback for the automove topic - Updates the data1 structure
  *
  * Callback for the automove topic. Updates the data1 structure with the information from the
  * ROS topic. Properly locks the data1 mutex. Accepts cartesian or quaternion increments.
  *
  * \param msg the
+ * \ingroup ROS
  *
  */
 void autoincrCallback(raven_2::raven_automove msg)
@@ -394,11 +398,12 @@ void autoincrCallback(raven_2::raven_automove msg)
 
 
 
-/*
+/**
 * \brief Publishes the raven_state message from the robot and currParams structures
 *
 *   \param dev robot device structure with the current state of the robot
 *   \param currParams the parameters being passed from the interfaces
+*  \ingroup ROS
 */
 void publish_ravenstate_ros(struct robot_device *dev,struct param_pass *currParams){
     static int count=0;
@@ -473,6 +478,7 @@ void publish_ravenstate_ros(struct robot_device *dev,struct param_pass *currPara
 *
 *  \param device0 the robot and its state
 *
+*  \ingroup ROS
 *
 */
 void publish_joints(struct robot_device* device0){
@@ -544,7 +550,7 @@ void publish_joints(struct robot_device* device0){
     joint_state.position[12] = device0->mech[right].joint[6].jpos + offsets_r.grasp1_off;
     joint_state.name[13] ="grasper_joint_2_R";
     joint_state.position[13] = device0->mech[right].joint[7].jpos * -1 + offsets_r.grasp2_off;
-    
+
     //======================LEFT ARM===========================
 
     joint_state.name[14] ="shoulder_L2";
@@ -561,7 +567,7 @@ void publish_joints(struct robot_device* device0){
     joint_state.position[19] = device0->mech[left].joint[6].jpos_d + offsets_l.grasp1_off;
     joint_state.name[20] ="grasper_joint_2_L2";
     joint_state.position[20] = device0->mech[left].joint[7].jpos_d * -1 + offsets_l.grasp2_off;
-    
+
     //======================RIGHT ARM===========================
     joint_state.name[21] ="shoulder_R2";
     joint_state.position[21] = device0->mech[right].joint[0].jpos_d + offsets_r.shoulder_off;
@@ -590,6 +596,7 @@ void publish_joints(struct robot_device* device0){
  *
  * \author Sina?
  *
+ *  \ingroup ROS
  */
 void publish_marker(struct robot_device* device0)
 {
