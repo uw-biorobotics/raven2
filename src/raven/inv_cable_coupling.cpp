@@ -198,6 +198,16 @@ void invMechCableCoupling(struct mechanism *mech, int no_use_actual)
 	m6 = tr6 * (th6 + th5/2) + sgn * m4_actual/GB_RATIO;
 	m7 = tr7 * (th7 - th5/2) + sgn * m4_actual/GB_RATIO;
   }
+  else if (mech->tool_type == dv_adapter)
+  {
+	int sgn = (mech->type == GOLD_ARM) ? 1 : -1;
+	m3 = tr3 * th3 + sgn * m4_actual/GB_RATIO;
+	m5 = tr5 * th5 + sgn * m4_actual/GB_RATIO;
+	m6 = tr6 * th6 + sgn * m4_actual/GB_RATIO;
+	m7 = tr7 * th7 + sgn * m4_actual/GB_RATIO;
+//	m6 = tr6 * (th6 + th5/2) + sgn * m4_actual/GB_RATIO;
+//	m7 = tr7 * (th7 - th5/2) + sgn * m4_actual/GB_RATIO;
+  }
   else if (mech->tool_type == TOOL_GRASPER_8MM)
   {
   	// Note: sign of the last term changes for GOLD vs GREEN arm

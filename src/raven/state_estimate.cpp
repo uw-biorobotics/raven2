@@ -93,20 +93,24 @@ void getStateLPF(struct DOF *joint)
     if ( (joint->type == SHOULDER_GOLD) ||
          (joint->type == ELBOW_GOLD)    ||
          (joint->type == Z_INS_GOLD)
+
+#ifndef DV_ADAPTER //1 //just reverse first 3
+#ifndef RAVEN_II_SQUARE //2
          ||
-#ifndef RAVEN_II_SQUARE
          (joint->type == TOOL_ROT_GOLD) ||
          (joint->type == WRIST_GOLD)    ||
          (joint->type == GRASP1_GOLD)   ||
          (joint->type == GRASP2_GOLD)
-#endif
+#endif //2
          ||
          (joint->type == TOOL_ROT_GREEN) ||
          (joint->type == WRIST_GREEN)    ||
          (joint->type == GRASP1_GREEN)   ||
          (joint->type == GRASP2_GREEN)
-         )
+#endif //1
+    )
          f_enc_val *= -1;
+
 #endif
 
     // Calculate motor angle from encoder value

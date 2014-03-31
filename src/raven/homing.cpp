@@ -262,10 +262,16 @@ int set_joints_known_pos(struct mechanism* _mech, int tool_only)
         		( _mech->type == GREEN_ARM && is_toolDOF(_joint) ) //Green arm tools are also reversed with square pattern
         	)
              f_enc_val *= -1.0;
-#else
+#else //standard (is called if not square)
         if ( _mech->type == GOLD_ARM || is_toolDOF(_joint) )
              f_enc_val *= -1.0;
 #endif
+
+#ifdef DV_ADAPTER //tool dofs are reverse of standard
+        if ( is_toolDOF(_joint) )
+        	f_enc_val *= -1.0;
+#endif
+
         /// Set the joint offset in encoder space.
         float cc = ENC_CNTS_PER_REV / (2*M_PI);
         _joint->enc_offset = f_enc_val - (_joint->mpos_d * cc);
@@ -306,6 +312,7 @@ void homing(struct DOF* _joint)
     {
         case jstate_wait:
             break;
+
         case jstate_not_ready:
             // Initialize velocity trajectory
             //log_msg("Starting homing on joint %d", _joint->type);
@@ -364,8 +371,8 @@ const int homing_max_dac[8] = {2500,  //shoulder
                             0,
                             1900,  //tool_rot  //rasised from 1400 alewis 3/4/14
                             1900,  //wrist
-                            1900,  //grasp1
-                            1900};  // grasp2
+                            1700,  //grasp1 decreased from 1900
+                            1700};  // grasp2 decreased from 1900
 #endif
 
 

@@ -245,8 +245,8 @@
 #define Z_INS_MAX_DAC      4000   //  1000 moves but doesn't overcome friction in tool joints
 #define TOOL_ROT_MAX_DAC   3000  // 10000   These are set really low for safety sake
 #define WRIST_MAX_DAC      1900  // 20000
-#define GRASP1_MAX_DAC     3000  // 15000
-#define GRASP2_MAX_DAC     3000
+#define GRASP1_MAX_DAC     2400  // 15000
+#define GRASP2_MAX_DAC     2400
 
 #endif
 
@@ -258,7 +258,7 @@
 
 #define SHOULDER_HOME_ANGLE   M_PI/6
 #define ELBOW_HOME_ANGLE      M_PI/2
-#define Z_INS_HOME_ANGLE      -.1 //0.4
+#define Z_INS_HOME_ANGLE      0.4
 #define TOOL_ROT_HOME_ANGLE   0
 #define WRIST_HOME_ANGLE      0
 #define GRASP1_HOME_ANGLE     M_PI/4

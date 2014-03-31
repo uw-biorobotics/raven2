@@ -195,7 +195,7 @@ int r2_fwd_kin(struct device *d0, int runlevel)
  * \param out_xform - a reference of btTransform object represents the forward kinematic transfrom from zero frame to endeffector frame of one arm
  * \return: 0 on success, -1 on failure
  */
-int fwd_kin (double in_j[6], l_r in_arm, btTransform &out_xform )
+int fwd_kin (double in_j[6], l_r in_arm, btTransform &out_xform)
 {
 	dh_alpha = alphas[in_arm];
 	dh_theta = robot_thetas[in_arm];
@@ -212,7 +212,10 @@ int fwd_kin (double in_j[6], l_r in_arm, btTransform &out_xform )
 
 	out_xform = getFKTransform(0,6);
 
+
+
 	// rotate to match "tilted" base
+/*
 	const static btTransform zrot_l( btMatrix3x3 (cos(25*d2r),-sin(25*d2r),0,  sin(25*d2r),cos(25*d2r),0,  0,0,1), btVector3 (0,0,0) );
 	const static btTransform zrot_r( btMatrix3x3 (cos(-25*d2r),-sin(-25*d2r),0,  sin(-25*d2r),cos(-25*d2r),0,  0,0,1), btVector3 (0,0,0) );
 
@@ -225,6 +228,7 @@ int fwd_kin (double in_j[6], l_r in_arm, btTransform &out_xform )
 	{
 		out_xform = zrot_r * out_xform;
 	}
+*/
 	return 0;
 }
 
@@ -280,6 +284,7 @@ int getATransform (struct mechanism &in_mch, btTransform &out_xform, int frameA,
 
 	// rotate to match "tilted" base
 	// Needed?  Yes, for transform ^0_xT to get a frame aligned with base (instead of rotated 25 degrees to zero angle of shoulder joint)
+/*
 	if (frameA == 0)
 	{
 		const static btTransform zrot_l( btMatrix3x3 (cos(25*d2r), -sin(25*d2r), 0,  sin(25*d2r), cos(25*d2r), 0,  0,0,1), btVector3 (0,0,0) );
@@ -294,6 +299,7 @@ int getATransform (struct mechanism &in_mch, btTransform &out_xform, int frameA,
 			out_xform = zrot_r * out_xform;
 		}
 	}
+*/
 	return 0;
 
 }
@@ -334,11 +340,11 @@ int r2_inv_kin(struct device *d0, int runlevel)
 			for (int j = 0; j < 3; j++)
 				(xf.getBasis())[i][j] = ori_d->R[i][j];
 
-		xf.setBasis( btMatrix3x3(   ori_d->R[0][0], ori_d->R[0][1], ori_d->R[0][2],
-									ori_d->R[1][0], ori_d->R[1][1], ori_d->R[1][2],
-									ori_d->R[2][0], ori_d->R[2][1], ori_d->R[2][2]  ) );
+		xf.setBasis( btMatrix3x3(ori_d->R[0][0], ori_d->R[0][1], ori_d->R[0][2],
+			     ori_d->R[1][0], ori_d->R[1][1], ori_d->R[1][2],
+			     ori_d->R[2][0], ori_d->R[2][1], ori_d->R[2][2]  ) );
 		xf.setOrigin( btVector3(pos_d->x/(1000.0*1000.0),pos_d->y/(1000.0*1000.0), pos_d->z/(1000.0*1000.0)));
-
+/*
 		const static btTransform zrot_l( btMatrix3x3 (cos(25*d2r),-sin(25*d2r),0,  sin(25*d2r),cos(25*d2r),0,  0,0,1), btVector3 (0,0,0) );
 		const static btTransform zrot_r( btMatrix3x3 (cos(-25*d2r),-sin(-25*d2r),0,  sin(-25*d2r),cos(-25*d2r),0,  0,0,1), btVector3 (0,0,0) );
 
@@ -351,7 +357,7 @@ int r2_inv_kin(struct device *d0, int runlevel)
 		{
 			xf = zrot_r.inverse() * xf;
 		}
-
+*/
 		//		DO IK
 		ik_solution iksol[8] = {{},{},{},{},{},{},{},{}};
 		int ret = inv_kin(xf, arm, iksol);
@@ -653,46 +659,54 @@ int apply_joint_limits(double *Js, double *Js_sat){
 	{
 		Js_sat[0] = DOF_types[SHOULDER].min_limit;
 		limited = 1;
+		std::cout<<"eblow min limit reached  = "<<Js_sat[0]<<std::endl;
 	}
 	else if(Js[0] >= DOF_types[SHOULDER].max_limit)
 	{
 		Js_sat[0] = DOF_types[SHOULDER].max_limit;
 		limited = 1;
+		std::cout<<"eblow max limit reached  = "<<Js_sat[0]<<std::endl;
 	}
 
 	if (Js[1] <= ELBOW_MIN_LIMIT)
 	{
 		Js_sat[1] = ELBOW_MIN_LIMIT;
 		limited = 1;
+		std::cout<<"eblow min limit reached  = "<<Js_sat[1]<<std::endl;
 	}
 
 	else if(Js[1] >= ELBOW_MAX_LIMIT)
 	{
 		Js_sat[1] = ELBOW_MAX_LIMIT;
 		limited = 1;
+		std::cout<<"eblow max limit reached  = "<<Js_sat[1]<<std::endl;
 	}
 
 	if (Js[2] <= DOF_types[Z_INS].min_limit)
 	{
 		Js_sat[2] = DOF_types[Z_INS].min_limit;
 		limited = 1;
+		std::cout<<"z min limit reached  = "<<Js_sat[2]<<std::endl;
 	}
 	else if(Js[2] >= DOF_types[Z_INS].max_limit)
 	{
 		Js_sat[2] = DOF_types[Z_INS].max_limit;
 		limited = 1;
+		std::cout<<"z max limit reached  = "<<Js_sat[2]<<std::endl;
 	}
 
 	if (Js[3] <= -150.0 DEG2RAD)
 	{
 		Js_sat[3] = -150.0 DEG2RAD;
 		limited = 1;
+		std::cout<<"rot min limit reached  = "<<Js_sat[3]<<std::endl;
 	}
 
 	else if(Js[3] >= 150.0 DEG2RAD)
 	{
 		Js_sat[3] = 150.0 DEG2RAD;
 		limited = 1;
+		std::cout<<"rot max limit reached  = "<<Js_sat[3]<<std::endl;
 	}
 
 
@@ -700,11 +714,13 @@ int apply_joint_limits(double *Js, double *Js_sat){
 	{
 		Js_sat[4] = DOF_types[WRIST].min_limit;
 		limited = 1;
+		std::cout<<"wrist min limit reached  = "<<Js_sat[4]<<std::endl;
 	}
 	else if(Js[4] >= DOF_types[WRIST].max_limit)
 	{
 		Js_sat[4] = DOF_types[WRIST].max_limit;
 		limited = 1;
+		std::cout<<"wrist max limit reached  = "<<Js_sat[4]<<std::endl;
 	}
 
 	//Js_sat[5] = Js[5];
@@ -716,7 +732,7 @@ int apply_joint_limits(double *Js, double *Js_sat){
 	Js_sat[4] = Js[4];
 	Js_sat[5] = Js[5];*/
 
-	if (limited) std::cout<<"A joint has been saturated"<<std::endl;
+	//if (limited) std::cout<<"A joint has been saturated"<<std::endl;
 
 	return limited;
 }
@@ -843,24 +859,24 @@ void print_btVector(btVector3 vv)
 
 
 //------------------------------------------------------------------------------------------
-// Conversion of J to Theta
+// Conversion of J to Theta /// Theta 2 J
 // J represents the physical robot joint angles.
 // Theta is used by the kinematics.
 // Theta convention was easier to solve the equations, while J was already coded in software.
 //-----------------------------------------------------------------------------------------
 
-const static double TH1_J0_L  = -180;//-205;   //add this to J0 to get \theta1 (in deg)
-const static double TH2_J1_L  = -180;   //add this to J1 to get \theta2 (in deg)
+const static double TH1_J0_L  = 205;//-180;//-205;   //add this to J0 to get \theta1 (in deg)
+const static double TH2_J1_L  = 180;//-180;   //add this to J1 to get \theta2 (in deg)
 const static double D3_J2_L   = 0.0;    //add this to J2 to get d3 (in meters????)
 const static double TH4_J3_L  = 0;      //add this to J3 to get \theta4 (in deg)
 const static double TH5_J4_L  = -90; //90;     //add this to J4 to get \theta5 (in deg)
 const static double TH6A_J5_L = 0;     //add this to J5 to get \theta6a (in deg)
 const static double TH6B_J6_L = 0;     //add this to J6 to get \theta6b (in deg)
 
-const static double TH1_J0_R  = 0;//-25;    //add this to J0 to get \theta1 (in deg)
+const static double TH1_J0_R  = 25;//0;//-25;    //add this to J0 to get \theta1 (in deg)
 const static double TH2_J1_R  = 0;      //add this to J1 to get \theta2 (in deg)
 const static double D3_J2_R   = 0.0;    //add this to J2 to get d3 (in meters???)
-const static double TH4_J3_R  = -0;     //add this to J3 to get \theta4 (in deg)
+const static double TH4_J3_R  = 0;     //add this to J3 to get \theta4 (in deg)
 const static double TH5_J4_R  = -90; //90;     //add this to J4 to get \theta5 (in deg)
 const static double TH6A_J5_R = 0;     //add this to J5 to get \theta6a (in deg)
 const static double TH6B_J6_R = 0;     //add this to J6 to get \theta6b (in deg)
@@ -880,7 +896,7 @@ void joint2theta(double *out_iktheta, double *in_J, l_r in_arm)
 	//convert J to theta
 	if (in_arm == dh_left)
 	{
-		//======================LEFT ARM===========================
+	//======================LEFT ARM===========================
 		out_iktheta[0] = in_J[0] + TH1_J0_L * d2r;
 		out_iktheta[1] = in_J[1] + TH2_J1_L * d2r;
 		out_iktheta[2] = in_J[2] + D3_J2_L;
@@ -898,6 +914,7 @@ void joint2theta(double *out_iktheta, double *in_J, l_r in_arm)
 		out_iktheta[3] = in_J[3] + TH4_J3_R * d2r;
 		out_iktheta[4] = in_J[4] + TH5_J4_R * d2r;
 		out_iktheta[5] = in_J[5] + TH6A_J5_R * d2r;
+
 	}
 
 	// bring to range {-pi , pi}
