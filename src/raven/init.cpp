@@ -34,7 +34,7 @@
 // TOOLS defines
 #include "tool.h"
 
-const e_tool_type use_tool = TOOL_GRASPER_10MM; //dv_adapter; //
+const e_tool_type use_tool = dv_adapter; //TOOL_GRASPER_10MM; //
 
 extern int initialized;
 
@@ -174,6 +174,9 @@ void initDOFs(struct device *device0)
     for (int i = 0; i < NUM_MECH; i++)
     {
 
+        device0->mech[i].tool_type = use_tool;
+        log_msg("tool type %i", device0->mech[i].tool_type);
+
         /// Initialize joint types
         if ( device0->mech[i].type == GOLD_ARM)
         {
@@ -256,22 +259,38 @@ void initDOFs(struct device *device0)
                 _dof->i_max = (float)(I_MAX_BIG_MOTOR);
                 _dof->i_cont = (float)(I_CONT_BIG_MOTOR);
             }
-            else
+            else //set tool stuff
             {
-#ifdef RAVEN_II_SQUARE
-                _dof->tau_per_amp = torque_sign * (float)(T_PER_AMP_SMALL_MOTOR  * GEAR_BOX_TR_SMALL_MOTOR);  // Amps to torque \todo why is this line not used?
-#else
-                _dof->tau_per_amp = -1 *             (float)(T_PER_AMP_SMALL_MOTOR  * GEAR_BOX_TR_SMALL_MOTOR);  // Amps to torque
-#endif
-
-#ifdef DV_ADAPTER
-                _dof->tau_per_amp = (float)(T_PER_AMP_SMALL_MOTOR  * GEAR_BOX_TR_SMALL_MOTOR);  // Amps to torque
-#endif
-
                 _dof->DAC_per_amp = (float)(K_DAC_PER_AMP_LOW_CURRENT);                         // DAC counts to AMPS
                 _dof->i_max = (float)(I_MAX_SMALL_MOTOR);
                 _dof->i_cont = (float)(I_CONT_SMALL_MOTOR);
+
+
+                //#ifdef RAVEN_II_SQUARE
+                //                _dof->tau_per_amp = torque_sign * (float)(T_PER_AMP_SMALL_MOTOR * GEAR_BOX_TR_SMALL_MOTOR); // Amps to torque \todo why is this line not used?
+                //#else
+                //                _dof->tau_per_amp = -1 * (float)(T_PER_AMP_SMALL_MOTOR * GEAR_BOX_TR_SMALL_MOTOR); // Amps to torque
+                //#endif
+
+                //set tau_per_amp based on tool type
+                switch (device0->mech[i].tool_type){
+					case dv_adapter:
+						_dof->tau_per_amp = 1 *          (float)(T_PER_AMP_SMALL_MOTOR  * GEAR_BOX_TR_SMALL_MOTOR);  // Amps to torque
+						break;
+					case RII_square_type:
+						_dof->tau_per_amp = torque_sign * (float)(T_PER_AMP_SMALL_MOTOR  * GEAR_BOX_TR_SMALL_MOTOR);  // Amps to torque \todo why is this line not used?
+						break;
+					default:
+						_dof->tau_per_amp = -1 *          (float)(T_PER_AMP_SMALL_MOTOR  * GEAR_BOX_TR_SMALL_MOTOR);  // Amps to torque
+						break;
+                }
             }
+
+
+
+
+
+
 
             //Set encoder offset
             _joint->enc_offset = _joint->enc_val;
@@ -306,7 +325,7 @@ void initDOFs(struct device *device0)
 
         // set tool specific values
         // TODO: add home angles????
-        device0->mech[i].tool_type = use_tool;
+
         int offset = (device0->mech[i].type == GREEN_ARM) ? 8 : 0;
 
         DOF_types[Z_INS    + offset].max_limit    = Z_INS_MAX_LIMIT;

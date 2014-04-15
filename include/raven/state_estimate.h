@@ -32,6 +32,6 @@
 #include "dof.h"
 
 void stateEstimate(struct robot_device *device0);
-void getStateLPF(struct DOF* joint);
+void getStateLPF(struct DOF* joint, int tool_type);
 void resetFilter(struct DOF* _joint);
 

@@ -36,13 +36,13 @@
 #define RAVEN_II        	1
 
 
-#define RAVEN_TOOLS
-//#define DV_ADAPTER			1
+//#define RAVEN_TOOLS
+#define DV_ADAPTER			1
 //#define RAVEN_II_SQUARE    1 //for Santa Cruz style tool carriage
 //#define RICKS_TOOLS
 
-//#undef RAVEN_TOOLS
-#undef DV_ADAPTER
+#undef RAVEN_TOOLS
+//#undef DV_ADAPTER
 #undef RAVEN_II_SQUARE
 #undef RICKS_TOOLS
 

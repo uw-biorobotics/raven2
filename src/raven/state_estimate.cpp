@@ -28,6 +28,7 @@
  */
 
 #include "state_estimate.h"
+#include "log.h"
 
 extern struct DOF_type DOF_types[];
 extern int NUM_MECH;
@@ -53,7 +54,7 @@ void stateEstimate(struct robot_device *device0)
 //            if (_joint->type == TOOL_ROT_GOLD || _joint->type == TOOL_ROT_GOLD)
 //                encToMPos(_joint);
 //            else
-                getStateLPF(_joint);
+                getStateLPF(_joint, device0->mech[i].tool_type);
 
         }
     }
@@ -67,7 +68,7 @@ void stateEstimate(struct robot_device *device0)
  * will drive the cable transmission unstable.
  *
  */
-void getStateLPF(struct DOF *joint)
+void getStateLPF(struct DOF *joint, int tool_type)
 {
     // 50 HZ 3rd order butterworth
 //    float B[] = {0.0029,  0.0087,  0.0087,  0.0029};
@@ -89,29 +90,90 @@ void getStateLPF(struct DOF *joint)
     float filtPos = 0;
     float f_enc_val = joint->enc_val;
 
+
+
+//#ifdef RAVEN_II
+//    if ( (joint->type == SHOULDER_GOLD) ||
+//         (joint->type == ELBOW_GOLD) ||
+//         (joint->type == Z_INS_GOLD)
+//         ||
+//#ifndef RAVEN_II_SQUARE
+//         (joint->type == TOOL_ROT_GOLD) ||
+//         (joint->type == WRIST_GOLD) ||
+//         (joint->type == GRASP1_GOLD) ||
+//         (joint->type == GRASP2_GOLD)
+//#endif
+//         ||
+//         (joint->type == TOOL_ROT_GREEN) ||
+//         (joint->type == WRIST_GREEN) ||
+//         (joint->type == GRASP1_GREEN) ||
+//         (joint->type == GRASP2_GREEN)
+//         )
+//         f_enc_val *= -1;
+//#endif
+
+
+
+
+
 #ifdef RAVEN_II
-    if ( (joint->type == SHOULDER_GOLD) ||
-         (joint->type == ELBOW_GOLD)    ||
-         (joint->type == Z_INS_GOLD)
+    switch (tool_type){
+    case RII_square_type:
+    	    if ( (joint->type == SHOULDER_GOLD) ||
+    	         (joint->type == ELBOW_GOLD) ||
+    	         (joint->type == Z_INS_GOLD)
+    	         ||
+    	         (joint->type == TOOL_ROT_GREEN) ||
+    	         (joint->type == WRIST_GREEN) ||
+    	         (joint->type == GRASP1_GREEN) ||
+    	         (joint->type == GRASP2_GREEN)
+    	         )
+    	         f_enc_val *= -1;
+		break;
 
-#ifndef DV_ADAPTER //1 //just reverse first 3
-#ifndef RAVEN_II_SQUARE //2
-         ||
-         (joint->type == TOOL_ROT_GOLD) ||
-         (joint->type == WRIST_GOLD)    ||
-         (joint->type == GRASP1_GOLD)   ||
-         (joint->type == GRASP2_GOLD)
-#endif //2
-         ||
-         (joint->type == TOOL_ROT_GREEN) ||
-         (joint->type == WRIST_GREEN)    ||
-         (joint->type == GRASP1_GREEN)   ||
-         (joint->type == GRASP2_GREEN)
-#endif //1
-    )
-         f_enc_val *= -1;
+    case dv_adapter:
+			if ( (joint->type == SHOULDER_GOLD) ||
+				(joint->type == ELBOW_GOLD) ||
+				(joint->type == Z_INS_GOLD)
+				)
+				f_enc_val *= -1;
+    	break;
 
+    default:
+    	    if ( (joint->type == SHOULDER_GOLD) ||
+    	         (joint->type == ELBOW_GOLD) ||
+    	         (joint->type == Z_INS_GOLD)
+    	         ||
+    	         (joint->type == TOOL_ROT_GOLD) ||
+    	         (joint->type == WRIST_GOLD) ||
+    	         (joint->type == GRASP1_GOLD) ||
+    	         (joint->type == GRASP2_GOLD)
+    	         ||
+    	         (joint->type == TOOL_ROT_GREEN) ||
+    	         (joint->type == WRIST_GREEN) ||
+    	         (joint->type == GRASP1_GREEN) ||
+    	         (joint->type == GRASP2_GREEN)
+    	         )
+    	         f_enc_val *= -1;
+    	    break;
+    }
+
+//    static int i = 0;
+//    static int j = 0;
+//    j++;
+//    if (j % 100){
+//
+//
+//    i++;
+//    if (i % (17) == 0){
+//        log_msg("joint %i enc_val :  %f    f_enc :  %f", joint->type, joint->enc_val, f_enc_val);
+//        log_msg("tool type in state estimate -->  %i", tool_type);
+//        //i = 0;
+//    }
+//    j=0;
+//    }
 #endif
+
 
     // Calculate motor angle from encoder value
     float motorPos = (2.0*PI) * (1.0/((float)ENC_CNTS_PER_REV)) * (f_enc_val - (float)joint->enc_offset);

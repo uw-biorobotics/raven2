@@ -261,27 +261,52 @@ int set_joints_known_pos(struct mechanism* _mech, int tool_only)
         float f_enc_val = _joint->enc_val;
 
         // Encoder values on Gold arm are reversed.  See also state_machine.cpp
-#ifdef RAVEN_II_SQUARE
-        if (
-        		( _mech->type == GOLD_ARM && !is_toolDOF(_joint) )
-        		||
-        		( _mech->type == GREEN_ARM && is_toolDOF(_joint) ) //Green arm tools are also reversed with square pattern
-        	)
-             f_enc_val *= -1.0;
-#else //standard (is called if not square)
-        if ( _mech->type == GOLD_ARM || is_toolDOF(_joint) )
-             f_enc_val *= -1.0;
-#endif
+//#ifdef RAVEN_II_SQUARE
+//        if (
+//        		( _mech->type == GOLD_ARM && !is_toolDOF(_joint) )
+//        		||
+//        		( _mech->type == GREEN_ARM && is_toolDOF(_joint) ) //Green arm tools are also reversed with square pattern
+//        	)
+//             f_enc_val *= -1.0;
+//#else //standard (is called if not square)
+//        if ( _mech->type == GOLD_ARM || is_toolDOF(_joint) )
+//             f_enc_val *= -1.0;
+//#endif
+//
+//#ifdef DV_ADAPTER //tool dofs are reverse of standard
+//        if ( is_toolDOF(_joint) )
+//        	f_enc_val *= -1.0;
+//#endif
 
-#ifdef DV_ADAPTER //tool dofs are reverse of standard
-        if ( is_toolDOF(_joint) )
-        	f_enc_val *= -1.0;
-#endif
+
+    switch (_mech->tool_type){
+		case dv_adapter:
+			if ( _mech->type == GOLD_ARM && !is_toolDOF(_joint))
+
+				f_enc_val *= -1.0;
+			break;
+		case RII_square_type:
+			if (	( _mech->type == GOLD_ARM && !is_toolDOF(_joint) )
+			    	||
+			    	( _mech->type == GREEN_ARM && is_toolDOF(_joint) ) //Green arm tools are also reversed with square pattern
+			    )
+			    f_enc_val *= -1.0;
+			break;
+		default:
+			if ( _mech->type == GOLD_ARM || is_toolDOF(_joint) )
+				f_enc_val *= -1.0;
+			break;
+    }
+
+
+
 
         /// Set the joint offset in encoder space.
         float cc = ENC_CNTS_PER_REV / (2*M_PI);
         _joint->enc_offset = f_enc_val - (_joint->mpos_d * cc);
-        getStateLPF(_joint);
+
+
+        getStateLPF(_joint, _mech->tool_type);
     }
 
     fwdMechCableCoupling(_mech);
@@ -314,8 +339,13 @@ void homing(struct DOF* _joint)
     const float f_magnitude[MAX_MECH*MAX_DOF_PER_MECH] = {-10 DEG2RAD, 10 DEG2RAD, 0.02, 9999999, -80 DEG2RAD, 40 DEG2RAD, 40 DEG2RAD, 40 DEG2RAD,
                                                           -10 DEG2RAD, 10 DEG2RAD, 0.02, 9999999, -80 DEG2RAD, 40 DEG2RAD, 40 DEG2RAD, 40 DEG2RAD};
 #else
+#ifdef DV_ADAPTER
     const float f_magnitude[MAX_MECH*MAX_DOF_PER_MECH] = {-10 DEG2RAD, 10 DEG2RAD, 0.02, 9999999, 80 DEG2RAD, 40 DEG2RAD, 40 DEG2RAD, 40 DEG2RAD,
                                                           -10 DEG2RAD, 10 DEG2RAD, 0.02, 9999999, 80 DEG2RAD, 40 DEG2RAD, 40 DEG2RAD, 40 DEG2RAD};
+#else //default
+    const float f_magnitude[MAX_MECH*MAX_DOF_PER_MECH] = {-10 DEG2RAD, 10 DEG2RAD, 0.02, 9999999, 80 DEG2RAD, 40 DEG2RAD, 40 DEG2RAD, 40 DEG2RAD,
+                                                          -10 DEG2RAD, 10 DEG2RAD, 0.02, 9999999, 80 DEG2RAD, 40 DEG2RAD, 40 DEG2RAD, 40 DEG2RAD};
+#endif
 #endif
 
     switch (_joint->state)

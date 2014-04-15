@@ -190,9 +190,12 @@ int is_toolDOF(int jointType)
 
 
 /**\fn int tools_ready(struct mechanism *mech)
- * \brief check if all tool is ready of the current mechanism during homing precedure
- * \param mech a pointer points to the mechanism struct
- * \return 1 if and only if all toolDOFs are ready, elsewise 0
+ *
+ * \brief check if all tool joints of the current mechanism are in the ready state
+ *
+ * \param 	mech 		a pointer points to the mechanism struct
+ *
+ * \return 	1 			if and only if all toolDOFs are ready, otherwise 0
  */
 int tools_ready(struct mechanism *mech)
 {
