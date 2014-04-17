@@ -405,6 +405,16 @@ const int homing_max_dac[8] = {2500,  //shoulder
                             2300,  //grasp1
                             2300};  // grasp2
 #else
+#ifdef DV_ADAPTER
+const int homing_max_dac[8] = {2500,  //shoulder
+                            2500,  //elbow
+                            1200,  //z-ins
+                            0,
+                            2000,  //tool_rot // was 1400, lowered to reduce calibration error //I think this is labeled improperly - AL
+                            2000,  //wrist
+                            1800,  //grasp1
+                            1800};  // grasp2
+#else
 const int homing_max_dac[8] = {2500,  //shoulder
                             2500,  //elbow
                             2500, //1900,  //z_ins
@@ -413,6 +423,7 @@ const int homing_max_dac[8] = {2500,  //shoulder
                             1900,  //wrist
                             1700,  //grasp1 decreased from 1900
                             1700};  // grasp2 decreased from 1900
+#endif
 #endif
 
 
