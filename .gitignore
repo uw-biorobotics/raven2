@@ -15,3 +15,8 @@
 # misc files from editor etc
 *~
 
+#build files, cfg files, generated msg files
+cfg/**
+build/**
+msg_gen/**
+

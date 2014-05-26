@@ -36,10 +36,10 @@ CMAKE_COMMAND = /usr/bin/cmake
 RM = /usr/bin/cmake -E remove -f
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/hawkeye1/ros_ws/raven_ros/raven_2
+CMAKE_SOURCE_DIR = /home/alewi/kist_ws/raven_2
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/hawkeye1/ros_ws/raven_ros/raven_2/build
+CMAKE_BINARY_DIR = /home/alewi/kist_ws/raven_2/build
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -66,9 +66,9 @@ rebuild_cache/fast: rebuild_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/hawkeye1/ros_ws/raven_ros/raven_2/build/CMakeFiles /home/hawkeye1/ros_ws/raven_ros/raven_2/build/CMakeFiles/progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/alewi/kist_ws/raven_2/build/CMakeFiles /home/alewi/kist_ws/raven_2/build/CMakeFiles/progress.marks
 	$(MAKE) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/hawkeye1/ros_ws/raven_ros/raven_2/build/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/alewi/kist_ws/raven_2/build/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
@@ -549,21 +549,6 @@ src/raven/inv_cable_coupling.s:
 .PHONY : src/raven/inv_cable_coupling.s
 
 # target to build an object file
-src/raven/inv_kinematics.o:
-	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/inv_kinematics.o
-.PHONY : src/raven/inv_kinematics.o
-
-# target to preprocess a source file
-src/raven/inv_kinematics.i:
-	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/inv_kinematics.i
-.PHONY : src/raven/inv_kinematics.i
-
-# target to generate assembly for a file
-src/raven/inv_kinematics.s:
-	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/inv_kinematics.s
-.PHONY : src/raven/inv_kinematics.s
-
-# target to build an object file
 src/raven/local_io.o:
 	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/local_io.o
 .PHONY : src/raven/local_io.o
@@ -928,9 +913,6 @@ help:
 	@echo "... src/raven/inv_cable_coupling.o"
 	@echo "... src/raven/inv_cable_coupling.i"
 	@echo "... src/raven/inv_cable_coupling.s"
-	@echo "... src/raven/inv_kinematics.o"
-	@echo "... src/raven/inv_kinematics.i"
-	@echo "... src/raven/inv_kinematics.s"
 	@echo "... src/raven/local_io.o"
 	@echo "... src/raven/local_io.i"
 	@echo "... src/raven/local_io.s"

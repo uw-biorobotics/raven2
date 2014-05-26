@@ -133,33 +133,33 @@ namespace raven_2
       }
     };
 
-//#line 13 "cfg/MyStuff.cfg"
+//#line 13 "../cfg/MyStuff.cfg"
       double shoulder_l;
-//#line 14 "cfg/MyStuff.cfg"
+//#line 14 "../cfg/MyStuff.cfg"
       double elbow_l;
-//#line 15 "cfg/MyStuff.cfg"
+//#line 15 "../cfg/MyStuff.cfg"
       double insertion_l;
-//#line 16 "cfg/MyStuff.cfg"
+//#line 16 "../cfg/MyStuff.cfg"
       double roll_l;
-//#line 17 "cfg/MyStuff.cfg"
+//#line 17 "../cfg/MyStuff.cfg"
       double wrist_l;
-//#line 18 "cfg/MyStuff.cfg"
+//#line 18 "../cfg/MyStuff.cfg"
       double grasp1_l;
-//#line 19 "cfg/MyStuff.cfg"
+//#line 19 "../cfg/MyStuff.cfg"
       double grasp2_l;
-//#line 21 "cfg/MyStuff.cfg"
+//#line 21 "../cfg/MyStuff.cfg"
       double shoulder_r;
-//#line 22 "cfg/MyStuff.cfg"
+//#line 22 "../cfg/MyStuff.cfg"
       double elbow_r;
-//#line 23 "cfg/MyStuff.cfg"
+//#line 23 "../cfg/MyStuff.cfg"
       double insertion_r;
-//#line 24 "cfg/MyStuff.cfg"
+//#line 24 "../cfg/MyStuff.cfg"
       double roll_r;
-//#line 25 "cfg/MyStuff.cfg"
+//#line 25 "../cfg/MyStuff.cfg"
       double wrist_r;
-//#line 26 "cfg/MyStuff.cfg"
+//#line 26 "../cfg/MyStuff.cfg"
       double grasp1_r;
-//#line 27 "cfg/MyStuff.cfg"
+//#line 27 "../cfg/MyStuff.cfg"
       double grasp2_r;
 //#line 138 "/opt/ros/electric/stacks/driver_common/dynamic_reconfigure/templates/ConfigType.h"
 
@@ -261,117 +261,117 @@ namespace raven_2
     
     MyStuffConfigStatics()
     {
-//#line 13 "cfg/MyStuff.cfg"
+//#line 13 "../cfg/MyStuff.cfg"
       __min__.shoulder_l = -50.0;
-//#line 13 "cfg/MyStuff.cfg"
+//#line 13 "../cfg/MyStuff.cfg"
       __max__.shoulder_l = 50.0;
-//#line 13 "cfg/MyStuff.cfg"
+//#line 13 "../cfg/MyStuff.cfg"
       __default__.shoulder_l = 0.0;
-//#line 13 "cfg/MyStuff.cfg"
+//#line 13 "../cfg/MyStuff.cfg"
       __param_descriptions__.push_back(MyStuffConfig::AbstractParamDescriptionConstPtr(new MyStuffConfig::ParamDescription<double>("shoulder_l", "double", 0, "An offet to add to the shoulder_l", "", &MyStuffConfig::shoulder_l)));
-//#line 14 "cfg/MyStuff.cfg"
+//#line 14 "../cfg/MyStuff.cfg"
       __min__.elbow_l = -50.0;
-//#line 14 "cfg/MyStuff.cfg"
+//#line 14 "../cfg/MyStuff.cfg"
       __max__.elbow_l = 50.0;
-//#line 14 "cfg/MyStuff.cfg"
+//#line 14 "../cfg/MyStuff.cfg"
       __default__.elbow_l = 0.0;
-//#line 14 "cfg/MyStuff.cfg"
+//#line 14 "../cfg/MyStuff.cfg"
       __param_descriptions__.push_back(MyStuffConfig::AbstractParamDescriptionConstPtr(new MyStuffConfig::ParamDescription<double>("elbow_l", "double", 0, "An offet to add to the elbow_l", "", &MyStuffConfig::elbow_l)));
-//#line 15 "cfg/MyStuff.cfg"
+//#line 15 "../cfg/MyStuff.cfg"
       __min__.insertion_l = -50.0;
-//#line 15 "cfg/MyStuff.cfg"
+//#line 15 "../cfg/MyStuff.cfg"
       __max__.insertion_l = 50.0;
-//#line 15 "cfg/MyStuff.cfg"
+//#line 15 "../cfg/MyStuff.cfg"
       __default__.insertion_l = 0.0;
-//#line 15 "cfg/MyStuff.cfg"
+//#line 15 "../cfg/MyStuff.cfg"
       __param_descriptions__.push_back(MyStuffConfig::AbstractParamDescriptionConstPtr(new MyStuffConfig::ParamDescription<double>("insertion_l", "double", 0, "An offet to add to the insertion_l", "", &MyStuffConfig::insertion_l)));
-//#line 16 "cfg/MyStuff.cfg"
+//#line 16 "../cfg/MyStuff.cfg"
       __min__.roll_l = -50.0;
-//#line 16 "cfg/MyStuff.cfg"
+//#line 16 "../cfg/MyStuff.cfg"
       __max__.roll_l = 50.0;
-//#line 16 "cfg/MyStuff.cfg"
+//#line 16 "../cfg/MyStuff.cfg"
       __default__.roll_l = 0.0;
-//#line 16 "cfg/MyStuff.cfg"
+//#line 16 "../cfg/MyStuff.cfg"
       __param_descriptions__.push_back(MyStuffConfig::AbstractParamDescriptionConstPtr(new MyStuffConfig::ParamDescription<double>("roll_l", "double", 0, "An offet to add to the roll_l", "", &MyStuffConfig::roll_l)));
-//#line 17 "cfg/MyStuff.cfg"
+//#line 17 "../cfg/MyStuff.cfg"
       __min__.wrist_l = -50.0;
-//#line 17 "cfg/MyStuff.cfg"
+//#line 17 "../cfg/MyStuff.cfg"
       __max__.wrist_l = 50.0;
-//#line 17 "cfg/MyStuff.cfg"
+//#line 17 "../cfg/MyStuff.cfg"
       __default__.wrist_l = 0.0;
-//#line 17 "cfg/MyStuff.cfg"
+//#line 17 "../cfg/MyStuff.cfg"
       __param_descriptions__.push_back(MyStuffConfig::AbstractParamDescriptionConstPtr(new MyStuffConfig::ParamDescription<double>("wrist_l", "double", 0, "An offet to add to the wrist_l", "", &MyStuffConfig::wrist_l)));
-//#line 18 "cfg/MyStuff.cfg"
+//#line 18 "../cfg/MyStuff.cfg"
       __min__.grasp1_l = -50.0;
-//#line 18 "cfg/MyStuff.cfg"
+//#line 18 "../cfg/MyStuff.cfg"
       __max__.grasp1_l = 50.0;
-//#line 18 "cfg/MyStuff.cfg"
+//#line 18 "../cfg/MyStuff.cfg"
       __default__.grasp1_l = 0.0;
-//#line 18 "cfg/MyStuff.cfg"
+//#line 18 "../cfg/MyStuff.cfg"
       __param_descriptions__.push_back(MyStuffConfig::AbstractParamDescriptionConstPtr(new MyStuffConfig::ParamDescription<double>("grasp1_l", "double", 0, "An offet to add to the grasp1_l", "", &MyStuffConfig::grasp1_l)));
-//#line 19 "cfg/MyStuff.cfg"
+//#line 19 "../cfg/MyStuff.cfg"
       __min__.grasp2_l = -50.0;
-//#line 19 "cfg/MyStuff.cfg"
+//#line 19 "../cfg/MyStuff.cfg"
       __max__.grasp2_l = 50.0;
-//#line 19 "cfg/MyStuff.cfg"
+//#line 19 "../cfg/MyStuff.cfg"
       __default__.grasp2_l = 0.0;
-//#line 19 "cfg/MyStuff.cfg"
+//#line 19 "../cfg/MyStuff.cfg"
       __param_descriptions__.push_back(MyStuffConfig::AbstractParamDescriptionConstPtr(new MyStuffConfig::ParamDescription<double>("grasp2_l", "double", 0, "An offet to add to the grasp2_l", "", &MyStuffConfig::grasp2_l)));
-//#line 21 "cfg/MyStuff.cfg"
+//#line 21 "../cfg/MyStuff.cfg"
       __min__.shoulder_r = -50.0;
-//#line 21 "cfg/MyStuff.cfg"
+//#line 21 "../cfg/MyStuff.cfg"
       __max__.shoulder_r = 50.0;
-//#line 21 "cfg/MyStuff.cfg"
+//#line 21 "../cfg/MyStuff.cfg"
       __default__.shoulder_r = 0.0;
-//#line 21 "cfg/MyStuff.cfg"
+//#line 21 "../cfg/MyStuff.cfg"
       __param_descriptions__.push_back(MyStuffConfig::AbstractParamDescriptionConstPtr(new MyStuffConfig::ParamDescription<double>("shoulder_r", "double", 0, "An offet to add to the shoulder_r", "", &MyStuffConfig::shoulder_r)));
-//#line 22 "cfg/MyStuff.cfg"
+//#line 22 "../cfg/MyStuff.cfg"
       __min__.elbow_r = -50.0;
-//#line 22 "cfg/MyStuff.cfg"
+//#line 22 "../cfg/MyStuff.cfg"
       __max__.elbow_r = 50.0;
-//#line 22 "cfg/MyStuff.cfg"
+//#line 22 "../cfg/MyStuff.cfg"
       __default__.elbow_r = 0.0;
-//#line 22 "cfg/MyStuff.cfg"
+//#line 22 "../cfg/MyStuff.cfg"
       __param_descriptions__.push_back(MyStuffConfig::AbstractParamDescriptionConstPtr(new MyStuffConfig::ParamDescription<double>("elbow_r", "double", 0, "An offet to add to the elbow_r", "", &MyStuffConfig::elbow_r)));
-//#line 23 "cfg/MyStuff.cfg"
+//#line 23 "../cfg/MyStuff.cfg"
       __min__.insertion_r = -50.0;
-//#line 23 "cfg/MyStuff.cfg"
+//#line 23 "../cfg/MyStuff.cfg"
       __max__.insertion_r = 50.0;
-//#line 23 "cfg/MyStuff.cfg"
+//#line 23 "../cfg/MyStuff.cfg"
       __default__.insertion_r = 0.0;
-//#line 23 "cfg/MyStuff.cfg"
+//#line 23 "../cfg/MyStuff.cfg"
       __param_descriptions__.push_back(MyStuffConfig::AbstractParamDescriptionConstPtr(new MyStuffConfig::ParamDescription<double>("insertion_r", "double", 0, "An offet to add to the shoulder_r", "", &MyStuffConfig::insertion_r)));
-//#line 24 "cfg/MyStuff.cfg"
+//#line 24 "../cfg/MyStuff.cfg"
       __min__.roll_r = -50.0;
-//#line 24 "cfg/MyStuff.cfg"
+//#line 24 "../cfg/MyStuff.cfg"
       __max__.roll_r = 50.0;
-//#line 24 "cfg/MyStuff.cfg"
+//#line 24 "../cfg/MyStuff.cfg"
       __default__.roll_r = 0.0;
-//#line 24 "cfg/MyStuff.cfg"
+//#line 24 "../cfg/MyStuff.cfg"
       __param_descriptions__.push_back(MyStuffConfig::AbstractParamDescriptionConstPtr(new MyStuffConfig::ParamDescription<double>("roll_r", "double", 0, "An offet to add to the roll_r", "", &MyStuffConfig::roll_r)));
-//#line 25 "cfg/MyStuff.cfg"
+//#line 25 "../cfg/MyStuff.cfg"
       __min__.wrist_r = -50.0;
-//#line 25 "cfg/MyStuff.cfg"
+//#line 25 "../cfg/MyStuff.cfg"
       __max__.wrist_r = 50.0;
-//#line 25 "cfg/MyStuff.cfg"
+//#line 25 "../cfg/MyStuff.cfg"
       __default__.wrist_r = 0.0;
-//#line 25 "cfg/MyStuff.cfg"
+//#line 25 "../cfg/MyStuff.cfg"
       __param_descriptions__.push_back(MyStuffConfig::AbstractParamDescriptionConstPtr(new MyStuffConfig::ParamDescription<double>("wrist_r", "double", 0, "An offet to add to the wrist_r", "", &MyStuffConfig::wrist_r)));
-//#line 26 "cfg/MyStuff.cfg"
+//#line 26 "../cfg/MyStuff.cfg"
       __min__.grasp1_r = -50.0;
-//#line 26 "cfg/MyStuff.cfg"
+//#line 26 "../cfg/MyStuff.cfg"
       __max__.grasp1_r = 50.0;
-//#line 26 "cfg/MyStuff.cfg"
+//#line 26 "../cfg/MyStuff.cfg"
       __default__.grasp1_r = 0.0;
-//#line 26 "cfg/MyStuff.cfg"
+//#line 26 "../cfg/MyStuff.cfg"
       __param_descriptions__.push_back(MyStuffConfig::AbstractParamDescriptionConstPtr(new MyStuffConfig::ParamDescription<double>("grasp1_r", "double", 0, "An offet to add to the grasp1_r", "", &MyStuffConfig::grasp1_r)));
-//#line 27 "cfg/MyStuff.cfg"
+//#line 27 "../cfg/MyStuff.cfg"
       __min__.grasp2_r = -50.0;
-//#line 27 "cfg/MyStuff.cfg"
+//#line 27 "../cfg/MyStuff.cfg"
       __max__.grasp2_r = 50.0;
-//#line 27 "cfg/MyStuff.cfg"
+//#line 27 "../cfg/MyStuff.cfg"
       __default__.grasp2_r = 0.0;
-//#line 27 "cfg/MyStuff.cfg"
+//#line 27 "../cfg/MyStuff.cfg"
       __param_descriptions__.push_back(MyStuffConfig::AbstractParamDescriptionConstPtr(new MyStuffConfig::ParamDescription<double>("grasp2_r", "double", 0, "An offet to add to the grasp2_r", "", &MyStuffConfig::grasp2_r)));
 //#line 239 "/opt/ros/electric/stacks/driver_common/dynamic_reconfigure/templates/ConfigType.h"
     
