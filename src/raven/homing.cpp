@@ -391,7 +391,7 @@ const int homing_max_dac[8] = {2500,  //shoulder
 #ifdef DV_ADAPTER
 const int homing_max_dac[8] = {2500,  //shoulder
                             2500,  //elbow
-                            2400,  //z-ins
+                            2800,  //z-ins
                             0,
                             1900,  //tool_rot // was 1400, lowered to reduce calibration error //I think this is labeled improperly - AL
                             1900,  //wrist
@@ -400,7 +400,7 @@ const int homing_max_dac[8] = {2500,  //shoulder
 #else
 const int homing_max_dac[8] = {2500,  //shoulder
                             2500,  //elbow
-                            2800, //1900,  //z_ins
+                            2600, //1900,  //z_ins
                             0,
                             1900,  //tool_rot  //rasised from 1400 alewis 3/4/14
                             1900,  //wrist

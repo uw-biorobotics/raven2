@@ -370,31 +370,6 @@ void initDOFs(struct device *device0)
 		DOF_types[SHOULDER + offset].min_limit    = SHOULDER_MIN_LIMIT;
 	    DOF_types[SHOULDER + offset].home_position  = SHOULDER_HOME_ANGLE;
 
-		DOF_types[ELBOW].max_position = ELBOW_MAX_ANGLE;
-        DOF_types[ELBOW].max_limit    = ELBOW_MAX_LIMIT;
-		DOF_types[ELBOW].min_limit    = ELBOW_MIN_LIMIT;
-		DOF_types[ELBOW].home_position     = ELBOW_HOME_ANGLE;
-
-        DOF_types[Z_INS].max_limit    = Z_INS_MAX_LIMIT;
-		DOF_types[Z_INS].min_limit    = Z_INS_MIN_LIMIT;
-		DOF_types[Z_INS].home_position = Z_INS_HOME_ANGLE;
-
-        DOF_types[TOOL_ROT].max_limit    = TOOL_ROT_MAX_LIMIT;
-		DOF_types[TOOL_ROT].min_limit    = TOOL_ROT_MIN_LIMIT;
-		DOF_types[TOOL_ROT].home_position  = TOOL_ROT_HOME_ANGLE;
-
-        DOF_types[WRIST].max_limit     = WRIST_MAX_LIMIT;
-		DOF_types[WRIST].min_limit     = WRIST_MIN_LIMIT;
-	    DOF_types[WRIST].home_position = WRIST_HOME_ANGLE;
-
-        DOF_types[GRASP1].max_limit     = GRASP1_MAX_LIMIT;
-		DOF_types[GRASP1].min_limit     = GRASP1_MIN_LIMIT;
-	    DOF_types[GRASP1].home_position = GRASP1_HOME_ANGLE;
-
-        DOF_types[GRASP2].max_limit     = GRASP2_MAX_LIMIT;
-		DOF_types[GRASP2].min_limit     = GRASP2_MIN_LIMIT;
-	    DOF_types[GRASP2].home_position = GRASP2_HOME_ANGLE;
-
 		switch (use_tool){
         case davinci_square_type:
     	{
