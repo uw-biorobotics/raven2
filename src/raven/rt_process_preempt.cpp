@@ -222,8 +222,8 @@ static void *rt_process(void* )
 	  tsnorm(&t);
 	  sleeploops++;
         }
-      if (sleeploops!=1)
-	std::cout<< "slplup"<< sleeploops <<std::endl;
+//      if (sleeploops!=1)
+//	std::cout<< "slplup"<< sleeploops <<std::endl;
 
       parport_out(0x00);
       /// SLEEP until next timer shot
@@ -251,8 +251,8 @@ static void *rt_process(void* )
         }
       clock_gettime(CLOCK_REALTIME,&t2);
       t2 = tsSubtract(t2, tnow);
-      if (loops!=0)
-	std::cout<< "bzlup"<<loops<<"0us time:" << (double)t2.tv_sec + (double)t2.tv_nsec/SEC <<std::endl;
+//      if (loops!=0)
+//	std::cout<< "bzlup"<<loops<<"0us time:" << (double)t2.tv_sec + (double)t2.tv_nsec/SEC <<std::endl;
 
       //Run Safety State Machine
       stateMachine(&device0, &currParams, &rcvdParams);

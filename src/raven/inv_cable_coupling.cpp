@@ -102,9 +102,16 @@ void invMechCableCoupling(struct mechanism *mech, int no_use_actual)
 	tr5 = DOF_types[WRIST_GREEN    ].TR;
 	tr6 = DOF_types[GRASP1_GREEN   ].TR;
 	tr7 = DOF_types[GRASP2_GREEN   ].TR;
+
+	static int thrice = 0;
+	if (thrice < 4)
+	{
+		log_msg("mech type --> %i ", mech->type);
+		log_msg("GREEN ARM --> %i ", GREEN_ARM);
+		thrice++;
+	}
+
   }
-
-
 
 
 
@@ -200,13 +207,12 @@ void invMechCableCoupling(struct mechanism *mech, int no_use_actual)
   }
   else if (mech->tool_type == dv_adapter)
   {
-	int sgn = (mech->type != GOLD_ARM) ? 1 : -1;
+	int sgn = (mech->type != GOLD_ARM) ? 1 : -1;   //original
+//	int sgn = (mech->type == GOLD_ARM) ? 1 : -1;
 	m3 = (tr3 * th3) + sgn * m4_actual/GB_RATIO;
 	m5 = (tr5 * th5) + sgn * m4_actual/GB_RATIO;
 	m6 = (tr6 * (th6 + th5/2)) + sgn * m4_actual/GB_RATIO;
 	m7 = (tr7 * (th7 - th5/2)) + sgn * m4_actual/GB_RATIO;
-//	m6 = tr6 * (th6 + th5/2) + sgn * m4_actual/GB_RATIO;
-//	m7 = tr7 * (th7 - th5/2) + sgn * m4_actual/GB_RATIO;
   }
   else if (mech->tool_type == TOOL_GRASPER_8MM)
   {

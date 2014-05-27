@@ -351,7 +351,7 @@ void getQuaternion(float* Q, float mat[3][3])
 
 
 /**\fn void set_posd_to_pos(struct robot_device* device0)
- * \brief set the current mechanism end pos to the designed pose
+ * \brief set the desired position to the robots current position
  * \param device0 a pointer points to the robot_device struct
  * \return void
  */

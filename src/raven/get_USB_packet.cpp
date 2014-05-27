@@ -41,16 +41,19 @@ void initiateUSBGet(struct device *device0)
 {
   int i;
   int err=0;
-  
+
   //Loop through all USB Boards
   for (i = 0; i < USBBoards.activeAtStart; i++)
     {
-      err = startUSBRead( USBBoards.boards[1-i] );
+
+	  err = startUSBRead( USBBoards.boards[i] );
       if ( err < 0)
         {
 	  //	  log_msg("Error (%d) initiating USB read %d on loop %d!", err, USBBoards.boards[i], gTime);
         }
+
     }
+
 }
 
 /**\fn int getUSBPackets(struct device *device0)

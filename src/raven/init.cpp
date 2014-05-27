@@ -34,7 +34,13 @@
 // TOOLS defines
 #include "tool.h"
 
-const e_tool_type use_tool = dv_adapter; //TOOL_GRASPER_10MM; //
+#ifdef DV_ADAPTER
+const e_tool_type use_tool = dv_adapter;
+#else
+#ifdef RAVEN_TOOLS
+const e_tool_type use_tool = TOOL_GRASPER_10MM; //
+#endif
+#endif
 
 extern int initialized;
 
@@ -202,6 +208,7 @@ void initDOFs(struct device *device0)
             device0->mech[i].joint[GRASP1].type   = GRASP1_GREEN;
             device0->mech[i].joint[GRASP2].type   = GRASP2_GREEN;
             device0->mech[i].joint[NO_CONNECTION].type   = NO_CONNECTION_GREEN;
+
         }
 
 
@@ -286,12 +293,6 @@ void initDOFs(struct device *device0)
                 }
             }
 
-
-
-
-
-
-
             //Set encoder offset
             _joint->enc_offset = _joint->enc_val;
 
@@ -360,6 +361,39 @@ void initDOFs(struct device *device0)
         DOF_types[GRASP2   + offset].max_limit     = GRASP2_MAX_LIMIT;
 		DOF_types[GRASP2   + offset].min_limit     = GRASP2_MIN_LIMIT;
 	    DOF_types[GRASP2   + offset].home_position = GRASP2_HOME_ANGLE;
+
+        DOF_types[Z_INS    + offset].max_limit    = Z_INS_MAX_LIMIT;
+		DOF_types[Z_INS    + offset].min_limit    = Z_INS_MIN_LIMIT;
+
+	    DOF_types[SHOULDER + offset].max_position = SHOULDER_MAX_ANGLE;
+        DOF_types[SHOULDER + offset].max_limit    = SHOULDER_MAX_LIMIT;
+		DOF_types[SHOULDER + offset].min_limit    = SHOULDER_MIN_LIMIT;
+	    DOF_types[SHOULDER + offset].home_position  = SHOULDER_HOME_ANGLE;
+
+		DOF_types[ELBOW].max_position = ELBOW_MAX_ANGLE;
+        DOF_types[ELBOW].max_limit    = ELBOW_MAX_LIMIT;
+		DOF_types[ELBOW].min_limit    = ELBOW_MIN_LIMIT;
+		DOF_types[ELBOW].home_position     = ELBOW_HOME_ANGLE;
+
+        DOF_types[Z_INS].max_limit    = Z_INS_MAX_LIMIT;
+		DOF_types[Z_INS].min_limit    = Z_INS_MIN_LIMIT;
+		DOF_types[Z_INS].home_position = Z_INS_HOME_ANGLE;
+
+        DOF_types[TOOL_ROT].max_limit    = TOOL_ROT_MAX_LIMIT;
+		DOF_types[TOOL_ROT].min_limit    = TOOL_ROT_MIN_LIMIT;
+		DOF_types[TOOL_ROT].home_position  = TOOL_ROT_HOME_ANGLE;
+
+        DOF_types[WRIST].max_limit     = WRIST_MAX_LIMIT;
+		DOF_types[WRIST].min_limit     = WRIST_MIN_LIMIT;
+	    DOF_types[WRIST].home_position = WRIST_HOME_ANGLE;
+
+        DOF_types[GRASP1].max_limit     = GRASP1_MAX_LIMIT;
+		DOF_types[GRASP1].min_limit     = GRASP1_MIN_LIMIT;
+	    DOF_types[GRASP1].home_position = GRASP1_HOME_ANGLE;
+
+        DOF_types[GRASP2].max_limit     = GRASP2_MAX_LIMIT;
+		DOF_types[GRASP2].min_limit     = GRASP2_MIN_LIMIT;
+	    DOF_types[GRASP2].home_position = GRASP2_HOME_ANGLE;
 
 		switch (use_tool){
         case davinci_square_type:
@@ -489,12 +523,13 @@ int init_ravengains(ros::NodeHandle n, struct device *device0)
         {
             for (int j = 0; j < MAX_DOF_PER_MECH; j++)
             {
-                int dofindex =i*MAX_DOF_PER_MECH + j;
+                int dofindex;
 
                 // Set gains for gold and green arms
                 if ( device0->mech[i].type == GOLD_ARM)
                 {
                     initgold=true;
+                    dofindex = j;
                     DOF_types[dofindex].KP = (double)kp_gold[j];   // Cast XMLRPC value to a double and set gain
                     DOF_types[dofindex].KD = (double)kd_gold[j];   //   ""
                     DOF_types[dofindex].KI = (double)ki_gold[j];   //   ""
@@ -502,6 +537,7 @@ int init_ravengains(ros::NodeHandle n, struct device *device0)
                 else if ( device0->mech[i].type == GREEN_ARM)
                 {
                     initgreen=true;
+                    dofindex = 1 * MAX_DOF_PER_MECH + j;
                     DOF_types[dofindex].KP = (double)kp_green[j];  //   ""
                     DOF_types[dofindex].KD = (double)kd_green[j];  //   ""
                     DOF_types[dofindex].KI = (double)ki_green[j];  //   ""
@@ -519,7 +555,7 @@ int init_ravengains(ros::NodeHandle n, struct device *device0)
             ROS_ERROR("Failed to set gains for green arm (ser:%d not %d).  Set to zero", device0->mech[1].type, GREEN_ARM);
         }
         log_msg("  PD gains set to");
-        log_msg("    green: %.3lf/%.3lf/%.3lf, %.3lf/%.3lf/%.3lf, %.3lf/%.3lf/%.3lf, %.3lf/%.3lf/%.3lf, %.3lf/%.3lf/%.3lf, %.3lf/%.3lf/%.3lf, %.3lf/%.3lf/%.3lf, %.3lf/%.3lf/%.3lf",
+        log_msg("    gold: %.3lf/%.3lf/%.3lf, %.3lf/%.3lf/%.3lf, %.3lf/%.3lf/%.3lf, %.3lf/%.3lf/%.3lf, %.3lf/%.3lf/%.3lf, %.3lf/%.3lf/%.3lf, %.3lf/%.3lf/%.3lf, %.3lf/%.3lf/%.3lf",
             DOF_types[0].KP, DOF_types[0].KD, DOF_types[0].KI,
             DOF_types[1].KP, DOF_types[1].KD, DOF_types[1].KI,
             DOF_types[2].KP, DOF_types[2].KD, DOF_types[2].KI,
@@ -528,7 +564,7 @@ int init_ravengains(ros::NodeHandle n, struct device *device0)
             DOF_types[5].KP, DOF_types[5].KD, DOF_types[5].KI,
             DOF_types[6].KP, DOF_types[6].KD, DOF_types[6].KI,
             DOF_types[7].KP, DOF_types[7].KD, DOF_types[7].KI);
-        log_msg("    gold: %.3lf/%.3lf/%.3lf, %.3lf/%.3lf/%.3lf, %.3lf/%.3lf/%.3lf, %.3lf/%.3lf/%.3lf, %.3lf/%.3lf/%.3lf, %.3lf/%.3lf/%.3lf, %.3lf/%.3lf/%.3lf, %.3lf/%.3lf/%.3lf",
+        log_msg("    green: %.3lf/%.3lf/%.3lf, %.3lf/%.3lf/%.3lf, %.3lf/%.3lf/%.3lf, %.3lf/%.3lf/%.3lf, %.3lf/%.3lf/%.3lf, %.3lf/%.3lf/%.3lf, %.3lf/%.3lf/%.3lf, %.3lf/%.3lf/%.3lf",
             DOF_types[8].KP, DOF_types[8].KD, DOF_types[8].KI,
             DOF_types[9].KP, DOF_types[9].KD, DOF_types[9].KI,
             DOF_types[10].KP, DOF_types[10].KD, DOF_types[10].KI,

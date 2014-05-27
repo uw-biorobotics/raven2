@@ -333,7 +333,7 @@ int r2_inv_kin(struct device *d0, int runlevel)
 	for (int m=0; m<NUM_MECH; m++)
 	{
 		// get arm type and wrist actuation angle
-		if (d0->mech[m].type == GOLD_ARM_SERIAL)
+		if (d0->mech[m].type == GOLD_ARM)
 			arm = dh_left;
 		else
 			arm = dh_right;

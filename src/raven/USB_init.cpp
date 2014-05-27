@@ -156,9 +156,11 @@ int USBInit(struct device *device0)
 
         // Open usb dev
         int tmp_fileHandle = open(boardStr.c_str(), O_RDWR|O_NONBLOCK);    //Is NONBLOCK mode required??// open board chardev
+
+
         if (tmp_fileHandle <=0 )
         {
-            perror("ERROR: coultn't open board");
+            perror("ERROR: couldn't open board");
             errno=0;
             continue; //Failed to open board, move to next one
         }
@@ -195,6 +197,7 @@ int USBInit(struct device *device0)
         boardFPs[boardid] = tmp_fileHandle;   // Map serial (i) to fileHandle (tmp_fileHandle)
         USBBoards.activeAtStart++;            // Increment board count
 
+        log_msg("board FPs ---> %i", boardFPs[boardid]);
 
 
         if ( write_zeros_to_board(boardid) != 0){
@@ -248,7 +251,7 @@ void USBShutdown(void)
  */
 int startUSBRead(int id)
 {
-  // Initiate read
+	// Initiate read
   int ret = ioctl(boardFPs[id], BRL_START_READ, MAX_IN_LENGTH);
 
   if (ret < 0 )

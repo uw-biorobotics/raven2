@@ -67,8 +67,13 @@ int TorqueToDAC(struct device *device0)
     for (i=0; i < NUM_MECH; i++)
         for (j=0; j < MAX_DOF_PER_MECH ; j++) {
             if (device0->mech[i].joint[j].type == NO_CONNECTION_GOLD || device0->mech[i].joint[j].type == NO_CONNECTION_GREEN)
-                continue;
+            {
+            	continue;
+            }
+
             device0->mech[i].joint[j].current_cmd = tToDACVal( &(device0->mech[i].joint[j]) );  // Convert torque to DAC value
+
+
 
             if ( soft_estopped )
                 device0->mech[i].joint[j].current_cmd = 0;

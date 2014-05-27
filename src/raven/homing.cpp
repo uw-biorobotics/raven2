@@ -124,6 +124,7 @@ int raven_homing(struct device *device0, struct param_pass *currParams, int begi
                 jvel_PI_control(_joint, 1);  // reset PI control integral term
             homing_inited = 1;
         }
+        log_msg("Homing sequence initialized");
     }
 
     // Specify motion commands
@@ -154,7 +155,7 @@ int raven_homing(struct device *device0, struct param_pass *currParams, int begi
     _mech = NULL;  _joint = NULL;
     while ( loop_over_joints(device0, _mech, _joint, i,j) )
     {
-        struct DOF * _joint =  &(_mech->joint[j]);
+        struct DOF * _joint =  &(_mech->joint[j]); ///\todo is this line necessary?
 
         // Check to see if we've reached the joint limit.
         if( check_homing_condition(_joint) )
@@ -216,8 +217,8 @@ int set_joints_known_pos(struct mechanism* _mech, int tool_only)
     struct DOF* _joint=NULL;
     int j=0;
 
-    int offset = 0;
-    if (_mech->type == GREEN_ARM) offset = 8;
+//    int offset = 0;
+//    if (_mech->type == GREEN_ARM) offset = 8;
     /// Set joint position reference for just tools, or all DOFS
     _joint = NULL;
     while ( loop_over_joints(_mech, _joint ,j) )
@@ -261,24 +262,6 @@ int set_joints_known_pos(struct mechanism* _mech, int tool_only)
         float f_enc_val = _joint->enc_val;
 
         // Encoder values on Gold arm are reversed.  See also state_machine.cpp
-//#ifdef RAVEN_II_SQUARE
-//        if (
-//        		( _mech->type == GOLD_ARM && !is_toolDOF(_joint) )
-//        		||
-//        		( _mech->type == GREEN_ARM && is_toolDOF(_joint) ) //Green arm tools are also reversed with square pattern
-//        	)
-//             f_enc_val *= -1.0;
-//#else //standard (is called if not square)
-//        if ( _mech->type == GOLD_ARM || is_toolDOF(_joint) )
-//             f_enc_val *= -1.0;
-//#endif
-//
-//#ifdef DV_ADAPTER //tool dofs are reverse of standard
-//        if ( is_toolDOF(_joint) )
-//        	f_enc_val *= -1.0;
-//#endif
-
-
     switch (_mech->tool_type){
 		case dv_adapter:
 			if ( _mech->type == GOLD_ARM && !is_toolDOF(_joint))
@@ -408,16 +391,16 @@ const int homing_max_dac[8] = {2500,  //shoulder
 #ifdef DV_ADAPTER
 const int homing_max_dac[8] = {2500,  //shoulder
                             2500,  //elbow
-                            1200,  //z-ins
+                            2400,  //z-ins
                             0,
-                            2000,  //tool_rot // was 1400, lowered to reduce calibration error //I think this is labeled improperly - AL
-                            2000,  //wrist
-                            1800,  //grasp1
-                            1800};  // grasp2
+                            1900,  //tool_rot // was 1400, lowered to reduce calibration error //I think this is labeled improperly - AL
+                            1900,  //wrist
+                            1700,  //grasp1
+                            1700};  // grasp2
 #else
 const int homing_max_dac[8] = {2500,  //shoulder
                             2500,  //elbow
-                            2500, //1900,  //z_ins
+                            2800, //1900,  //z_ins
                             0,
                             1900,  //tool_rot  //rasised from 1400 alewis 3/4/14
                             1900,  //wrist

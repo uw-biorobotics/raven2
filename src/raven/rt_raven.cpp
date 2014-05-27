@@ -125,22 +125,27 @@ int controlRaven(struct device *device0, struct param_pass *currParams){
 
         	break;
         }
-	//Cartesian Space Control is called to control the robot in cartesian space
+        //Cartesian Space Control is called to control the robot in cartesian space
         case cartesian_space_control:
-	  ret = raven_cartesian_space_command(device0,currParams);
-	  break;
+        	ret = raven_cartesian_space_command(device0,currParams);
+        	break;
         //Motor PD control runs PD control on motor position
         case motor_pd_control:
             initialized = false;
             ret = raven_motor_position_control(device0,currParams);
             break;
-	//Runs joint velocity control
+        //Runs joint velocity control
         case joint_velocity_control:
             initialized = false;
             ret = raven_joint_velocity_control(device0, currParams);
             break;
-	//Runs homing mode
+        //Runs homing mode
         case homing_mode:
+        	static int hom = 0;
+        	if (hom==0){
+        		log_msg("Entered homing mode");
+        		hom = 1;
+        	}
             initialized = false;
             //initialized = robot_ready(device0) ? true:false;
             ret = raven_homing(device0, currParams);
@@ -258,7 +263,10 @@ int raven_sinusoidal_joint_motion(struct device *device0, struct param_pass *cur
     static unsigned long int delay=0;
     const float f_period[8] = {6, 7, 10, 9999999, 10, 5, 10, 6};
 //    const float f_magnitude[8] = {0 DEG2RAD, 0 DEG2RAD, 0.0, 9999999, 0 DEG2RAD, 25 DEG2RAD, 0 DEG2RAD, 0 DEG2RAD};
-    const float f_magnitude[8] = {10 DEG2RAD, 10 DEG2RAD, 0.02, 9999999, 30 DEG2RAD, 30 DEG2RAD, 30 DEG2RAD, 30 DEG2RAD};
+    const float f_magnitude[8] = {10 DEG2RAD, 10 DEG2RAD, 0.02, 9999999,
+    		30 DEG2RAD, 30 DEG2RAD, 30 DEG2RAD, 30 DEG2RAD};
+
+
 
     // If we're not in pedal down or init.init then do nothing.
     if (! ( currParams->runlevel == RL_INIT && currParams->sublevel == SL_AUTO_INIT ))
@@ -278,6 +286,9 @@ int raven_sinusoidal_joint_motion(struct device *device0, struct param_pass *cur
         }
         return 0;
     }
+
+
+
 
     // Wait for amplifiers to power up
     if (gTime - delay < 800)

@@ -431,7 +431,9 @@ void publish_ravenstate_ros(struct robot_device *dev,struct param_pass *currPara
 
     // Copy the robot state to the output datastructure.
     int numdof=8;
-    for (int j=0; j<NUM_MECH; j++){
+    int j;
+    for (int i=0; i<NUM_MECH; i++){
+    	j = dev->mech[i].type == GREEN_ARM ? 1 : 0;
         msg_ravenstate.type[j]    = dev->mech[j].type;
         msg_ravenstate.pos[j*3]   = dev->mech[j].pos.x;
         msg_ravenstate.pos[j*3+1] = dev->mech[j].pos.y;
@@ -439,7 +441,7 @@ void publish_ravenstate_ros(struct robot_device *dev,struct param_pass *currPara
         msg_ravenstate.pos_d[j*3]   = dev->mech[j].pos_d.x;
         msg_ravenstate.pos_d[j*3+1] = dev->mech[j].pos_d.y;
         msg_ravenstate.pos_d[j*3+2] = dev->mech[j].pos_d.z;
-	msg_ravenstate.grasp_d[j] = (float)dev->mech[j].ori_d.grasp/1000;
+        msg_ravenstate.grasp_d[j] = (float)dev->mech[j].ori_d.grasp/1000;
 
         for (int orii=0; orii<3; orii++)
         {
