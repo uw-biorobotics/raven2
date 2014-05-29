@@ -49,8 +49,14 @@ void initiateUSBGet(struct device *device0)
 	  err = startUSBRead( USBBoards.boards[i] );
       if ( err < 0)
         {
-	  //	  log_msg("Error (%d) initiating USB read %d on loop %d!", err, USBBoards.boards[i], gTime);
+		  //log_msg("Error (%d) initiating USB read %d on loop %d!", err, USBBoards.boards[i], gTime);
         }
+      static int count = 0;
+      if (count < 5){
+    	  log_msg("USB Board started -> %i", USBBoards.boards[i]);
+    	  count++;
+      }
+
 
     }
 

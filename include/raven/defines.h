@@ -49,8 +49,8 @@
 
 // Two arm identification
 // Change this to match device ID in /dev/brl_usbXX
-#define GREEN_ARM_SERIAL 50
-#define GOLD_ARM_SERIAL  33
+#define GREEN_ARM_SERIAL 37
+#define GOLD_ARM_SERIAL  24
 
 #define GREEN_ARM        GREEN_ARM_SERIAL
 #define GOLD_ARM         GOLD_ARM_SERIAL

@@ -335,8 +335,11 @@ int r2_inv_kin(struct device *d0, int runlevel)
 		// get arm type and wrist actuation angle
 		if (d0->mech[m].type == GOLD_ARM)
 			arm = dh_left;
-		else
+		else{
+
 			arm = dh_right;
+		}
+
 
 		ori_d = &(d0->mech[m].ori_d);
 		pos_d = &(d0->mech[m].pos_d);
@@ -383,7 +386,10 @@ int r2_inv_kin(struct device *d0, int runlevel)
 
 		// convert from joint angle representation to DH theta convention
 		double lo_thetas[6];
-		joint2theta(lo_thetas, joints, arm);
+
+		static int arm_check = 0;
+
+		joint2theta(lo_thetas, joints, arm);  //this is the one that's wrong
 		int sol_idx=0;
 		double sol_err;
 		int check_result = 0;
@@ -400,7 +406,7 @@ int r2_inv_kin(struct device *d0, int runlevel)
 		double gangle = double(d0->mech[m].ori_d.grasp) / 1000.0;
 		theta2joint(iksol[sol_idx], Js);
 
-		int limited = apply_joint_limits(Js,Js_sat);
+		int limited = 0; //apply_joint_limits(Js,Js_sat);
 		if (limited)
 		{
 			joint2theta(thetas_sat, Js_sat, arm);
@@ -918,6 +924,13 @@ void joint2theta(double *out_iktheta, double *in_J, l_r in_arm)
 		out_iktheta[3] = in_J[3] + TH4_J3_L * d2r;
 		out_iktheta[4] = in_J[4] + TH5_J4_L * d2r;
 		out_iktheta[5] = in_J[5] + TH6A_J5_L * d2r;
+
+		static int larm_check = 0;
+		if (larm_check < 2) {
+			log_msg("why left arm? -- j2t");
+			larm_check++;
+		}
+
 	}
 
 	else
@@ -929,7 +942,11 @@ void joint2theta(double *out_iktheta, double *in_J, l_r in_arm)
 		out_iktheta[3] = in_J[3] + TH4_J3_R * d2r;
 		out_iktheta[4] = in_J[4] + TH5_J4_R * d2r;
 		out_iktheta[5] = in_J[5] + TH6A_J5_R * d2r;
-
+		static int arm_check = 0;
+		if (arm_check < 2) {
+			log_msg("definitely still the right arm j2t");
+			arm_check++;
+		}
 	}
 
 	// bring to range {-pi , pi}
@@ -965,6 +982,9 @@ void theta2joint(ik_solution in_iktheta, double *out_J)
 		out_J[3] = in_iktheta.th4 - TH4_J3_L * d2r;
 		out_J[4] = in_iktheta.th5 - TH5_J4_L * d2r;
 		out_J[5] = in_iktheta.th6 - TH6A_J5_L * d2r;
+
+
+
 	}
 
 	else
@@ -976,6 +996,12 @@ void theta2joint(ik_solution in_iktheta, double *out_J)
 		out_J[3] = in_iktheta.th4 - TH4_J3_R * d2r;
 		out_J[4] = in_iktheta.th5 - TH5_J4_R * d2r;
 		out_J[5] = in_iktheta.th6 - TH6A_J5_R * d2r;
+
+		static int arm_check = 0;
+		if (arm_check < 2) {
+			log_msg("definitely the right arm -- t2j");
+			arm_check++;
+		}
 	}
 
 	// bring to range {-pi , pi}
