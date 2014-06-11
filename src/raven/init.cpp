@@ -37,10 +37,19 @@
 #ifdef DV_ADAPTER
 const e_tool_type use_tool = dv_adapter;
 #else
+
 #ifdef RAVEN_TOOLS
 const e_tool_type use_tool = TOOL_GRASPER_10MM; //
+#else
+
+#ifdef KIST
+const e_tool_type use_tool = ricks_tools_type;
+
 #endif
 #endif
+#endif
+
+
 
 extern int initialized;
 

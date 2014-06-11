@@ -34,7 +34,7 @@
 
 #define SURGICAL_ROBOT     	1
 #define RAVEN_II        	1
-
+#define KIST
 
 //#define RAVEN_TOOLS
 #define DV_ADAPTER			1
@@ -55,7 +55,23 @@
 #define GREEN_ARM        GREEN_ARM_SERIAL
 #define GOLD_ARM         GOLD_ARM_SERIAL
 
+
+
+//KIST configuration is GREEN ONLY and no tools(ricks tools)
+#ifdef KIST
+
+#ifndef GREEN_ONLY
 #define GREEN_ONLY //if only using the green arm and one USB board
+#endif
+
+#undef RAVEN_TOOLS
+#undef DV_ADAPTER
+#undef RAVEN_II_SQUARE
+
+
+#define RICKS_TOOLS
+
+#endif
 
 // Event logging function
 //  Log levels:
