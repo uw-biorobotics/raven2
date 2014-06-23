@@ -32,7 +32,7 @@
 
 const int USE_ITP = 1;
 
-/** \fn void fromITP(struct position *delpos, btQuaternion &delrot, int armserial)
+/** \fn void fromITP(struct position *delpos, tf::Quaternion &delrot, int armserial)
  * \brief Transform a position increment and an orientation increment from ITP coordinate frame into local robot coordinate frame.
  *        Do this using inv(R)*C*R : R= transform, C= increment
  * \param delpos - a pointer points to a position struct
@@ -40,11 +40,11 @@ const int USE_ITP = 1;
  * \param armserial - an integer number of of mechanisam id
  * \question why post multiply with R inverse?
 */
-void fromITP(struct position *delpos, btQuaternion &delrot, int armserial)
+void fromITP(struct position *delpos, tf::Quaternion &delrot, int armserial)
 {
-    const btTransform ITP2Gold ( btMatrix3x3 (0,0,-1,  -1,0,0,  0,1,0), btVector3 (0,0,0) );
-    const btTransform ITP2Green( btMatrix3x3 (0,0,-1,  1,0,0,  0,-1,0), btVector3 (0,0,0) );
-    btTransform incr (delrot, btVector3(delpos->x, delpos->y, delpos->z));
+    const tf::Transform ITP2Gold ( tf::Matrix3x3 (0,0,-1,  -1,0,0,  0,1,0), tf::Vector3 (0,0,0) );
+    const tf::Transform ITP2Green( tf::Matrix3x3 (0,0,-1,  1,0,0,  0,-1,0), tf::Vector3 (0,0,0) );
+    tf::Transform incr (delrot, tf::Vector3(delpos->x, delpos->y, delpos->z));
 
     if (armserial == GOLD_ARM_SERIAL)
     {

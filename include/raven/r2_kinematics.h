@@ -51,15 +51,15 @@ const double GM1 = sin(La12), GM2 = cos(La12), GM3 = sin(La23), GM4 = cos(La23);
 
 
 
-void print_btTransform(btTransform);
-void print_btVector(btVector3 vv);
-btTransform getFKTransform(int a, int b);
+void print_tf(tf::Transform);
+void print_btVector(tf::Vector3 vv);
+tf::Transform getFKTransform(int a, int b);
 
 
 void showInverseKinematicsSolutions(struct device *d0, int runlevel);
 
 int r2_fwd_kin(struct device *d0, int runlevel);
-int getATransform (struct mechanism &in_mch, btTransform &out_xform, int frameA, int frameB);
+int getATransform (struct mechanism &in_mch, tf::Transform &out_xform, int frameA, int frameB);
 
 /** fwd_kin()
  *   Runs the Raven II forward kinematics to determine end effector position.
@@ -68,7 +68,7 @@ int getATransform (struct mechanism &in_mch, btTransform &out_xform, int frameA,
  *   Outputs: cartesian transform as 4x4 transformation matrix ( bullit transform.  WHAT'S THE SYNTAX FOR THAT???)
  *   Return: 0 on success, -1 on failure
  */
-int __attribute__((optimize("0"))) fwd_kin( double in_j[6], l_r in_armtype, btTransform &out_xform);
+int __attribute__((optimize("0"))) fwd_kin( double in_j[6], l_r in_armtype, tf::Transform &out_xform);
 
 
 
@@ -82,7 +82,7 @@ int r2_inv_kin(struct device *d0, int runlevel);
  *   Outputs: 6 element array of joint angles ( float j[] = {shoulder, elbow, ins, roll, wrist, grasp} )
  *   Return: 0 on success, -1 on failure
  */
-int inv_kin (btTransform in_xf, l_r in_arm, ik_solution iksol[8]);
+int inv_kin (tf::Transform in_xf, l_r in_arm, ik_solution iksol[8]);
 
 
 

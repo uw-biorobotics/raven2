@@ -46,4 +46,4 @@
 #define Y_ROT_GOLD_ARM 1.5707
 
 void masterToSlave(struct position*, int);
-void fromITP(struct position*, btQuaternion&, int);
+void fromITP(struct position*, tf::Quaternion&, int);

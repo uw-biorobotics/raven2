@@ -70,7 +70,7 @@ double robot_thetas[2][6] = {{V,    V,    M_PI/2,     V,   V,      V},
 
 
 int printIK = 0;
-void print_btVector(btVector3 vv);
+void print_btVector(tf::Vector3 vv);
 int check_solutions(double *in_thetas, ik_solution * iksol, int &out_idx, double &out_err);
 int apply_joint_limits(double *Js, double *Js_sat);
 
@@ -78,16 +78,16 @@ int apply_joint_limits(double *Js, double *Js_sat);
 //  Calculate a transform between two links
 //--------------------------------------------------------------------------------
 
-/**\fn btTransform getFKTransform (int a, int b)
+/**\fn tf::Transform getFKTransform (int a, int b)
  * \brief Retrieve the forward kinematics transform from a to b, i.e., ^a_bT
  * \param a - an integer value, starting link frame id
  * \param b - an integer value, ending link frame id
- * \return a btTransform object transforms link a to link b
+ * \return a tf::Transform object transforms link a to link b
  *  \ingroup Kinematics
  */
-btTransform getFKTransform(int a, int b)
+tf::Transform getFKTransform(int a, int b)
 {
-	btTransform xf;
+	tf::Transform xf;
 	if ( (b <= a) || b==0 )
 	{
 		ROS_ERROR("Invalid start/end indices.");
@@ -101,8 +101,8 @@ btTransform getFKTransform(int a, int b)
 	double py = -sin(dh_alpha[a])*dh_d[a];
 	double pz =  cos(dh_alpha[a])*dh_d[a];
 
-	xf.setBasis(btMatrix3x3(xx, xy, xz, yx, yy, yz, zx, zy, zz ));
-	xf.setOrigin(btVector3(px, py, pz));
+	xf.setBasis(tf::Matrix3x3(xx, xy, xz, yx, yy, yz, zx, zy, zz ));
+	xf.setOrigin(tf::Vector3(px, py, pz));
 
 	// recursively find transforms for following links
 	if (b > a+1)
@@ -127,7 +127,7 @@ btTransform getFKTransform(int a, int b)
 int r2_fwd_kin(struct device *d0, int runlevel)
 {
 	l_r arm;
-	btTransform xf;
+	tf::Transform xf;
 
 	/// Do FK for each mechanism
 	for (int m=0; m<NUM_MECH; m++)
@@ -191,15 +191,15 @@ int r2_fwd_kin(struct device *d0, int runlevel)
 	return 0;
 }
 
-/**\fn int fwd_kin (double in_j[6], l_r in_arm, btTransform &out_xform )
+/**\fn int fwd_kin (double in_j[6], l_r in_arm, tf::Transform &out_xform )
  * \brief Runs the Raven II forward kinematics to determine end effector position of one arm
  * \param in_j[6] - 6 element array of joint angles ( float j[] = {shoulder, elbow, ins, roll, wrist, grasp} )
  * \param in_arm - Arm type, left / right ( kin.armtype arm = left/right)
- * \param out_xform - a reference of btTransform object represents the forward kinematic transfrom from zero frame to endeffector frame of one arm
+ * \param out_xform - a reference of tf::Transform object represents the forward kinematic transfrom from zero frame to endeffector frame of one arm
  * \return: 0 on success, -1 on failure
  *  \ingroup Kinematics
  */
-int fwd_kin (double in_j[6], l_r in_arm, btTransform &out_xform)
+int fwd_kin (double in_j[6], l_r in_arm, tf::Transform &out_xform)
 {
 	dh_alpha = alphas[in_arm];
 	dh_theta = robot_thetas[in_arm];
@@ -220,8 +220,8 @@ int fwd_kin (double in_j[6], l_r in_arm, btTransform &out_xform)
 
 	// rotate to match "tilted" base
 /*
-	const static btTransform zrot_l( btMatrix3x3 (cos(25*d2r),-sin(25*d2r),0,  sin(25*d2r),cos(25*d2r),0,  0,0,1), btVector3 (0,0,0) );
-	const static btTransform zrot_r( btMatrix3x3 (cos(-25*d2r),-sin(-25*d2r),0,  sin(-25*d2r),cos(-25*d2r),0,  0,0,1), btVector3 (0,0,0) );
+	const static tf::Transform zrot_l( tf::Matrix3x3 (cos(25*d2r),-sin(25*d2r),0,  sin(25*d2r),cos(25*d2r),0,  0,0,1), tf::Vector3 (0,0,0) );
+	const static tf::Transform zrot_r( tf::Matrix3x3 (cos(-25*d2r),-sin(-25*d2r),0,  sin(-25*d2r),cos(-25*d2r),0,  0,0,1), tf::Vector3 (0,0,0) );
 
 
 	if (in_arm == dh_left)
@@ -238,16 +238,16 @@ int fwd_kin (double in_j[6], l_r in_arm, btTransform &out_xform)
 
 
 
-/**\fn int getATransform (struct mechanism &in_mch, btTransform &out_xform, int frameA, int frameB)
+/**\fn int getATransform (struct mechanism &in_mch, tf::Transform &out_xform, int frameA, int frameB)
  * \brief Runs the Raven II forward kinematics to determine the desired transform from frame A to frame B
  * \param in_mch - a reference of one arm
- * \param out_xform - a reference of a btTransform obejct represents the output transfrom
+ * \param out_xform - a reference of a tf::Transform obejct represents the output transfrom
  * \param frameA - an integer value, starting frame id
  * \param frameB - an integer value, ending frame id
  * \return 0 on success, -1 on failure
  *  \ingroup Kinematics
  */
-int getATransform (struct mechanism &in_mch, btTransform &out_xform, int frameA, int frameB)
+int getATransform (struct mechanism &in_mch, tf::Transform &out_xform, int frameA, int frameB)
 {
 	l_r arm;
 
@@ -292,8 +292,8 @@ int getATransform (struct mechanism &in_mch, btTransform &out_xform, int frameA,
 /*
 	if (frameA == 0)
 	{
-		const static btTransform zrot_l( btMatrix3x3 (cos(25*d2r), -sin(25*d2r), 0,  sin(25*d2r), cos(25*d2r), 0,  0,0,1), btVector3 (0,0,0) );
-		const static btTransform zrot_r( btMatrix3x3 (cos(-25*d2r),-sin(-25*d2r),0,  sin(-25*d2r),cos(-25*d2r),0,  0,0,1), btVector3 (0,0,0) );
+		const static tf::Transform zrot_l( tf::Matrix3x3 (cos(25*d2r), -sin(25*d2r), 0,  sin(25*d2r), cos(25*d2r), 0,  0,0,1), tf::Vector3 (0,0,0) );
+		const static tf::Transform zrot_r( tf::Matrix3x3 (cos(-25*d2r),-sin(-25*d2r),0,  sin(-25*d2r),cos(-25*d2r),0,  0,0,1), tf::Vector3 (0,0,0) );
 
 		if (arm == dh_left)
 		{
@@ -325,7 +325,7 @@ int getATransform (struct mechanism &in_mch, btTransform &out_xform, int frameA,
 int r2_inv_kin(struct device *d0, int runlevel)
 {
 	l_r arm;
-	btTransform xf;
+	tf::Transform xf;
 	struct orientation * ori_d;
 	struct position    * pos_d;
 
@@ -349,13 +349,13 @@ int r2_inv_kin(struct device *d0, int runlevel)
 			for (int j = 0; j < 3; j++)
 				(xf.getBasis())[i][j] = ori_d->R[i][j];
 
-		xf.setBasis( btMatrix3x3(ori_d->R[0][0], ori_d->R[0][1], ori_d->R[0][2],
+		xf.setBasis( tf::Matrix3x3(ori_d->R[0][0], ori_d->R[0][1], ori_d->R[0][2],
 			     ori_d->R[1][0], ori_d->R[1][1], ori_d->R[1][2],
 			     ori_d->R[2][0], ori_d->R[2][1], ori_d->R[2][2]  ) );
-		xf.setOrigin( btVector3(pos_d->x/(1000.0*1000.0),pos_d->y/(1000.0*1000.0), pos_d->z/(1000.0*1000.0)));
+		xf.setOrigin( tf::Vector3(pos_d->x/(1000.0*1000.0),pos_d->y/(1000.0*1000.0), pos_d->z/(1000.0*1000.0)));
 /*
-		const static btTransform zrot_l( btMatrix3x3 (cos(25*d2r),-sin(25*d2r),0,  sin(25*d2r),cos(25*d2r),0,  0,0,1), btVector3 (0,0,0) );
-		const static btTransform zrot_r( btMatrix3x3 (cos(-25*d2r),-sin(-25*d2r),0,  sin(-25*d2r),cos(-25*d2r),0,  0,0,1), btVector3 (0,0,0) );
+		const static tf::Transform zrot_l( tf::Matrix3x3 (cos(25*d2r),-sin(25*d2r),0,  sin(25*d2r),cos(25*d2r),0,  0,0,1), tf::Vector3 (0,0,0) );
+		const static tf::Transform zrot_r( tf::Matrix3x3 (cos(-25*d2r),-sin(-25*d2r),0,  sin(-25*d2r),cos(-25*d2r),0,  0,0,1), tf::Vector3 (0,0,0) );
 
 
 		if (arm == dh_left)
@@ -402,7 +402,7 @@ int r2_inv_kin(struct device *d0, int runlevel)
 		double Js[6];
 		double Js_sat[6];
 		double thetas_sat[6];
-		btTransform xf_sat;
+		tf::Transform xf_sat;
 		double gangle = double(d0->mech[m].ori_d.grasp) / 1000.0;
 		theta2joint(iksol[sol_idx], Js);
 
@@ -467,7 +467,7 @@ int r2_inv_kin(struct device *d0, int runlevel)
 	return 0;
 }
 
-/**\fn  inv_kin(btTransform in_T06, l_r in_arm, ik_solution iksol[8])
+/**\fn  inv_kin(tf::Transform in_T06, l_r in_arm, ik_solution iksol[8])
  * \brief Runs the Raven II INVERSE kinematics to determine end effector position.
  *
  * See Hawkeye King, Sina Nia Kosari, Blake Hannaford, Ji Ma, 'Kinematic Analysis of the Raven-II(tm) Research Surgical Robot Platform,' University of Washington Electrical Engineering Department Technical Report ,Number 2012-0006, June 29, 2012. (Revised March 2014)
@@ -480,7 +480,7 @@ int r2_inv_kin(struct device *d0, int runlevel)
  * \ingroup Kinematics
  */
 
-int  __attribute__ ((optimize("0"))) inv_kin(btTransform in_T06, l_r in_arm, ik_solution iksol[8])
+int  __attribute__ ((optimize("0"))) inv_kin(tf::Transform in_T06, l_r in_arm, ik_solution iksol[8])
 {
 	dh_theta = robot_thetas[in_arm];
 	dh_d     = ds[in_arm];
@@ -499,14 +499,14 @@ int  __attribute__ ((optimize("0"))) inv_kin(btTransform in_T06, l_r in_arm, ik_
 
 
 	//  Step 1, Compute P5
-	btTransform  T60 = in_T06.inverse();
-	btVector3    p6rcm = T60.getOrigin();
-	btVector3    p05[8];
+	tf::Transform  T60 = in_T06.inverse();
+	tf::Vector3    p6rcm = T60.getOrigin();
+	tf::Vector3    p05[8];
 
 	p6rcm[2]=0;    // take projection onto x-y plane
 	for (int i= 0; i<2; i++)
 	{
-		btVector3 p65 = (-1+2*i) * Lw * p6rcm.normalize();
+		tf::Vector3 p65 = (-1+2*i) * Lw * p6rcm.normalize();
 		p05[4*i] = p05[4*i+1] = p05[4*i+2] = p05[4*i+3] = in_T06 * p65;
 	}
 
@@ -570,8 +570,8 @@ int  __attribute__ ((optimize("0"))) inv_kin(btTransform in_T06, l_r in_arm, ik_
 		double d    = iksol[i].d3 + d4;
 		double BB1 = sth2*GM3;
 		double BB2=0;
-		btMatrix3x3 Bmx;     // using 3 vector and matrix bullet types for convenience.
-		btVector3   xyp05(p05[i]);
+		tf::Matrix3x3 Bmx;     // using 3 vector and matrix bullet types for convenience.
+		tf::Vector3   xyp05(p05[i]);
 		xyp05[2]=0;
 
 		if (in_arm == dh_left)
@@ -585,7 +585,7 @@ int  __attribute__ ((optimize("0"))) inv_kin(btTransform in_T06, l_r in_arm, ik_
 			Bmx.setValue( BB1, BB2,0,   BB2,-BB1,0,    0,   0,  1 );
 		}
 
-		btVector3 scth1 = Bmx.inverse() * xyp05 * (1/d);
+		tf::Vector3 scth1 = Bmx.inverse() * xyp05 * (1/d);
 		iksol[i].th1 = atan2(scth1[1],scth1[0]);
 	}
 
@@ -600,8 +600,8 @@ int  __attribute__ ((optimize("0"))) inv_kin(btTransform in_T06, l_r in_arm, ik_
 		dh_theta[0] = iksol[i].th1;
 		dh_theta[1] = iksol[i].th2;
 		dh_d[2]     = iksol[i].d3;
-		btTransform T03 = getFKTransform(0, 3);
-		btTransform T36 = T03.inverse() * in_T06;
+		tf::Transform T03 = getFKTransform(0, 3);
+		tf::Transform T36 = T03.inverse() * in_T06;
 
 		double c5 = -T36.getBasis()[2][2];
 		double s5 = (T36.getOrigin()[2]-d4)/Lw;
@@ -635,8 +635,8 @@ int  __attribute__ ((optimize("0"))) inv_kin(btTransform in_T06, l_r in_arm, ik_
 		{
 			dh_theta[3] = iksol[i].th4;
 			dh_theta[4] = iksol[i].th5;
-			btTransform T05 = T03 * getFKTransform(3, 5);
-			btTransform T56 = T05.inverse() * in_T06;
+			tf::Transform T05 = T03 * getFKTransform(3, 5);
+			tf::Transform T56 = T05.inverse() * in_T06;
 			c6 =T56.getBasis()[0][0];
 			s6 =T56.getBasis()[2][0];
 		}
@@ -836,16 +836,16 @@ int check_solutions(double *in_thetas, ik_solution * iksol, int &out_idx, double
 // Utility functions to print out transforms
 //-------------------------------------------------------------------------------
 
-/**\fn void print_btTransform(btTransform xf)
- * \brief print a btTransform object
- * \param xf - a btTransform object to print
+/**\fn void print_tf(tf::Transform xf)
+ * \brief print a tf::Transform object
+ * \param xf - a tf::Transform object to print
  * \return void
  *  \ingroup Kinematics
  */
-void print_btTransform(btTransform xf)
+void print_tf(tf::Transform xf)
 {
-	btMatrix3x3 rr = xf.getBasis();
-	btVector3 vv = xf.getOrigin();
+	tf::Matrix3x3 rr = xf.getBasis();
+	tf::Vector3 vv = xf.getOrigin();
 	std::stringstream ss;
 
 	cout << fixed;
@@ -860,13 +860,13 @@ void print_btTransform(btTransform xf)
 }
 
 
-/**\fn void print_btVector(btVector3 vv)
- * \brief print a btVector3 object
- * \param vv - a btVector3 obejct to print
+/**\fn void print_btVector(tf::Vector3 vv)
+ * \brief print a tf::Vector3 object
+ * \param vv - a tf::Vector3 obejct to print
  * \return void
  *  \ingroup Kinematics
  */
-void print_btVector(btVector3 vv)
+void print_btVector(tf::Vector3 vv)
 {
 	std::stringstream ss;
 

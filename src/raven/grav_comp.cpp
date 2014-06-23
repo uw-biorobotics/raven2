@@ -44,14 +44,14 @@ extern unsigned long int gTime;
 
 // Define COM's (units: meters)
 // Left arm values ???
-const static btVector3 COM1_1_GL( 0.0065,   0.09775,	-0.13771); //meters
-const static btVector3 COM2_2_GL( -0.002,	-0.18274,	-0.23053); //meters
-const static btVector3 COM3_3_GL( 0,		0,			0		);//meters
+const static tf::Vector3 COM1_1_GL( 0.0065,   0.09775,	-0.13771); //meters
+const static tf::Vector3 COM2_2_GL( -0.002,	-0.18274,	-0.23053); //meters
+const static tf::Vector3 COM3_3_GL( 0,		0,			0		);//meters
 
 //// Right arm values::
-const static btVector3 COM1_1_GR( -0.0065,	-0.09775,	0.13771 ); //meters
-const static btVector3 COM2_2_GR( -0.002,	-0.18274, 	0.23053 ); //meters
-const static btVector3 COM3_3_GR( 0,		0,			0		); //meters
+const static tf::Vector3 COM1_1_GR( -0.0065,	-0.09775,	0.13771 ); //meters
+const static tf::Vector3 COM2_2_GR( -0.002,	-0.18274, 	0.23053 ); //meters
+const static tf::Vector3 COM3_3_GR( 0,		0,			0		); //meters
 
 // Define masses
 //const static double M1 = 0.2395 * 2.7; // 0.6465 kg --> 1.42 lb		From Ji's code
@@ -64,14 +64,14 @@ const static double M3 = 0.231; // kg --> ? lb
 // masses updated using fresh links from raven 2.1 build 6/13
 
 
-btVector3 getCurrentG(struct device *d0, int m);
+tf::Vector3 getCurrentG(struct device *d0, int m);
 void getMotorTorqueFromJointTorque(int, double, double, double, double&, double&, double&);
 
 /*
  * getCurrentG()
  * \brief Return the current gravity vector from whatever power knows it.
  */
-btVector3 getCurrentG(struct device *d0, int m)
+tf::Vector3 getCurrentG(struct device *d0, int m)
 {
 	struct mechanism *_mech;
 	_mech = &(d0->mech[m]);
@@ -93,7 +93,7 @@ btVector3 getCurrentG(struct device *d0, int m)
 
 
 	//return as a bt vector
-	return btVector3(xG0, yG0, zG0);
+	return tf::Vector3(xG0, yG0, zG0);
 }
 
 /*
@@ -126,9 +126,9 @@ void getGravityTorque(struct device &d0, struct param_pass &params)
 
 
 	struct mechanism *_mech;
-	btVector3 G0;
-	static btVector3 G0Static = btVector3(-9.8, 0, 0);
-	btVector3 COM1_1, COM2_2, COM3_3;
+	tf::Vector3 G0;
+	static tf::Vector3 G0Static = tf::Vector3(-9.8, 0, 0);
+	tf::Vector3 COM1_1, COM2_2, COM3_3;
 
 	/// Do FK for each mechanism
 	for (int m=0; m<NUM_MECH; m++)
@@ -152,9 +152,9 @@ void getGravityTorque(struct device &d0, struct param_pass &params)
 		}
 
 		///// Get the transforms: ^0_1T, ^1_2T, ^2_3T
-		btTransform T01, T12, T23;
-		btMatrix3x3 R01, R12, R23;
-		btMatrix3x3 iR01, iR12, iR23;
+		tf::Transform T01, T12, T23;
+		tf::Matrix3x3 R01, R12, R23;
+		tf::Matrix3x3 iR01, iR12, iR23;
 
 		getATransform (*_mech, T01, 0, 1);
 		getATransform (*_mech, T12, 1, 2);
@@ -166,45 +166,45 @@ void getGravityTorque(struct device &d0, struct param_pass &params)
 
 		///// Calculate COM in lower ink frames (closer to base)
 		// Get COM3
-		btVector3 COM3_2 = T23 * COM3_3;
-		btVector3 COM3_1 = T12 * COM3_2;
-		btVector3 COM3_0 = T01 * COM3_1;
+		tf::Vector3 COM3_2 = T23 * COM3_3;
+		tf::Vector3 COM3_1 = T12 * COM3_2;
+		tf::Vector3 COM3_0 = T01 * COM3_1;
 
 		// Get COM2
-		btVector3 COM2_1 = T12 * COM2_2;
-		btVector3 COM2_0 = T01 * COM2_1;
+		tf::Vector3 COM2_1 = T12 * COM2_2;
+		tf::Vector3 COM2_0 = T01 * COM2_1;
 
 		// Get COM1
-		btVector3 COM1_0 = T01 * COM1_1;
+		tf::Vector3 COM1_0 = T01 * COM1_1;
 
 		///// Get gravity vector in each link frame
 		// Map G into Frame1
 		iR01 = R01.inverse();
-		btVector3 G1 = iR01 * G0;
+		tf::Vector3 G1 = iR01 * G0;
 
 		// Map G into Frame2
 		iR12 = R12.inverse();
-		btVector3 G2 = iR12 * G1;
+		tf::Vector3 G2 = iR12 * G1;
 
 		// Map G into Frame3
 		iR23 = R23.inverse();
-		btVector3 G3 = iR23 * G2;
+		tf::Vector3 G3 = iR23 * G2;
 
 
 		///// Calculate Torque: T_i = sum( j=i..3 , (M_j * G_i) x ^iCOM_j )
 		// T1 = (M1*G1) x ^1COM_1 + (M2*G1) x ^1COM_2 + (M3*G1) x ^1COM_3
 		// T2 = (M2*G2) x ^2COM_2 + (M3*G2) x ^2COM_3
 
-		btVector3 GT1  = COM1_1.cross(M1*G1) + COM2_1.cross(M2*G1) + COM3_1.cross(M3*G1);
+		tf::Vector3 GT1  = COM1_1.cross(M1*G1) + COM2_1.cross(M2*G1) + COM3_1.cross(M3*G1);
 
-		btVector3 GT2  = COM2_2.cross(M2*G2) + COM3_2.cross(M3*G2);
+		tf::Vector3 GT2  = COM2_2.cross(M2*G2) + COM3_2.cross(M3*G2);
 
-		btVector3 GT3  = M3*G3;
+		tf::Vector3 GT3  = M3*G3;
 
 		// Set joint g-torque from -Z-axis projection:
-		double GZ1 = btVector3(0,0,-1).dot(GT1);
-		double GZ2 = btVector3(0,0,-1).dot(GT2);
-		double GZ3 = btVector3(0,0,-1).dot(GT3);
+		double GZ1 = tf::Vector3(0,0,-1).dot(GT1);
+		double GZ2 = tf::Vector3(0,0,-1).dot(GT2);
+		double GZ3 = tf::Vector3(0,0,-1).dot(GT3);
 
 
 		// Get motor torque from joint torque
