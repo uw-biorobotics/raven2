@@ -8,7 +8,7 @@ default_target: all
 #=============================================================================
 # Special targets provided by cmake.
 
-# Disable implicit rules so canoncical targets will work.
+# Disable implicit rules so canonical targets will work.
 .SUFFIXES:
 
 # Remove some rules from gmake that .SUFFIXES does not remove.
@@ -35,11 +35,14 @@ CMAKE_COMMAND = /usr/bin/cmake
 # The command to remove a file.
 RM = /usr/bin/cmake -E remove -f
 
+# Escaping for special characters.
+EQUALS = =
+
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/alewi/kist_ws/raven_2
+CMAKE_SOURCE_DIR = /opt/raven_ros/raven_2
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/alewi/kist_ws/raven_2/build
+CMAKE_BINARY_DIR = /opt/raven_ros/raven_2/build
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -54,6 +57,47 @@ edit_cache:
 edit_cache/fast: edit_cache
 .PHONY : edit_cache/fast
 
+# Special rule for the target install
+install: preinstall
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Install the project..."
+	/usr/bin/cmake -P cmake_install.cmake
+.PHONY : install
+
+# Special rule for the target install
+install/fast: preinstall/fast
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Install the project..."
+	/usr/bin/cmake -P cmake_install.cmake
+.PHONY : install/fast
+
+# Special rule for the target install/local
+install/local: preinstall
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Installing only the local directory..."
+	/usr/bin/cmake -DCMAKE_INSTALL_LOCAL_ONLY=1 -P cmake_install.cmake
+.PHONY : install/local
+
+# Special rule for the target install/local
+install/local/fast: install/local
+.PHONY : install/local/fast
+
+# Special rule for the target install/strip
+install/strip: preinstall
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Installing the project stripped..."
+	/usr/bin/cmake -DCMAKE_INSTALL_DO_STRIP=1 -P cmake_install.cmake
+.PHONY : install/strip
+
+# Special rule for the target install/strip
+install/strip/fast: install/strip
+.PHONY : install/strip/fast
+
+# Special rule for the target list_install_components
+list_install_components:
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Available install components are: \"Unspecified\""
+.PHONY : list_install_components
+
+# Special rule for the target list_install_components
+list_install_components/fast: list_install_components
+.PHONY : list_install_components/fast
+
 # Special rule for the target rebuild_cache
 rebuild_cache:
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake to regenerate build system..."
@@ -66,9 +110,9 @@ rebuild_cache/fast: rebuild_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/alewi/kist_ws/raven_2/build/CMakeFiles /home/alewi/kist_ws/raven_2/build/CMakeFiles/progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start /opt/raven_ros/raven_2/build/CMakeFiles /opt/raven_ros/raven_2/build/CMakeFiles/progress.marks
 	$(MAKE) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/alewi/kist_ws/raven_2/build/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /opt/raven_ros/raven_2/build/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
@@ -174,17 +218,43 @@ ROSBUILD_gensrv_lisp/fast:
 .PHONY : ROSBUILD_gensrv_lisp/fast
 
 #=============================================================================
-# Target rules for targets named clean-test-results
+# Target rules for targets named _catkin_empty_exported_target
 
 # Build rule for target.
-clean-test-results: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 clean-test-results
-.PHONY : clean-test-results
+_catkin_empty_exported_target: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 _catkin_empty_exported_target
+.PHONY : _catkin_empty_exported_target
 
 # fast build rule for target.
-clean-test-results/fast:
-	$(MAKE) -f CMakeFiles/clean-test-results.dir/build.make CMakeFiles/clean-test-results.dir/build
-.PHONY : clean-test-results/fast
+_catkin_empty_exported_target/fast:
+	$(MAKE) -f CMakeFiles/_catkin_empty_exported_target.dir/build.make CMakeFiles/_catkin_empty_exported_target.dir/build
+.PHONY : _catkin_empty_exported_target/fast
+
+#=============================================================================
+# Target rules for targets named clean_test_results
+
+# Build rule for target.
+clean_test_results: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 clean_test_results
+.PHONY : clean_test_results
+
+# fast build rule for target.
+clean_test_results/fast:
+	$(MAKE) -f CMakeFiles/clean_test_results.dir/build.make CMakeFiles/clean_test_results.dir/build
+.PHONY : clean_test_results/fast
+
+#=============================================================================
+# Target rules for targets named doxygen
+
+# Build rule for target.
+doxygen: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 doxygen
+.PHONY : doxygen
+
+# fast build rule for target.
+doxygen/fast:
+	$(MAKE) -f CMakeFiles/doxygen.dir/build.make CMakeFiles/doxygen.dir/build
+.PHONY : doxygen/fast
 
 #=============================================================================
 # Target rules for targets named r2_control
@@ -198,6 +268,19 @@ r2_control: cmake_check_build_system
 r2_control/fast:
 	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/build
 .PHONY : r2_control/fast
+
+#=============================================================================
+# Target rules for targets named rosbuild_clean-test-results
+
+# Build rule for target.
+rosbuild_clean-test-results: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 rosbuild_clean-test-results
+.PHONY : rosbuild_clean-test-results
+
+# fast build rule for target.
+rosbuild_clean-test-results/fast:
+	$(MAKE) -f CMakeFiles/rosbuild_clean-test-results.dir/build.make CMakeFiles/rosbuild_clean-test-results.dir/build
+.PHONY : rosbuild_clean-test-results/fast
 
 #=============================================================================
 # Target rules for targets named rosbuild_precompile
@@ -304,6 +387,19 @@ rospack_gensrv/fast:
 .PHONY : rospack_gensrv/fast
 
 #=============================================================================
+# Target rules for targets named run_tests
+
+# Build rule for target.
+run_tests: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 run_tests
+.PHONY : run_tests
+
+# fast build rule for target.
+run_tests/fast:
+	$(MAKE) -f CMakeFiles/run_tests.dir/build.make CMakeFiles/run_tests.dir/build
+.PHONY : run_tests/fast
+
+#=============================================================================
 # Target rules for targets named test
 
 # Build rule for target.
@@ -368,485 +464,799 @@ tests/fast:
 	$(MAKE) -f CMakeFiles/tests.dir/build.make CMakeFiles/tests.dir/build
 .PHONY : tests/fast
 
-# target to build an object file
-src/raven/USB_init.o:
-	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/USB_init.o
+#=============================================================================
+# Target rules for targets named gtest
+
+# Build rule for target.
+gtest: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 gtest
+.PHONY : gtest
+
+# fast build rule for target.
+gtest/fast:
+	$(MAKE) -f gtest/CMakeFiles/gtest.dir/build.make gtest/CMakeFiles/gtest.dir/build
+.PHONY : gtest/fast
+
+#=============================================================================
+# Target rules for targets named gtest_main
+
+# Build rule for target.
+gtest_main: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 gtest_main
+.PHONY : gtest_main
+
+# fast build rule for target.
+gtest_main/fast:
+	$(MAKE) -f gtest/CMakeFiles/gtest_main.dir/build.make gtest/CMakeFiles/gtest_main.dir/build
+.PHONY : gtest_main/fast
+
+src/raven/USB_init.o: src/raven/USB_init.cpp.o
 .PHONY : src/raven/USB_init.o
 
-# target to preprocess a source file
-src/raven/USB_init.i:
-	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/USB_init.i
+# target to build an object file
+src/raven/USB_init.cpp.o:
+	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/USB_init.cpp.o
+.PHONY : src/raven/USB_init.cpp.o
+
+src/raven/USB_init.i: src/raven/USB_init.cpp.i
 .PHONY : src/raven/USB_init.i
 
-# target to generate assembly for a file
-src/raven/USB_init.s:
-	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/USB_init.s
+# target to preprocess a source file
+src/raven/USB_init.cpp.i:
+	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/USB_init.cpp.i
+.PHONY : src/raven/USB_init.cpp.i
+
+src/raven/USB_init.s: src/raven/USB_init.cpp.s
 .PHONY : src/raven/USB_init.s
 
-# target to build an object file
-src/raven/console_process.o:
-	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/console_process.o
+# target to generate assembly for a file
+src/raven/USB_init.cpp.s:
+	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/USB_init.cpp.s
+.PHONY : src/raven/USB_init.cpp.s
+
+src/raven/console_process.o: src/raven/console_process.cpp.o
 .PHONY : src/raven/console_process.o
 
-# target to preprocess a source file
-src/raven/console_process.i:
-	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/console_process.i
+# target to build an object file
+src/raven/console_process.cpp.o:
+	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/console_process.cpp.o
+.PHONY : src/raven/console_process.cpp.o
+
+src/raven/console_process.i: src/raven/console_process.cpp.i
 .PHONY : src/raven/console_process.i
 
-# target to generate assembly for a file
-src/raven/console_process.s:
-	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/console_process.s
+# target to preprocess a source file
+src/raven/console_process.cpp.i:
+	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/console_process.cpp.i
+.PHONY : src/raven/console_process.cpp.i
+
+src/raven/console_process.s: src/raven/console_process.cpp.s
 .PHONY : src/raven/console_process.s
 
-# target to build an object file
-src/raven/dof.o:
-	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/dof.o
+# target to generate assembly for a file
+src/raven/console_process.cpp.s:
+	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/console_process.cpp.s
+.PHONY : src/raven/console_process.cpp.s
+
+src/raven/dof.o: src/raven/dof.cpp.o
 .PHONY : src/raven/dof.o
 
-# target to preprocess a source file
-src/raven/dof.i:
-	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/dof.i
+# target to build an object file
+src/raven/dof.cpp.o:
+	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/dof.cpp.o
+.PHONY : src/raven/dof.cpp.o
+
+src/raven/dof.i: src/raven/dof.cpp.i
 .PHONY : src/raven/dof.i
 
-# target to generate assembly for a file
-src/raven/dof.s:
-	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/dof.s
+# target to preprocess a source file
+src/raven/dof.cpp.i:
+	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/dof.cpp.i
+.PHONY : src/raven/dof.cpp.i
+
+src/raven/dof.s: src/raven/dof.cpp.s
 .PHONY : src/raven/dof.s
 
-# target to build an object file
-src/raven/fwd_cable_coupling.o:
-	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/fwd_cable_coupling.o
+# target to generate assembly for a file
+src/raven/dof.cpp.s:
+	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/dof.cpp.s
+.PHONY : src/raven/dof.cpp.s
+
+src/raven/fwd_cable_coupling.o: src/raven/fwd_cable_coupling.cpp.o
 .PHONY : src/raven/fwd_cable_coupling.o
 
-# target to preprocess a source file
-src/raven/fwd_cable_coupling.i:
-	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/fwd_cable_coupling.i
+# target to build an object file
+src/raven/fwd_cable_coupling.cpp.o:
+	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/fwd_cable_coupling.cpp.o
+.PHONY : src/raven/fwd_cable_coupling.cpp.o
+
+src/raven/fwd_cable_coupling.i: src/raven/fwd_cable_coupling.cpp.i
 .PHONY : src/raven/fwd_cable_coupling.i
 
-# target to generate assembly for a file
-src/raven/fwd_cable_coupling.s:
-	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/fwd_cable_coupling.s
+# target to preprocess a source file
+src/raven/fwd_cable_coupling.cpp.i:
+	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/fwd_cable_coupling.cpp.i
+.PHONY : src/raven/fwd_cable_coupling.cpp.i
+
+src/raven/fwd_cable_coupling.s: src/raven/fwd_cable_coupling.cpp.s
 .PHONY : src/raven/fwd_cable_coupling.s
 
-# target to build an object file
-src/raven/fwd_kinematics.o:
-	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/fwd_kinematics.o
+# target to generate assembly for a file
+src/raven/fwd_cable_coupling.cpp.s:
+	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/fwd_cable_coupling.cpp.s
+.PHONY : src/raven/fwd_cable_coupling.cpp.s
+
+src/raven/fwd_kinematics.o: src/raven/fwd_kinematics.cpp.o
 .PHONY : src/raven/fwd_kinematics.o
 
-# target to preprocess a source file
-src/raven/fwd_kinematics.i:
-	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/fwd_kinematics.i
+# target to build an object file
+src/raven/fwd_kinematics.cpp.o:
+	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/fwd_kinematics.cpp.o
+.PHONY : src/raven/fwd_kinematics.cpp.o
+
+src/raven/fwd_kinematics.i: src/raven/fwd_kinematics.cpp.i
 .PHONY : src/raven/fwd_kinematics.i
 
-# target to generate assembly for a file
-src/raven/fwd_kinematics.s:
-	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/fwd_kinematics.s
+# target to preprocess a source file
+src/raven/fwd_kinematics.cpp.i:
+	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/fwd_kinematics.cpp.i
+.PHONY : src/raven/fwd_kinematics.cpp.i
+
+src/raven/fwd_kinematics.s: src/raven/fwd_kinematics.cpp.s
 .PHONY : src/raven/fwd_kinematics.s
 
-# target to build an object file
-src/raven/get_USB_packet.o:
-	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/get_USB_packet.o
+# target to generate assembly for a file
+src/raven/fwd_kinematics.cpp.s:
+	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/fwd_kinematics.cpp.s
+.PHONY : src/raven/fwd_kinematics.cpp.s
+
+src/raven/get_USB_packet.o: src/raven/get_USB_packet.cpp.o
 .PHONY : src/raven/get_USB_packet.o
 
-# target to preprocess a source file
-src/raven/get_USB_packet.i:
-	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/get_USB_packet.i
+# target to build an object file
+src/raven/get_USB_packet.cpp.o:
+	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/get_USB_packet.cpp.o
+.PHONY : src/raven/get_USB_packet.cpp.o
+
+src/raven/get_USB_packet.i: src/raven/get_USB_packet.cpp.i
 .PHONY : src/raven/get_USB_packet.i
 
-# target to generate assembly for a file
-src/raven/get_USB_packet.s:
-	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/get_USB_packet.s
+# target to preprocess a source file
+src/raven/get_USB_packet.cpp.i:
+	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/get_USB_packet.cpp.i
+.PHONY : src/raven/get_USB_packet.cpp.i
+
+src/raven/get_USB_packet.s: src/raven/get_USB_packet.cpp.s
 .PHONY : src/raven/get_USB_packet.s
 
-# target to build an object file
-src/raven/globals.o:
-	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/globals.o
+# target to generate assembly for a file
+src/raven/get_USB_packet.cpp.s:
+	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/get_USB_packet.cpp.s
+.PHONY : src/raven/get_USB_packet.cpp.s
+
+src/raven/globals.o: src/raven/globals.cpp.o
 .PHONY : src/raven/globals.o
 
-# target to preprocess a source file
-src/raven/globals.i:
-	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/globals.i
+# target to build an object file
+src/raven/globals.cpp.o:
+	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/globals.cpp.o
+.PHONY : src/raven/globals.cpp.o
+
+src/raven/globals.i: src/raven/globals.cpp.i
 .PHONY : src/raven/globals.i
 
-# target to generate assembly for a file
-src/raven/globals.s:
-	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/globals.s
+# target to preprocess a source file
+src/raven/globals.cpp.i:
+	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/globals.cpp.i
+.PHONY : src/raven/globals.cpp.i
+
+src/raven/globals.s: src/raven/globals.cpp.s
 .PHONY : src/raven/globals.s
 
-# target to build an object file
-src/raven/grav_comp.o:
-	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/grav_comp.o
+# target to generate assembly for a file
+src/raven/globals.cpp.s:
+	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/globals.cpp.s
+.PHONY : src/raven/globals.cpp.s
+
+src/raven/grav_comp.o: src/raven/grav_comp.cpp.o
 .PHONY : src/raven/grav_comp.o
 
-# target to preprocess a source file
-src/raven/grav_comp.i:
-	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/grav_comp.i
+# target to build an object file
+src/raven/grav_comp.cpp.o:
+	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/grav_comp.cpp.o
+.PHONY : src/raven/grav_comp.cpp.o
+
+src/raven/grav_comp.i: src/raven/grav_comp.cpp.i
 .PHONY : src/raven/grav_comp.i
 
-# target to generate assembly for a file
-src/raven/grav_comp.s:
-	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/grav_comp.s
+# target to preprocess a source file
+src/raven/grav_comp.cpp.i:
+	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/grav_comp.cpp.i
+.PHONY : src/raven/grav_comp.cpp.i
+
+src/raven/grav_comp.s: src/raven/grav_comp.cpp.s
 .PHONY : src/raven/grav_comp.s
 
-# target to build an object file
-src/raven/hmatrix.o:
-	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/hmatrix.o
+# target to generate assembly for a file
+src/raven/grav_comp.cpp.s:
+	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/grav_comp.cpp.s
+.PHONY : src/raven/grav_comp.cpp.s
+
+src/raven/hmatrix.o: src/raven/hmatrix.cpp.o
 .PHONY : src/raven/hmatrix.o
 
-# target to preprocess a source file
-src/raven/hmatrix.i:
-	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/hmatrix.i
+# target to build an object file
+src/raven/hmatrix.cpp.o:
+	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/hmatrix.cpp.o
+.PHONY : src/raven/hmatrix.cpp.o
+
+src/raven/hmatrix.i: src/raven/hmatrix.cpp.i
 .PHONY : src/raven/hmatrix.i
 
-# target to generate assembly for a file
-src/raven/hmatrix.s:
-	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/hmatrix.s
+# target to preprocess a source file
+src/raven/hmatrix.cpp.i:
+	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/hmatrix.cpp.i
+.PHONY : src/raven/hmatrix.cpp.i
+
+src/raven/hmatrix.s: src/raven/hmatrix.cpp.s
 .PHONY : src/raven/hmatrix.s
 
-# target to build an object file
-src/raven/homing.o:
-	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/homing.o
+# target to generate assembly for a file
+src/raven/hmatrix.cpp.s:
+	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/hmatrix.cpp.s
+.PHONY : src/raven/hmatrix.cpp.s
+
+src/raven/homing.o: src/raven/homing.cpp.o
 .PHONY : src/raven/homing.o
 
-# target to preprocess a source file
-src/raven/homing.i:
-	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/homing.i
+# target to build an object file
+src/raven/homing.cpp.o:
+	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/homing.cpp.o
+.PHONY : src/raven/homing.cpp.o
+
+src/raven/homing.i: src/raven/homing.cpp.i
 .PHONY : src/raven/homing.i
 
-# target to generate assembly for a file
-src/raven/homing.s:
-	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/homing.s
+# target to preprocess a source file
+src/raven/homing.cpp.i:
+	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/homing.cpp.i
+.PHONY : src/raven/homing.cpp.i
+
+src/raven/homing.s: src/raven/homing.cpp.s
 .PHONY : src/raven/homing.s
 
-# target to build an object file
-src/raven/init.o:
-	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/init.o
+# target to generate assembly for a file
+src/raven/homing.cpp.s:
+	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/homing.cpp.s
+.PHONY : src/raven/homing.cpp.s
+
+src/raven/init.o: src/raven/init.cpp.o
 .PHONY : src/raven/init.o
 
-# target to preprocess a source file
-src/raven/init.i:
-	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/init.i
+# target to build an object file
+src/raven/init.cpp.o:
+	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/init.cpp.o
+.PHONY : src/raven/init.cpp.o
+
+src/raven/init.i: src/raven/init.cpp.i
 .PHONY : src/raven/init.i
 
-# target to generate assembly for a file
-src/raven/init.s:
-	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/init.s
+# target to preprocess a source file
+src/raven/init.cpp.i:
+	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/init.cpp.i
+.PHONY : src/raven/init.cpp.i
+
+src/raven/init.s: src/raven/init.cpp.s
 .PHONY : src/raven/init.s
 
-# target to build an object file
-src/raven/inv_cable_coupling.o:
-	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/inv_cable_coupling.o
+# target to generate assembly for a file
+src/raven/init.cpp.s:
+	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/init.cpp.s
+.PHONY : src/raven/init.cpp.s
+
+src/raven/inv_cable_coupling.o: src/raven/inv_cable_coupling.cpp.o
 .PHONY : src/raven/inv_cable_coupling.o
 
-# target to preprocess a source file
-src/raven/inv_cable_coupling.i:
-	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/inv_cable_coupling.i
+# target to build an object file
+src/raven/inv_cable_coupling.cpp.o:
+	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/inv_cable_coupling.cpp.o
+.PHONY : src/raven/inv_cable_coupling.cpp.o
+
+src/raven/inv_cable_coupling.i: src/raven/inv_cable_coupling.cpp.i
 .PHONY : src/raven/inv_cable_coupling.i
 
-# target to generate assembly for a file
-src/raven/inv_cable_coupling.s:
-	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/inv_cable_coupling.s
+# target to preprocess a source file
+src/raven/inv_cable_coupling.cpp.i:
+	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/inv_cable_coupling.cpp.i
+.PHONY : src/raven/inv_cable_coupling.cpp.i
+
+src/raven/inv_cable_coupling.s: src/raven/inv_cable_coupling.cpp.s
 .PHONY : src/raven/inv_cable_coupling.s
 
-# target to build an object file
-src/raven/local_io.o:
-	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/local_io.o
+# target to generate assembly for a file
+src/raven/inv_cable_coupling.cpp.s:
+	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/inv_cable_coupling.cpp.s
+.PHONY : src/raven/inv_cable_coupling.cpp.s
+
+src/raven/local_io.o: src/raven/local_io.cpp.o
 .PHONY : src/raven/local_io.o
 
-# target to preprocess a source file
-src/raven/local_io.i:
-	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/local_io.i
+# target to build an object file
+src/raven/local_io.cpp.o:
+	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/local_io.cpp.o
+.PHONY : src/raven/local_io.cpp.o
+
+src/raven/local_io.i: src/raven/local_io.cpp.i
 .PHONY : src/raven/local_io.i
 
-# target to generate assembly for a file
-src/raven/local_io.s:
-	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/local_io.s
+# target to preprocess a source file
+src/raven/local_io.cpp.i:
+	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/local_io.cpp.i
+.PHONY : src/raven/local_io.cpp.i
+
+src/raven/local_io.s: src/raven/local_io.cpp.s
 .PHONY : src/raven/local_io.s
 
-# target to build an object file
-src/raven/log.o:
-	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/log.o
+# target to generate assembly for a file
+src/raven/local_io.cpp.s:
+	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/local_io.cpp.s
+.PHONY : src/raven/local_io.cpp.s
+
+src/raven/log.o: src/raven/log.cpp.o
 .PHONY : src/raven/log.o
 
-# target to preprocess a source file
-src/raven/log.i:
-	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/log.i
+# target to build an object file
+src/raven/log.cpp.o:
+	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/log.cpp.o
+.PHONY : src/raven/log.cpp.o
+
+src/raven/log.i: src/raven/log.cpp.i
 .PHONY : src/raven/log.i
 
-# target to generate assembly for a file
-src/raven/log.s:
-	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/log.s
+# target to preprocess a source file
+src/raven/log.cpp.i:
+	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/log.cpp.i
+.PHONY : src/raven/log.cpp.i
+
+src/raven/log.s: src/raven/log.cpp.s
 .PHONY : src/raven/log.s
 
-# target to build an object file
-src/raven/mapping.o:
-	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/mapping.o
+# target to generate assembly for a file
+src/raven/log.cpp.s:
+	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/log.cpp.s
+.PHONY : src/raven/log.cpp.s
+
+src/raven/mapping.o: src/raven/mapping.cpp.o
 .PHONY : src/raven/mapping.o
 
-# target to preprocess a source file
-src/raven/mapping.i:
-	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/mapping.i
+# target to build an object file
+src/raven/mapping.cpp.o:
+	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/mapping.cpp.o
+.PHONY : src/raven/mapping.cpp.o
+
+src/raven/mapping.i: src/raven/mapping.cpp.i
 .PHONY : src/raven/mapping.i
 
-# target to generate assembly for a file
-src/raven/mapping.s:
-	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/mapping.s
+# target to preprocess a source file
+src/raven/mapping.cpp.i:
+	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/mapping.cpp.i
+.PHONY : src/raven/mapping.cpp.i
+
+src/raven/mapping.s: src/raven/mapping.cpp.s
 .PHONY : src/raven/mapping.s
 
-# target to build an object file
-src/raven/motor.o:
-	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/motor.o
+# target to generate assembly for a file
+src/raven/mapping.cpp.s:
+	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/mapping.cpp.s
+.PHONY : src/raven/mapping.cpp.s
+
+src/raven/motor.o: src/raven/motor.cpp.o
 .PHONY : src/raven/motor.o
 
-# target to preprocess a source file
-src/raven/motor.i:
-	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/motor.i
+# target to build an object file
+src/raven/motor.cpp.o:
+	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/motor.cpp.o
+.PHONY : src/raven/motor.cpp.o
+
+src/raven/motor.i: src/raven/motor.cpp.i
 .PHONY : src/raven/motor.i
 
-# target to generate assembly for a file
-src/raven/motor.s:
-	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/motor.s
+# target to preprocess a source file
+src/raven/motor.cpp.i:
+	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/motor.cpp.i
+.PHONY : src/raven/motor.cpp.i
+
+src/raven/motor.s: src/raven/motor.cpp.s
 .PHONY : src/raven/motor.s
 
-# target to build an object file
-src/raven/network_layer.o:
-	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/network_layer.o
+# target to generate assembly for a file
+src/raven/motor.cpp.s:
+	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/motor.cpp.s
+.PHONY : src/raven/motor.cpp.s
+
+src/raven/network_layer.o: src/raven/network_layer.cpp.o
 .PHONY : src/raven/network_layer.o
 
-# target to preprocess a source file
-src/raven/network_layer.i:
-	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/network_layer.i
+# target to build an object file
+src/raven/network_layer.cpp.o:
+	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/network_layer.cpp.o
+.PHONY : src/raven/network_layer.cpp.o
+
+src/raven/network_layer.i: src/raven/network_layer.cpp.i
 .PHONY : src/raven/network_layer.i
 
-# target to generate assembly for a file
-src/raven/network_layer.s:
-	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/network_layer.s
+# target to preprocess a source file
+src/raven/network_layer.cpp.i:
+	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/network_layer.cpp.i
+.PHONY : src/raven/network_layer.cpp.i
+
+src/raven/network_layer.s: src/raven/network_layer.cpp.s
 .PHONY : src/raven/network_layer.s
 
-# target to build an object file
-src/raven/overdrive_detect.o:
-	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/overdrive_detect.o
+# target to generate assembly for a file
+src/raven/network_layer.cpp.s:
+	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/network_layer.cpp.s
+.PHONY : src/raven/network_layer.cpp.s
+
+src/raven/overdrive_detect.o: src/raven/overdrive_detect.cpp.o
 .PHONY : src/raven/overdrive_detect.o
 
-# target to preprocess a source file
-src/raven/overdrive_detect.i:
-	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/overdrive_detect.i
+# target to build an object file
+src/raven/overdrive_detect.cpp.o:
+	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/overdrive_detect.cpp.o
+.PHONY : src/raven/overdrive_detect.cpp.o
+
+src/raven/overdrive_detect.i: src/raven/overdrive_detect.cpp.i
 .PHONY : src/raven/overdrive_detect.i
 
-# target to generate assembly for a file
-src/raven/overdrive_detect.s:
-	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/overdrive_detect.s
+# target to preprocess a source file
+src/raven/overdrive_detect.cpp.i:
+	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/overdrive_detect.cpp.i
+.PHONY : src/raven/overdrive_detect.cpp.i
+
+src/raven/overdrive_detect.s: src/raven/overdrive_detect.cpp.s
 .PHONY : src/raven/overdrive_detect.s
 
-# target to build an object file
-src/raven/parallel.o:
-	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/parallel.o
+# target to generate assembly for a file
+src/raven/overdrive_detect.cpp.s:
+	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/overdrive_detect.cpp.s
+.PHONY : src/raven/overdrive_detect.cpp.s
+
+src/raven/parallel.o: src/raven/parallel.cpp.o
 .PHONY : src/raven/parallel.o
 
-# target to preprocess a source file
-src/raven/parallel.i:
-	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/parallel.i
+# target to build an object file
+src/raven/parallel.cpp.o:
+	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/parallel.cpp.o
+.PHONY : src/raven/parallel.cpp.o
+
+src/raven/parallel.i: src/raven/parallel.cpp.i
 .PHONY : src/raven/parallel.i
 
-# target to generate assembly for a file
-src/raven/parallel.s:
-	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/parallel.s
+# target to preprocess a source file
+src/raven/parallel.cpp.i:
+	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/parallel.cpp.i
+.PHONY : src/raven/parallel.cpp.i
+
+src/raven/parallel.s: src/raven/parallel.cpp.s
 .PHONY : src/raven/parallel.s
 
-# target to build an object file
-src/raven/pid_control.o:
-	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/pid_control.o
+# target to generate assembly for a file
+src/raven/parallel.cpp.s:
+	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/parallel.cpp.s
+.PHONY : src/raven/parallel.cpp.s
+
+src/raven/pid_control.o: src/raven/pid_control.cpp.o
 .PHONY : src/raven/pid_control.o
 
-# target to preprocess a source file
-src/raven/pid_control.i:
-	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/pid_control.i
+# target to build an object file
+src/raven/pid_control.cpp.o:
+	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/pid_control.cpp.o
+.PHONY : src/raven/pid_control.cpp.o
+
+src/raven/pid_control.i: src/raven/pid_control.cpp.i
 .PHONY : src/raven/pid_control.i
 
-# target to generate assembly for a file
-src/raven/pid_control.s:
-	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/pid_control.s
+# target to preprocess a source file
+src/raven/pid_control.cpp.i:
+	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/pid_control.cpp.i
+.PHONY : src/raven/pid_control.cpp.i
+
+src/raven/pid_control.s: src/raven/pid_control.cpp.s
 .PHONY : src/raven/pid_control.s
 
-# target to build an object file
-src/raven/put_USB_packet.o:
-	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/put_USB_packet.o
+# target to generate assembly for a file
+src/raven/pid_control.cpp.s:
+	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/pid_control.cpp.s
+.PHONY : src/raven/pid_control.cpp.s
+
+src/raven/put_USB_packet.o: src/raven/put_USB_packet.cpp.o
 .PHONY : src/raven/put_USB_packet.o
 
-# target to preprocess a source file
-src/raven/put_USB_packet.i:
-	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/put_USB_packet.i
+# target to build an object file
+src/raven/put_USB_packet.cpp.o:
+	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/put_USB_packet.cpp.o
+.PHONY : src/raven/put_USB_packet.cpp.o
+
+src/raven/put_USB_packet.i: src/raven/put_USB_packet.cpp.i
 .PHONY : src/raven/put_USB_packet.i
 
-# target to generate assembly for a file
-src/raven/put_USB_packet.s:
-	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/put_USB_packet.s
+# target to preprocess a source file
+src/raven/put_USB_packet.cpp.i:
+	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/put_USB_packet.cpp.i
+.PHONY : src/raven/put_USB_packet.cpp.i
+
+src/raven/put_USB_packet.s: src/raven/put_USB_packet.cpp.s
 .PHONY : src/raven/put_USB_packet.s
 
-# target to build an object file
-src/raven/r2_kinematics.o:
-	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/r2_kinematics.o
+# target to generate assembly for a file
+src/raven/put_USB_packet.cpp.s:
+	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/put_USB_packet.cpp.s
+.PHONY : src/raven/put_USB_packet.cpp.s
+
+src/raven/r2_kinematics.o: src/raven/r2_kinematics.cpp.o
 .PHONY : src/raven/r2_kinematics.o
 
-# target to preprocess a source file
-src/raven/r2_kinematics.i:
-	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/r2_kinematics.i
+# target to build an object file
+src/raven/r2_kinematics.cpp.o:
+	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/r2_kinematics.cpp.o
+.PHONY : src/raven/r2_kinematics.cpp.o
+
+src/raven/r2_kinematics.i: src/raven/r2_kinematics.cpp.i
 .PHONY : src/raven/r2_kinematics.i
 
-# target to generate assembly for a file
-src/raven/r2_kinematics.s:
-	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/r2_kinematics.s
+# target to preprocess a source file
+src/raven/r2_kinematics.cpp.i:
+	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/r2_kinematics.cpp.i
+.PHONY : src/raven/r2_kinematics.cpp.i
+
+src/raven/r2_kinematics.s: src/raven/r2_kinematics.cpp.s
 .PHONY : src/raven/r2_kinematics.s
 
-# target to build an object file
-src/raven/reconfigure.o:
-	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/reconfigure.o
+# target to generate assembly for a file
+src/raven/r2_kinematics.cpp.s:
+	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/r2_kinematics.cpp.s
+.PHONY : src/raven/r2_kinematics.cpp.s
+
+src/raven/reconfigure.o: src/raven/reconfigure.cpp.o
 .PHONY : src/raven/reconfigure.o
 
-# target to preprocess a source file
-src/raven/reconfigure.i:
-	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/reconfigure.i
+# target to build an object file
+src/raven/reconfigure.cpp.o:
+	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/reconfigure.cpp.o
+.PHONY : src/raven/reconfigure.cpp.o
+
+src/raven/reconfigure.i: src/raven/reconfigure.cpp.i
 .PHONY : src/raven/reconfigure.i
 
-# target to generate assembly for a file
-src/raven/reconfigure.s:
-	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/reconfigure.s
+# target to preprocess a source file
+src/raven/reconfigure.cpp.i:
+	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/reconfigure.cpp.i
+.PHONY : src/raven/reconfigure.cpp.i
+
+src/raven/reconfigure.s: src/raven/reconfigure.cpp.s
 .PHONY : src/raven/reconfigure.s
 
-# target to build an object file
-src/raven/rt_process_preempt.o:
-	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/rt_process_preempt.o
+# target to generate assembly for a file
+src/raven/reconfigure.cpp.s:
+	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/reconfigure.cpp.s
+.PHONY : src/raven/reconfigure.cpp.s
+
+src/raven/rt_process_preempt.o: src/raven/rt_process_preempt.cpp.o
 .PHONY : src/raven/rt_process_preempt.o
 
-# target to preprocess a source file
-src/raven/rt_process_preempt.i:
-	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/rt_process_preempt.i
+# target to build an object file
+src/raven/rt_process_preempt.cpp.o:
+	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/rt_process_preempt.cpp.o
+.PHONY : src/raven/rt_process_preempt.cpp.o
+
+src/raven/rt_process_preempt.i: src/raven/rt_process_preempt.cpp.i
 .PHONY : src/raven/rt_process_preempt.i
 
-# target to generate assembly for a file
-src/raven/rt_process_preempt.s:
-	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/rt_process_preempt.s
+# target to preprocess a source file
+src/raven/rt_process_preempt.cpp.i:
+	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/rt_process_preempt.cpp.i
+.PHONY : src/raven/rt_process_preempt.cpp.i
+
+src/raven/rt_process_preempt.s: src/raven/rt_process_preempt.cpp.s
 .PHONY : src/raven/rt_process_preempt.s
 
-# target to build an object file
-src/raven/rt_raven.o:
-	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/rt_raven.o
+# target to generate assembly for a file
+src/raven/rt_process_preempt.cpp.s:
+	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/rt_process_preempt.cpp.s
+.PHONY : src/raven/rt_process_preempt.cpp.s
+
+src/raven/rt_raven.o: src/raven/rt_raven.cpp.o
 .PHONY : src/raven/rt_raven.o
 
-# target to preprocess a source file
-src/raven/rt_raven.i:
-	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/rt_raven.i
+# target to build an object file
+src/raven/rt_raven.cpp.o:
+	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/rt_raven.cpp.o
+.PHONY : src/raven/rt_raven.cpp.o
+
+src/raven/rt_raven.i: src/raven/rt_raven.cpp.i
 .PHONY : src/raven/rt_raven.i
 
-# target to generate assembly for a file
-src/raven/rt_raven.s:
-	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/rt_raven.s
+# target to preprocess a source file
+src/raven/rt_raven.cpp.i:
+	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/rt_raven.cpp.i
+.PHONY : src/raven/rt_raven.cpp.i
+
+src/raven/rt_raven.s: src/raven/rt_raven.cpp.s
 .PHONY : src/raven/rt_raven.s
 
-# target to build an object file
-src/raven/state_estimate.o:
-	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/state_estimate.o
+# target to generate assembly for a file
+src/raven/rt_raven.cpp.s:
+	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/rt_raven.cpp.s
+.PHONY : src/raven/rt_raven.cpp.s
+
+src/raven/state_estimate.o: src/raven/state_estimate.cpp.o
 .PHONY : src/raven/state_estimate.o
 
-# target to preprocess a source file
-src/raven/state_estimate.i:
-	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/state_estimate.i
+# target to build an object file
+src/raven/state_estimate.cpp.o:
+	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/state_estimate.cpp.o
+.PHONY : src/raven/state_estimate.cpp.o
+
+src/raven/state_estimate.i: src/raven/state_estimate.cpp.i
 .PHONY : src/raven/state_estimate.i
 
-# target to generate assembly for a file
-src/raven/state_estimate.s:
-	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/state_estimate.s
+# target to preprocess a source file
+src/raven/state_estimate.cpp.i:
+	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/state_estimate.cpp.i
+.PHONY : src/raven/state_estimate.cpp.i
+
+src/raven/state_estimate.s: src/raven/state_estimate.cpp.s
 .PHONY : src/raven/state_estimate.s
 
-# target to build an object file
-src/raven/state_machine.o:
-	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/state_machine.o
+# target to generate assembly for a file
+src/raven/state_estimate.cpp.s:
+	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/state_estimate.cpp.s
+.PHONY : src/raven/state_estimate.cpp.s
+
+src/raven/state_machine.o: src/raven/state_machine.cpp.o
 .PHONY : src/raven/state_machine.o
 
-# target to preprocess a source file
-src/raven/state_machine.i:
-	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/state_machine.i
+# target to build an object file
+src/raven/state_machine.cpp.o:
+	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/state_machine.cpp.o
+.PHONY : src/raven/state_machine.cpp.o
+
+src/raven/state_machine.i: src/raven/state_machine.cpp.i
 .PHONY : src/raven/state_machine.i
 
-# target to generate assembly for a file
-src/raven/state_machine.s:
-	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/state_machine.s
+# target to preprocess a source file
+src/raven/state_machine.cpp.i:
+	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/state_machine.cpp.i
+.PHONY : src/raven/state_machine.cpp.i
+
+src/raven/state_machine.s: src/raven/state_machine.cpp.s
 .PHONY : src/raven/state_machine.s
 
-# target to build an object file
-src/raven/t_to_DAC_val.o:
-	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/t_to_DAC_val.o
+# target to generate assembly for a file
+src/raven/state_machine.cpp.s:
+	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/state_machine.cpp.s
+.PHONY : src/raven/state_machine.cpp.s
+
+src/raven/t_to_DAC_val.o: src/raven/t_to_DAC_val.cpp.o
 .PHONY : src/raven/t_to_DAC_val.o
 
-# target to preprocess a source file
-src/raven/t_to_DAC_val.i:
-	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/t_to_DAC_val.i
+# target to build an object file
+src/raven/t_to_DAC_val.cpp.o:
+	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/t_to_DAC_val.cpp.o
+.PHONY : src/raven/t_to_DAC_val.cpp.o
+
+src/raven/t_to_DAC_val.i: src/raven/t_to_DAC_val.cpp.i
 .PHONY : src/raven/t_to_DAC_val.i
 
-# target to generate assembly for a file
-src/raven/t_to_DAC_val.s:
-	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/t_to_DAC_val.s
+# target to preprocess a source file
+src/raven/t_to_DAC_val.cpp.i:
+	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/t_to_DAC_val.cpp.i
+.PHONY : src/raven/t_to_DAC_val.cpp.i
+
+src/raven/t_to_DAC_val.s: src/raven/t_to_DAC_val.cpp.s
 .PHONY : src/raven/t_to_DAC_val.s
 
-# target to build an object file
-src/raven/trajectory.o:
-	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/trajectory.o
+# target to generate assembly for a file
+src/raven/t_to_DAC_val.cpp.s:
+	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/t_to_DAC_val.cpp.s
+.PHONY : src/raven/t_to_DAC_val.cpp.s
+
+src/raven/trajectory.o: src/raven/trajectory.cpp.o
 .PHONY : src/raven/trajectory.o
 
-# target to preprocess a source file
-src/raven/trajectory.i:
-	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/trajectory.i
+# target to build an object file
+src/raven/trajectory.cpp.o:
+	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/trajectory.cpp.o
+.PHONY : src/raven/trajectory.cpp.o
+
+src/raven/trajectory.i: src/raven/trajectory.cpp.i
 .PHONY : src/raven/trajectory.i
 
-# target to generate assembly for a file
-src/raven/trajectory.s:
-	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/trajectory.s
+# target to preprocess a source file
+src/raven/trajectory.cpp.i:
+	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/trajectory.cpp.i
+.PHONY : src/raven/trajectory.cpp.i
+
+src/raven/trajectory.s: src/raven/trajectory.cpp.s
 .PHONY : src/raven/trajectory.s
 
-# target to build an object file
-src/raven/update_atmel_io.o:
-	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/update_atmel_io.o
+# target to generate assembly for a file
+src/raven/trajectory.cpp.s:
+	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/trajectory.cpp.s
+.PHONY : src/raven/trajectory.cpp.s
+
+src/raven/update_atmel_io.o: src/raven/update_atmel_io.cpp.o
 .PHONY : src/raven/update_atmel_io.o
 
-# target to preprocess a source file
-src/raven/update_atmel_io.i:
-	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/update_atmel_io.i
+# target to build an object file
+src/raven/update_atmel_io.cpp.o:
+	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/update_atmel_io.cpp.o
+.PHONY : src/raven/update_atmel_io.cpp.o
+
+src/raven/update_atmel_io.i: src/raven/update_atmel_io.cpp.i
 .PHONY : src/raven/update_atmel_io.i
 
-# target to generate assembly for a file
-src/raven/update_atmel_io.s:
-	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/update_atmel_io.s
+# target to preprocess a source file
+src/raven/update_atmel_io.cpp.i:
+	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/update_atmel_io.cpp.i
+.PHONY : src/raven/update_atmel_io.cpp.i
+
+src/raven/update_atmel_io.s: src/raven/update_atmel_io.cpp.s
 .PHONY : src/raven/update_atmel_io.s
 
-# target to build an object file
-src/raven/update_device_state.o:
-	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/update_device_state.o
+# target to generate assembly for a file
+src/raven/update_atmel_io.cpp.s:
+	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/update_atmel_io.cpp.s
+.PHONY : src/raven/update_atmel_io.cpp.s
+
+src/raven/update_device_state.o: src/raven/update_device_state.cpp.o
 .PHONY : src/raven/update_device_state.o
 
-# target to preprocess a source file
-src/raven/update_device_state.i:
-	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/update_device_state.i
+# target to build an object file
+src/raven/update_device_state.cpp.o:
+	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/update_device_state.cpp.o
+.PHONY : src/raven/update_device_state.cpp.o
+
+src/raven/update_device_state.i: src/raven/update_device_state.cpp.i
 .PHONY : src/raven/update_device_state.i
 
-# target to generate assembly for a file
-src/raven/update_device_state.s:
-	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/update_device_state.s
+# target to preprocess a source file
+src/raven/update_device_state.cpp.i:
+	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/update_device_state.cpp.i
+.PHONY : src/raven/update_device_state.cpp.i
+
+src/raven/update_device_state.s: src/raven/update_device_state.cpp.s
 .PHONY : src/raven/update_device_state.s
 
-# target to build an object file
-src/raven/utils.o:
-	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/utils.o
+# target to generate assembly for a file
+src/raven/update_device_state.cpp.s:
+	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/update_device_state.cpp.s
+.PHONY : src/raven/update_device_state.cpp.s
+
+src/raven/utils.o: src/raven/utils.cpp.o
 .PHONY : src/raven/utils.o
 
-# target to preprocess a source file
-src/raven/utils.i:
-	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/utils.i
+# target to build an object file
+src/raven/utils.cpp.o:
+	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/utils.cpp.o
+.PHONY : src/raven/utils.cpp.o
+
+src/raven/utils.i: src/raven/utils.cpp.i
 .PHONY : src/raven/utils.i
 
-# target to generate assembly for a file
-src/raven/utils.s:
-	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/utils.s
+# target to preprocess a source file
+src/raven/utils.cpp.i:
+	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/utils.cpp.i
+.PHONY : src/raven/utils.cpp.i
+
+src/raven/utils.s: src/raven/utils.cpp.s
 .PHONY : src/raven/utils.s
+
+# target to generate assembly for a file
+src/raven/utils.cpp.s:
+	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/utils.cpp.s
+.PHONY : src/raven/utils.cpp.s
 
 # Help Target
 help:
@@ -860,10 +1270,17 @@ help:
 	@echo "... ROSBUILD_genmsg_py"
 	@echo "... ROSBUILD_gensrv_cpp"
 	@echo "... ROSBUILD_gensrv_lisp"
-	@echo "... clean-test-results"
+	@echo "... _catkin_empty_exported_target"
+	@echo "... clean_test_results"
+	@echo "... doxygen"
 	@echo "... edit_cache"
+	@echo "... install"
+	@echo "... install/local"
+	@echo "... install/strip"
+	@echo "... list_install_components"
 	@echo "... r2_control"
 	@echo "... rebuild_cache"
+	@echo "... rosbuild_clean-test-results"
 	@echo "... rosbuild_precompile"
 	@echo "... rosbuild_premsgsrvgen"
 	@echo "... rospack_gencfg"
@@ -872,11 +1289,14 @@ help:
 	@echo "... rospack_genmsg_all"
 	@echo "... rospack_genmsg_libexe"
 	@echo "... rospack_gensrv"
+	@echo "... run_tests"
 	@echo "... test"
 	@echo "... test-future"
 	@echo "... test-results"
 	@echo "... test-results-run"
 	@echo "... tests"
+	@echo "... gtest"
+	@echo "... gtest_main"
 	@echo "... src/raven/USB_init.o"
 	@echo "... src/raven/USB_init.i"
 	@echo "... src/raven/USB_init.s"

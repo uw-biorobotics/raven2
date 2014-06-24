@@ -174,7 +174,7 @@ static void *rt_process(void* )
 
   // set thread priority and stuff
   struct sched_param param;                    // process / thread priority settings
-  param.sched_priority = 99;
+  param.sched_priority = 96;
   log_msg("Using realtime, priority: %d", param.sched_priority);
   int ret = pthread_setschedparam(pthread_self(), SCHED_FIFO, &param);
   if (ret != 0)
