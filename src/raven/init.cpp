@@ -33,7 +33,7 @@
 
 // TOOLS defines
 #include "tool.h"
-
+/*
 #ifdef DV_ADAPTER
 const e_tool_type use_tool = dv_adapter;
 #else
@@ -48,7 +48,9 @@ const e_tool_type use_tool = ricks_tools_type;
 #endif
 #endif
 #endif
+*/
 
+const e_tool_type use_tool = TOOL_GRASPER_10MM;
 
 
 extern int initialized;

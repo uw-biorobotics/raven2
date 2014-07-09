@@ -44,6 +44,12 @@ extern int soft_estopped;//Defined in rt_process_preempt.cpp
 extern struct DOF_type DOF_types[];//Defined in globals.cpp
 extern std::queue<char*> msgqueue; 
 
+//added by Mohammad
+extern unsigned int SpecifyMech;//Defined in rt_process_preempt.cpp
+extern unsigned int SpecifyJoint;//Defined in rt_process_preempt.cpp
+extern float SpecifyAngle;//Defined in rt_process_preempt.cpp
+extern int mode; //Defined in rt_process_preempt.cpp
+
 void outputRobotState();
 int getkey();
 
@@ -78,6 +84,8 @@ void *console_process(void *)
         if ( print_msg ){
             log_msg("[[\t'C'  : toggle console messages ]]");
             log_msg("[[\t'T'  : specify joint torque    ]]");
+            log_msg("[[\t'J'  : specify absolute joint angle   ]]");
+            log_msg("[[\t'A'  : Joint angle  mode ]]");
             log_msg("[[\t'M'  : set control mode        ]]");
             log_msg("[[\t'^C' : Quit                    ]]");
             print_msg=0;
@@ -143,6 +151,42 @@ void *console_process(void *)
 
                 log_msg("Commanded mech.joint (tau):%d.%d (%d))\n",_mech, _joint, _torqueval);
                 setDofTorque(_mech, _joint, _torqueval);
+                break;
+            }
+            case 'j':
+            case 'J':
+            {
+                print_msg=1;
+                // Get user-input mechanism #
+                printf("\n\nEnter a mechanism number: 0-Gold, 1-Green:\t");
+                cin.getline (inputbuffer,100);
+                SpecifyMech = atoi(inputbuffer);
+                if ( SpecifyMech > 1 ) break;
+
+                // Get user-input joint #
+                printf("\nEnter a joint number: 0-shoulder, 1-elbow:\t");
+                cin.getline (inputbuffer,100);
+                SpecifyJoint = atoi(inputbuffer);
+                if (SpecifyJoint > 1 ) break;
+
+                // Get user-input DAC value #
+                printf("\nEnter an angle value in degree:\t");
+                cin.getline (inputbuffer,100);
+                SpecifyAngle = atof(inputbuffer);
+		
+		//if(SpecifyMech == 1){SpecifyJoint = SpecifyJoint+8; }
+
+                log_msg("Commanded mech.joint (angle):%d.%d (%f))\n",SpecifyMech , SpecifyJoint, SpecifyAngle);
+                //t_controlmode _cmode = (t_controlmode)(9);
+		//setRobotControlMode(_cmode);
+		mode = 9;
+                break;
+            }
+            case 'a':
+            case 'A':
+            {
+	        printf("\nJoint angle mode is set.\t");
+               mode = 8;
                 break;
             }
             case 'm':

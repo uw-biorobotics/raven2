@@ -95,6 +95,13 @@ pthread_t reconfigure_thread;
 //Global Variables from globals.c
 extern struct DOF_type DOF_types[];
 
+///MP
+float SpecifyAngle = 3.14/2;// homing position for joint 0
+unsigned int SpecifyMech = 0;
+unsigned int SpecifyJoint = 0;
+int mode = 6;
+///
+
 // flag to kill loops and stuff
 int r2_kill = 0;
 

@@ -57,6 +57,11 @@ extern int NUM_MECH;
 extern USBStruct USBBoards;
 extern unsigned long int gTime;
 
+//MP
+extern float SpecifyAngle;
+extern unsigned int SpecifyMech;
+extern unsigned int SpecifyJoint;
+
 const static double d2r = M_PI/180; //degrees to radians
 const static double r2d = 180/M_PI; //radians to degrees
 
@@ -318,10 +323,15 @@ void updateMasterRelativeOrigin(struct device *device0)
 #include <visualization_msgs/Marker.h>
 #include <sensor_msgs/JointState.h>
 
+//MP
+#include <raven_2/raven_jointmove.h>
 
 void publish_joints(struct robot_device*);
 void publish_marker(struct robot_device*);
 void autoincrCallback(raven_2::raven_automove);
+
+//MP
+void jointmoveCallback(raven_2::raven_jointmove);
 
 using namespace raven_2;
 // Global publisher for raven data
@@ -330,6 +340,9 @@ ros::Subscriber sub_automove;
 ros::Publisher joint_publisher;
 ros::Publisher vis_pub1;
 ros::Publisher vis_pub2;
+
+//MP
+ros::Subscriber sub_jointmove;
 
 /**
 *  \brief Initiates all ROS publishers and subscribers
@@ -349,7 +362,9 @@ int init_ravenstate_publishing(ros::NodeHandle &n){
 
 
 	sub_automove = n.subscribe<raven_automove>("raven_automove", 1, autoincrCallback, ros::TransportHints().unreliable() );
-
+//MP
+sub_jointmove = n.subscribe<raven_jointmove>("raven_jointmove", 1, jointmoveCallback, ros::TransportHints().unreliable());
+	
     return 0;
 }
 
@@ -365,7 +380,7 @@ int init_ravenstate_publishing(ros::NodeHandle &n){
  *
  */
 void autoincrCallback(raven_2::raven_automove msg)
-{
+{   
   btTransform in_incr[2];
   tf::transformMsgToTF(msg.tf_incr[0], in_incr[0]);
   tf::transformMsgToTF(msg.tf_incr[1], in_incr[1]);
@@ -396,7 +411,17 @@ void autoincrCallback(raven_2::raven_automove msg)
   pthread_mutex_unlock(&data1Mutex);
 }
 
+/*
+ * jointMoveCallback()
+ */
+void jointmoveCallback(raven_2::raven_jointmove msg)
+{	
 
+    SpecifyMech = (int)msg.specify[0];
+    SpecifyJoint = (int)msg.specify[1];
+    SpecifyAngle = (float)msg.specify[2];
+  log_msg("Commanded mech.joint (angle):%d.%d (%f))\n",SpecifyMech , SpecifyJoint, SpecifyAngle);
+}
 
 /**
 * \brief Publishes the raven_state message from the robot and currParams structures
@@ -432,7 +457,8 @@ void publish_ravenstate_ros(struct robot_device *dev,struct param_pass *currPara
     // Copy the robot state to the output datastructure.
     int numdof=8;
     int j;
-    for (int i=0; i<NUM_MECH; i++){
+	//CHANGE TO MAX_NUM_MECH or other, non-hacky, way
+    for (int i=0; i<2; i++){//NUM_MECH.
     	j = dev->mech[i].type == GREEN_ARM ? 1 : 0;
         msg_ravenstate.type[j]    = dev->mech[j].type;
         msg_ravenstate.pos[j*3]   = dev->mech[j].pos.x;

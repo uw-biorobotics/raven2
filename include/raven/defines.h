@@ -34,23 +34,23 @@
 
 #define SURGICAL_ROBOT     	1
 #define RAVEN_II        	1
-#define KIST
+//#define KIST
 
-//#define RAVEN_TOOLS
-#define DV_ADAPTER			1
+#define RAVEN_TOOLS
+//#define DV_ADAPTER			1
 //#define RAVEN_II_SQUARE    1 //for Santa Cruz style tool carriage
 //#define RICKS_TOOLS
 
-#undef RAVEN_TOOLS
-//#undef DV_ADAPTER
+//#undef RAVEN_TOOLS
+#undef DV_ADAPTER
 #undef RAVEN_II_SQUARE
 #undef RICKS_TOOLS
 
 
 // Two arm identification
 // Change this to match device ID in /dev/brl_usbXX
-#define GREEN_ARM_SERIAL 37
-#define GOLD_ARM_SERIAL  24
+#define GREEN_ARM_SERIAL 26
+#define GOLD_ARM_SERIAL  22
 
 #define GREEN_ARM        GREEN_ARM_SERIAL
 #define GOLD_ARM         GOLD_ARM_SERIAL

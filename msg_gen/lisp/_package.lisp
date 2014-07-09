@@ -3,6 +3,8 @@
   (:export
    "<RAVEN_STATE>"
    "RAVEN_STATE"
+   "<RAVEN_JOINTMOVE>"
+   "RAVEN_JOINTMOVE"
    "<RAVEN_AUTOMOVE>"
    "RAVEN_AUTOMOVE"
   ))
