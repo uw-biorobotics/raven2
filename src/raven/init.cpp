@@ -50,6 +50,8 @@ const e_tool_type use_tool = ricks_tools_type;
 #endif
 
 
+extern tool gold_arm_tool;
+extern tool green_arm_tool;
 
 extern int initialized;
 
@@ -190,6 +192,7 @@ void initDOFs(struct device *device0)
     {
 
         device0->mech[i].tool_type = use_tool;
+
         log_msg("tool type %i", device0->mech[i].tool_type);
 
         /// Initialize joint types
@@ -205,6 +208,8 @@ void initDOFs(struct device *device0)
             device0->mech[i].joint[GRASP1].type   = GRASP1_GOLD;
             device0->mech[i].joint[GRASP2].type   = GRASP2_GOLD;
             device0->mech[i].joint[NO_CONNECTION].type   = NO_CONNECTION_GOLD;
+
+            device0->mech[i].mech_tool = gold_arm_tool;
         }
         else if (device0->mech[i].type == GREEN_ARM)
         {
@@ -218,6 +223,7 @@ void initDOFs(struct device *device0)
             device0->mech[i].joint[GRASP2].type   = GRASP2_GREEN;
             device0->mech[i].joint[NO_CONNECTION].type   = NO_CONNECTION_GREEN;
 
+            device0->mech[i].mech_tool = green_arm_tool;
         }
 
 
@@ -282,22 +288,34 @@ void initDOFs(struct device *device0)
                 _dof->i_cont = (float)(I_CONT_SMALL_MOTOR);
 
 
-                //#ifdef RAVEN_II_SQUARE
-                //                _dof->tau_per_amp = torque_sign * (float)(T_PER_AMP_SMALL_MOTOR * GEAR_BOX_TR_SMALL_MOTOR); // Amps to torque \todo why is this line not used?
-                //#else
-                //                _dof->tau_per_amp = -1 * (float)(T_PER_AMP_SMALL_MOTOR * GEAR_BOX_TR_SMALL_MOTOR); // Amps to torque
-                //#endif
+//#ifdef RAVEN_II_SQUARE
+//                _dof->tau_per_amp = torque_sign * (float)(T_PER_AMP_SMALL_MOTOR * GEAR_BOX_TR_SMALL_MOTOR); // Amps to torque \todo why is this line not used?
+//#else
+//                _dof->tau_per_amp = -1 * (float)(T_PER_AMP_SMALL_MOTOR * GEAR_BOX_TR_SMALL_MOTOR); // Amps to torque
+//#endif
 
                 //set tau_per_amp based on tool type
-                switch (device0->mech[i].tool_type){
-					case dv_adapter:
-						_dof->tau_per_amp = 1 *          (float)(T_PER_AMP_SMALL_MOTOR  * GEAR_BOX_TR_SMALL_MOTOR);  // Amps to torque
+//                switch (device0->mech[i].tool_type){
+//					case dv_adapter:
+//						_dof->tau_per_amp = 1 *          (float)(T_PER_AMP_SMALL_MOTOR  * GEAR_BOX_TR_SMALL_MOTOR);  // Amps to torque
+//						break;
+//					case RII_square_type:
+//						_dof->tau_per_amp = torque_sign * (float)(T_PER_AMP_SMALL_MOTOR  * GEAR_BOX_TR_SMALL_MOTOR);  // Amps to torque \todo why is this line not used?
+//						break;
+//					default:
+//						_dof->tau_per_amp = -1 *          (float)(T_PER_AMP_SMALL_MOTOR  * GEAR_BOX_TR_SMALL_MOTOR);  // Amps to torque
+//						break;
+//                }
+
+                switch (device0->mech[i].mech_tool.t_style){
+					case dv:
+						_dof->tau_per_amp = 1 * (float)(T_PER_AMP_SMALL_MOTOR  * GEAR_BOX_TR_SMALL_MOTOR);  // Amps to torque
 						break;
-					case RII_square_type:
+					case square_raven:
 						_dof->tau_per_amp = torque_sign * (float)(T_PER_AMP_SMALL_MOTOR  * GEAR_BOX_TR_SMALL_MOTOR);  // Amps to torque \todo why is this line not used?
 						break;
 					default:
-						_dof->tau_per_amp = -1 *          (float)(T_PER_AMP_SMALL_MOTOR  * GEAR_BOX_TR_SMALL_MOTOR);  // Amps to torque
+						_dof->tau_per_amp = -1 * (float)(T_PER_AMP_SMALL_MOTOR  * GEAR_BOX_TR_SMALL_MOTOR);  // Amps to torque
 						break;
                 }
             }
@@ -338,118 +356,48 @@ void initDOFs(struct device *device0)
 
         int offset = (device0->mech[i].type == GREEN_ARM) ? 8 : 0;
 
-        DOF_types[Z_INS    + offset].max_limit    = Z_INS_MAX_LIMIT;
-		DOF_types[Z_INS    + offset].min_limit    = Z_INS_MIN_LIMIT;
 
-	    DOF_types[SHOULDER + offset].max_position = SHOULDER_MAX_ANGLE;
-        DOF_types[SHOULDER + offset].max_limit    = SHOULDER_MAX_LIMIT;
-		DOF_types[SHOULDER + offset].min_limit    = SHOULDER_MIN_LIMIT;
-	    DOF_types[SHOULDER + offset].home_position  = SHOULDER_HOME_ANGLE;
+	    DOF_types[SHOULDER + offset].max_position  = SHOULDER_MAX_ANGLE;
+        DOF_types[SHOULDER + offset].max_limit     = SHOULDER_MAX_LIMIT;
+		DOF_types[SHOULDER + offset].min_limit     = SHOULDER_MIN_LIMIT;
+	    DOF_types[SHOULDER + offset].home_position = SHOULDER_HOME_ANGLE;
 
-		DOF_types[ELBOW    + offset].max_position = ELBOW_MAX_ANGLE;
-        DOF_types[ELBOW    + offset].max_limit    = ELBOW_MAX_LIMIT;
-		DOF_types[ELBOW    + offset].min_limit    = ELBOW_MIN_LIMIT;
-		DOF_types[ELBOW    + offset].home_position     = ELBOW_HOME_ANGLE;
+		DOF_types[ELBOW    + offset].max_position  = ELBOW_MAX_ANGLE;
+        DOF_types[ELBOW    + offset].max_limit     = ELBOW_MAX_LIMIT;
+		DOF_types[ELBOW    + offset].min_limit     = ELBOW_MIN_LIMIT;
+		DOF_types[ELBOW    + offset].home_position = ELBOW_HOME_ANGLE;
 
-        DOF_types[Z_INS    + offset].max_limit    = Z_INS_MAX_LIMIT;
-		DOF_types[Z_INS    + offset].min_limit    = Z_INS_MIN_LIMIT;
+	    DOF_types[Z_INS    + offset].max_position  = Z_INS_MAX_ANGLE;
+        DOF_types[Z_INS    + offset].max_limit     = Z_INS_MAX_LIMIT;
+		DOF_types[Z_INS    + offset].min_limit     = Z_INS_MIN_LIMIT;
 		DOF_types[Z_INS    + offset].home_position = Z_INS_HOME_ANGLE;
 
-        DOF_types[TOOL_ROT + offset].max_limit    = TOOL_ROT_MAX_LIMIT;
-		DOF_types[TOOL_ROT + offset].min_limit    = TOOL_ROT_MIN_LIMIT;
-		DOF_types[TOOL_ROT + offset].home_position  = TOOL_ROT_HOME_ANGLE;
 
-        DOF_types[WRIST    + offset].max_limit     = WRIST_MAX_LIMIT;
-		DOF_types[WRIST    + offset].min_limit     = WRIST_MIN_LIMIT;
-	    DOF_types[WRIST    + offset].home_position = WRIST_HOME_ANGLE;
+	    DOF_types[TOOL_ROT + offset].max_position    = device0->mech[i].mech_tool.rot_max_angle;
+	    DOF_types[TOOL_ROT + offset].max_limit       = device0->mech[i].mech_tool.rot_max_limit;
+	    DOF_types[TOOL_ROT + offset].min_limit       = device0->mech[i].mech_tool.rot_min_limit;
+	    DOF_types[TOOL_ROT + offset].home_position   = device0->mech[i].mech_tool.rot_home_angle;
 
-        DOF_types[GRASP1   + offset].max_limit     = GRASP1_MAX_LIMIT;
-		DOF_types[GRASP1   + offset].min_limit     = GRASP1_MIN_LIMIT;
-	    DOF_types[GRASP1   + offset].home_position = GRASP1_HOME_ANGLE;
+	    DOF_types[WRIST    + offset].max_position    = device0->mech[i].mech_tool.wrist_max_angle;
+	    DOF_types[WRIST    + offset].max_limit       = device0->mech[i].mech_tool.wrist_max_limit;
+	    DOF_types[WRIST    + offset].min_limit       = device0->mech[i].mech_tool.wrist_min_limit;
+	    DOF_types[WRIST    + offset].home_position   = device0->mech[i].mech_tool.wrist_home_angle;
 
-        DOF_types[GRASP2   + offset].max_limit     = GRASP2_MAX_LIMIT;
-		DOF_types[GRASP2   + offset].min_limit     = GRASP2_MIN_LIMIT;
-	    DOF_types[GRASP2   + offset].home_position = GRASP2_HOME_ANGLE;
+	    DOF_types[GRASP1   + offset].max_position    = device0->mech[i].mech_tool.grasp1_max_angle;
+	    DOF_types[GRASP1   + offset].max_limit       = device0->mech[i].mech_tool.grasp1_max_limit;
+	    DOF_types[GRASP1   + offset].min_limit       = device0->mech[i].mech_tool.grasp1_min_limit;
+	    DOF_types[GRASP1   + offset].home_position   = device0->mech[i].mech_tool.grasp1_home_angle;
 
-        DOF_types[Z_INS    + offset].max_limit    = Z_INS_MAX_LIMIT;
-		DOF_types[Z_INS    + offset].min_limit    = Z_INS_MIN_LIMIT;
-
-	    DOF_types[SHOULDER + offset].max_position = SHOULDER_MAX_ANGLE;
-        DOF_types[SHOULDER + offset].max_limit    = SHOULDER_MAX_LIMIT;
-		DOF_types[SHOULDER + offset].min_limit    = SHOULDER_MIN_LIMIT;
-	    DOF_types[SHOULDER + offset].home_position  = SHOULDER_HOME_ANGLE;
-
-		switch (use_tool){
-        case davinci_square_type:
-    	{
-    		DOF_types[Z_INS    + offset].max_limit       = Z_INS_MAX_LIMIT_DAVINCI_SQUARE;
-    		DOF_types[Z_INS    + offset].min_limit       = Z_INS_MIN_LIMIT_DAVINCI_SQUARE;
-    		DOF_types[Z_INS    + offset].max_position    = Z_INS_MAX_ANGLE_DAVINCI_SQUARE;
-    	    DOF_types[TOOL_ROT + offset].max_position    = TOOL_ROT_MAX_ANGLE_DAVINCI_SQUARE;
-    	    DOF_types[WRIST    + offset].max_position    = WRIST_MAX_ANGLE_DAVINCI_SQUARE;
-    	    DOF_types[GRASP1   + offset].max_position    = GRASP1_MAX_ANGLE_DAVINCI_SQUARE;
-    	    DOF_types[GRASP2   + offset].max_position    = GRASP2_MAX_ANGLE_DAVINCI_SQUARE;
-    	    break;
-    	}
-
-        case TOOL_GRASPER_10MM:
-    	{
-    	    DOF_types[Z_INS    + offset].max_position    = Z_INS_MAX_ANGLE;
-    	    DOF_types[TOOL_ROT + offset].max_position    = TOOL_ROT_MAX_ANGLE;
-    	    DOF_types[WRIST    + offset].max_position    = WRIST_MAX_ANGLE;
-    	    DOF_types[GRASP1   + offset].max_position    = GRASP1_MAX_ANGLE;
-    	    DOF_types[GRASP2   + offset].max_position    = GRASP2_MAX_ANGLE;
-    	    break;
-    	}
-
-        case dv_adapter:
-    	{
-    		DOF_types[Z_INS    + offset].max_limit       = Z_INS_MAX_LIMIT_DAVINCI_ADAPT;
-    		DOF_types[Z_INS    + offset].min_limit       = Z_INS_MIN_LIMIT_DAVINCI_ADAPT;
-    		DOF_types[Z_INS    + offset].max_position    = Z_INS_MAX_ANGLE_DAVINCI_ADAPT;
-    	    DOF_types[TOOL_ROT + offset].max_position    = TOOL_ROT_MAX_ANGLE_DAVINCI_ADAPT;
-    	    DOF_types[WRIST    + offset].max_position    = WRIST_MAX_ANGLE_DAVINCI_ADAPT;
-    	    DOF_types[GRASP1   + offset].max_position    = GRASP1_MAX_ANGLE_DAVINCI_ADAPT;
-    	    DOF_types[GRASP2   + offset].max_position    = GRASP2_MAX_ANGLE_DAVINCI_ADAPT;
-    	    break;
-    	}
-
-        case RII_square_type:
-    	{
-    	    DOF_types[Z_INS    + offset].max_position    = Z_INS_MAX_ANGLE_RII_SQUARE;
-    	    DOF_types[TOOL_ROT + offset].max_position    = TOOL_ROT_MAX_ANGLE_RII_SQUARE;
-    	    DOF_types[WRIST    + offset].max_position    = WRIST_MAX_ANGLE_RII_SQUARE;
-    	    DOF_types[GRASP1   + offset].max_position    = GRASP1_MAX_ANGLE_RII_SQUARE;
-    	    DOF_types[GRASP2   + offset].max_position    = GRASP2_MAX_ANGLE_RII_SQUARE;
-    	    break;
-    	}
-
-        case ricks_tools_type:
-        {
-            DOF_types[Z_INS    + offset].max_position    = Z_INS_MAX_ANGLE_GOLD_RICK;
-            DOF_types[TOOL_ROT + offset].max_position    = TOOL_ROT_MAX_ANGLE;
-            DOF_types[WRIST    + offset].max_position    = WRIST_MAX_ANGLE_RICK;
-            DOF_types[GRASP1   + offset].max_position    = GRASP1_MAX_ANGLE_RICK;
-            DOF_types[GRASP2   + offset].max_position    = GRASP2_MAX_ANGLE_RICK;
-            break;
-        }
-        default:
-        {
-            DOF_types[Z_INS    + offset].max_position    = Z_INS_MAX_ANGLE;
-            DOF_types[TOOL_ROT + offset].max_position    = TOOL_ROT_MAX_ANGLE;
-            DOF_types[WRIST    + offset].max_position    = WRIST_MAX_ANGLE;
-            DOF_types[GRASP1   + offset].max_position    = GRASP1_MAX_ANGLE;
-            DOF_types[GRASP2   + offset].max_position    = GRASP2_MAX_ANGLE;
-            break;
-        }
-        } // switch
+	    DOF_types[GRASP2   + offset].max_position    = device0->mech[i].mech_tool.grasp2_max_angle;
+	    DOF_types[GRASP2   + offset].max_limit       = device0->mech[i].mech_tool.grasp2_max_limit;
+	    DOF_types[GRASP2   + offset].min_limit       = device0->mech[i].mech_tool.grasp2_min_limit;
+	    DOF_types[GRASP2   + offset].home_position   = device0->mech[i].mech_tool.grasp2_home_angle;
 
 
     }
 
     dofs_inited=1;
 }
-
 
 /**\fn int init_ravengains(ros::NodeHandle n, struct device *device0)
   \brief Get ravengains from ROS parameter server.

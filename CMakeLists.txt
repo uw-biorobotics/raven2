@@ -84,4 +84,5 @@ src/raven/USB_init.cpp
 src/raven/utils.cpp
 src/raven/reconfigure.cpp
 #src/raven/velocity.cpp
+src/raven/tools.cpp
 )

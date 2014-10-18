@@ -32,6 +32,8 @@
  **
  *********************************************/
 
+#include "tools.h"
+
 #ifndef DS0_H
 #define DS0_H
 //#define NUM_MECH 2
@@ -134,6 +136,7 @@ typedef enum {TOOL_NONE,
 struct mechanism {
   u_16 type;
   e_tool_type tool_type;
+  tool mech_tool;
   struct position pos;
   struct position pos_d;
   struct position base_pos;     // base position in world frame

@@ -36,13 +36,13 @@
 #define RAVEN_II        	1
 //#define KIST
 
-#define RAVEN_TOOLS
-//#define DV_ADAPTER			1
+//#define RAVEN_TOOLS
+#define DV_ADAPTER			1
 //#define RAVEN_II_SQUARE    1 //for Santa Cruz style tool carriage
 //#define RICKS_TOOLS
 
-//#undef RAVEN_TOOLS
-#undef DV_ADAPTER
+#undef RAVEN_TOOLS
+//#undef DV_ADAPTER
 #undef RAVEN_II_SQUARE
 #undef RICKS_TOOLS
 
@@ -232,6 +232,9 @@
 #define ELBOW_MIN_LIMIT (float)(  45.0 DEG2RAD)
 #define ELBOW_MAX_LIMIT (float)( 135.0 DEG2RAD)
 
+#define Z_INS_MIN_LIMIT (float) 0.23 //meters (-0.230)
+#define Z_INS_MAX_LIMIT (float) 0.56 //meters ( 0.010)
+
 /*#define TOOL_GRASP1_MIN_LIMIT (float)(-45.0 DEG2RAD)
 #define TOOL_GRASP1_MAX_LIMIT (float)( 45.0 DEG2RAD)
 #define TOOL_GRASP2_MIN_LIMIT (float)(-45.0 DEG2RAD)
@@ -272,7 +275,7 @@
 
 #define SHOULDER_MAX_ANGLE   0.0
 #define ELBOW_MAX_ANGLE      3*M_PI/4 + (2.5*M_PI/180)
-
+#define Z_INS_MAX_ANGLE      0.562
 
 
 #define SHOULDER_HOME_ANGLE   M_PI/6

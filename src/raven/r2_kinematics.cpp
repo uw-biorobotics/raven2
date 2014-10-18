@@ -406,7 +406,9 @@ int r2_inv_kin(struct device *d0, int runlevel)
 		double gangle = double(d0->mech[m].ori_d.grasp) / 1000.0;
 		theta2joint(iksol[sol_idx], Js);
 
-		int limited = 0; //apply_joint_limits(Js,Js_sat);
+		//check joint limits for saturating
+		int limited = apply_joint_limits(Js,Js_sat);
+
 		if (limited)
 		{
 			joint2theta(thetas_sat, Js_sat, arm);
@@ -739,6 +741,8 @@ int apply_joint_limits(double *Js, double *Js_sat){
 		limited = 1;
 		std::cout<<"wrist max limit reached  = "<<Js_sat[4]<<std::endl;
 	}
+
+	//todo add more saturation for graspers
 
 	//Js_sat[5] = Js[5];
 	/*

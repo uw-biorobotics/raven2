@@ -13,8 +13,7 @@
 
 
 
-#define Z_INS_MIN_LIMIT (float) 0.23 // (-0.230)
-#define Z_INS_MAX_LIMIT (float) 0.56//( 0.010)
+
 
 #define TOOL_ROT_MIN_LIMIT (float)(-182.0 DEG2RAD)
 #define TOOL_ROT_MAX_LIMIT (float)( 182.0 DEG2RAD)
@@ -75,7 +74,7 @@
 
 
 // Default RII grasper (10MM, diamond)
-#define Z_INS_MAX_ANGLE      0.562  //0.1    // 10cm  // NOT THE REAL LIMIT- approximate measurement
+//#define Z_INS_MAX_ANGLE      0.562  //0.1    // 10cm  // NOT THE REAL LIMIT- approximate measurement
 #define TOOL_ROT_MAX_ANGLE   330 DEG2RAD
 #define WRIST_MAX_ANGLE      115 DEG2RAD
 #define GRASP1_MAX_ANGLE     120 DEG2RAD
