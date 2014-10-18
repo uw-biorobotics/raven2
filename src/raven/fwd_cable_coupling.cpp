@@ -119,64 +119,29 @@ void fwdMechCableCoupling(struct mechanism *mech)
 
 
 	// Tool degrees of freedom ===========================================
-	if (mech->tool_type == TOOL_GRASPER_10MM)
-	{
+    int sgn = 0;
+    switch(mech->mech_tool.t_style){
+	  case raven:
+		sgn = (mech->type == GOLD_ARM) ? 1 : -1;
+		break;
+	  case dv:
+		sgn = (mech->type != GOLD_ARM) ? 1 : -1;
+		break;
+	  case square_raven:
+		sgn = -1;
+		break;
+	  default:
+		log_msg("undefined tool style!!! inv_cable_coupling.cpp");
+		break;
+    }
 
-		int sgn = (mech->type == GOLD_ARM) ? 1 : -1;
-		th3 = (1.0/tr3) * (m3 - sgn*m4/GB_RATIO);
-		th5 = (1.0/tr5) * (m5 - sgn*m4/GB_RATIO);
-		th6 = (1.0/tr6) * (m6 - sgn*m4/GB_RATIO);
-		th7 = (1.0/tr7) * (m7 - sgn*m4/GB_RATIO);
-	}
-
-	else if (mech->tool_type == dv_adapter)
-	{
-		int sgn = (mech->type != GOLD_ARM) ? 1 : -1; //original
-//		int sgn = (mech->type == GOLD_ARM) ? 1 : -1;
-		th3 = (1.0/tr3) * (m3 - sgn*m4/GB_RATIO);
-		th5 = (1.0/tr5) * (m5 - sgn*m4/GB_RATIO);
-		th6 = (1.0/tr6) * (m6 - sgn*m4/GB_RATIO) - th5/2;
-		th7 = (1.0/tr7) * (m7 - sgn*m4/GB_RATIO) + th5/2;
-	}
-
-	else if (mech->tool_type == RII_square_type)
-	{
-		int sgn = -1;
-		th3 = (1.0/tr3) * (m3 - sgn*m4/GB_RATIO);
-		th5 = (1.0/tr5) * (m5 - sgn*m4/GB_RATIO);
-		th6 = (1.0/tr6) * (m6 - sgn*m4/GB_RATIO);
-		th7 = (1.0/tr7) * (m7 - sgn*m4/GB_RATIO);
-	}
+    float tool_coupling = mech->mech_tool.wrist_coupling;
+    th3 = (1.0/tr3) * (m3 - sgn*m4/GB_RATIO);
+    th5 = (1.0/tr5) * (m5 - sgn*m4/GB_RATIO);
+    th6 = (1.0/tr6) * (m6 - sgn*m4/GB_RATIO) - th5*tool_coupling;
+    th7 = (1.0/tr7) * (m7 - sgn*m4/GB_RATIO) + th5*tool_coupling;
 
 
-	else if (mech->tool_type == davinci_square_type)
-	{
-		int sgn = -1;
-		th3 = (1.0/tr3) * (m3 - sgn*m4/GB_RATIO);
-		th5 = (1.0/tr5) * (m5 - sgn*m4/GB_RATIO);
-		th6 = (1.0/tr6) * (m6 - sgn*m4/GB_RATIO) - th5/2;
-		th7 = (1.0/tr7) * (m7 - sgn*m4/GB_RATIO) + th5/2;
-	}
-
-
-	else if (mech->tool_type == TOOL_GRASPER_8MM)
-	{
-		log_msg("8mm");
-		// Note: sign of the last term changes for GOLD vs GREEN arm
-		int sgn = (mech->type == GOLD_ARM) ? 1 : -1;
-		th3 = (1.0/tr3) * (m3 - m4/GB_RATIO);
-		th5 = (1.0/tr5) * (m5 - m4/GB_RATIO);
-		th6 = (1.0/tr6) * (m6 - m4/GB_RATIO - sgn * (tr5*th5) * (tr5/tr6));
-		th7 = (1.0/tr7) * (m7 - m4/GB_RATIO + sgn *(tr5*th5) * (tr5/tr6));
-	}
-	else // (mech->tool_type == TOOL_NONE) // there's tool in the robot
-	{
-		// coupling goes until the tool adapter pulleys
-		th3 = (1.0/tr3) * (m3 - m4/GB_RATIO);
-		th5 = (1.0/tr5) * (m5 - m4/GB_RATIO);
-		th6 = (1.0/tr6) * (m6 - m4/GB_RATIO);
-		th7 = (1.0/tr7) * (m7 - m4/GB_RATIO);
-	}
 	// Now have solved for th1, th2, d3, th4, th5, th6
 	mech->joint[SHOULDER].jpos 		= th1;// - mech->joint[SHOULDER].jpos_off;
 	mech->joint[ELBOW].jpos 		= th2;// - mech->joint[ELBOW].jpos_off;

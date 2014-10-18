@@ -8,14 +8,15 @@
 #include "tools.h"
 #include "defines.h"
 
-tool::tool(end_effector_type t_end_new) {
-	set_tool(t_end_new);
+tool::tool(end_effector_type t_end_new, int a_mech) {
+	set_tool(t_end_new, a_mech);
 	set_tool_data();
 }
 
 
-void tool::set_tool(end_effector_type t_end_new) {
+void tool::set_tool(end_effector_type t_end_new, int a_mech) {
 	t_end = t_end_new;
+	mech_type = a_mech;
 	if (t_end == r_grasper)
 		t_style = raven;
 	else if (t_end == r_sq_grasper)

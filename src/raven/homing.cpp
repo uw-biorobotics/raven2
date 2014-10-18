@@ -39,8 +39,8 @@
 #include "state_estimate.h"
 #include "log.h"
 
-#include <iostream>
 
+#include <iostream>
 
 int set_joints_known_pos(struct mechanism* _mech, int tool_only);
 
@@ -91,9 +91,6 @@ int raven_homing(struct device *device0, struct param_pass *currParams, int begi
 #endif
 
 
-
-
-
     // Only run in init mode
     if ( ! (currParams->runlevel == RL_INIT && currParams->sublevel == SL_AUTO_INIT ))
     {
@@ -132,9 +129,12 @@ int raven_homing(struct device *device0, struct param_pass *currParams, int begi
     while ( loop_over_joints(device0, _mech, _joint, i,j) )
     {
         // Initialize tools first.
-        if ( is_toolDOF(_joint) || tools_ready( &(device0->mech[i]) ) )
-        {
-            homing(_joint);
+        if ( is_toolDOF(_joint)){
+            homing(_joint, device0->mech[i].mech_tool);
+
+        }
+        else if(tools_ready( &(device0->mech[i]))){
+        	homing(_joint);
         }
     }
 
@@ -217,12 +217,15 @@ int set_joints_known_pos(struct mechanism* _mech, int tool_only)
     struct DOF* _joint=NULL;
     int j=0;
 
+    int scissor = ((_mech->mech_tool.t_end == mopocu_scissor) || (_mech->mech_tool.t_end == potts_scissor))? 1 : 0;
+
 //    int offset = 0;
 //    if (_mech->type == GREEN_ARM) offset = 8;
     /// Set joint position reference for just tools, or all DOFS
     _joint = NULL;
     while ( loop_over_joints(_mech, _joint ,j) )
     {
+
     	// when tool joints finish, set positioning joints to neutral
         if ( tool_only  && ! is_toolDOF( _joint->type))
         {
@@ -234,18 +237,22 @@ int set_joints_known_pos(struct mechanism* _mech, int tool_only)
         else if (!tool_only && is_toolDOF(_joint->type) )
         {
             _joint->jpos_d = _joint->jpos;
-        }
-        // when tool or positioning joints finish, set them to max_angle
-        else
-        {
+		}
+		// when tool or positioning joints finish, set them to max_angle
+		else {
 
-            // Set jpos_d to the joint limit value.
-            _joint->jpos_d = DOF_types[ _joint->type ].max_position;
+			// Set jpos_d to the joint limit value.
+			if (scissor && ((_joint->type == GRASP2_GREEN) || (_joint->type == GRASP2_GOLD))){
+				_joint->jpos_d = _mech->mech_tool.grasp2_min_angle;
+				log_msg("setting grasp 2 to     arm %d,     joint %d to    value %f", _mech->mech_tool.mech_type, _joint->type,  _joint->jpos_d);
+			}
+			else
+				_joint->jpos_d = DOF_types[_joint->type].max_position;
 
-            // Initialize a trajectory to operating angle
-            _joint->state = jstate_homing1;
-        }
-    }
+			// Initialize a trajectory to operating angle
+			_joint->state = jstate_homing1;
+		}
+	}
     /// Inverse cable coupling: jpos_d  ---> mpos_d
     // use_actual flag triggered for insertion axis
     invMechCableCoupling(_mech, 1);
@@ -262,13 +269,13 @@ int set_joints_known_pos(struct mechanism* _mech, int tool_only)
         float f_enc_val = _joint->enc_val;
 
         // Encoder values on Gold arm are reversed.  See also state_machine.cpp
-    switch (_mech->tool_type){
-		case dv_adapter:
+    switch (_mech->mech_tool.t_style){
+		case dv:
 			if ( _mech->type == GOLD_ARM && !is_toolDOF(_joint))
 
 				f_enc_val *= -1.0;
 			break;
-		case RII_square_type:
+		case square_raven:
 			if (	( _mech->type == GOLD_ARM && !is_toolDOF(_joint) )
 			    	||
 			    	( _mech->type == GREEN_ARM && is_toolDOF(_joint) ) //Green arm tools are also reversed with square pattern
@@ -290,6 +297,7 @@ int set_joints_known_pos(struct mechanism* _mech, int tool_only)
 
 
         getStateLPF(_joint, _mech->tool_type);
+        //getStateLPF(_joint, _mech->mech_tool.t_style);
     }
 
     fwdMechCableCoupling(_mech);
@@ -330,6 +338,90 @@ void homing(struct DOF* _joint)
                                                           -10 DEG2RAD, 10 DEG2RAD, 0.02, 9999999, 80 DEG2RAD, 40 DEG2RAD, 40 DEG2RAD, 40 DEG2RAD};
 #endif
 #endif
+
+
+
+    switch (_joint->state)
+    {
+        case jstate_wait:
+            break;
+
+        case jstate_not_ready:
+            // Initialize velocity trajectory
+            //log_msg("Starting homing on joint %d", _joint->type);
+            _joint->state = jstate_pos_unknown;
+            start_trajectory_mag(_joint, f_magnitude[_joint->type], f_period[_joint->type]);
+            break;
+
+        case jstate_pos_unknown:
+            // Set desired joint trajectory
+            update_linear_sinusoid_position_trajectory(_joint);
+            break;
+
+        case jstate_hard_stop:
+            // Wait for all joints. No trajectory here.
+
+            break;
+
+        case jstate_homing1:
+            start_trajectory( _joint , DOF_types[_joint->type].home_position, 2.5 );
+            _joint->state = jstate_homing2;
+
+        case jstate_homing2:
+            // Move to start position
+            // Update position trajectory
+            if ( !update_position_trajectory(_joint) )
+            {
+                _joint->state = jstate_ready;
+                log_msg("Joint %d ready", _joint->type);
+            }
+            break;
+
+        default:
+            // not doing joint homing.
+            break;
+
+    } // switch
+
+    return;
+}
+
+//for tool joints
+void homing(struct DOF* _joint, tool a_tool)
+{
+    // duration for homing of each joint
+    const float f_period[MAX_MECH*MAX_DOF_PER_MECH] = {1, 1, 1, 9999999, 1, 1, 1, 1,
+                                                        1, 1, 1, 9999999, 1, 1, 1, 1};
+//    // degrees for homing of each joint
+//#ifdef RAVEN_II_SQUARE
+//    //roll is backwards because of the 'click' in the mechanism
+//    const float f_magnitude[MAX_MECH*MAX_DOF_PER_MECH] = {-10 DEG2RAD, 10 DEG2RAD, 0.02, 9999999, -80 DEG2RAD, 40 DEG2RAD, 40 DEG2RAD, 40 DEG2RAD,
+//                                                          -10 DEG2RAD, 10 DEG2RAD, 0.02, 9999999, -80 DEG2RAD, 40 DEG2RAD, 40 DEG2RAD, 40 DEG2RAD};
+//#else
+//#ifdef DV_ADAPTER
+//    const float f_magnitude[MAX_MECH*MAX_DOF_PER_MECH] = {-10 DEG2RAD, 10 DEG2RAD, 0.02, 9999999, 80 DEG2RAD, 40 DEG2RAD, 40 DEG2RAD, 40 DEG2RAD,
+//                                                          -10 DEG2RAD, 10 DEG2RAD, 0.02, 9999999, 80 DEG2RAD, 40 DEG2RAD, 40 DEG2RAD, 40 DEG2RAD};
+//#else //default
+//    const float f_magnitude[MAX_MECH*MAX_DOF_PER_MECH] = {-10 DEG2RAD, 10 DEG2RAD, 0.02, 9999999, 80 DEG2RAD, 40 DEG2RAD, 40 DEG2RAD, 40 DEG2RAD,
+//                                                          -10 DEG2RAD, 10 DEG2RAD, 0.02, 9999999, 80 DEG2RAD, 40 DEG2RAD, 40 DEG2RAD, 40 DEG2RAD};
+//#endif
+//#endif
+
+    //check if scissors
+    int scissor = ((a_tool.t_end == mopocu_scissor) || (a_tool.t_end == potts_scissor))? 1 : 0;
+
+    float f_magnitude[MAX_MECH*MAX_DOF_PER_MECH] = {-10 DEG2RAD, 10 DEG2RAD, 0.02, 9999999, 80 DEG2RAD, 40 DEG2RAD, 40 DEG2RAD, 40 DEG2RAD,
+    		 	 	 	 	 	 	 	 	 	 	-10 DEG2RAD, 10 DEG2RAD, 0.02, 9999999, 80 DEG2RAD, 40 DEG2RAD, 40 DEG2RAD, 40 DEG2RAD};
+
+    if(a_tool.t_style == square_raven){
+    	if(a_tool.mech_type == GOLD_ARM) f_magnitude[TOOL_ROT_GOLD] =  -80 DEG2RAD;
+    	else if(a_tool.mech_type == GREEN_ARM) f_magnitude[TOOL_ROT_GREEN] =  -80 DEG2RAD;
+    }
+    if (scissor){
+    	if(a_tool.mech_type == GOLD_ARM) f_magnitude[GRASP2_GOLD] = -40 DEG2RAD;
+    	else if(a_tool.mech_type == GREEN_ARM) f_magnitude[GRASP2_GREEN] = -40 DEG2RAD;
+    }
+
 
     switch (_joint->state)
     {
@@ -440,22 +532,3 @@ int check_homing_condition(struct DOF *_joint)
 
 
 
-
-
-
-
-
-//    // --- check the forward path ---
-//
-//    // set motor position from encoder space
-//    encToMPos(_joint);
-//
-//    // execute inverse cable coupling to find the matching motor position.
-//    fwdCableCoupling(device0, device0->runlevel);
-//
-//    float temp_motorPos = (2*PI) * (float)(1/((float)ENC_CNTS_PER_REV)) * (float)(_joint->enc_val - _joint->enc_offset);
-//
-//    log_msg("typ:%d: jpd:%0.3f \tjp:%0.3f \t mpd:%0.3f \t tmp:%0.3f \t mpo:%0.3f \t enc:%d \t eno:%d \t cpr:%0.3f",
-//            _joint->type, _joint->jpos_d, _joint->jpos, _joint->mpos_d, temp_motorPos, _joint->mpos, _joint->enc_val , _joint->enc_offset, (float)ENC_CNT_PER_RAD);
-//
-////    log_msg("jpd:%0.3f \tjp:%0.3f \t mpd:%0.3f \t enc:%d \t eno:%d \t cpr:%0.3f \t tmp:%0.3f", _joint->jpos_d, _joint->jpos, _joint->mpos_d, _joint->enc_val , _joint->enc_offset, (float)ENC_CNT_PER_RAD, temp_motorPos);

@@ -71,13 +71,14 @@ public:
 	float wrist_length;
 
 //methods
-    tool(end_effector_type);
+
     tool(){};
+    tool(end_effector_type, int);
 
 	~tool(){};
 
 //	void set_tool(end_effector_type, int);
-	void set_tool(end_effector_type);
+	void set_tool(end_effector_type, int);
 
 	void set_tool_data();
 

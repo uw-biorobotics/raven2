@@ -101,15 +101,7 @@ void mpos_PD_control(struct DOF *joint, int reset_I)
     joint->tau_d = pTerm + vTerm +iTerm + friction_feedforward;
 
 
-    static int count = 0;
-    if (count <100){
-    	log_msg("kp --> %d", kp);
-    	log_msg("pterm --> %f", pTerm);
-   	log_msg("joint->type --> %i", joint->type);
-    	log_msg("");
 
-    	count++;
-    }
 }
 
 /**

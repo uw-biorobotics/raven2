@@ -59,6 +59,7 @@ void invCableCoupling(struct device *device0, int runlevel)
     invMechCableCoupling(&(device0->mech[i]));
 }
 
+
 /**
 * \brief Calculates desired motor positions from desired joint positions
 *
@@ -114,7 +115,6 @@ void invMechCableCoupling(struct mechanism *mech, int no_use_actual)
   }
 
 
-
 // --------------Coupling and Transmission Matrix---------------------------------------------------
 // trs are transmission ration for each joint defined in define.h
 // GB_RATIO = (GEAR_BOX_GP42_TR/GEAR_BOX_GP32_TR * ( CAPSTAN_RADIUS_GP32/CAPSTAN_RADIUS_GP42))
@@ -164,7 +164,6 @@ void invMechCableCoupling(struct mechanism *mech, int no_use_actual)
 
 
 
-
   m1 = tr1 * th1;
   m2 = tr2 * (th2 + CABLE_COUPLING_01*th1);
   m4 = tr4 * (d4 + CABLE_COUPLING_02*th1 + CABLE_COUPLING_12*th2);
@@ -175,62 +174,28 @@ void invMechCableCoupling(struct mechanism *mech, int no_use_actual)
   if (no_use_actual)
     m4_actual = m4;
 
-//  m3 = tr3 * th3 + m4_actual/GB_RATIO;
-//  m5 = tr5 * th5 + m4_actual/GB_RATIO;
-//  m3 = tr3 * th3 + m4/GB_RATIO;
-//  m5 = tr5 * th5 + m4/GB_RATIO;
-
-  if (mech->tool_type == TOOL_GRASPER_10MM)
-  {
-	int sgn = (mech->type == GOLD_ARM) ? 1 : -1;
-	m3 = tr3 * th3 + sgn * m4_actual/GB_RATIO;
-	m5 = tr5 * th5 + sgn * m4_actual/GB_RATIO;
-	m6 = tr6 * th6 + sgn * m4_actual/GB_RATIO;
-	m7 = tr7 * th7 + sgn * m4_actual/GB_RATIO;
-  }
-  else if (mech->tool_type == RII_square_type)
-  {
-	int sgn = -1;
-	m3 = tr3 * th3 + sgn * m4_actual/GB_RATIO;
-	m5 = tr5 * th5 + sgn * m4_actual/GB_RATIO;
-	m6 = tr6 * th6 + sgn * m4_actual/GB_RATIO;
-	m7 = tr7 * th7 + sgn * m4_actual/GB_RATIO;
+  int sgn = 0;
+  switch(mech->mech_tool.t_style){
+	case raven:
+		sgn = (mech->type == GOLD_ARM) ? 1 : -1;
+		break;
+	case dv:
+		sgn = (mech->type != GOLD_ARM) ? 1 : -1;
+		break;
+	case square_raven:
+		sgn = -1;
+		break;
+	default:
+		log_msg("undefined tool style!!! inv_cable_coupling.cpp");
+		break;
   }
 
-  else if (mech->tool_type == davinci_square_type)
-  {
-	int sgn = -1;
-	m3 = tr3 * th3 + sgn * m4_actual/GB_RATIO;
-	m5 = tr5 * th5 + sgn * m4_actual/GB_RATIO;
-	m6 = tr6 * (th6 + th5/2) + sgn * m4_actual/GB_RATIO;
-	m7 = tr7 * (th7 - th5/2) + sgn * m4_actual/GB_RATIO;
-  }
-  else if (mech->tool_type == dv_adapter)
-  {
-	int sgn = (mech->type != GOLD_ARM) ? 1 : -1;   //original
-//	int sgn = (mech->type == GOLD_ARM) ? 1 : -1;
-	m3 = (tr3 * th3) + sgn * m4_actual/GB_RATIO;
-	m5 = (tr5 * th5) + sgn * m4_actual/GB_RATIO;
-	m6 = (tr6 * (th6 + th5/2)) + sgn * m4_actual/GB_RATIO;
-	m7 = (tr7 * (th7 - th5/2)) + sgn * m4_actual/GB_RATIO;
-  }
-  else if (mech->tool_type == TOOL_GRASPER_8MM)
-  {
-  	// Note: sign of the last term changes for GOLD vs GREEN arm
-    int sgn = (mech->type == GOLD_ARM) ? 1 : -1;
-    m3 = tr3 * th3 + m4_actual/GB_RATIO;
-    m5 = tr5 * th5 + m4_actual/GB_RATIO;
-	m6 = tr6 * th6 + m4/GB_RATIO + sgn * (tr5 * th5) * (tr5/tr6);
-	m7 = tr7 * th7 + m4/GB_RATIO - sgn * (tr5 * th5) * (tr5/tr6);
-  }
-  else  // (mech->tool_type == TOOL_NONE)
-  {
-	// coupling goes until the tool adapter pulleys
-	m3 = tr3 * th3 + m4_actual/GB_RATIO;
-	m5 = tr5 * th5 + m4_actual/GB_RATIO;
-	m6 = tr6 * th6 + m4/GB_RATIO;
-	m7 = tr7 * th7 + m4/GB_RATIO;
-  }
+  float tool_coupling = mech->mech_tool.wrist_coupling;
+  m3 = (tr3 * th3) + sgn * m4_actual/GB_RATIO;
+  m5 = (tr5 * th5) + sgn * m4_actual/GB_RATIO;
+  m6 = (tr6 * (th6 + th5*tool_coupling)) + sgn * m4_actual/GB_RATIO;
+  m7 = (tr7 * (th7 - th5*tool_coupling)) + sgn * m4_actual/GB_RATIO;
+
 
   /*Now have solved for desired motor positions mpos_d*/
   mech->joint[SHOULDER].mpos_d 	= m1;

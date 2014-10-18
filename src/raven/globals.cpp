@@ -34,8 +34,10 @@ struct DOF_type DOF_types[MAX_MECH*MAX_DOF_PER_MECH];
 //struct traj trajectory[MAX_MECH*MAX_DOF_PER_MECH];
 USBStruct USBBoards;
 
-//tool gold_arm_tool(large_needle, 29);
-//tool green_arm_tool(mopocu_scissor, 37);
+tool gold_arm_tool(large_needle, GOLD_ARM);
+//tool green_arm_tool(large_needle,  GREEN_ARM);
+//tool green_arm_tool(mopocu_scissor, GREEN_ARM);
+tool green_arm_tool(potts_scissor, GREEN_ARM);
 
-tool gold_arm_tool(large_needle);
-tool green_arm_tool(mopocu_scissor);
+//tool gold_arm_tool(large_needle);
+//tool green_arm_tool(mopocu_scissor);
