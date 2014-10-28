@@ -39,9 +39,11 @@ const static size_t MAX_MSG_LEN =1024;
 *  \return 0 on success -1 on failure
 */
 
+//THIS WAS CAUSING BUILD ERRORS
+
 int log_msg_later(const char* fmt,...)
 {
-  static char buf[MAX_MSG_LEN];
+  /*static char buf[MAX_MSG_LEN];
   char* msgbuf;
   va_list args;
   va_start (args, fmt);
@@ -55,6 +57,7 @@ int log_msg_later(const char* fmt,...)
   msgqueue.push(msgbuf);
   //  ROS_INFO("%s",buf);
   //std::cout << "qsiz:" << msgqueue.size() << std::endl;
+*/
   return 0;
 }
 

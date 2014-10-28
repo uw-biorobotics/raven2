@@ -277,7 +277,7 @@ int set_joints_known_pos(struct mechanism* _mech, int tool_only)
 			break;
 		default:
 			if ( _mech->type == GOLD_ARM || is_toolDOF(_joint) )
-				f_enc_val *= -1.0;
+			f_enc_val *= -1.0;
 			break;
     }
 
@@ -398,14 +398,14 @@ const int homing_max_dac[8] = {2500,  //shoulder
                             1700,  //grasp1
                             1700};  // grasp2
 #else
-const int homing_max_dac[8] = {2500,  //shoulder
-                            2500,  //elbow
-                            2300, //1900,  //z_ins
+const int homing_max_dac[8] = {2300,  //shoulder
+                            2300,  //elbow
+                            1650, //1900,  //z_ins
                             0,
-                            1900,  //tool_rot  //rasised from 1400 alewis 3/4/14
-                            1900,  //wrist
+                            1750,  //tool_rot  //rasised from 1400 alewis 3/4/14
+                            1700,  //wrist
                             1700,  //grasp1 decreased from 1900
-                            1700};  // grasp2 decreased from 1900
+                            1600};  // grasp2 decreased from 1900
 #endif
 #endif
 
@@ -440,22 +440,3 @@ int check_homing_condition(struct DOF *_joint)
 
 
 
-
-
-
-
-
-//    // --- check the forward path ---
-//
-//    // set motor position from encoder space
-//    encToMPos(_joint);
-//
-//    // execute inverse cable coupling to find the matching motor position.
-//    fwdCableCoupling(device0, device0->runlevel);
-//
-//    float temp_motorPos = (2*PI) * (float)(1/((float)ENC_CNTS_PER_REV)) * (float)(_joint->enc_val - _joint->enc_offset);
-//
-//    log_msg("typ:%d: jpd:%0.3f \tjp:%0.3f \t mpd:%0.3f \t tmp:%0.3f \t mpo:%0.3f \t enc:%d \t eno:%d \t cpr:%0.3f",
-//            _joint->type, _joint->jpos_d, _joint->jpos, _joint->mpos_d, temp_motorPos, _joint->mpos, _joint->enc_val , _joint->enc_offset, (float)ENC_CNT_PER_RAD);
-//
-////    log_msg("jpd:%0.3f \tjp:%0.3f \t mpd:%0.3f \t enc:%d \t eno:%d \t cpr:%0.3f \t tmp:%0.3f", _joint->jpos_d, _joint->jpos, _joint->mpos_d, _joint->enc_val , _joint->enc_offset, (float)ENC_CNT_PER_RAD, temp_motorPos);

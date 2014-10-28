@@ -49,14 +49,14 @@
 
 // Two arm identification
 // Change this to match device ID in /dev/brl_usbXX
-#define GREEN_ARM_SERIAL 26
-#define GOLD_ARM_SERIAL  22
+#define GREEN_ARM_SERIAL 29
+#define GOLD_ARM_SERIAL  37
 
 #define GREEN_ARM        GREEN_ARM_SERIAL
 #define GOLD_ARM         GOLD_ARM_SERIAL
 
 
-
+/*
 //KIST configuration is GREEN ONLY and no tools(ricks tools)
 #ifdef KIST
 
@@ -72,6 +72,7 @@
 #define RICKS_TOOLS
 
 #endif
+*/
 
 // Event logging function
 //  Log levels:

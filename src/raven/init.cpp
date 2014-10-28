@@ -50,7 +50,7 @@ const e_tool_type use_tool = ricks_tools_type;
 #endif
 */
 
-const e_tool_type use_tool = TOOL_GRASPER_10MM;
+const e_tool_type use_tool = dv_adapter; //TOOL_GRASPER_10MM;//dv_adapter;//TOOL_GRASPER_10MM;
 
 
 extern int initialized;

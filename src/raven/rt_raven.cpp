@@ -51,20 +51,10 @@
 #include "update_device_state.h"
 #include "parallel.h"
 
-#include "log.h"
-
 extern int NUM_MECH; //Defined in rt_process_preempt.cpp
 extern unsigned long int gTime; //Defined in rt_process_preempt.cpp
 extern struct DOF_type DOF_types[]; //Defined in DOF_type.h
 extern t_controlmode newRobotControlMode; //Defined in struct.h
-
-//added by Mohammad
-extern float SpecifyAngle;//Defined in rt_process_preempt.cpp
-extern unsigned int SpecifyMech;//Defined in rt_process_preempt.cpp
-extern unsigned int SpecifyJoint;//Defined in rt_process_preempt.cpp
-float anglerad;
-extern int mode;
-
 
 int raven_cartesian_space_command(struct device *device0, struct param_pass *currParams);
 int raven_joint_velocity_control(struct device *device0, struct param_pass *currParams);
@@ -72,9 +62,6 @@ int raven_motor_position_control(struct device *device0, struct param_pass *curr
 int raven_homing(struct device *device0, struct param_pass *currParams, int begin_homing=0);
 int applyTorque(struct device *device0, struct param_pass *currParams);
 int raven_sinusoidal_joint_motion(struct device *device0, struct param_pass *currParams);
-//added by Mohammad
-int raven_joint_space_command(struct device *device0, struct param_pass *currParams);
-int raven_abs_joint_space_command(struct device *device0, struct param_pass *currParams);
 
 extern int initialized; //Defined in rt_process_preempt.cpp
 
@@ -140,17 +127,8 @@ int controlRaven(struct device *device0, struct param_pass *currParams){
         }
         //Cartesian Space Control is called to control the robot in cartesian space
         case cartesian_space_control:
-		if(mode==8){ret = raven_joint_space_command(device0,currParams);break;}
-		else if(mode==9){ret = raven_abs_joint_space_command(device0,currParams);break;}
-		else{ret = raven_cartesian_space_command(device0,currParams);break;}
+        	ret = raven_cartesian_space_command(device0,currParams);
         	break;
-	//Joint angle control
-	case joint_angle_mode:
-             ret = raven_joint_space_command(device0,currParams); 	
-            break;
-	case abs_joint_angle_mode:
-	     ret = raven_abs_joint_space_command(device0,currParams);
-	    break;
         //Motor PD control runs PD control on motor position
         case motor_pd_control:
             initialized = false;
@@ -553,144 +531,6 @@ int raven_joint_velocity_control(struct device *device0, struct param_pass *curr
 
     return 0;
 }
-
-
-
-/**
-* \brief This function runs joint angle control
-* \param device0 is robot_device struct defined in DS0.h
-* \param currParams is param_pass struct defined in DS1.h
-* \return 0 
-*
-*/
-
-int raven_abs_joint_space_command(struct device *device0, struct param_pass *currParams){
-    static int controlStart = 0;
-    static unsigned long int delay=0;
- 
-  if (currParams->runlevel != RL_PEDAL_DN)
-    {
-        controlStart = 0;
-        delay = gTime;
-        // Set all joints to zero torque, and mpos_d = mpos
-        for (int i=0; i < NUM_MECH; i++)
-        {
-            for (int j = 0; j < MAX_DOF_PER_MECH; j++)
-            {
-                struct DOF* _joint =  &(device0->mech[i].joint[j]);
-                _joint->mpos_d = _joint->mpos;
-                _joint->jpos_d = _joint->jpos;
-                _joint->tau_d = 0;
-            }
-        }
-        return 0;
-    }
-
-    // Wait for amplifiers to power up
-    if (gTime - delay < 800)
-        return 0;
-
-
-	//check limits	
-	if(SpecifyJoint == 0 && (SpecifyAngle > 90 || SpecifyAngle <0)){printf("\nAngle must be between 0-90 degree.");return 0;}
-	if(SpecifyJoint == 1 && (SpecifyAngle > 135 || SpecifyAngle <45)){printf("\nAngle must be between 45-135 degree.");return 0;}
-	if(SpecifyJoint == 2 && (SpecifyAngle > 0.01 || SpecifyAngle <-.230)){printf("\nZ must be between -0.23-0.01 meters.");return 0;}
-	//convert degree to rad
-	if (SpecifyJoint == 0 || SpecifyJoint == 1){anglerad = SpecifyAngle DEG2RAD;}
-
-            struct DOF * _joint =  &(device0->mech[SpecifyMech].joint[SpecifyJoint]);
-
-         // initialize trajectory
-        if (!controlStart){
-		start_trajectory(_joint, anglerad, 2.5);
-	}
-		
-		update_position_trajectory(_joint);
-
-
-    //Inverse Cable Coupling
-    invCableCoupling(device0, currParams->runlevel);
-
-    // Do PD control on all the joints
-    for (int i=0; i < NUM_MECH; i++)
-    {
-        for (int j = 0; j < MAX_DOF_PER_MECH; j++)
-        {
-            struct DOF * _joint =  &(device0->mech[i].joint[j]);
-
-            // Do PD control
-            mpos_PD_control(_joint);
-
- 	   	// getGravityTorque(*device0);
-            getGravityTorque(*device0, *currParams);
-            _joint->tau_d += _joint->tau_g;
-
-        }
-    }
-
-    TorqueToDAC(device0);
-
-    controlStart = 1;
-    return 0;
-}
-
-
-
-
-/**
-* \brief This function runs joint angle control
-* \param device0 is robot_device struct defined in DS0.h
-* \param currParams is param_pass struct defined in DS1.h
-* \return 0 
-*
-*/
-int raven_joint_space_command(struct device *device0, struct param_pass *currParams){
-
- 
-    struct DOF *_joint = NULL;
-    struct mechanism* _mech = NULL;
-    int i=0,j=0;
-    float jpos = (float)device0->mech[SpecifyMech].joint[SpecifyJoint].jpos;
-    float jpos_d = SpecifyAngle DEG2RAD;
-    float diff = jpos-jpos_d;
-
-	//take the absolute
-	if (diff<0) {diff = -diff;}
-	if (diff < .1 ){ //tol
-	device0->mech[SpecifyMech].joint[SpecifyJoint].jpos_d = jpos_d;
-	//start_trajectory(_joint, jpos_d, 2.5);
-	//update_position_trajectory(_joint);
-	}
-	    //Inverse Cable Coupling
-	    invCableCoupling(device0, currParams->runlevel);
-
-	    // Set all joints to zero torque
-	   // _mech = NULL;  _joint = NULL;
-	    while (loop_over_joints(device0, _mech, _joint, i,j) )
-	    {
-	        if (currParams->runlevel != RL_PEDAL_DN)
-	        {
-	            _joint->tau_d=0;
-	        }
-	        else
-	        {
-	    	    mpos_PD_control(_joint);
-	        }
-	    }
-
-	    // Gravity compensation calculation
-  	     getGravityTorque(*device0, *currParams);
-	  //  _mech = NULL;  _joint = NULL;
-	    while ( loop_over_joints(device0, _mech, _joint, i,j) )
-	    {
-	        _joint->tau_d += _joint->tau_g;  // Add gravity torque
-	    }
-
-	    TorqueToDAC(device0);
-	    return 0;
-}
-
-
 
 
 

@@ -406,7 +406,7 @@ int r2_inv_kin(struct device *d0, int runlevel)
 		double gangle = double(d0->mech[m].ori_d.grasp) / 1000.0;
 		theta2joint(iksol[sol_idx], Js);
 
-		int limited = 0; //apply_joint_limits(Js,Js_sat);
+		int limited = apply_joint_limits(Js,Js_sat);
 		if (limited)
 		{
 			joint2theta(thetas_sat, Js_sat, arm);
@@ -740,16 +740,16 @@ int apply_joint_limits(double *Js, double *Js_sat){
 		std::cout<<"wrist max limit reached  = "<<Js_sat[4]<<std::endl;
 	}
 
-	//Js_sat[5] = Js[5];
-	/*
+	Js_sat[5] = Js[5];
+	
 	Js_sat[0] = Js[0];
 	Js_sat[1] = Js[1];
 	Js_sat[2] = Js[2];
 	Js_sat[3] = Js[3];
 	Js_sat[4] = Js[4];
-	Js_sat[5] = Js[5];*/
+	Js_sat[5] = Js[5];
 
-	//if (limited) std::cout<<"A joint has been saturated"<<std::endl;
+	if (limited) std::cout<<"A joint has been saturated"<<std::endl;
 
 	return limited;
 }
@@ -927,7 +927,7 @@ void joint2theta(double *out_iktheta, double *in_J, l_r in_arm)
 
 		static int larm_check = 0;
 		if (larm_check < 2) {
-			log_msg("why left arm? -- j2t");
+			//log_msg("why left arm? -- j2t");
 			larm_check++;
 		}
 
@@ -944,7 +944,7 @@ void joint2theta(double *out_iktheta, double *in_J, l_r in_arm)
 		out_iktheta[5] = in_J[5] + TH6A_J5_R * d2r;
 		static int arm_check = 0;
 		if (arm_check < 2) {
-			log_msg("definitely still the right arm j2t");
+			//log_msg("definitely still the right arm j2t");
 			arm_check++;
 		}
 	}
@@ -999,7 +999,7 @@ void theta2joint(ik_solution in_iktheta, double *out_J)
 
 		static int arm_check = 0;
 		if (arm_check < 2) {
-			log_msg("definitely the right arm -- t2j");
+			//log_msg("definitely the right arm -- t2j");
 			arm_check++;
 		}
 	}

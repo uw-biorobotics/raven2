@@ -74,7 +74,7 @@ struct u_struct {
 	int grasp[2];
 	int surgeon_mode;
 	int checksum;
-};
+};//__attribute__((__packed__));
 
 /*
 v_struct: Return DS from slave to master.
