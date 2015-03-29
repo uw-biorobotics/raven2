@@ -63,8 +63,10 @@ void parallelUpdate(int runlevel, int endOfLoop)
  */
 void parport_out(void)
 {
+  #ifdef PARPORT_DEBUG
   static unsigned char state=0;
   outb(state++,PARPORT);
+  #endif
 }
 /**
  * \brief put data out in the parallel port
@@ -73,7 +75,9 @@ void parport_out(void)
  */
 void parport_out(unsigned char out_byte)
 {
+  #ifdef PARPORT_DEBUG
   outb(out_byte,PARPORT);
+  #endif
 }
 
 
