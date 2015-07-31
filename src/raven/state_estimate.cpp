@@ -203,9 +203,22 @@ void getStateLPF(struct DOF *joint, int tool_type)
 
     // Compute velocity from first difference
     // This is safe b/c noise is removed by LPF
+
+//removed filter functionality - CIGIT 7/30/15
+//the filter was shown to cause fluttering in the tool joints after homing
+#ifdef NO_LPF  
+    joint->mvel = (motorPos - oldPos[0])/ STEP_PERIOD;
+    joint->mpos = motorPos;
+
+    static int print_twice = 0;
+    if (print_twice < 2){
+	   log_msg("!!!!!!!!!!!!!    LPF FILTER IS OFF    !!!!!!111!!1!1!!!", 0);
+       print_twice++;
+    }
+#else //use the filter
     joint->mvel = (filtPos - oldFiltPos[0]) / STEP_PERIOD;
     joint->mpos = filtPos;
-
+#endif
 
     // Update old values for filter
     oldPos[2] = oldPos[1];
