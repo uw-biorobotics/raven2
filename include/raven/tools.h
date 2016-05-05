@@ -73,37 +73,37 @@ public:
 
 	//angle is the maximum physical range of DOF
 	//limit is the safe limit for joint saturation
-	float rot_max_angle; /**< Physical maximum angle from the midpoint of tool roll */
-	float rot_min_angle; /**< Physical minimum angle from the midpoint of tool roll  */
-	float rot_max_limit; /**< Positive safety limit angle from midpoint of tool roll  */
-	float rot_min_limit; /**< Negative safety limit angle from midpoint of tool roll  */
+	float rot_max_angle; 		/**< Physical maximum angle from the midpoint of tool roll */
+	float rot_min_angle; 		/**< Physical minimum angle from the midpoint of tool roll  */
+	float rot_max_limit; 		/**< Positive safety limit angle from midpoint of tool roll  */
+	float rot_min_limit; 		/**< Negative safety limit angle from midpoint of tool roll  */
 
-	float wrist_max_angle; /**< Physical maximum angle from the midpoint of wrist motion*/
-	float wrist_min_angle; /**< Physical minimum angle from the midpoint of wrist motion*/
-	float wrist_max_limit; /**< Positive safety limit angle from midpoint of wrist motion */
-	float wrist_min_limit; /**< Negative safety limit angle from midpoint of wrist motion */
+	float wrist_max_angle; 		/**< Physical maximum angle from the midpoint of wrist motion*/
+	float wrist_min_angle; 		/**< Physical minimum angle from the midpoint of wrist motion*/
+	float wrist_max_limit; 		/**< Positive safety limit angle from midpoint of wrist motion */
+	float wrist_min_limit; 		/**< Negative safety limit angle from midpoint of wrist motion */
 
-	float grasp1_max_angle; /**< Physical maximum angle from the midpoint of first jaw motion*/
-	float grasp1_min_angle; /**< Physical minimum angle from the midpoint of first jaw motion*/
-	float grasp1_max_limit; /**< Positive safety limit angle from midpoint of first jaw motion */
-	float grasp1_min_limit; /**< Negative safety limit angle from midpoint of first jaw motion */
+	float grasp1_max_angle; 	/**< Physical maximum angle from the midpoint of first jaw motion*/
+	float grasp1_min_angle; 	/**< Physical minimum angle from the midpoint of first jaw motion*/
+	float grasp1_max_limit; 	/**< Positive safety limit angle from midpoint of first jaw motion */
+	float grasp1_min_limit; 	/**< Negative safety limit angle from midpoint of first jaw motion */
 
-	float grasp2_max_angle; /**< Physical maximum angle from the midpoint of second jaw motion*/
-	float grasp2_min_angle; /**< Physical minimum angle from the midpoint of second jaw motion*/
-	float grasp2_max_limit; /**< Positive safety limit angle from midpoint of second jaw motion */
-	float grasp2_min_limit; /**< Negative safety limit angle from midpoint of seond jaw motion */
+	float grasp2_max_angle; 	/**< Physical maximum angle from the midpoint of second jaw motion*/
+	float grasp2_min_angle; 	/**< Physical minimum angle from the midpoint of second jaw motion*/
+	float grasp2_max_limit; 	/**< Positive safety limit angle from midpoint of second jaw motion */
+	float grasp2_min_limit; 	/**< Negative safety limit angle from midpoint of seond jaw motion */
 
-	float max_opening_angle; /**< Safety limit angle of distance between jaws*/
+	float max_opening_angle; 	/**< Safety limit angle of distance between jaws*/
 
 	//angles to return to after homing
-	float rot_home_angle;    /**< tool rotation angle to return to after homing */
-	float wrist_home_angle;  /**< wrist angle to return to after homing */
-	float grasp1_home_angle; /**< grasper one angle to return to after homing */
-	float grasp2_home_angle; /**< grasper two angle to return to after homing */
+	float rot_home_angle;    	/**< tool rotation angle to return to after homing */
+	float wrist_home_angle;  	/**< wrist angle to return to after homing */
+	float grasp1_home_angle; 	/**< grasper one angle to return to after homing */
+	float grasp2_home_angle; 	/**< grasper two angle to return to after homing */
 
 	//DH (DanyingHu) parameters
-	float shaft_length;  /**< DH length parameter from middle of tool interface to base of wrist */
-	float wrist_length;  /**< DH length parameter from shaft/wrist base to midpoint of gasper length */
+	float shaft_length;  		/**< DH length parameter from middle of tool interface to base of wrist */
+	float wrist_length;  		/**< DH length parameter from shaft/wrist base to midpoint of gasper length */
 
 //methods
 
