@@ -17,7 +17,7 @@
  * along with Raven 2 Control.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/*
+/**
  *  \brief Functions for calculating gravity torques
  *
  *  These functions will calculate gravity loads on each of the first 3 DOFs with predefined mass properties.
@@ -29,8 +29,12 @@
  *    See Andy's MS thesis or ICRA '14 paper for technical details.
  *
  *
+ *  \author Hawkeye King
+ *  \author Andrew Lewis
  *
+ *  \date February 2013
  *
+ *  \ingroup control
  *
  */
 
@@ -67,7 +71,7 @@ const static double M3 = 0.231; // kg --> ? lb
 tf::Vector3 getCurrentG(struct device *d0, int m);
 void getMotorTorqueFromJointTorque(int, double, double, double, double&, double&, double&);
 
-/*
+/**
  * getCurrentG()
  * \brief Return the current gravity vector from whatever power knows it.
  *
@@ -101,7 +105,7 @@ tf::Vector3 getCurrentG(struct device *d0, int m)
 	return tf::Vector3(xG0, yG0, zG0);
 }
 
-/*
+/**
  * getGravityTorque()
  * \brief Calculate and set the gravity torque for each of the first three joints on both arms
  *
@@ -111,6 +115,8 @@ tf::Vector3 getCurrentG(struct device *d0, int m)
  *
  * \param &d0		the robot device
  * \param &params	the current robot parameters struct
+ *
+ * \return void
  *
  * 	 Calculate Torque: T_i = sum( j=i..3 , (M_j * G_i) x ^iCOM_j )
 		GT1 = (M1*G1) x ^1COM_1 + (M2*G1) x ^1COM_2 + (M3*G1) x ^1COM_3
@@ -241,6 +247,7 @@ void getGravityTorque(struct device &d0, struct param_pass &params)
  * \param 	&out_MT2	an output pointer for calculated motor torque 2
  * \param 	&out_MT3	an output pointer for calculated motor torque 3
  *
+ * \return void
  */
 
 // TODO: this function will need to be updated when cable coupling between first three axes is implemented as non-diagonal.

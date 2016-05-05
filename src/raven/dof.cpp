@@ -17,7 +17,7 @@
  * along with Raven 2 Control.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/*
+/**
  * dof.c - functions that fill in the DOF structure
  *     processEncVal - process an encoder value from a USB packet
  *     encToJPos - go from an encoder value to a Joint position

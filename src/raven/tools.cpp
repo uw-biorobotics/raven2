@@ -1,16 +1,43 @@
-/*
+/* Raven 2 Control - Control software for the Raven II robot
+ * Copyright (C) 2005-2012  H. Hawkeye King, Blake Hannaford, and the University of Washington BioRobotics Laboratory
+ *
+ * This file is part of Raven 2 Control.
+ *
+ * Raven 2 Control is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Raven 2 Control is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Raven 2 Control.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+/**
  * tools.cpp
  *
  * \brief Class file for Tool object
  *
- *  Created on: Oct 17, 2014
- *      Author: Andrew Lewis, Danying Hu, David Caballero
+ * This is a new feature added to the RAVEN code in the indigo branch. This
+ * allows us to use different tools on each arm and allows for differences
+ * between tools and scissors. The interface type needs to be the same between
+ * each arm (RAVEN or dV adapter) and must still be declared as a #define in defines.h
+ *
+ * \date Oct 17, 2014
+ * \author Andrew Lewis
+ * \author Danying Hu
+ * \author David Caballero
+ *
  */
 
 #include "tools.h"
 #include "defines.h"
 
-/** tool object creator
+/** tool object constructor
 *
 */
 tool::tool(end_effector_type t_end_new, int a_mech) {
@@ -19,8 +46,9 @@ tool::tool(end_effector_type t_end_new, int a_mech) {
 }
 
 /** creates new tool and sets style according to end effector type
- *  /param t_end_new   type of end effector
- *  /param a_mech      which arm is the tool mounted on
+ *  \param t_end_new   type of end effector
+ *  \param a_mech      which arm is the tool mounted on
+ *  \return void
  */
 void tool::set_tool(end_effector_type t_end_new, int a_mech) {
 	t_end = t_end_new;
@@ -33,8 +61,8 @@ void tool::set_tool(end_effector_type t_end_new, int a_mech) {
 		t_style = dv;
 }
 
-/** assigns tool object data based by calling oter functions
- *
+/** assigns tool attribute values by calling other functions
+ * \return void
  */
 void tool::set_tool_data() {
 	set_limits();
@@ -46,7 +74,7 @@ void tool::set_tool_data() {
 
 
 /** sets default tool limits based on the end effector type
- *
+ * \return void
  */
 void tool::set_limits() {
 	switch (t_end) {
@@ -235,7 +263,7 @@ void tool::set_limits() {
 }
 
 /** sets joint angles to return to after initializing based on end effector type
- *
+ * \return void
  */
 void tool::set_home_angles() {
 	switch (t_end) {
@@ -306,7 +334,7 @@ void tool::set_home_angles() {
 }
 
 /** sets wrist/grasper coupling coefficient based on end effector type
- *
+ * \return void
  */
 void tool::set_wrist_coupling() {
 	switch (t_end) {
@@ -352,7 +380,7 @@ void tool::set_wrist_coupling() {
 }
 
 /** sets shaft and wrist DH parameters based on end effector type
- *
+ * \return void
  */
 void tool::set_DH_params() {
 	switch (t_end) {
@@ -405,7 +433,7 @@ void tool::set_DH_params() {
 }
 
 /** sets safety limit for opening angle based on end effector type
- *
+ * \return void
  */
 void tool::set_max_opening_angle() {
 	switch (t_end) {
