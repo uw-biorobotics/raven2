@@ -43,7 +43,7 @@ extern struct DOF_type DOF_types[];
 extern unsigned long int gTime;
 
 // Define COM's (units: meters)
-// Left arm values ???
+// Left arm values
 const static tf::Vector3 COM1_1_GL( 0.0065,   0.09775,	-0.13771); //meters
 const static tf::Vector3 COM2_2_GL( -0.002,	-0.18274,	-0.23053); //meters
 const static tf::Vector3 COM3_3_GL( 0,		0,			0		);//meters
@@ -61,7 +61,7 @@ const static tf::Vector3 COM3_3_GR( 0,		0,			0		); //meters
 const static double M1 = 0.494; // kg --> ? lb
 const static double M2 = 0.750; // kg --> ? lb
 const static double M3 = 0.231; // kg --> ? lb
-// masses updated using fresh links from raven 2.1 build 6/13
+// masses updated using fresh links from raven 2.1 build June 2013
 
 
 tf::Vector3 getCurrentG(struct device *d0, int m);
@@ -70,6 +70,11 @@ void getMotorTorqueFromJointTorque(int, double, double, double, double&, double&
 /*
  * getCurrentG()
  * \brief Return the current gravity vector from whatever power knows it.
+ *
+ * \param device   the robot device that needs gravity compensation
+ * \param m		   the current mechanism (arm) being compensated
+ *
+ * \return gravity vector in m/s^2
  */
 tf::Vector3 getCurrentG(struct device *d0, int m)
 {
@@ -212,7 +217,8 @@ void getGravityTorque(struct device &d0, struct param_pass &params)
 		getMotorTorqueFromJointTorque(_mech->type, GZ1, GZ2, GZ3, MT1, MT2, MT3);
 
 		// Set motor g-torque
-		_mech->joint[SHOULDER].tau = MT1; 
+		// \TODO need to implement gravity comp by changing these to tau_g. Needs testing for stability
+		_mech->joint[SHOULDER].tau = MT1;
 		_mech->joint[ELBOW   ].tau = MT2;
 		_mech->joint[Z_INS   ].tau = MT3;
 
@@ -238,6 +244,7 @@ void getGravityTorque(struct device &d0, struct param_pass &params)
  */
 
 // TODO: this function will need to be updated when cable coupling between first three axes is implemented as non-diagonal.
+// TODO: this should be in a different file, maybe motors.cpp?
 void getMotorTorqueFromJointTorque(int arm, double in_GZ1, double in_GZ2, double in_GZ3, double &out_MT1, double &out_MT2, double &out_MT3)
 {
 	// claculate motor torques from joint torques

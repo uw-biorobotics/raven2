@@ -1,19 +1,27 @@
 /*
  * tools.cpp
  *
+ * \brief Class file for Tool object
+ *
  *  Created on: Oct 17, 2014
- *      Author: junjie
+ *      Author: Andrew Lewis, Danying Hu, David Caballero
  */
 
 #include "tools.h"
 #include "defines.h"
 
+/** tool object creator
+*
+*/
 tool::tool(end_effector_type t_end_new, int a_mech) {
 	set_tool(t_end_new, a_mech);
 	set_tool_data();
 }
 
-
+/** creates new tool and sets style according to end effector type
+ *  /param t_end_new   type of end effector
+ *  /param a_mech      which arm is the tool mounted on
+ */
 void tool::set_tool(end_effector_type t_end_new, int a_mech) {
 	t_end = t_end_new;
 	mech_type = a_mech;
@@ -25,7 +33,9 @@ void tool::set_tool(end_effector_type t_end_new, int a_mech) {
 		t_style = dv;
 }
 
-
+/** assigns tool object data based by calling oter functions
+ *
+ */
 void tool::set_tool_data() {
 	set_limits();
 	set_home_angles();
@@ -34,6 +44,10 @@ void tool::set_tool_data() {
 	set_max_opening_angle();
 }
 
+
+/** sets default tool limits based on the end effector type
+ *
+ */
 void tool::set_limits() {
 	switch (t_end) {
 	case r_grasper:
@@ -220,6 +234,9 @@ void tool::set_limits() {
 	}
 }
 
+/** sets joint angles to return to after initializing based on end effector type
+ *
+ */
 void tool::set_home_angles() {
 	switch (t_end) {
 
@@ -288,6 +305,9 @@ void tool::set_home_angles() {
 
 }
 
+/** sets wrist/grasper coupling coefficient based on end effector type
+ *
+ */
 void tool::set_wrist_coupling() {
 	switch (t_end) {
 	case r_grasper:
@@ -331,6 +351,9 @@ void tool::set_wrist_coupling() {
 
 }
 
+/** sets shaft and wrist DH parameters based on end effector type
+ *
+ */
 void tool::set_DH_params() {
 	switch (t_end) {
 	case r_grasper:
@@ -381,6 +404,9 @@ void tool::set_DH_params() {
 	}
 }
 
+/** sets safety limit for opening angle based on end effector type
+ *
+ */
 void tool::set_max_opening_angle() {
 	switch (t_end) {
 	case r_grasper:

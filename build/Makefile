@@ -244,6 +244,32 @@ clean_test_results/fast:
 .PHONY : clean_test_results/fast
 
 #=============================================================================
+# Target rules for targets named clean_test_results_raven_2
+
+# Build rule for target.
+clean_test_results_raven_2: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 clean_test_results_raven_2
+.PHONY : clean_test_results_raven_2
+
+# fast build rule for target.
+clean_test_results_raven_2/fast:
+	$(MAKE) -f CMakeFiles/clean_test_results_raven_2.dir/build.make CMakeFiles/clean_test_results_raven_2.dir/build
+.PHONY : clean_test_results_raven_2/fast
+
+#=============================================================================
+# Target rules for targets named download_extra_data
+
+# Build rule for target.
+download_extra_data: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 download_extra_data
+.PHONY : download_extra_data
+
+# fast build rule for target.
+download_extra_data/fast:
+	$(MAKE) -f CMakeFiles/download_extra_data.dir/build.make CMakeFiles/download_extra_data.dir/build
+.PHONY : download_extra_data/fast
+
+#=============================================================================
 # Target rules for targets named doxygen
 
 # Build rule for target.
@@ -1162,6 +1188,30 @@ src/raven/t_to_DAC_val.cpp.s:
 	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/t_to_DAC_val.cpp.s
 .PHONY : src/raven/t_to_DAC_val.cpp.s
 
+src/raven/tools.o: src/raven/tools.cpp.o
+.PHONY : src/raven/tools.o
+
+# target to build an object file
+src/raven/tools.cpp.o:
+	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/tools.cpp.o
+.PHONY : src/raven/tools.cpp.o
+
+src/raven/tools.i: src/raven/tools.cpp.i
+.PHONY : src/raven/tools.i
+
+# target to preprocess a source file
+src/raven/tools.cpp.i:
+	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/tools.cpp.i
+.PHONY : src/raven/tools.cpp.i
+
+src/raven/tools.s: src/raven/tools.cpp.s
+.PHONY : src/raven/tools.s
+
+# target to generate assembly for a file
+src/raven/tools.cpp.s:
+	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/tools.cpp.s
+.PHONY : src/raven/tools.cpp.s
+
 src/raven/trajectory.o: src/raven/trajectory.cpp.o
 .PHONY : src/raven/trajectory.o
 
@@ -1272,6 +1322,8 @@ help:
 	@echo "... ROSBUILD_gensrv_lisp"
 	@echo "... _catkin_empty_exported_target"
 	@echo "... clean_test_results"
+	@echo "... clean_test_results_raven_2"
+	@echo "... download_extra_data"
 	@echo "... doxygen"
 	@echo "... edit_cache"
 	@echo "... install"
@@ -1381,6 +1433,9 @@ help:
 	@echo "... src/raven/t_to_DAC_val.o"
 	@echo "... src/raven/t_to_DAC_val.i"
 	@echo "... src/raven/t_to_DAC_val.s"
+	@echo "... src/raven/tools.o"
+	@echo "... src/raven/tools.i"
+	@echo "... src/raven/tools.s"
 	@echo "... src/raven/trajectory.o"
 	@echo "... src/raven/trajectory.i"
 	@echo "... src/raven/trajectory.s"
