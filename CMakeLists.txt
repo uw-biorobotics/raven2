@@ -23,7 +23,7 @@ generate_messages(
 )
 
 generate_dynamic_reconfigure_options(
-  cfg/MyStuff.cfg
+  cfg/Raven2.cfg
 )
 
 catkin_package(
