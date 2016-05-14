@@ -73,6 +73,8 @@ extern unsigned int soft_estopped;
 *   \param begin_homing      Flag to start the homing process
 *
 *   \ingroup Control
+*
+*	\return 0
 *  
 *   \todo   Homing limits should be Amps not DAC units (see homing()).
 */
@@ -217,6 +219,8 @@ int raven_homing(struct device *device0, struct param_pass *currParams, int begi
 *
 *	\ingroup Control
 *
+*	\return 0
+*
 * 	\todo  Rationalize the sign changes on GREEN_ARM vs GOLD_ARM (see IFDEF below).
 * 	\todo  This MAYBE needs to be changed to support device specific parameter changes read from a config file or ROS service.
 */
@@ -321,8 +325,9 @@ int set_joints_known_pos(struct mechanism* _mech, int tool_only)
 *
 * 	\ingroup Control
 *
-*   \todo   Explain why sinusoid is used for homing???
-*   \todo   Homing limits should be Amps not DAC units
+*	\return void
+*
+*   \todo  Homing limits should be Amps not DAC units
 *   \todo  Change square vs. diamond to a config-file based runtime system instead of #ifdef
 */
 void homing(struct DOF* _joint)
@@ -401,6 +406,8 @@ void homing(struct DOF* _joint)
 *	\param a_tool The tool being controlled.
 *
 * 	\ingroup Control
+*
+*	\return void
 */
 void homing(struct DOF* _joint, tool a_tool)
 {
@@ -528,6 +535,9 @@ const int homing_max_dac[8] = {2500,  //shoulder
  *  \param _joint    A joint struct
  *
  * 	\ingroup Control
+ *
+ *	\return 1 if DAC output is greater than the maximum allowable
+ *			0 otherwise
  *
  *  \todo Homing limits should be Amps not DAC units (see homing()).
  */

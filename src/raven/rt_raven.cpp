@@ -90,6 +90,9 @@ extern int initialized; //Defined in rt_process_preempt.cpp
 * 	\param currParam param_pass struct defined in DS1.h
 *
 *	\ingroup Control
+*
+*	\return 0 on success
+*		   -1 on no action
 */
 int controlRaven(struct device *device0, struct param_pass *currParams){
     int ret = 0;
@@ -196,7 +199,8 @@ int controlRaven(struct device *device0, struct param_pass *currParams){
 *  	\param device0 robot_device struct defined in DS0.h
 *  	\param currParams param_pass struct defined in DS1.h
 *
-*  	\return -1 if Pedal is up and 0 when torque is applied to DAC
+*  	\return 0 when torque is applied to DAC
+*		   -1 if Pedal is up and 
 *
 *	\ingroup Control
 */
@@ -239,7 +243,7 @@ int raven_cartesian_space_command(struct device *device0, struct param_pass *cur
     }
 
     // Gravity compensation calculation
-    getGravityTorque(*device0, *currParams);
+    getGravityTorque(*device0, *currParams); /// computes tau, then tau_g added??
     _mech = NULL;  _joint = NULL;
     while ( loop_over_joints(device0, _mech, _joint, i,j) )
     {
@@ -266,6 +270,8 @@ int raven_cartesian_space_command(struct device *device0, struct param_pass *cur
 *
 *  	\param device0 is robot_device struct defined in DS0.h
 *  	\param currParams is param_pass struct defined in DS1.h
+*
+*  	\return 0 when torque is applied to DAC
 *
 *  	\ingroup Control
 */
@@ -295,7 +301,7 @@ int raven_sinusoidal_joint_motion(struct device *device0, struct param_pass *cur
                 _joint->tau_d = 0;
             }
         }
-        return 0;
+        return 0; 
     }
 
 
@@ -364,6 +370,8 @@ int raven_sinusoidal_joint_motion(struct device *device0, struct param_pass *cur
 *  	\param device0 is robot_device struct defined in DS0.h
 *  	\param currParams is param_pass struct defined in DS1.h
 *
+*  	\return 0 when torque is applied to DAC
+*
 *  	\ingroup Control
 */
 int applyTorque(struct device *device0, struct param_pass *currParams)
@@ -407,6 +415,8 @@ int applyTorque(struct device *device0, struct param_pass *currParams)
 *
 *  	\param device0 is robot_device struct defined in DS0.h
 *  	\param currParams is param_pass struct defined in DS1.h
+*
+*  	\return 0 when torque is applied to DAC
 *
 *	\ingroup Control
 */
@@ -489,6 +499,8 @@ int raven_motor_position_control(struct device *device0, struct param_pass *curr
 *
 * 	\param device0 is robot_device struct defined in DS0.h
 * 	\param currParams is param_pass struct defined in DS1.h
+*
+*  	\return 0 when torque is applied to DAC
 *
 * 	\ingroup Control
 */

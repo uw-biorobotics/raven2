@@ -56,11 +56,13 @@ int getkey();
 *
 * 	\brief this thread is dedicated to console io
 *
-* 	\desc 
+* 	\desc user sends commands via console where output messages are also displayed
 *
 * 	\param a pointer to void
 *
 *	\ingroup IO
+*
+*	\return void
 */
 void *console_process(void *)
 {
@@ -202,6 +204,8 @@ void *console_process(void *)
 * 	\return returns keyboard character
 *
 *	\ingroup IO
+*
+*	\return character int
 */
 int getkey() {
     int character;
@@ -232,6 +236,8 @@ int getkey() {
 *	\brief prints out all the robot's states on the console window
 *
 *	\ingroup IO
+*
+*	\return void
 */
 void outputRobotState(){
     cout<<"Runlevel: "<< static_cast<unsigned short int>(device0.runlevel)<<"\n";

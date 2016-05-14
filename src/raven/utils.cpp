@@ -22,8 +22,6 @@
  *
  * 	\brief some common utility functions
  *
- *	\desc 
- *
  * 	\author Kenneth Fodero 
  * 	
  *	\date 2005
@@ -44,7 +42,9 @@ extern int NUM_MECH;
 * 	\param value int value to convert
 * 	\param target short int pointer that points to the converted short value
 *
-* 	\return 1 if overflow; -1 if underflow; 0 if no problem
+* 	\return 1 if overflow
+*		   -1 if underflow
+*			0 if no problem
 */
 int toShort(int value, short int *target)
 {
@@ -92,7 +92,8 @@ int toShort(int value, short int *target)
 * 	\param mechnum integer value represents the mechanism id, and it is updated at the end of the function
 * 	\param jnum    integer value represents the joint id, and it is updated at the end of the function
 * 
-*	\return 0 if reaches last joint index; 1 otherwise
+*	\return 0 if reaches last joint index
+*			1 otherwise
 */
 int loop_over_joints(struct robot_device* device0, struct mechanism*& _mech, struct DOF*& _joint, int& mechnum, int& jnum)
 {
@@ -147,7 +148,8 @@ int loop_over_joints(struct robot_device* device0, struct mechanism*& _mech, str
 * 	\param _joint  a pointer points to the DOF struct, and it is updated at the end of the function
 * 	\param jnum    integer value represents the joint id, and it is updated at the end of the function
 * 	
-*	\return 0 if reaches to last joint index; 1 otherwise
+*	\return 0 if reaches to last joint index
+*			1 otherwise
 */
 int loop_over_joints(struct mechanism* _mech, struct DOF*& _joint, int& jnum)
 {
@@ -182,7 +184,8 @@ int loop_over_joints(struct mechanism* _mech, struct DOF*& _joint, int& jnum)
 * 
 *	\param _joint a DOF struct 
 * 
-*	\return 1 if the joint is a toolDOF; 0 otherwise
+*	\return 1 if the joint is a toolDOF
+*			0 otherwise
 */
 int is_toolDOF(struct DOF *_joint){
     return is_toolDOF(_joint->type);
@@ -195,7 +198,8 @@ int is_toolDOF(struct DOF *_joint){
 * 
 *	\param _joint an integer value of joint type
 * 
-*	\return 1 if the joint is a toolDOF; 0 otherwise
+*	\return 1 if the joint is a toolDOF
+*			0 otherwise
 */
 int is_toolDOF(int jointType)
 {
@@ -219,7 +223,8 @@ int is_toolDOF(int jointType)
 *
 * 	\param 	mech    pointer to the mechanism struct
 *
-* 	\return 1 if and only if all toolDOFs are ready, otherwise 0
+* 	\return 1 if and only if all toolDOFs are ready
+*			0 otherwise
 */
 int tools_ready(struct mechanism *mech)
 {
@@ -244,7 +249,8 @@ int tools_ready(struct mechanism *mech)
 * 
 *	\param mech  pointer to the robot_device struct
 * 
-*	\return 1 if and only if all DOFS are ready, 0 otherwise
+*	\return 1 if and only if all DOFS are ready
+*			0 otherwise
 */
 int robot_ready(struct robot_device* device0)
 {
@@ -269,6 +275,8 @@ int robot_ready(struct robot_device* device0)
 *	\param str 		the string
 * 	\param result   the resulting string
 * 	\param delim    the delimeter
+*
+*	\return void
 */
 void strtoken(char *str, char *result, char delim)
 {
@@ -310,6 +318,8 @@ void strtoken(char *str, char *result, char delim)
 * 
 *	\param src  the source string
 * 	\param dest the resulting string
+*
+*	\return void
 */
 void strcopy(const char *src, char *dest)
 {
@@ -335,6 +345,8 @@ void strcopy(const char *src, char *dest)
 * 	\param time2 - struct  timespec
 * 
 *	\return time1-time2  or  (0,0) if time2>time1
+*
+*	\return timespec struct with time interval result.tv_nsec
 */
 struct  timespec  tsSubtract ( struct  timespec  time1,
                                            struct  timespec  time2)
@@ -373,6 +385,8 @@ struct  timespec  tsSubtract ( struct  timespec  time1,
 * 
 *	\param Q   float pointer
 * 	\param mat float 3x3 multidimensional array
+*
+*	\return void
 */
 void getQuaternion(float* Q, float mat[3][3])
 {
@@ -393,6 +407,8 @@ void getQuaternion(float* Q, float mat[3][3])
 *	\brief set the desired position to the robots current position
 * 
 *	\param device0 a pointer points to the robot_device struct
+*
+*	\return void
 */
 void set_posd_to_pos(struct robot_device* device0)
 {
