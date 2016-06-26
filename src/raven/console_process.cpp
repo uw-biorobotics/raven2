@@ -18,12 +18,16 @@
  */
 
 /**
-*  \file: console_process.cpp
-*  \author Hawkeye
-*  \version 
-*  \brief Lets the user to set different control modes and outputs data to the console periodically.
-*   User can toggle to either specify joint torque, set control mode, or toggle console messages.
-*  
+*  	\file console_process.cpp
+*
+*	\brief Lets the user set different control modes and outputs data to the console periodically.
+*   	User can toggle to either specify joint torque, set control mode, or toggle console messages.
+*
+*  	\author Hawkeye King
+*
+*  	\date ??
+*
+*  	\ingroup IO
 */
 
 #include <stdio.h>
@@ -47,9 +51,18 @@ extern std::queue<char*> msgqueue;
 void outputRobotState();
 int getkey();
 
-/**\fn void *console_process(void *)
- * \brief this thread dedicated to console io
- * \param a pointer to void
+/**
+*	\fn void *console_process(void *)
+*
+* 	\brief this thread is dedicated to console io
+*
+* 	\desc user sends commands via console where output messages are also displayed
+*
+* 	\param a pointer to void
+*
+*	\ingroup IO
+*
+*	\return void
 */
 void *console_process(void *)
 {
@@ -88,7 +101,7 @@ void *console_process(void *)
             case 'z':
             {
                 output_robot = 0;
-                setDofTorque(0,0,0);
+                setDofTorque(0,0,0);  /// only mech 0 dof 0 -> 0 torque??
                 log_msg("Torque zero'd");
                 print_msg=1;
                 break;
@@ -169,24 +182,31 @@ void *console_process(void *)
 
         usleep(33*1e3); //Sleep for 1/30 seconds
 
-	// Output log messages
-	while (msgqueue.size() > 0){
-	  char* buf = msgqueue.front();
-	  //std::cout << "buf\n" << buf << std::endl;
-	  ROS_INFO("%s", buf);
-	  msgqueue.pop();
-	  free(buf);
-	}
+		// Output log messages
+		while (msgqueue.size() > 0){
+		  char* buf = msgqueue.front();
+		  //std::cout << "buf\n" << buf << std::endl;
+		  ROS_INFO("%s", buf);
+		  msgqueue.pop();
+		  free(buf);
+		}
 
     }
 
     return(NULL);
 }
 
-/**\fn int getkey()
- * \brief gets keyboard character for switch case's of console_process()
- * \return return keyboard character
- */
+/**
+*	\fn int getkey()
+*
+*	\brief gets keyboard character for switch case's of console_process()
+*
+* 	\return returns keyboard character
+*
+*	\ingroup IO
+*
+*	\return character int
+*/
 int getkey() {
     int character;
     struct termios orig_term_attr;
@@ -210,12 +230,17 @@ int getkey() {
     return character;
 }
 
-/**\fn void outputRobotState()
- * \brief prints out all the robots states on the console window
- * \return void
- */
+/**
+*	\fn void outputRobotState()
+*
+*	\brief prints out all the robot's states on the console window
+*
+*	\ingroup IO
+*
+*	\return void
+*/
 void outputRobotState(){
-    cout<<"Runevel: "<< static_cast<unsigned short int>(device0.runlevel)<<"\n";
+    cout<<"Runlevel: "<< static_cast<unsigned short int>(device0.runlevel)<<"\n";
     for (int j = 0; j < 2; j++)
     {
         if (device0.mech[j].type == GOLD_ARM)

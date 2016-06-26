@@ -18,13 +18,15 @@
  */
 
 /**
-*
 *   \file homing.h
 *
-*   Created 3-Nov-2011 by Hawkeye King
+*	\brief Based on concept by UCSC, I implement a procedure for joint position discovery from relative encoders.
 *
-*      Based on concept by UCSC, I implement a procedure for joint position discovery from relative encoders.
+*	\author	Hawkeye King
+*	
+*   \date 3-Nov-2011 
 *
+*   \ingroup Control
 */
 #include "DS0.h"
 
@@ -35,7 +37,6 @@ void homing(struct DOF*);
 /** prototype for homing()
  */
 void homing(struct DOF*, tool);
-
 
 /** prototype for check_homing_condition()
  */
