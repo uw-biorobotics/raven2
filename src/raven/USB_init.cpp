@@ -23,7 +23,7 @@
 *	\brief USB initialization module
 *
 *	\fn These are the 9 functions in USB_init.cpp file. 
-*           Functions that are marked "*" are called explicitly called from other files.
+*           Functions marked with "*" are called explicitly from other files.
 * 		(1) getdir		 
 *       	(2) get_board_id_from_filename	 
 * 		(3) write_zeros to board	:uses (8)
