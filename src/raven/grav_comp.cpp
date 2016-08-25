@@ -28,7 +28,7 @@
  *  \fn    These are the 3 functions in grav_comp.cpp file. 
  *         Functions marked with "*" are called explicitly from other files.
  *             (1) getCurrentG
- * 	       *(2) getGravityTorque			:uses (1)(3)
+ * 	      *(2) getGravityTorque			:uses (1)(3)
  *             (3) getMotorTorqueFromJointTorque
  * 
  *  \log   Re-written March 2013 by Andy Lewis and Hawkeye King
