@@ -25,6 +25,12 @@
 *
 *  	\author Hawkeye King
 *
+* 	\fn These are the 3 functions in console_process.cpp file. 
+*           Functions marked with "*" are called explicitly from other files.
+* 	       *(1) getdir		 	:uses (2)(3)
+*       	(2) get_board_id_from_filename	 
+* 		(3) write_zeros to board	
+*
 *  	\date ??
 *
 *  	\ingroup IO
