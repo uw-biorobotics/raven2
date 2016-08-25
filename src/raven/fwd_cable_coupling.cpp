@@ -19,9 +19,21 @@
 
 /**
 *  \file fwd_cable_coupling.cpp
-*  \brief Calculate the forward cable coupling from a motor space Pose,
-*         (m1, m2,m3) express the desired joint pose (th1, th2, d3)
-*  \author Hawkeye
+* 
+*  	\brief  Calculate the forward cable coupling from a motor space Pose,
+*         	(m1, m2,m3) express the desired joint pose (th1, th2, d3)
+* 
+* 	\desc	The fwdCableCoupling is called by function controlRaven in rt_raven.cpp file. 
+*		To translate from motor position/velocity to joint position/velocity.
+* 
+* 	\fn These are the 4 functions in fwd_cable_coupling.cpp file. 
+*           Functions marked with "*" are called explicitly from other files.
+* 	       *(1) fwdCableCoupling		:uses (2)
+* 		(2) fwdMechCableCoupling
+* 	       *(3) fwdTorqueCoupling		:uses (4)
+* 		(4) fwdMechTorqueCoupling
+* 
+*  	\author Hawkeye
 */
 
 #include "fwd_cable_coupling.h"
