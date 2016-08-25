@@ -18,10 +18,20 @@
  */
 
  /**\file get_USB_packet.cpp
- * \author Kenneth Fodero
- * \date 2005
- * \brief contains functions for initializing the robot
- * intializes the DOF structure AND runs initialization routine
+  * 
+ * 	\brief 	contains functions for initializing the robot
+ * 		intializes the DOF structure AND runs initialization routine
+ * 
+ * 	\fn These are the 4 functions in get_USB_packet.cpp file. 
+ *          Functions marked with "*" are called explicitly from other files.
+ * 	       *(1) initiateUSBGet		:uses USB_init.cpp (6)
+ * 	       *(2) getUSBPackets		:uses (3)
+ * 		(3) getUSBPacket		:uses (4), USB_init.cpp (7)
+ * 		(4) processEncoderPacket	:uses dof.cpp (1)
+ * 
+ * 	\author Kenneth Fodero
+ * 
+ * 	\date 2005
 */
 
 
