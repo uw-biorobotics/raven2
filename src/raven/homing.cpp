@@ -27,13 +27,24 @@
 *	\desc raven_homing called 1000 times per sec during INIT mode. Moves joints
 * 			to their limits (hard stop indicated by increased current) and then
 *			to their predefined "home" position.
-*
+* 
+*	\fn These are the 5 functions in homing.cpp file. 
+*           Functions marked with "*" are called explicitly from other files.
+* 	       *(1) raven_homing	 	:uses (2)(3)(4)(5), utils.cpp (2)(3)(4)(6), inv_cable_coupling.cpp (1), 
+*                                                     trajectory.cpp (3), t_to_DAC_val.cpp (1), pid_control.cpp (1)(2)
+*       	(2) set_joints_known_pos	:uses (2)(3)(4)(5), utils.cpp (3)(4), state_estimate.cpp (2)(3),
+*                                                     inv_cable_coupling.cpp (1), fwd_cable_coupling.cpp (2)
+* 		(3) homing(joint)		:uses trajectory.cpp (1)(2)(7)(8)
+* 		(4) homing(joint,tool)
+* 		(5) check_homing_condition
+* 
 *	\author Hawkeye King
 *
 *   \date 3-Nov-2011
 *
 *	\ingroup Control
 */
+
 #include <stdlib.h>
 
 #include "trajectory.h"
