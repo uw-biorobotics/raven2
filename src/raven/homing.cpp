@@ -40,7 +40,7 @@
 * 
 *	\author Hawkeye King
 *
-*   \date 3-Nov-2011
+*       \date 3-Nov-2011
 *
 *	\ingroup Control
 */
