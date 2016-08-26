@@ -18,21 +18,25 @@
  */
 
 
-/*******************************
+/* 
+*  \file inv_cable_coupling.cpp
+* 
+*  \brief Calculate the inverse cable coupling from a Joint Space Pose,
+* 	(th1, th2, d3) express the desired motor pose (m1, m2, m3)
 *
-* File: inv_cable_coupling.c
+*  \fn:These are the 2 functions in inv_cable_coupling.cpp file. 
+*      Functions marked with "*" are called explicitly from other files.
+* 	   *(1) invCableCoupling	 	:uses (2)
+*      	    (2) invMechCableCoupling	
 *
-* \ingroup Control
-* \ingroup Tool
+*  \ingroup Control
+*           Tool
 *
-* \brief Calculate the inverse cable coupling from a Joint Space Pose,
-* (th1, th2, d3) express the desired motor pose (m1, m2, m3)
+*  \todo standardize numbering system 0 or 1 origin for motor designation
+*  \todo standardize 3 or 4 insertion axis
+*  \todo analyze (DANYING) coupling and convert to matrix maths
 *
-* \todo standardize numbering system 0 or 1 origin for motor designation
-* \todo standardize 3 or 4 insertion axis
-* \todo analyze (DANYING) coupling and convert to matrix maths
-*
-**********************************/
+*/
 
 #include "inv_cable_coupling.h"
 #include "log.h"
