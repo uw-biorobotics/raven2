@@ -16,13 +16,22 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Raven 2 Control.  If not, see <http://www.gnu.org/licenses/>.
  */
-
- /**\file init.cpp
- * \author Hawkeye King
- * \date 7/29/2005
- * \version
- * \brief contains functions for initializing the robot
- * intializes the DOF structure AND runs initialization routine
+ 
+/**	\file 	init.cpp
+*
+*	\brief 	contains functions for initializing the robot
+* 	       	intializes the DOF structure AND runs initialization routine
+*
+* 	\fn These are the 4 functions in init.cpp file. 
+*           Functions marked with "*" are called explicitly from other files.
+* 	       *(1) initRobotData	 	:uses (2)(4)
+*       	(2) intDOFs	 
+* 	       *(3) init_ravengains
+*		(4) setStartXYZ			:uses fwd_cable_coupling.cpp (1), r2_kinematics.cpp (2), local_io.cpp (6)
+*
+*  	\date 	7/29/2005
+* 
+*  	\author Hawkeye King
 */
 
 #include <ros/console.h>
