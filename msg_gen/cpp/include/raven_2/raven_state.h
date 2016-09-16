@@ -34,6 +34,7 @@ struct raven_state_ {
   , pos_d()
   , dt()
   , encVals()
+  , dac_val()
   , tau()
   , mpos()
   , jpos()
@@ -43,6 +44,8 @@ struct raven_state_ {
   , jpos_d()
   , grasp_d()
   , encoffsets()
+  , jac_vel()
+  , jac_f()
   {
     type.assign(0);
     pos.assign(0);
@@ -50,6 +53,7 @@ struct raven_state_ {
     ori_d.assign(0.0);
     pos_d.assign(0);
     encVals.assign(0);
+    dac_val.assign(0);
     tau.assign(0.0);
     mpos.assign(0.0);
     jpos.assign(0.0);
@@ -59,6 +63,8 @@ struct raven_state_ {
     jpos_d.assign(0.0);
     grasp_d.assign(0.0);
     encoffsets.assign(0.0);
+    jac_vel.assign(0.0);
+    jac_f.assign(0.0);
   }
 
   raven_state_(const ContainerAllocator& _alloc)
@@ -73,6 +79,7 @@ struct raven_state_ {
   , pos_d()
   , dt()
   , encVals()
+  , dac_val()
   , tau()
   , mpos()
   , jpos()
@@ -82,6 +89,8 @@ struct raven_state_ {
   , jpos_d()
   , grasp_d()
   , encoffsets()
+  , jac_vel()
+  , jac_f()
   {
     type.assign(0);
     pos.assign(0);
@@ -89,6 +98,7 @@ struct raven_state_ {
     ori_d.assign(0.0);
     pos_d.assign(0);
     encVals.assign(0);
+    dac_val.assign(0);
     tau.assign(0.0);
     mpos.assign(0.0);
     jpos.assign(0.0);
@@ -98,6 +108,8 @@ struct raven_state_ {
     jpos_d.assign(0.0);
     grasp_d.assign(0.0);
     encoffsets.assign(0.0);
+    jac_vel.assign(0.0);
+    jac_f.assign(0.0);
   }
 
   typedef  ::std_msgs::Header_<ContainerAllocator>  _hdr_type;
@@ -133,6 +145,9 @@ struct raven_state_ {
   typedef boost::array<int32_t, 16>  _encVals_type;
   boost::array<int32_t, 16>  encVals;
 
+  typedef boost::array<int32_t, 16>  _dac_val_type;
+  boost::array<int32_t, 16>  dac_val;
+
   typedef boost::array<float, 16>  _tau_type;
   boost::array<float, 16>  tau;
 
@@ -159,6 +174,12 @@ struct raven_state_ {
 
   typedef boost::array<float, 16>  _encoffsets_type;
   boost::array<float, 16>  encoffsets;
+
+  typedef boost::array<float, 12>  _jac_vel_type;
+  boost::array<float, 12>  jac_vel;
+
+  typedef boost::array<float, 12>  _jac_f_type;
+  boost::array<float, 12>  jac_f;
 
 
   typedef boost::shared_ptr< ::raven_2::raven_state_<ContainerAllocator> > Ptr;
@@ -188,12 +209,12 @@ template<class ContainerAllocator>
 struct MD5Sum< ::raven_2::raven_state_<ContainerAllocator> > {
   static const char* value() 
   {
-    return "173f52385e84b98995f307af4bea25a2";
+    return "ce9e7f4969049d8bb365de3c98461a01";
   }
 
   static const char* value(const  ::raven_2::raven_state_<ContainerAllocator> &) { return value(); } 
-  static const uint64_t static_value1 = 0x173f52385e84b989ULL;
-  static const uint64_t static_value2 = 0x95f307af4bea25a2ULL;
+  static const uint64_t static_value1 = 0xce9e7f4969049d8bULL;
+  static const uint64_t static_value2 = 0xb365de3c98461a01ULL;
 };
 
 template<class ContainerAllocator>
@@ -210,26 +231,29 @@ template<class ContainerAllocator>
 struct Definition< ::raven_2::raven_state_<ContainerAllocator> > {
   static const char* value() 
   {
-    return "Header      hdr\n\
-int32       runlevel\n\
-int32       sublevel\n\
-int32       last_seq\n\
-int32[2]    type\n\
-int32[6]    pos\n\
-float32[18]   ori\n\
-float32[18]   ori_d\n\
-int32[6]    pos_d\n\
-duration    dt\n\
-int32[16]   encVals\n\
-float32[16] tau\n\
-float32[16] mpos\n\
-float32[16] jpos\n\
-float32[16] mvel\n\
-float32[16] jvel\n\
-float32[16] mpos_d\n\
-float32[16] jpos_d\n\
-float32[2]  grasp_d\n\
-float32[16] encoffsets\n\
+    return "Header      	hdr\n\
+int32       	runlevel\n\
+int32       	sublevel\n\
+int32       	last_seq\n\
+int32[2]    	type\n\
+int32[6]    	pos\n\
+float32[18]   	ori\n\
+float32[18]   	ori_d\n\
+int32[6]    	pos_d\n\
+duration    	dt\n\
+int32[16]   	encVals\n\
+int32[16]       dac_val\n\
+float32[16] 	tau\n\
+float32[16] 	mpos\n\
+float32[16] 	jpos\n\
+float32[16] 	mvel\n\
+float32[16] 	jvel\n\
+float32[16] 	mpos_d\n\
+float32[16] 	jpos_d\n\
+float32[2]  	grasp_d\n\
+float32[16] 	encoffsets\n\
+float32[12] 	jac_vel\n\
+float32[12] 	jac_f\n\
 \n\
 ================================================================================\n\
 MSG: std_msgs/Header\n\
@@ -278,6 +302,7 @@ template<class ContainerAllocator> struct Serializer< ::raven_2::raven_state_<Co
     stream.next(m.pos_d);
     stream.next(m.dt);
     stream.next(m.encVals);
+    stream.next(m.dac_val);
     stream.next(m.tau);
     stream.next(m.mpos);
     stream.next(m.jpos);
@@ -287,6 +312,8 @@ template<class ContainerAllocator> struct Serializer< ::raven_2::raven_state_<Co
     stream.next(m.jpos_d);
     stream.next(m.grasp_d);
     stream.next(m.encoffsets);
+    stream.next(m.jac_vel);
+    stream.next(m.jac_f);
   }
 
   ROS_DECLARE_ALLINONE_SERIALIZER;
@@ -351,6 +378,12 @@ s << std::endl;
       s << indent << "  encVals[" << i << "]: ";
       Printer<int32_t>::stream(s, indent + "  ", v.encVals[i]);
     }
+    s << indent << "dac_val[]" << std::endl;
+    for (size_t i = 0; i < v.dac_val.size(); ++i)
+    {
+      s << indent << "  dac_val[" << i << "]: ";
+      Printer<int32_t>::stream(s, indent + "  ", v.dac_val[i]);
+    }
     s << indent << "tau[]" << std::endl;
     for (size_t i = 0; i < v.tau.size(); ++i)
     {
@@ -404,6 +437,18 @@ s << std::endl;
     {
       s << indent << "  encoffsets[" << i << "]: ";
       Printer<float>::stream(s, indent + "  ", v.encoffsets[i]);
+    }
+    s << indent << "jac_vel[]" << std::endl;
+    for (size_t i = 0; i < v.jac_vel.size(); ++i)
+    {
+      s << indent << "  jac_vel[" << i << "]: ";
+      Printer<float>::stream(s, indent + "  ", v.jac_vel[i]);
+    }
+    s << indent << "jac_f[]" << std::endl;
+    for (size_t i = 0; i < v.jac_f.size(); ++i)
+    {
+      s << indent << "  jac_f[" << i << "]: ";
+      Printer<float>::stream(s, indent + "  ", v.jac_f[i]);
     }
   }
 };

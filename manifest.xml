@@ -15,6 +15,7 @@
   <depend package="tf"/>
   <depend package="dynamic_reconfigure" />
   <depend package="geometry_msgs" />
+  <build_depend>eigen</build_depend>
   <export>
 	<cpp cflags="-I${prefix}/include -I${prefix}/include/raven -Wno-unused-result -Wno-missing-field-initializers" lflags="-Lpthread -lrt"/>
   </export>

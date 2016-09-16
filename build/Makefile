@@ -244,19 +244,6 @@ clean_test_results/fast:
 .PHONY : clean_test_results/fast
 
 #=============================================================================
-# Target rules for targets named clean_test_results_raven_2
-
-# Build rule for target.
-clean_test_results_raven_2: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 clean_test_results_raven_2
-.PHONY : clean_test_results_raven_2
-
-# fast build rule for target.
-clean_test_results_raven_2/fast:
-	$(MAKE) -f CMakeFiles/clean_test_results_raven_2.dir/build.make CMakeFiles/clean_test_results_raven_2.dir/build
-.PHONY : clean_test_results_raven_2/fast
-
-#=============================================================================
 # Target rules for targets named download_extra_data
 
 # Build rule for target.
@@ -1020,6 +1007,30 @@ src/raven/put_USB_packet.cpp.s:
 	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/put_USB_packet.cpp.s
 .PHONY : src/raven/put_USB_packet.cpp.s
 
+src/raven/r2_jacobian.o: src/raven/r2_jacobian.cpp.o
+.PHONY : src/raven/r2_jacobian.o
+
+# target to build an object file
+src/raven/r2_jacobian.cpp.o:
+	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/r2_jacobian.cpp.o
+.PHONY : src/raven/r2_jacobian.cpp.o
+
+src/raven/r2_jacobian.i: src/raven/r2_jacobian.cpp.i
+.PHONY : src/raven/r2_jacobian.i
+
+# target to preprocess a source file
+src/raven/r2_jacobian.cpp.i:
+	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/r2_jacobian.cpp.i
+.PHONY : src/raven/r2_jacobian.cpp.i
+
+src/raven/r2_jacobian.s: src/raven/r2_jacobian.cpp.s
+.PHONY : src/raven/r2_jacobian.s
+
+# target to generate assembly for a file
+src/raven/r2_jacobian.cpp.s:
+	$(MAKE) -f CMakeFiles/r2_control.dir/build.make CMakeFiles/r2_control.dir/src/raven/r2_jacobian.cpp.s
+.PHONY : src/raven/r2_jacobian.cpp.s
+
 src/raven/r2_kinematics.o: src/raven/r2_kinematics.cpp.o
 .PHONY : src/raven/r2_kinematics.o
 
@@ -1322,7 +1333,6 @@ help:
 	@echo "... ROSBUILD_gensrv_lisp"
 	@echo "... _catkin_empty_exported_target"
 	@echo "... clean_test_results"
-	@echo "... clean_test_results_raven_2"
 	@echo "... download_extra_data"
 	@echo "... doxygen"
 	@echo "... edit_cache"
@@ -1412,6 +1422,9 @@ help:
 	@echo "... src/raven/put_USB_packet.o"
 	@echo "... src/raven/put_USB_packet.i"
 	@echo "... src/raven/put_USB_packet.s"
+	@echo "... src/raven/r2_jacobian.o"
+	@echo "... src/raven/r2_jacobian.i"
+	@echo "... src/raven/r2_jacobian.s"
 	@echo "... src/raven/r2_kinematics.o"
 	@echo "... src/raven/r2_kinematics.i"
 	@echo "... src/raven/r2_kinematics.s"

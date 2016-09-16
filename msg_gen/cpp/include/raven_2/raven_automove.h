@@ -130,6 +130,11 @@ Quaternion rotation\n\
 ================================================================================\n\
 MSG: geometry_msgs/Vector3\n\
 # This represents a vector in free space. \n\
+# It is only meant to represent a direction. Therefore, it does not\n\
+# make sense to apply a translation to it (e.g., when applying a \n\
+# generic rigid transformation to a Vector3, tf2 will only apply the\n\
+# rotation). If you want your data to be translatable too, use the\n\
+# geometry_msgs/Point message instead.\n\
 \n\
 float64 x\n\
 float64 y\n\

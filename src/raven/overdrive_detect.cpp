@@ -37,15 +37,15 @@ extern int soft_estopped;//Defined in rt_process_preempt.cpp
 extern unsigned long int gTime;//Defined in rt_process_preempt.cpp
 
 /**
- * \brief detect over current
+ * \brief detect over current and calculate commanded torque
  * \param device0 pointer to robot_device struct defined in DS0.h
  *
  * \output TRUE if the instant DAC value is too high
  * \output FALSE otherwise
  *
- * This function loops through all active joints to detect currrent situations
- * that could cause overheating, it checks joint current_cmd against MAX_INST_DAC that is
- * defined in defines.h
+ * This function loops through all active joints to detect current situations
+ * that could cause overheating or breakage, it checks joint current_cmd against
+ * MAX_INST_DAC that is defined in defines.h
  */
 int overdriveDetect(struct device *device0)
 {
@@ -83,6 +83,14 @@ int overdriveDetect(struct device *device0)
                     err_msg("Joint type %d is current clipped low (%d) at DAC:%d\n", _joint->type, _dac_max*-1,  _joint->current_cmd);
                 _joint->current_cmd = _dac_max*-1;
             }
+			
+			// \todo find a better place to calculate the actual commanded torque
+            //calculate actual joint torque at motor capstan from commanded dac value
+            double _tau_per_amp = DOF_types[_joint->type].tau_per_amp;
+            double _amp_per_DAC = 1 / DOF_types[_joint->type].DAC_per_amp;
+            double _tr = DOF_types[_joint->type].TR;
+            double gearbox = (j < 3) ? GEAR_BOX_GP42_TR : GEAR_BOX_GP32_TR; //use the big gearbox for the first 3 joints
+            _joint->tau = _joint->current_cmd * _amp_per_DAC * _tau_per_amp; // * gearbox; //dac * amp/dac * tau/amp * (gearbox & cable transmission)
         }
 
     return ret;

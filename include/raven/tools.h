@@ -24,7 +24,6 @@
  *
  *  \date Oct 17, 2014
  *  \author Andrew Lewis
- *  \author
  *  \author Danying Hu, David Caballero
  */
 

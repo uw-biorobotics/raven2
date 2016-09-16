@@ -38,6 +38,9 @@ endif()
 include_directories(src/raven)
 include_directories(include)
 include_directories(include/raven)
+include_directories(/usr/local/eigen3)
+find_package(cmake_modules REQUIRED)
+find_package(Eigen REQUIRED)
 rosbuild_find_ros_package(dynamic_reconfigure)
 include(${dynamic_reconfigure_PACKAGE_PATH}/cmake/cfgbuild.cmake)
 gencfg()
@@ -85,4 +88,5 @@ src/raven/utils.cpp
 src/raven/reconfigure.cpp
 #src/raven/velocity.cpp
 src/raven/tools.cpp
+src/raven/r2_jacobian.cpp
 )

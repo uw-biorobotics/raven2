@@ -32,8 +32,11 @@
 
 const int USE_ITP = 1;
 
+const static double d2r = M_PI/180;
+float xRot_rad = -25 * d2r;
+
 /** \fn void fromITP(struct position *delpos, tf::Quaternion &delrot, int armserial)
- * \brief Transform a position increment and an orientation increment from ITP coordinate frame into local robot coordinate frame.
+ * \brief Transform a position increment and an orientation increment from ITP coordinate frame into local robot zero coordinate frame.
  *        Do this using inv(R)*C*R : R= transform, C= increment
  * \param delpos - a pointer points to a position struct
  * \param delrot - a reference of a btQuanternion class
@@ -42,8 +45,24 @@ const int USE_ITP = 1;
 */
 void fromITP(struct position *delpos, tf::Quaternion &delrot, int armserial)
 {
+#ifdef ORIENTATION_V
+
+    const tf::Transform ITP2Gold ( tf::Matrix3x3 (0,0,-1,  0,1,0,  1,0,0), tf::Vector3 (0,0,0) );
+    const tf::Transform ITP2Green( tf::Matrix3x3 (0,0,-1,  0,1,0,  1,0,0), tf::Vector3 (0,0,0) );
+
+    const tf::Transform GoldZ25  ( tf::Matrix3x3 (cos(-xRot_rad),-sin(-xRot_rad),0,  sin(-xRot_rad),cos(-xRot_rad),0,  0,0,1), tf::Vector3 (0,0,0) );
+    const tf::Transform GreenZ25( tf::Matrix3x3 (cos(xRot_rad),-sin(xRot_rad),0,  sin(xRot_rad),cos(xRot_rad),0,  0,0,1), tf::Vector3 (0,0,0) );
+
+    //const tf::Transform GoldZ25  ( tf::Matrix3x3 (0.906,0.423,0,  -0.423,0.906,0,  0,0,1), tf::Vector3 (0,0,0) );
+    //const tf::Transform GreenZ25( tf::Matrix3x3 (0.906,-0.423,0,  0.423,0.906,0,  0,0,1), tf::Vector3 (0,0,0) );
+
+#else
+
     const tf::Transform ITP2Gold ( tf::Matrix3x3 (0,0,-1,  -1,0,0,  0,1,0), tf::Vector3 (0,0,0) );
     const tf::Transform ITP2Green( tf::Matrix3x3 (0,0,-1,  1,0,0,  0,-1,0), tf::Vector3 (0,0,0) );
+
+#endif
+
     tf::Transform incr (delrot, tf::Vector3(delpos->x, delpos->y, delpos->z));
 
     if (armserial == GOLD_ARM_SERIAL)
@@ -55,6 +74,17 @@ void fromITP(struct position *delpos, tf::Quaternion &delrot, int armserial)
         incr = ITP2Green * incr * ITP2Green.inverse();
     }
 
+
+#ifdef ORIENTATION_V
+    if (armserial == GOLD_ARM_SERIAL)
+    {
+        incr = GoldZ25  * incr * GoldZ25.inverse();
+    }
+    else
+    {
+        incr = GreenZ25 * incr * GreenZ25.inverse();
+    }
+#endif
     delrot = incr.getRotation();
     delpos->x = (int)(incr.getOrigin()[0]);
     delpos->y = (int)(incr.getOrigin()[1]);

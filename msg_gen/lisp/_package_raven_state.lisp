@@ -21,6 +21,8 @@
           DT
           ENCVALS-VAL
           ENCVALS
+          DAC_VAL-VAL
+          DAC_VAL
           TAU-VAL
           TAU
           MPOS-VAL
@@ -39,4 +41,8 @@
           GRASP_D
           ENCOFFSETS-VAL
           ENCOFFSETS
+          JAC_VEL-VAL
+          JAC_VEL
+          JAC_F-VAL
+          JAC_F
 ))

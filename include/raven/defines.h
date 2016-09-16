@@ -38,23 +38,24 @@
 
 //~~~~~~~~~ tool adapter definition ~~~~~~~~~~~~~~~~
 
-#define RAVEN_TOOLS
-//#define DV_ADAPTER			1
+//#define RAVEN_TOOLS
+#define DV_ADAPTER			1
 //#define RICKS_TOOLS     //skips tool initialization //not supported since switch to tools.h?
-
+//#define SCISSOR_RIGHT
+#define OPPOSE_GRIP
 
 
 //~~~~~~~~~ USB Board definition ~~~~~~~~~~~~~~~~~~~
 // Two arm identification
 // Change this to match device ID in /dev/brl_usbXX
-#define GREEN_ARM_SERIAL 37
-#define GOLD_ARM_SERIAL  67 
+#define GREEN_ARM_SERIAL 10
+#define GOLD_ARM_SERIAL  24
 
 
 //~~~~~~~~ Other settings, experts only ~~~~~~~~~~~~
-//#define NO_LPF    // This setting short circuits the Low Pass Filter in state_estimate.cpp 
-#define OMNI_GAIN  3  // Get a little more oomph out of the omni grasping button - sets a gain in local__io.cpp
-
+#define NO_LPF    // This setting short circuits the Low Pass Filter in state_estimate.cpp
+#define OMNI_GAIN  2  // Get a little more oomph out of the omni grasping button - sets a gain in local__io.cpp
+//#define ORIENTATION_V
 
 //~~~~~~~~ Other defines ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -192,6 +193,14 @@
 // TR6 : Sixth joint, Grasper jaw 1
 // TR7 : Seventh joint, Grasper jaw 2
 //    This is most critical in init.cpp - initDOFparams() and
+//
+// USES:
+// ~~ Torque_motor * TR = Torque_joint
+// ~~ m_pos / TR = j_pos
+//
+// Be careful, tau_per_amp calculated in init.cpp also includes gearbox ratio
+
+
 #define SHOULDER_TR_GREEN_ARM (float)( (PARTIAL_PULLEY_LINK1_RADIUS/CAPSTAN_RADIUS_GP42) * GEAR_BOX_GP42_TR) // RE-40, GP-42 // UNITLESS
 #define ELBOW_TR_GREEN_ARM    (float)( (PARTIAL_PULLEY_LINK2_RADIUS/CAPSTAN_LINK2_SMALL_RADIUS)  *  (CAPSTAN_LINK2_LARGE_RADIUS/CAPSTAN_RADIUS_GP42) * GEAR_BOX_GP42_TR) // RE-40, GP-42 // UNITLESS
 #define Z_INS_TR_GREEN_ARM    (float)( (1.0/((2*M_PI*CAPSTAN_RADIUS_GP42)/1000.0)) * GEAR_BOX_GP42_TR *2*M_PI) // UNITS: rad/meter  Note: 2pi cancels
@@ -209,8 +218,10 @@
 #define GRASP2_TR_GOLD_ARM     (GRASP2_TR_GREEN_ARM)
 
 //Link Angles/Lengths
-#define A12 (float)(1.30899694)    /*Link1 - 75deg in RAD*/
-#define A23 (float)(0.907571211)    /*Link2 - 52deg in RAD - was set to 60*/
+// these names cause conflicts with Eigen libraries
+// moved to inv_kinematics.h
+//#define A12 (float)(1.30899694)    /*Link1 - 75deg in RAD*/
+//#define A23 (float)(0.907571211)    /*Link2 - 52deg in RAD - was set to 60*/
 
 //Kinematic Zero Offset (encoder space)
 #define SHOULDER_GOLD_KIN_OFFSET (float)(0.0) //(62.0)
@@ -264,6 +275,8 @@
 #define GRASP2_MAX_DAC     4500  // up from 2000 on 10/10/2013 //up from 2500 on 2/28/14
 
 #else
+
+//everything but square RAVEN
 #define MAX_INST_DAC 20000 //32000
 
 // Doubled position joints 4-Apr-2013 by HK
@@ -271,9 +284,9 @@
 #define ELBOW_MAX_DAC      5000   //  ""
 #define Z_INS_MAX_DAC      4000   //  1000 moves but doesn't overcome friction in tool joints
 #define TOOL_ROT_MAX_DAC   3000  // 10000   These are set really low for safety sake
-#define WRIST_MAX_DAC      1900  // 20000
-#define GRASP1_MAX_DAC     2400  // 15000
-#define GRASP2_MAX_DAC     2400
+#define WRIST_MAX_DAC      3000  // 20000
+#define GRASP1_MAX_DAC     3800  // 15000
+#define GRASP2_MAX_DAC     3800
 
 
 #endif

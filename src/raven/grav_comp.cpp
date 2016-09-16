@@ -65,7 +65,7 @@ const static tf::Vector3 COM3_3_GR( 0,		0,			0		); //meters
 const static double M1 = 0.494; // kg --> ? lb
 const static double M2 = 0.750; // kg --> ? lb
 const static double M3 = 0.231; // kg --> ? lb
-// masses updated using fresh links from raven 2.1 build June 2013
+// masses updated using fresh links from raven 2.1 build 6/13
 
 
 tf::Vector3 getCurrentG(struct device *d0, int m);
@@ -125,7 +125,7 @@ tf::Vector3 getCurrentG(struct device *d0, int m)
  *
  *
  *    Notation:
- *    Txy    - Transform from frame 0 to frame 1
+ *    Txy    - Transform from frame x to frame y
  *    COMx_y - Center of mass of link x in link-frame y
  *    Gx     - Gravity vector represented in link-frame x
  *    GTx    - 3-vector of gravitational torque at joint x (z-component represents torque around joint)
@@ -145,7 +145,9 @@ void getGravityTorque(struct device &d0, struct param_pass &params)
 	for (int m=0; m<NUM_MECH; m++)
 	{
 		_mech = &(d0.mech[m]);
-		G0 = getCurrentG(&d0, m);
+		//G0 = G0Static;
+		G0 = getCurrentG(&d0, m); //uncomment this line to enable dynamic gravity vectors
+
 
 		if (_mech->type == GOLD_ARM_SERIAL)
 		{
@@ -175,7 +177,7 @@ void getGravityTorque(struct device &d0, struct param_pass &params)
 		R12 = T12.getBasis();
 		R23 = T23.getBasis();
 
-		///// Calculate COM in lower ink frames (closer to base)
+		///// Calculate COM in lower link frames (closer to base)
 		// Get COM3
 		tf::Vector3 COM3_2 = T23 * COM3_3;
 		tf::Vector3 COM3_1 = T12 * COM3_2;
@@ -223,10 +225,10 @@ void getGravityTorque(struct device &d0, struct param_pass &params)
 		getMotorTorqueFromJointTorque(_mech->type, GZ1, GZ2, GZ3, MT1, MT2, MT3);
 
 		// Set motor g-torque
-		// \TODO need to implement gravity comp by changing these to tau_g. Needs testing for stability
-		_mech->joint[SHOULDER].tau = MT1;
-		_mech->joint[ELBOW   ].tau = MT2;
-		_mech->joint[Z_INS   ].tau = MT3;
+		_mech->joint[SHOULDER].tau_g = MT1;
+		_mech->joint[ELBOW   ].tau_g = MT2;
+		_mech->joint[Z_INS   ].tau_g = MT3;
+
 
 	}
 
@@ -256,9 +258,9 @@ void getMotorTorqueFromJointTorque(int arm, double in_GZ1, double in_GZ2, double
 {
 	// claculate motor torques from joint torques
 	// TODO:: add in additional cable-coupling terms
-	out_MT1 = in_GZ1 / GEAR_BOX_GP42_TR;
-	out_MT2 = in_GZ2 / GEAR_BOX_GP42_TR;
-	out_MT3 = in_GZ3 / GEAR_BOX_GP42_TR;
+	out_MT1 = in_GZ1 / SHOULDER_TR_GOLD_ARM * GEAR_BOX_GP42_TR;
+	out_MT2 = in_GZ2 / ELBOW_TR_GOLD_ARM * GEAR_BOX_GP42_TR;
+	out_MT3 = in_GZ3 / Z_INS_TR_GOLD_ARM * GEAR_BOX_GP42_TR;
 
 	return;
 }

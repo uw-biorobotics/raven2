@@ -86,18 +86,18 @@ void tool::set_limits() {
 
 		wrist_max_angle = 115 DEG2RAD;
 		wrist_min_angle = -115 DEG2RAD;
-		wrist_max_limit = 75 DEG2RAD;
-		wrist_min_limit = -75 DEG2RAD;
+		wrist_max_limit = 70 DEG2RAD;
+		wrist_min_limit = -70 DEG2RAD;
 
 		grasp1_max_angle = 120 DEG2RAD;
 		grasp1_min_angle = -120 DEG2RAD;
-		grasp1_max_limit = 85 DEG2RAD;
-		grasp1_min_limit = -85 DEG2RAD;
+		grasp1_max_limit = 105 DEG2RAD;
+		grasp1_min_limit = -105 DEG2RAD;
 
 		grasp2_max_angle = 120 DEG2RAD;
 		grasp2_min_angle = -120 DEG2RAD;
-		grasp2_max_limit = 85 DEG2RAD;
-		grasp2_min_limit = -85 DEG2RAD;
+		grasp2_max_limit = 105 DEG2RAD;
+		grasp2_min_limit = -105 DEG2RAD;
 		break;
 
 	case r_sq_grasper:
@@ -125,21 +125,21 @@ void tool::set_limits() {
 	case large_needle:
 		rot_max_angle = 275 DEG2RAD; //from 260
 		rot_min_angle = -275 DEG2RAD; //might not be correct
-		rot_max_limit = 182 DEG2RAD;
-		rot_min_limit = -182 DEG2RAD;
+		rot_max_limit = 220 DEG2RAD;
+		rot_min_limit = -220 DEG2RAD;
 
 		wrist_max_angle = 95 DEG2RAD;
 		wrist_min_angle = -95 DEG2RAD;
 		wrist_max_limit = 75 DEG2RAD;
 		wrist_min_limit = -75 DEG2RAD;
 
-		grasp1_max_angle = 120 DEG2RAD;
-		grasp1_min_angle = -120 DEG2RAD;
+		grasp1_max_angle = 115 DEG2RAD;
+		grasp1_min_angle = -115 DEG2RAD;
 		grasp1_max_limit = 85 DEG2RAD;
 		grasp1_min_limit = -85 DEG2RAD;
 
-		grasp2_max_angle = 120 DEG2RAD;
-		grasp2_min_angle = -120 DEG2RAD;
+		grasp2_max_angle = 115 DEG2RAD;
+		grasp2_min_angle = -115 DEG2RAD;
 		grasp2_max_limit = 85 DEG2RAD;
 		grasp2_min_limit = -85 DEG2RAD;
 		break;
@@ -177,13 +177,13 @@ void tool::set_limits() {
 		wrist_max_limit = 65 DEG2RAD;
 		wrist_min_limit = -65 DEG2RAD;
 
-		grasp1_max_angle = 120 DEG2RAD;
-		grasp1_min_angle = -120 DEG2RAD;
+		grasp1_max_angle = 140 DEG2RAD;
+		grasp1_min_angle = -140 DEG2RAD;
 		grasp1_max_limit = 85 DEG2RAD;
 		grasp1_min_limit = -85 DEG2RAD;
 
-		grasp2_max_angle = 120 DEG2RAD;
-		grasp2_min_angle = -120 DEG2RAD;
+		grasp2_max_angle = 140 DEG2RAD;
+		grasp2_min_angle = -140 DEG2RAD;
 		grasp2_max_limit = 85 DEG2RAD;
 		grasp2_min_limit = -85 DEG2RAD;
 		break;
@@ -213,8 +213,8 @@ void tool::set_limits() {
 	case mopocu_scissor:
 		rot_max_angle = 260 DEG2RAD;
 		rot_min_angle = -260 DEG2RAD; //might not be correct
-		rot_max_limit = 182 DEG2RAD;
-		rot_min_limit = -182 DEG2RAD;
+		rot_max_limit = 250 DEG2RAD;
+		rot_min_limit = -250 DEG2RAD;
 
 		wrist_max_angle = 90 DEG2RAD;
 		wrist_min_angle = -90 DEG2RAD;
@@ -226,32 +226,32 @@ void tool::set_limits() {
 		grasp1_max_limit = 85 DEG2RAD;
 		grasp1_min_limit = -85 DEG2RAD;
 
-		grasp2_max_angle = 100 DEG2RAD;
-		grasp2_min_angle = -100 DEG2RAD;
-		grasp2_max_limit = 85 DEG2RAD;
-		grasp2_min_limit = -85 DEG2RAD;
+		grasp2_max_angle = 105 DEG2RAD;
+		grasp2_min_angle = -105 DEG2RAD;
+		grasp2_max_limit = 95 DEG2RAD;
+		grasp2_min_limit = -95 DEG2RAD;
 		break;
 
 	case potts_scissor:
 		rot_max_angle = 260 DEG2RAD;
 		rot_min_angle = -260 DEG2RAD; //might not be correct
-		rot_max_limit = 182 DEG2RAD;
-		rot_min_limit = -182 DEG2RAD;
+		rot_max_limit = 220 DEG2RAD;
+		rot_min_limit = -220 DEG2RAD;
 
-		wrist_max_angle = 90 DEG2RAD;
-		wrist_min_angle = -90 DEG2RAD;
+		wrist_max_angle = 85 DEG2RAD;
+		wrist_min_angle = -85 DEG2RAD;
 		wrist_max_limit = 75 DEG2RAD;
 		wrist_min_limit = -75 DEG2RAD;
 
-		grasp1_max_angle = 120 DEG2RAD;
-		grasp1_min_angle = -120 DEG2RAD;
-		grasp1_max_limit = 90 DEG2RAD;
-		grasp1_min_limit = -90 DEG2RAD;
+		grasp1_max_angle = 130 DEG2RAD;
+		grasp1_min_angle = -130 DEG2RAD;
+		grasp1_max_limit = 110 DEG2RAD;
+		grasp1_min_limit = -110 DEG2RAD;
 
 		grasp2_max_angle = 130 DEG2RAD;
 		grasp2_min_angle = -130 DEG2RAD;
-		grasp2_max_limit = 90 DEG2RAD;
-		grasp2_min_limit = -90 DEG2RAD;
+		grasp2_max_limit = 110 DEG2RAD;
+		grasp2_min_limit = -110 DEG2RAD;
 		break;
 
 	case monopolar_cautery:

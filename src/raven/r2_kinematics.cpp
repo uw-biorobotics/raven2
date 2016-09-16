@@ -446,7 +446,7 @@ int r2_inv_kin(struct device *d0, int runlevel)
 					joints[3] * r2d,
 					joints[4] * r2d,
 					joints[5] * r2d,
-					d0->mech[m].joint[GRASP2].jpos  * r2d,
+					d0->mech[m].joint[GRASP1].jpos  * r2d,
 					d0->mech[m].joint[GRASP2].jpos * r2d
 			);
 			for (int i=0; i<8; i++)
@@ -678,27 +678,27 @@ int apply_joint_limits(double *Js, double *Js_sat){
 	{
 		Js_sat[0] = DOF_types[SHOULDER].min_limit;
 		limited = 1;
-		std::cout<<"eblow min limit reached  = "<<Js_sat[0]<<std::endl;
+		std::cout<<"shoulder min limit reached  = "<<Js_sat[0]<<std::endl;
 	}
 	else if(Js[0] >= DOF_types[SHOULDER].max_limit)
 	{
 		Js_sat[0] = DOF_types[SHOULDER].max_limit;
 		limited = 1;
-		std::cout<<"eblow max limit reached  = "<<Js_sat[0]<<std::endl;
+		std::cout<<"shoulder max limit reached  = "<<Js_sat[0]<<std::endl;
 	}
 
-	if (Js[1] <= ELBOW_MIN_LIMIT)
+	if (Js[1] <= DOF_types[ELBOW].min_limit)
 	{
 		Js_sat[1] = ELBOW_MIN_LIMIT;
 		limited = 1;
-		std::cout<<"eblow min limit reached  = "<<Js_sat[1]<<std::endl;
+		std::cout<<"elbow min limit reached  = "<<Js_sat[1]<<std::endl;
 	}
 
-	else if(Js[1] >= ELBOW_MAX_LIMIT)
+	else if(Js[1] >= DOF_types[ELBOW].max_limit)
 	{
 		Js_sat[1] = ELBOW_MAX_LIMIT;
 		limited = 1;
-		std::cout<<"eblow max limit reached  = "<<Js_sat[1]<<std::endl;
+		std::cout<<"elbow max limit reached  = "<<Js_sat[1]<<std::endl;
 	}
 
 	if (Js[2] <= DOF_types[Z_INS].min_limit)
@@ -714,16 +714,16 @@ int apply_joint_limits(double *Js, double *Js_sat){
 		std::cout<<"z max limit reached  = "<<Js_sat[2]<<std::endl;
 	}
 
-	if (Js[3] <= -150.0 DEG2RAD)
+	if (Js[3] <= DOF_types[TOOL_ROT].min_limit)
 	{
-		Js_sat[3] = -150.0 DEG2RAD;
+		Js_sat[3] = DOF_types[TOOL_ROT].min_limit;
 		limited = 1;
 		std::cout<<"rot min limit reached  = "<<Js_sat[3]<<std::endl;
 	}
 
-	else if(Js[3] >= 150.0 DEG2RAD)
+	else if(Js[3] >= DOF_types[TOOL_ROT].max_limit)
 	{
-		Js_sat[3] = 150.0 DEG2RAD;
+		Js_sat[3] = DOF_types[TOOL_ROT].max_limit;
 		limited = 1;
 		std::cout<<"rot max limit reached  = "<<Js_sat[3]<<std::endl;
 	}
@@ -741,6 +741,41 @@ int apply_joint_limits(double *Js, double *Js_sat){
 		limited = 1;
 		std::cout<<"wrist max limit reached  = "<<Js_sat[4]<<std::endl;
 	}
+	if (Js[5] <= DOF_types[GRASP1].min_limit)
+	{
+		Js_sat[5] = DOF_types[GRASP1].min_limit;
+		limited = 1;
+		std::cout<<"grasp1 min limit reached  = "<<Js_sat[5]<<std::endl;
+	}
+
+
+/*     The last element of Js is (probably) the angle of the midpoint between the graspers.
+	This isn't very useful for the joint saturation problem, so
+	we'll need to restructure this a little bit to get access to the
+	grasper joint angles -- Andy 4/16
+
+
+	else if(Js[5] >= DOF_types[GRASP1].max_limit)
+	{
+		Js_sat[5] = DOF_types[GRASP1].max_limit;
+		limited = 1;
+		std::cout<<"grasp1 max limit reached  = "<<Js_sat[5]<<std::endl;
+	}
+	if (Js[6] <= DOF_types[GRASP2].min_limit)
+	{
+		Js_sat[6] = DOF_types[GRASP2].min_limit;
+		limited = 1;
+		std::cout<<"grasp2 min limit reached  = "<<Js_sat[6]<<std::endl;
+	}
+	else if(Js[6] >= DOF_types[GRASP2].max_limit)
+	{
+		Js_sat[6] = DOF_types[GRASP2].max_limit;
+		limited = 1;
+		std::cout<<"grasp2 max limit reached  = "<<Js_sat[6]<<std::endl;
+	}
+*/
+
+
 
 	//todo add more saturation for graspers
 

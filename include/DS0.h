@@ -33,6 +33,7 @@
  *********************************************/
 
 #include "tools.h"
+#include "r2_jacobian.h"
 
 #ifndef DS0_H
 #define DS0_H
@@ -105,8 +106,8 @@ struct DOF {
   //  float mpos_old;
   float jvel; 		// actual DOF velocity(q-dot)
   float mvel;
-  float tau;		// actual DOF force/torque
-  float tau_d;		// desired DOF force/torque
+  float tau;		// actual DOF force/torque at joint
+  float tau_d;		// desired DOF force/torque at motor capstan after gearbox
   float tau_g;		// Estimated gravity force/torque on joint.
   float jpos_d;		// desired DOF coordinate (rad)
   float mpos_d;
@@ -117,6 +118,13 @@ struct DOF {
   int enc_offset;       // Encoder offset to "zero"
   float perror_int;     // integrated position error for joint space position control
 };
+
+
+/** Tool type enumerator used in old init method
+ *
+ *  \todo deprecate this structure in favor of new tool class
+ *
+ */
 
 typedef enum {TOOL_NONE,
 	TOOL_GRASPER_10MM,
@@ -146,6 +154,7 @@ struct mechanism {
   struct DOF joint[MAX_DOF_PER_MECH];
   u_08 inputs;                  // input pins
   u_08 outputs;                 // output pins
+  r2_jacobian r2_jac;  // class needed to avoid build error about forward declarations
 };
 
 /********************************************************

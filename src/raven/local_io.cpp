@@ -52,6 +52,7 @@ ROS publishing is at the bottom half of this file.
 #include "itp_teleoperation.h"
 #include "r2_kinematics.h"
 #include "reconfigure.h"
+#include "r2_jacobian.h"
 
 extern int NUM_MECH;
 extern USBStruct USBBoards;
@@ -185,9 +186,19 @@ void teleopIntoDS1(struct u_struct *us_t)
 #else
 	const int grasp_gain = 1;
 #endif
-	
+
+#ifdef SCISSOR_RIGHT
+	if (armserial == GREEN_ARM_SERIAL) grasp_gain *= 4;
+
+#endif
+
+
         const int graspmax = (M_PI/2 * 1000);
-        const int graspmin = (-30.0 * 1000.0 DEG2RAD);
+        int graspmin = (-10.0 * 1000.0 DEG2RAD);
+
+#ifdef SCISSOR_RIGHT
+        if (armserial == GREEN_ARM_SERIAL) graspmin = (-40.0 * 1000.0 DEG2RAD);
+#endif
 		data1.rd[i].grasp -= grasp_gain * us_t->grasp[armidx];
 		if (data1.rd[i].grasp>graspmax) data1.rd[i].grasp=graspmax;
 		else if(data1.rd[i].grasp<graspmin) data1.rd[i].grasp=graspmin;
@@ -459,17 +470,29 @@ void publish_ravenstate_ros(struct robot_device *dev,struct param_pass *currPara
         }
 
 
-        for (int i=0; i<numdof; i++){
-            int jtype = dev->mech[j].joint[i].type;
-            msg_ravenstate.encVals[jtype]    = dev->mech[j].joint[i].enc_val;
-            msg_ravenstate.tau[jtype]        = dev->mech[j].joint[i].tau_d;
-            msg_ravenstate.mpos[jtype]       = dev->mech[j].joint[i].mpos RAD2DEG;
-            msg_ravenstate.jpos[jtype]       = dev->mech[j].joint[i].jpos RAD2DEG;
-            msg_ravenstate.mvel[jtype]       = dev->mech[j].joint[i].mvel RAD2DEG;
-            msg_ravenstate.jvel[jtype]       = dev->mech[j].joint[i].jvel RAD2DEG;
-            msg_ravenstate.jpos_d[jtype]     = dev->mech[j].joint[i].jpos_d RAD2DEG;
-            msg_ravenstate.mpos_d[jtype]     = dev->mech[j].joint[i].mpos_d RAD2DEG;
-            msg_ravenstate.encoffsets[jtype] = dev->mech[j].joint[i].enc_offset;
+        for (int m=0; m<numdof; m++){
+            int jtype = dev->mech[j].joint[m].type;
+            msg_ravenstate.encVals[jtype]    = dev->mech[j].joint[m].enc_val;
+            msg_ravenstate.tau[jtype]        = dev->mech[j].joint[m].tau_d;
+            msg_ravenstate.mpos[jtype]       = dev->mech[j].joint[m].mpos RAD2DEG;
+            msg_ravenstate.jpos[jtype]       = dev->mech[j].joint[m].jpos RAD2DEG;
+            msg_ravenstate.mvel[jtype]       = dev->mech[j].joint[m].mvel RAD2DEG;
+            msg_ravenstate.jvel[jtype]       = dev->mech[j].joint[m].jvel RAD2DEG;
+            msg_ravenstate.jpos_d[jtype]     = dev->mech[j].joint[m].jpos_d RAD2DEG;
+            msg_ravenstate.mpos_d[jtype]     = dev->mech[j].joint[m].mpos_d RAD2DEG;
+            msg_ravenstate.encoffsets[jtype] = dev->mech[j].joint[m].enc_offset;
+            msg_ravenstate.dac_val[jtype]    = dev->mech[j].joint[m].current_cmd;
+        }
+
+        //grab jacobian velocities and forces
+        float vel[6];
+        float f[6];
+        j = dev->mech[i].type == GREEN_ARM ? 1 : 0;
+        dev->mech[j].r2_jac.get_vel(vel);
+        dev->mech[j].r2_jac.get_vel(f);
+        for (int k=0; k<6; k++){
+        	msg_ravenstate.jac_vel[j*6+k] = vel[k];
+        	msg_ravenstate.jac_f[j*6+k] = f[k];
         }
     }
 //    msg_ravenstate.f_secs = d.toSec();

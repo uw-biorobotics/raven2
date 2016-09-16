@@ -52,6 +52,7 @@
 #include "local_io.h"
 #include "update_device_state.h"
 #include "parallel.h"
+#include "r2_jacobian.h"
 
 extern int NUM_MECH; //Defined in rt_process_preempt.cpp
 extern unsigned long int gTime; //Defined in rt_process_preempt.cpp
@@ -70,7 +71,7 @@ extern int initialized; //Defined in rt_process_preempt.cpp
 /**
 *  	\fn int controlRaven(struct device *device0, struct param_pass *currParams)
 *
-*	\brief This function controls the Raven for one loop cycle based on the desired control mode.
+*	\brief This function controls the RAVEN for one loop cycle based on the desired control mode.
 *
 *	\desc This function first initializes the robot and then it computes Mpos and Velocities by calling
 * 			stateEstimate() and then it calls fwdCableCoupling() and r2_fwd_kin() to calculate the 
@@ -111,8 +112,12 @@ int controlRaven(struct device *device0, struct param_pass *currParams){
     //Forward kinematics
     r2_fwd_kin(device0, currParams->runlevel);
 
+    r2_device_jacobian(device0, currParams->runlevel);
+
     switch (controlmode){
 
+        //this is handy for checking that gravity compensation works - also allows for robot to be 
+		//manipulated without brakes
         case no_control:
         {
             initialized = false;
@@ -243,7 +248,7 @@ int raven_cartesian_space_command(struct device *device0, struct param_pass *cur
     }
 
     // Gravity compensation calculation
-    getGravityTorque(*device0, *currParams); /// computes tau, then tau_g added??
+    getGravityTorque(*device0, *currParams);
     _mech = NULL;  _joint = NULL;
     while ( loop_over_joints(device0, _mech, _joint, i,j) )
     {

@@ -81,10 +81,15 @@ void initRobotData(struct device *device0, int runlevel, struct param_pass *curr
 
     //initialize gravity direction data
     if(!initialized){
-    currParams->grav_dir.x = -980;
+    currParams->grav_dir.x = 0;
     currParams->grav_dir.y = 0;
-    currParams->grav_dir.z = 0;
+    currParams->grav_dir.z = 980;
     currParams->grav_mag = 9.8;
+
+    device0->grav_dir.x = 0;
+    device0->grav_dir.y = 0;
+    device0->grav_dir.z = 980;
+    device0->grav_mag = 9.8;
     }
 
     //In ESTOP reset initialization
@@ -103,6 +108,7 @@ void initRobotData(struct device *device0, int runlevel, struct param_pass *curr
     case 0:
         {
             currParams->sublevel = 1;     // Goto sublevel 1 to allow initial jpos_d setup by inv_kin.
+            break;
         }
     case 1:     // Initialization off all joint variables
         if (initialized)     //If already initialized do nothing
@@ -271,7 +277,7 @@ void initDOFs(struct device *device0)
             else if (device0->mech[i].type == GREEN_ARM)
                 torque_sign = 1;
             else
-                err_msg("Unknown mech type ini init!");
+                err_msg("Unknown mech type in init!");
 #endif
             // Set i-max and current-torque conversion constants
             if ( (j==SHOULDER) || (j==ELBOW) || (j==Z_INS) )
@@ -317,7 +323,15 @@ void initDOFs(struct device *device0)
 					default:
 						_dof->tau_per_amp = -1 * (float)(T_PER_AMP_SMALL_MOTOR  * GEAR_BOX_TR_SMALL_MOTOR);  // Amps to torque
 						break;
-                }
+		}
+
+#ifdef OPPOSE_GRIP
+		if (j == GRASP1)
+		{
+			_dof->tau_per_amp *= -1; //swap the torque sign for the first grasper
+			log_msg("grasp1 tau_per_amp swapped");
+		}
+#endif
             }
 
             //Set encoder offset

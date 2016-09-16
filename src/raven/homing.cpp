@@ -299,7 +299,15 @@ int set_joints_known_pos(struct mechanism* _mech, int tool_only)
 				f_enc_val *= -1.0;
 			break;
     }
-
+#ifdef OPPOSE_GRIP
+	if (j == GRASP1){
+		f_enc_val *= -1;// switch encoder value for opposed grasp
+//		static int twice = 0;
+//		if (twice < 2){
+//			log_msg("homing enc_val swapped");
+//			twice++;
+		}
+#endif
 
 
 
@@ -377,6 +385,7 @@ void homing(struct DOF* _joint)
         case jstate_homing1:
             start_trajectory( _joint , DOF_types[_joint->type].home_position, 2.5 );
             _joint->state = jstate_homing2;
+            break;
 
         case jstate_homing2:
             // Move to start position
@@ -470,6 +479,7 @@ void homing(struct DOF* _joint, tool a_tool)
         case jstate_homing1:
             start_trajectory( _joint , DOF_types[_joint->type].home_position, 2.5 );
             _joint->state = jstate_homing2;
+            break;
 
         case jstate_homing2:
             // Move to start position
@@ -505,12 +515,12 @@ const int homing_max_dac[8] = {2500,  //shoulder
 #ifdef DV_ADAPTER
 const int homing_max_dac[8] = {2500,  //shoulder
                             2500,  //elbow
-                            2800,  //z-ins
+                            1400,  //z-ins
                             0,
-                            1900,  //tool_rot // was 1400, lowered to reduce calibration error //I think this is labeled improperly - AL
-                            1900,  //wrist
-                            1700,  //grasp1
-                            1700};  // grasp2
+                            2000,  //tool_rot // was 1400, lowered to reduce calibration error //I think this is labeled improperly - AL
+                            2400,  //wrist
+                            2000,  //grasp1
+                            2000};  // grasp2
 #else
 const int homing_max_dac[8] = {2500,  //shoulder
                             2500,  //elbow
@@ -518,8 +528,8 @@ const int homing_max_dac[8] = {2500,  //shoulder
                             0,
                             1900,  //tool_rot  //rasised from 1400 alewis 3/4/14
                             1900,  //wrist
-                            1700,  //grasp1 decreased from 1900
-                            1700};  // grasp2 decreased from 1900
+                            1900,  //grasp1 decreased from 1900
+                            1900};  // grasp2 decreased from 1900
 #endif
 #endif
 

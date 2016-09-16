@@ -132,11 +132,11 @@ void getStateLPF(struct DOF *joint, int tool_type)
 		break;
 
     case dv_adapter:
-			if ( (joint->type == SHOULDER_GOLD) ||
-				(joint->type == ELBOW_GOLD) ||
-				(joint->type == Z_INS_GOLD)
-				)
-				f_enc_val *= -1;
+		if ( (joint->type == SHOULDER_GOLD) ||
+	    	 (joint->type == ELBOW_GOLD) ||
+	    	 (joint->type == Z_INS_GOLD)
+	     	)
+	     	f_enc_val *= -1;
     	break;
 
     default:
@@ -157,6 +157,11 @@ void getStateLPF(struct DOF *joint, int tool_type)
     	         f_enc_val *= -1;
     	    break;
     }
+
+#ifdef OPPOSE_GRIP
+    if ((joint->type == GRASP1_GOLD) || (joint->type == GRASP1_GREEN)) 
+ 	f_enc_val *= -1;
+#endif
 
 //    static int i = 0;
 //    static int j = 0;
@@ -317,6 +322,11 @@ void getStateLPF(struct DOF *joint, style t_style)
     	         f_enc_val *= -1;
     	    break;
     }
+
+#ifdef OPPOSE_GRIP
+    if ((joint->type == GRASP1_GOLD) || (joint->type == GRASP1_GREEN)) 
+ 	f_enc_val *= -1;
+#endif
 
     static int i = 0;
     static int j = 0;
