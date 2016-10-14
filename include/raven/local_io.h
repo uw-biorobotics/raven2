@@ -53,4 +53,5 @@ void updateMasterRelativeOrigin(struct device *device0);
 int init_ravenstate_publishing(ros::NodeHandle &n);
 void publish_ravenstate_ros(struct robot_device*, struct param_pass*);
 void setSurgeonMode(int pedalstate);
+
 #endif

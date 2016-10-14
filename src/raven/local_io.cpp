@@ -420,8 +420,10 @@ void autoincrCallback(raven_2::raven_automove msg)
 	}
     }
 
-  pthread_mutex_unlock(&data1Mutex);
-  isUpdated = TRUE;
+
+    pthread_mutex_unlock(&data1Mutex);
+    isUpdated = TRUE;
+
 }
 
 
