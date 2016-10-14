@@ -27,6 +27,27 @@
  * 2005
  *
  */
+ 
+ /**
+*   \file dof.cpp
+*
+*        \brief This is a file to translate motor encoder values to robot position or joint angles.
+*
+*        \fn These are the 4 functions in dof.cpp file. 
+*            Functions marked with "*" are called explicitly from other files.
+*             *(1) processEncVal		 
+*              (2) encToMPos               :uses (3)
+*              (3) encToMPos2              :uses (4)
+*              (4) normalizedEncCnt			
+*              (5) encToJPos               :This function is declared in dof.h file but never defined here.
+*
+*       \author Hawkeye King
+*
+*       \date ??
+*
+*       \ingroup Control
+*/
+
 
 #include "dof.h"
 
