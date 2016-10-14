@@ -279,7 +279,7 @@ static void *rt_process(void* )
       //////////////// END SURGICAL ROBOT CODE ///////////////////////////
 
       // Check for overcurrent and impose safe torque limits
-      if (overdriveDetect(&device0))
+      if (overdriveDetect(&device0, currParams.runlevel))
         {
 	  soft_estopped = TRUE;
 	  showInverseKinematicsSolutions(&device0, currParams.runlevel);

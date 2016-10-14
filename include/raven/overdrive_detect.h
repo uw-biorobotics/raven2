@@ -33,4 +33,4 @@
 #define MAX_OVERDRIVE_TIME 50000
 
 //Function prototypes
-int overdriveDetect(struct device *device0);
+int overdriveDetect(struct device *device0,int runlevel);

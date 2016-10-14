@@ -83,67 +83,67 @@ string frame_id
       if self.last_seq is None:
         self.last_seq = 0
       if self.type is None:
-        self.type = [0,0]
+        self.type = [0] * 2
       if self.pos is None:
-        self.pos = [0,0,0,0,0,0]
+        self.pos = [0] * 6
       if self.ori is None:
-        self.ori = [0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.]
+        self.ori = [0.] * 18
       if self.ori_d is None:
-        self.ori_d = [0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.]
+        self.ori_d = [0.] * 18
       if self.pos_d is None:
-        self.pos_d = [0,0,0,0,0,0]
+        self.pos_d = [0] * 6
       if self.dt is None:
         self.dt = genpy.Duration()
       if self.encVals is None:
-        self.encVals = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+        self.encVals = [0] * 16
       if self.dac_val is None:
-        self.dac_val = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+        self.dac_val = [0] * 16
       if self.tau is None:
-        self.tau = [0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.]
+        self.tau = [0.] * 16
       if self.mpos is None:
-        self.mpos = [0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.]
+        self.mpos = [0.] * 16
       if self.jpos is None:
-        self.jpos = [0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.]
+        self.jpos = [0.] * 16
       if self.mvel is None:
-        self.mvel = [0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.]
+        self.mvel = [0.] * 16
       if self.jvel is None:
-        self.jvel = [0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.]
+        self.jvel = [0.] * 16
       if self.mpos_d is None:
-        self.mpos_d = [0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.]
+        self.mpos_d = [0.] * 16
       if self.jpos_d is None:
-        self.jpos_d = [0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.]
+        self.jpos_d = [0.] * 16
       if self.grasp_d is None:
-        self.grasp_d = [0.,0.]
+        self.grasp_d = [0.] * 2
       if self.encoffsets is None:
-        self.encoffsets = [0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.]
+        self.encoffsets = [0.] * 16
       if self.jac_vel is None:
-        self.jac_vel = [0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.]
+        self.jac_vel = [0.] * 12
       if self.jac_f is None:
-        self.jac_f = [0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.]
+        self.jac_f = [0.] * 12
     else:
       self.hdr = std_msgs.msg.Header()
       self.runlevel = 0
       self.sublevel = 0
       self.last_seq = 0
-      self.type = [0,0]
-      self.pos = [0,0,0,0,0,0]
-      self.ori = [0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.]
-      self.ori_d = [0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.]
-      self.pos_d = [0,0,0,0,0,0]
+      self.type = [0] * 2
+      self.pos = [0] * 6
+      self.ori = [0.] * 18
+      self.ori_d = [0.] * 18
+      self.pos_d = [0] * 6
       self.dt = genpy.Duration()
-      self.encVals = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
-      self.dac_val = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
-      self.tau = [0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.]
-      self.mpos = [0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.]
-      self.jpos = [0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.]
-      self.mvel = [0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.]
-      self.jvel = [0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.]
-      self.mpos_d = [0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.]
-      self.jpos_d = [0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.]
-      self.grasp_d = [0.,0.]
-      self.encoffsets = [0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.]
-      self.jac_vel = [0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.]
-      self.jac_f = [0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.]
+      self.encVals = [0] * 16
+      self.dac_val = [0] * 16
+      self.tau = [0.] * 16
+      self.mpos = [0.] * 16
+      self.jpos = [0.] * 16
+      self.mvel = [0.] * 16
+      self.jvel = [0.] * 16
+      self.mpos_d = [0.] * 16
+      self.jpos_d = [0.] * 16
+      self.grasp_d = [0.] * 2
+      self.encoffsets = [0.] * 16
+      self.jac_vel = [0.] * 12
+      self.jac_f = [0.] * 12
 
   def _get_types(self):
     """
@@ -158,38 +158,35 @@ string frame_id
     """
     try:
       _x = self
-      buff.write(_struct_3I.pack(_x.hdr.seq, _x.hdr.stamp.secs, _x.hdr.stamp.nsecs))
+      buff.write(_get_struct_3I().pack(_x.hdr.seq, _x.hdr.stamp.secs, _x.hdr.stamp.nsecs))
       _x = self.hdr.frame_id
       length = len(_x)
       if python3 or type(_x) == unicode:
         _x = _x.encode('utf-8')
         length = len(_x)
-      if python3:
-        buff.write(struct.pack('<I%sB'%length, length, *_x))
-      else:
-        buff.write(struct.pack('<I%ss'%length, length, _x))
+      buff.write(struct.pack('<I%ss'%length, length, _x))
       _x = self
-      buff.write(_struct_3i.pack(_x.runlevel, _x.sublevel, _x.last_seq))
-      buff.write(_struct_2i.pack(*self.type))
-      buff.write(_struct_6i.pack(*self.pos))
-      buff.write(_struct_18f.pack(*self.ori))
-      buff.write(_struct_18f.pack(*self.ori_d))
-      buff.write(_struct_6i.pack(*self.pos_d))
+      buff.write(_get_struct_3i().pack(_x.runlevel, _x.sublevel, _x.last_seq))
+      buff.write(_get_struct_2i().pack(*self.type))
+      buff.write(_get_struct_6i().pack(*self.pos))
+      buff.write(_get_struct_18f().pack(*self.ori))
+      buff.write(_get_struct_18f().pack(*self.ori_d))
+      buff.write(_get_struct_6i().pack(*self.pos_d))
       _x = self
-      buff.write(_struct_2i.pack(_x.dt.secs, _x.dt.nsecs))
-      buff.write(_struct_16i.pack(*self.encVals))
-      buff.write(_struct_16i.pack(*self.dac_val))
-      buff.write(_struct_16f.pack(*self.tau))
-      buff.write(_struct_16f.pack(*self.mpos))
-      buff.write(_struct_16f.pack(*self.jpos))
-      buff.write(_struct_16f.pack(*self.mvel))
-      buff.write(_struct_16f.pack(*self.jvel))
-      buff.write(_struct_16f.pack(*self.mpos_d))
-      buff.write(_struct_16f.pack(*self.jpos_d))
-      buff.write(_struct_2f.pack(*self.grasp_d))
-      buff.write(_struct_16f.pack(*self.encoffsets))
-      buff.write(_struct_12f.pack(*self.jac_vel))
-      buff.write(_struct_12f.pack(*self.jac_f))
+      buff.write(_get_struct_2i().pack(_x.dt.secs, _x.dt.nsecs))
+      buff.write(_get_struct_16i().pack(*self.encVals))
+      buff.write(_get_struct_16i().pack(*self.dac_val))
+      buff.write(_get_struct_16f().pack(*self.tau))
+      buff.write(_get_struct_16f().pack(*self.mpos))
+      buff.write(_get_struct_16f().pack(*self.jpos))
+      buff.write(_get_struct_16f().pack(*self.mvel))
+      buff.write(_get_struct_16f().pack(*self.jvel))
+      buff.write(_get_struct_16f().pack(*self.mpos_d))
+      buff.write(_get_struct_16f().pack(*self.jpos_d))
+      buff.write(_get_struct_2f().pack(*self.grasp_d))
+      buff.write(_get_struct_16f().pack(*self.encoffsets))
+      buff.write(_get_struct_12f().pack(*self.jac_vel))
+      buff.write(_get_struct_12f().pack(*self.jac_f))
     except struct.error as se: self._check_types(struct.error("%s: '%s' when writing '%s'" % (type(se), str(se), str(locals().get('_x', self)))))
     except TypeError as te: self._check_types(ValueError("%s: '%s' when writing '%s'" % (type(te), str(te), str(locals().get('_x', self)))))
 
@@ -207,7 +204,7 @@ string frame_id
       _x = self
       start = end
       end += 12
-      (_x.hdr.seq, _x.hdr.stamp.secs, _x.hdr.stamp.nsecs,) = _struct_3I.unpack(str[start:end])
+      (_x.hdr.seq, _x.hdr.stamp.secs, _x.hdr.stamp.nsecs,) = _get_struct_3I().unpack(str[start:end])
       start = end
       end += 4
       (length,) = _struct_I.unpack(str[start:end])
@@ -220,65 +217,65 @@ string frame_id
       _x = self
       start = end
       end += 12
-      (_x.runlevel, _x.sublevel, _x.last_seq,) = _struct_3i.unpack(str[start:end])
+      (_x.runlevel, _x.sublevel, _x.last_seq,) = _get_struct_3i().unpack(str[start:end])
       start = end
       end += 8
-      self.type = _struct_2i.unpack(str[start:end])
+      self.type = _get_struct_2i().unpack(str[start:end])
       start = end
       end += 24
-      self.pos = _struct_6i.unpack(str[start:end])
+      self.pos = _get_struct_6i().unpack(str[start:end])
       start = end
       end += 72
-      self.ori = _struct_18f.unpack(str[start:end])
+      self.ori = _get_struct_18f().unpack(str[start:end])
       start = end
       end += 72
-      self.ori_d = _struct_18f.unpack(str[start:end])
+      self.ori_d = _get_struct_18f().unpack(str[start:end])
       start = end
       end += 24
-      self.pos_d = _struct_6i.unpack(str[start:end])
+      self.pos_d = _get_struct_6i().unpack(str[start:end])
       _x = self
       start = end
       end += 8
-      (_x.dt.secs, _x.dt.nsecs,) = _struct_2i.unpack(str[start:end])
+      (_x.dt.secs, _x.dt.nsecs,) = _get_struct_2i().unpack(str[start:end])
       start = end
       end += 64
-      self.encVals = _struct_16i.unpack(str[start:end])
+      self.encVals = _get_struct_16i().unpack(str[start:end])
       start = end
       end += 64
-      self.dac_val = _struct_16i.unpack(str[start:end])
+      self.dac_val = _get_struct_16i().unpack(str[start:end])
       start = end
       end += 64
-      self.tau = _struct_16f.unpack(str[start:end])
+      self.tau = _get_struct_16f().unpack(str[start:end])
       start = end
       end += 64
-      self.mpos = _struct_16f.unpack(str[start:end])
+      self.mpos = _get_struct_16f().unpack(str[start:end])
       start = end
       end += 64
-      self.jpos = _struct_16f.unpack(str[start:end])
+      self.jpos = _get_struct_16f().unpack(str[start:end])
       start = end
       end += 64
-      self.mvel = _struct_16f.unpack(str[start:end])
+      self.mvel = _get_struct_16f().unpack(str[start:end])
       start = end
       end += 64
-      self.jvel = _struct_16f.unpack(str[start:end])
+      self.jvel = _get_struct_16f().unpack(str[start:end])
       start = end
       end += 64
-      self.mpos_d = _struct_16f.unpack(str[start:end])
+      self.mpos_d = _get_struct_16f().unpack(str[start:end])
       start = end
       end += 64
-      self.jpos_d = _struct_16f.unpack(str[start:end])
+      self.jpos_d = _get_struct_16f().unpack(str[start:end])
       start = end
       end += 8
-      self.grasp_d = _struct_2f.unpack(str[start:end])
+      self.grasp_d = _get_struct_2f().unpack(str[start:end])
       start = end
       end += 64
-      self.encoffsets = _struct_16f.unpack(str[start:end])
+      self.encoffsets = _get_struct_16f().unpack(str[start:end])
       start = end
       end += 48
-      self.jac_vel = _struct_12f.unpack(str[start:end])
+      self.jac_vel = _get_struct_12f().unpack(str[start:end])
       start = end
       end += 48
-      self.jac_f = _struct_12f.unpack(str[start:end])
+      self.jac_f = _get_struct_12f().unpack(str[start:end])
       self.dt.canon()
       return self
     except struct.error as e:
@@ -293,25 +290,22 @@ string frame_id
     """
     try:
       _x = self
-      buff.write(_struct_3I.pack(_x.hdr.seq, _x.hdr.stamp.secs, _x.hdr.stamp.nsecs))
+      buff.write(_get_struct_3I().pack(_x.hdr.seq, _x.hdr.stamp.secs, _x.hdr.stamp.nsecs))
       _x = self.hdr.frame_id
       length = len(_x)
       if python3 or type(_x) == unicode:
         _x = _x.encode('utf-8')
         length = len(_x)
-      if python3:
-        buff.write(struct.pack('<I%sB'%length, length, *_x))
-      else:
-        buff.write(struct.pack('<I%ss'%length, length, _x))
+      buff.write(struct.pack('<I%ss'%length, length, _x))
       _x = self
-      buff.write(_struct_3i.pack(_x.runlevel, _x.sublevel, _x.last_seq))
+      buff.write(_get_struct_3i().pack(_x.runlevel, _x.sublevel, _x.last_seq))
       buff.write(self.type.tostring())
       buff.write(self.pos.tostring())
       buff.write(self.ori.tostring())
       buff.write(self.ori_d.tostring())
       buff.write(self.pos_d.tostring())
       _x = self
-      buff.write(_struct_2i.pack(_x.dt.secs, _x.dt.nsecs))
+      buff.write(_get_struct_2i().pack(_x.dt.secs, _x.dt.nsecs))
       buff.write(self.encVals.tostring())
       buff.write(self.dac_val.tostring())
       buff.write(self.tau.tostring())
@@ -343,7 +337,7 @@ string frame_id
       _x = self
       start = end
       end += 12
-      (_x.hdr.seq, _x.hdr.stamp.secs, _x.hdr.stamp.nsecs,) = _struct_3I.unpack(str[start:end])
+      (_x.hdr.seq, _x.hdr.stamp.secs, _x.hdr.stamp.nsecs,) = _get_struct_3I().unpack(str[start:end])
       start = end
       end += 4
       (length,) = _struct_I.unpack(str[start:end])
@@ -356,7 +350,7 @@ string frame_id
       _x = self
       start = end
       end += 12
-      (_x.runlevel, _x.sublevel, _x.last_seq,) = _struct_3i.unpack(str[start:end])
+      (_x.runlevel, _x.sublevel, _x.last_seq,) = _get_struct_3i().unpack(str[start:end])
       start = end
       end += 8
       self.type = numpy.frombuffer(str[start:end], dtype=numpy.int32, count=2)
@@ -375,7 +369,7 @@ string frame_id
       _x = self
       start = end
       end += 8
-      (_x.dt.secs, _x.dt.nsecs,) = _struct_2i.unpack(str[start:end])
+      (_x.dt.secs, _x.dt.nsecs,) = _get_struct_2i().unpack(str[start:end])
       start = end
       end += 64
       self.encVals = numpy.frombuffer(str[start:end], dtype=numpy.int32, count=16)
@@ -421,12 +415,60 @@ string frame_id
       raise genpy.DeserializationError(e) #most likely buffer underfill
 
 _struct_I = genpy.struct_I
-_struct_18f = struct.Struct("<18f")
-_struct_16i = struct.Struct("<16i")
-_struct_12f = struct.Struct("<12f")
-_struct_6i = struct.Struct("<6i")
-_struct_16f = struct.Struct("<16f")
-_struct_3i = struct.Struct("<3i")
-_struct_3I = struct.Struct("<3I")
-_struct_2f = struct.Struct("<2f")
-_struct_2i = struct.Struct("<2i")
+def _get_struct_I():
+    global _struct_I
+    return _struct_I
+_struct_18f = None
+def _get_struct_18f():
+    global _struct_18f
+    if _struct_18f is None:
+        _struct_18f = struct.Struct("<18f")
+    return _struct_18f
+_struct_16i = None
+def _get_struct_16i():
+    global _struct_16i
+    if _struct_16i is None:
+        _struct_16i = struct.Struct("<16i")
+    return _struct_16i
+_struct_12f = None
+def _get_struct_12f():
+    global _struct_12f
+    if _struct_12f is None:
+        _struct_12f = struct.Struct("<12f")
+    return _struct_12f
+_struct_6i = None
+def _get_struct_6i():
+    global _struct_6i
+    if _struct_6i is None:
+        _struct_6i = struct.Struct("<6i")
+    return _struct_6i
+_struct_16f = None
+def _get_struct_16f():
+    global _struct_16f
+    if _struct_16f is None:
+        _struct_16f = struct.Struct("<16f")
+    return _struct_16f
+_struct_3i = None
+def _get_struct_3i():
+    global _struct_3i
+    if _struct_3i is None:
+        _struct_3i = struct.Struct("<3i")
+    return _struct_3i
+_struct_3I = None
+def _get_struct_3I():
+    global _struct_3I
+    if _struct_3I is None:
+        _struct_3I = struct.Struct("<3I")
+    return _struct_3I
+_struct_2f = None
+def _get_struct_2f():
+    global _struct_2f
+    if _struct_2f is None:
+        _struct_2f = struct.Struct("<2f")
+    return _struct_2f
+_struct_2i = None
+def _get_struct_2i():
+    global _struct_2i
+    if _struct_2i is None:
+        _struct_2i = struct.Struct("<2i")
+    return _struct_2i

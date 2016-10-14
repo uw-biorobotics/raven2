@@ -47,6 +47,81 @@ extern unsigned long int gTime;//Defined in rt_process_preempt.cpp
  * that could cause overheating or breakage, it checks joint current_cmd against
  * MAX_INST_DAC that is defined in defines.h
  */
+int overdriveDetect(struct device *device0, int runlevel)
+{
+    int i, j;
+    struct DOF* _joint;
+    int ret = FALSE;
+    static int count = 0;
+
+    for (i = 0; i < NUM_MECH; i++)
+        for (j = 0; j < (MAX_DOF_PER_MECH-1); j++)
+        {
+            _joint = &(device0->mech[i].joint[j]);
+            int _dac_max = DOF_types[_joint->type].DAC_max;
+
+            // Kill current if greater than MAX_INST_DAC.  Probably indicates a problem.
+            if (abs(_joint->current_cmd) > MAX_INST_DAC)
+            {
+                log_msg("Instant i command too high. Joint type: %d DAC:%d \t tau:%0.3f\n", _joint->type, _joint->current_cmd, _joint->tau_d);
+                _joint->current_cmd = 0;
+                ret = TRUE;
+		count = 0;
+            }
+
+            else if (abs(_joint->current_cmd) > _dac_max && runlevel > 2)
+            {
+		if(SAFETY_POLICY == NO_REGULATION)// print and do nothing
+		{
+
+		    if (gTime %100 == 0) // Print out safety message
+		    {
+	    		if(_joint->current_cmd > 0)
+            		    err_msg("[NO_REG] Joint type %d current high (%d) at DAC:%d\n", _joint->type, _dac_max, _joint->current_cmd);
+	    		else
+			    err_msg("[NO_REG] Joint type %d current low (%d) at DAC:%d\n", _joint->type, _dac_max*-1,  _joint->current_cmd);
+		    }
+		    count = 0;
+
+		}
+		else if(SAFETY_POLICY == SOFT_REGULATION) // print and clip current
+		{
+		     if (gTime %100 == 0) // Print out safety message
+		     {
+	    		if(_joint->current_cmd > 0)
+            		    err_msg("[SOFT_REG] Joint type %d current clipped high (%d) at DAC:%d\n", _joint->type, _dac_max, _joint->current_cmd);
+	    		else
+			    err_msg("[SOFT_REG] Joint type %d current clipped low (%d) at DAC:%d\n", _joint->type, _dac_max*-1,  _joint->current_cmd);
+		     }
+			   
+		     _joint->current_cmd = (_joint->current_cmd > 0) ? _dac_max : _dac_max*-1; // Clip current to max_torque or -1*max_torque
+		     count = 0;
+
+		}
+		else  // SAFETY_POLICY == HARD_REGULATION
+		{
+        	
+		    if(count > 10)
+		    {
+	    		    if(_joint->current_cmd > 0)
+	    		        err_msg("[HARD_REG] Joint type %d current Estop high (%d) at DAC:%d\n", _joint->type, _dac_max, _joint->current_cmd);
+	    		    else
+				err_msg("[HARD_REG] Joint type %d current Estop low (%d) at DAC:%d\n", _joint->type, _dac_max*-1,  _joint->current_cmd);
+	   	
+			    _joint->current_cmd = 0; // Reset current to 0 (and trigger Estop)
+			    ret = TRUE;
+                            count = 0;
+		    }
+		    count ++;
+		}
+            }
+
+        }
+
+    return ret;
+}
+/*
+//This is the original code
 int overdriveDetect(struct device *device0)
 {
     int i, j;
@@ -95,3 +170,4 @@ int overdriveDetect(struct device *device0)
 
     return ret;
 }
+*/

@@ -292,6 +292,33 @@
 #endif
 
 
+//~~~~~~~~ SAFETY LEVEL AND POLICY ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#define NO_REGULATION	0  // print and do nothing (WARNING: NOT RECOMMENDED)
+#define SOFT_REGULATION	1  // print and clip current
+#define HARD_REGULATION	2  // print and Estop
+
+#define BEGINNER_MODE	0
+#define MODERATE_MODE	1
+#define ADVANCED_MODE	2
+
+#define BEGINNER_SHOULDER_MAX_DAC   1500   // support circle motion speed up to level ~20
+#define BEGINNER_ELBOW_MAX_DAC      1500
+#define BEGINNER_Z_INS_MAX_DAC      1000
+
+#define MODERATE_SHOULDER_MAX_DAC   2500   // support circle motion speed up to level ~30
+#define MODERATE_ELBOW_MAX_DAC      2500
+#define MODERATE_Z_INS_MAX_DAC      2000
+
+#define ADVANCED_SHOULDER_MAX_DAC   5000   // support circle motion speed up to level ~45
+#define ADVANCED_ELBOW_MAX_DAC      5000
+#define ADVANCED_Z_INS_MAX_DAC      4000
+
+// Our choice of the safety level and policy for RAVEN teleoperation
+#define SAFETY_POLICY	SOFT_REGULATION // User can change this! (this value is used in overdrive_detect.cpp)
+#define SAFETY_LEVEL	BEGINNER_MODE 	// User can change this! (this value is used in init.cpp)
+
+
+
 #define SHOULDER_MAX_ANGLE   0.0
 #define ELBOW_MAX_ANGLE      3*M_PI/4 + (2.5*M_PI/180)
 #define Z_INS_MAX_ANGLE      0.562

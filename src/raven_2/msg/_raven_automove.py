@@ -84,13 +84,13 @@ float64 w
       if self.hdr is None:
         self.hdr = std_msgs.msg.Header()
       if self.del_pos is None:
-        self.del_pos = [0,0,0,0,0,0]
+        self.del_pos = [0] * 6
       if self.tf_incr is None:
-        self.tf_incr = [geometry_msgs.msg.Transform(),geometry_msgs.msg.Transform()]
+        self.tf_incr = [geometry_msgs.msg.Transform()] * 2
     else:
       self.hdr = std_msgs.msg.Header()
-      self.del_pos = [0,0,0,0,0,0]
-      self.tf_incr = [geometry_msgs.msg.Transform(),geometry_msgs.msg.Transform()]
+      self.del_pos = [0] * 6
+      self.tf_incr = [geometry_msgs.msg.Transform()] * 2
 
   def _get_types(self):
     """
@@ -105,24 +105,21 @@ float64 w
     """
     try:
       _x = self
-      buff.write(_struct_3I.pack(_x.hdr.seq, _x.hdr.stamp.secs, _x.hdr.stamp.nsecs))
+      buff.write(_get_struct_3I().pack(_x.hdr.seq, _x.hdr.stamp.secs, _x.hdr.stamp.nsecs))
       _x = self.hdr.frame_id
       length = len(_x)
       if python3 or type(_x) == unicode:
         _x = _x.encode('utf-8')
         length = len(_x)
-      if python3:
-        buff.write(struct.pack('<I%sB'%length, length, *_x))
-      else:
-        buff.write(struct.pack('<I%ss'%length, length, _x))
-      buff.write(_struct_6i.pack(*self.del_pos))
+      buff.write(struct.pack('<I%ss'%length, length, _x))
+      buff.write(_get_struct_6i().pack(*self.del_pos))
       for val1 in self.tf_incr:
         _v1 = val1.translation
         _x = _v1
-        buff.write(_struct_3d.pack(_x.x, _x.y, _x.z))
+        buff.write(_get_struct_3d().pack(_x.x, _x.y, _x.z))
         _v2 = val1.rotation
         _x = _v2
-        buff.write(_struct_4d.pack(_x.x, _x.y, _x.z, _x.w))
+        buff.write(_get_struct_4d().pack(_x.x, _x.y, _x.z, _x.w))
     except struct.error as se: self._check_types(struct.error("%s: '%s' when writing '%s'" % (type(se), str(se), str(locals().get('_x', self)))))
     except TypeError as te: self._check_types(ValueError("%s: '%s' when writing '%s'" % (type(te), str(te), str(locals().get('_x', self)))))
 
@@ -140,7 +137,7 @@ float64 w
       _x = self
       start = end
       end += 12
-      (_x.hdr.seq, _x.hdr.stamp.secs, _x.hdr.stamp.nsecs,) = _struct_3I.unpack(str[start:end])
+      (_x.hdr.seq, _x.hdr.stamp.secs, _x.hdr.stamp.nsecs,) = _get_struct_3I().unpack(str[start:end])
       start = end
       end += 4
       (length,) = _struct_I.unpack(str[start:end])
@@ -152,7 +149,7 @@ float64 w
         self.hdr.frame_id = str[start:end]
       start = end
       end += 24
-      self.del_pos = _struct_6i.unpack(str[start:end])
+      self.del_pos = _get_struct_6i().unpack(str[start:end])
       self.tf_incr = []
       for i in range(0, 2):
         val1 = geometry_msgs.msg.Transform()
@@ -160,12 +157,12 @@ float64 w
         _x = _v3
         start = end
         end += 24
-        (_x.x, _x.y, _x.z,) = _struct_3d.unpack(str[start:end])
+        (_x.x, _x.y, _x.z,) = _get_struct_3d().unpack(str[start:end])
         _v4 = val1.rotation
         _x = _v4
         start = end
         end += 32
-        (_x.x, _x.y, _x.z, _x.w,) = _struct_4d.unpack(str[start:end])
+        (_x.x, _x.y, _x.z, _x.w,) = _get_struct_4d().unpack(str[start:end])
         self.tf_incr.append(val1)
       return self
     except struct.error as e:
@@ -180,24 +177,21 @@ float64 w
     """
     try:
       _x = self
-      buff.write(_struct_3I.pack(_x.hdr.seq, _x.hdr.stamp.secs, _x.hdr.stamp.nsecs))
+      buff.write(_get_struct_3I().pack(_x.hdr.seq, _x.hdr.stamp.secs, _x.hdr.stamp.nsecs))
       _x = self.hdr.frame_id
       length = len(_x)
       if python3 or type(_x) == unicode:
         _x = _x.encode('utf-8')
         length = len(_x)
-      if python3:
-        buff.write(struct.pack('<I%sB'%length, length, *_x))
-      else:
-        buff.write(struct.pack('<I%ss'%length, length, _x))
+      buff.write(struct.pack('<I%ss'%length, length, _x))
       buff.write(self.del_pos.tostring())
       for val1 in self.tf_incr:
         _v5 = val1.translation
         _x = _v5
-        buff.write(_struct_3d.pack(_x.x, _x.y, _x.z))
+        buff.write(_get_struct_3d().pack(_x.x, _x.y, _x.z))
         _v6 = val1.rotation
         _x = _v6
-        buff.write(_struct_4d.pack(_x.x, _x.y, _x.z, _x.w))
+        buff.write(_get_struct_4d().pack(_x.x, _x.y, _x.z, _x.w))
     except struct.error as se: self._check_types(struct.error("%s: '%s' when writing '%s'" % (type(se), str(se), str(locals().get('_x', self)))))
     except TypeError as te: self._check_types(ValueError("%s: '%s' when writing '%s'" % (type(te), str(te), str(locals().get('_x', self)))))
 
@@ -216,7 +210,7 @@ float64 w
       _x = self
       start = end
       end += 12
-      (_x.hdr.seq, _x.hdr.stamp.secs, _x.hdr.stamp.nsecs,) = _struct_3I.unpack(str[start:end])
+      (_x.hdr.seq, _x.hdr.stamp.secs, _x.hdr.stamp.nsecs,) = _get_struct_3I().unpack(str[start:end])
       start = end
       end += 4
       (length,) = _struct_I.unpack(str[start:end])
@@ -236,19 +230,42 @@ float64 w
         _x = _v7
         start = end
         end += 24
-        (_x.x, _x.y, _x.z,) = _struct_3d.unpack(str[start:end])
+        (_x.x, _x.y, _x.z,) = _get_struct_3d().unpack(str[start:end])
         _v8 = val1.rotation
         _x = _v8
         start = end
         end += 32
-        (_x.x, _x.y, _x.z, _x.w,) = _struct_4d.unpack(str[start:end])
+        (_x.x, _x.y, _x.z, _x.w,) = _get_struct_4d().unpack(str[start:end])
         self.tf_incr.append(val1)
       return self
     except struct.error as e:
       raise genpy.DeserializationError(e) #most likely buffer underfill
 
 _struct_I = genpy.struct_I
-_struct_6i = struct.Struct("<6i")
-_struct_3I = struct.Struct("<3I")
-_struct_4d = struct.Struct("<4d")
-_struct_3d = struct.Struct("<3d")
+def _get_struct_I():
+    global _struct_I
+    return _struct_I
+_struct_6i = None
+def _get_struct_6i():
+    global _struct_6i
+    if _struct_6i is None:
+        _struct_6i = struct.Struct("<6i")
+    return _struct_6i
+_struct_3I = None
+def _get_struct_3I():
+    global _struct_3I
+    if _struct_3I is None:
+        _struct_3I = struct.Struct("<3I")
+    return _struct_3I
+_struct_4d = None
+def _get_struct_4d():
+    global _struct_4d
+    if _struct_4d is None:
+        _struct_4d = struct.Struct("<4d")
+    return _struct_4d
+_struct_3d = None
+def _get_struct_3d():
+    global _struct_3d
+    if _struct_3d is None:
+        _struct_3d = struct.Struct("<3d")
+    return _struct_3d
