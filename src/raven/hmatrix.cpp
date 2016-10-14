@@ -17,13 +17,31 @@
  * along with Raven 2 Control.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/**
- * hmatrix.c
- *
- *  Created on: Jan 22, 2010
- *      Author: glozmand
- * This file isn't really used for anything important. It ought to be removed from the project.
- */
+ /**     \file hmatrix.cpp
+*
+*        \brief  This is a file of basic matrix computations.
+*                This file isn't really used for anything important. It ought to be removed from the project.
+* 
+*        \fn These are the 12 functions in hmatrix.cpp file. 
+*            Functions marked with "*" are called explicitly from other files.
+*             *(1)  mulMatrix		 
+*             *(2)  mulMatrix3x3i          
+*             *(3)  mulMatrix3x3f           
+*             *(4)  invOrthMatrix	   		
+*             *(5)  transpose3x3f
+* 	      *(6)  printMatrix4x4
+*  	      *(7)  printMatrix3x3
+* 	      *(8)  printMatrix3x3i
+* 	      *(9)  orientation_from_hmatrix
+* 	      *(10) hmatrix_from_orientation
+* 	      *(11) create_rotation_matrix
+* 	      *(12) create_rotation_from_matrix
+*	     Also defines operator: SQR and ABS in this file.
+* 
+*       \author glozmand
+*
+*       \date Jan 22, 2010
+*/
 
 #include <math.h>
 #include <stdio.h>

@@ -17,25 +17,30 @@
  * along with Raven 2 Control.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/**
+/** \file  grav_comp.cpp
+ *
  *  \brief Functions for calculating gravity torques
  *
- *  These functions will calculate gravity loads on each of the first 3 DOFs with predefined mass properties.
- *  However, arbitrary gravity vectors can be specified in the currParams data structure, which are then
- *  used in these calculations.
+ *  \desc  These functions will calculate gravity loads on each of the first 3 DOFs with predefined mass properties.
+ *         However, arbitrary gravity vectors can be specified in the currParams data structure, which are then
+ *         used in these calculations.
  *
- *  Re-written March 2013 by Andy Lewis and Hawkeye King
- *    Equations re-derived for UW Kinematics formulations for Raven II
- *    See Andy's MS thesis or ICRA '14 paper for technical details.
- *
- *
+ *  \fn    These are the 3 functions in grav_comp.cpp file. 
+ *         Functions marked with "*" are called explicitly from other files.
+ *             (1) getCurrentG
+ * 	      *(2) getGravityTorque			:uses (1)(3)
+ *             (3) getMotorTorqueFromJointTorque
+ * 
+ *  \log   Re-written March 2013 by Andy Lewis and Hawkeye King
+ *         Equations re-derived for UW Kinematics formulations for Raven II
+ *         See Andy's MS thesis or ICRA '14 paper for technical details.
+ * 
  *  \author Hawkeye King
- *  \author Andrew Lewis
+ *          Andrew Lewis
  *
  *  \date February 2013
  *
  *  \ingroup control
- *
  */
 
 #include "grav_comp.h"

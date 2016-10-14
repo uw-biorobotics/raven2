@@ -18,10 +18,15 @@
  */
 
 /**\file globals.cpp
- * \brief define Global variables
- * \author Kenneth Fodero
- * \author Biorobotics Lab
- * \date 2005
+ *
+ *    \brief  define Global variables
+ *
+ *    \fn     There is no function this file.
+ *
+ *    \author Kenneth Fodero
+ *            Biorobotics Lab
+ *
+ *    \date 2005
  */
 
 #include "struct.h"  // DS0, DS1, DOF_types defines
