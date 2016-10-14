@@ -143,7 +143,7 @@ void getGravityTorque(struct device &d0, struct param_pass &params)
 
 	struct mechanism *_mech;
 	tf::Vector3 G0;
-	static tf::Vector3 G0Static = tf::Vector3(-9.8, 0, 0);
+	//static tf::Vector3 G0Static = tf::Vector3(-9.8, 0, 0); //unused
 	tf::Vector3 COM1_1, COM2_2, COM3_3;
 
 	/// Do FK for each mechanism
@@ -186,14 +186,14 @@ void getGravityTorque(struct device &d0, struct param_pass &params)
 		// Get COM3
 		tf::Vector3 COM3_2 = T23 * COM3_3;
 		tf::Vector3 COM3_1 = T12 * COM3_2;
-		tf::Vector3 COM3_0 = T01 * COM3_1;
+		//tf::Vector3 COM3_0 = T01 * COM3_1; //unused?
 
 		// Get COM2
-		tf::Vector3 COM2_1 = T12 * COM2_2;
-		tf::Vector3 COM2_0 = T01 * COM2_1;
+		tf::Vector3 COM2_1 = T12 * COM2_2; 
+		//tf::Vector3 COM2_0 = T01 * COM2_1; //unused?
 
 		// Get COM1
-		tf::Vector3 COM1_0 = T01 * COM1_1;
+		//tf::Vector3 COM1_0 = T01 * COM1_1; //unused?
 
 		///// Get gravity vector in each link frame
 		// Map G into Frame1

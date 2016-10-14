@@ -72,7 +72,7 @@ void r2_jacobian::set_vel(Eigen::VectorXf vel){
  *	\return void
  */
 void r2_jacobian::get_vel(float vel[6]){
-	for (int i; i<6; i++){
+	for (int i = 0; i<6; i++){
 		vel[i] = velocity(i);
 	}
 	return;
@@ -96,8 +96,7 @@ void r2_jacobian::set_force(Eigen::VectorXf f){
  *	\return void
  */
 void r2_jacobian::get_force(float f[]){
-	int k;
-	for (k; k<6; k++){
+	for (int k = 0; k<6; k++){
 		f[k] = force(k);
 	}
     return;
@@ -205,7 +204,7 @@ int r2_device_jacobian(struct robot_device *d0, int runlevel){
 	float j_pos[6];
 	float j_vel[6];
 	float j_torque[6];
-	float capstan_torque; //torque at the capstan (after gearbox)
+	//float capstan_torque; //torque at the capstan (after gearbox)
 	float grav_t;
 	float applied_t;
 	int arm_type;

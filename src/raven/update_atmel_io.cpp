@@ -86,6 +86,7 @@ void updateAtmelOutputs(struct device *device0, int runlevel)
  * \return void
  * \ingroup Hardware
  * \ingroup Debug
+ * \todo I don't think this function does anything - nothing is returned and I don't think the device is updated
  */
 void updateAtmelInputs(struct device device0, int runlevel)
 {

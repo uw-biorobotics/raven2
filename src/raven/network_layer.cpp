@@ -152,6 +152,7 @@ volatile struct v_struct v;
   \param param1 void pointer
   \return void
   \ingroup Network
+  \todo do something with retval to keep the compiler from complaining 
 */
 void* network_process(void* param1)
 {

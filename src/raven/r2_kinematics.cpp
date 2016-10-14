@@ -387,7 +387,6 @@ int r2_inv_kin(struct device *d0, int runlevel)
 		// convert from joint angle representation to DH theta convention
 		double lo_thetas[6];
 
-		static int arm_check = 0;
 
 		joint2theta(lo_thetas, joints, arm);  //this is the one that's wrong
 		int sol_idx=0;
