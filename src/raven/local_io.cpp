@@ -326,6 +326,16 @@ void updateMasterRelativeOrigin(struct device *device0)
     return;
 }
 
+void setSurgeonMode(int pedalstate)
+{
+    pthread_mutex_lock(&data1Mutex);
+    data1.surgeon_mode = pedalstate;
+    pthread_mutex_unlock(&data1Mutex);
+    isUpdated = TRUE;
+    log_msg("surgeon mode: %d",data1.surgeon_mode);
+}
+
+
 ///
 /// PUBLISH ROS DATA
 ///
@@ -410,7 +420,8 @@ void autoincrCallback(raven_2::raven_automove msg)
 	}
     }
 
-  pthread_mutex_unlock(&data1Mutex);
+    pthread_mutex_unlock(&data1Mutex);
+    isUpdated = TRUE;
 }
 
 
