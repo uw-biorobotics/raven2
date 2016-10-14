@@ -106,7 +106,22 @@ void *console_process(void *)
                 print_msg=1;
                 break;
             }
-
+            case 'd':
+	    case 'D':
+            {
+              log_msg("pedal down");
+              setSurgeonMode(1);
+              updateMasterRelativeOrigin(&device0);  
+              break;
+            }
+            case 'u':
+	    case 'U':
+            {
+              log_msg("pedal up");  
+              setSurgeonMode(0);
+              updateMasterRelativeOrigin(&device0);  
+              break;
+            }
             case 'e':
             case 'E':
             case '0':
