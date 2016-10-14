@@ -42,7 +42,7 @@
 #define DV_ADAPTER			1
 //#define RICKS_TOOLS     //skips tool initialization //not supported since switch to tools.h?
 //#define SCISSOR_RIGHT
-#define OPPOSE_GRIP
+//#define OPPOSE_GRIP
 
 
 //~~~~~~~~~ USB Board definition ~~~~~~~~~~~~~~~~~~~
