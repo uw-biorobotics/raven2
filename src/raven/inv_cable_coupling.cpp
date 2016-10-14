@@ -108,13 +108,7 @@ void invMechCableCoupling(struct mechanism *mech, int no_use_actual)
 	tr6 = DOF_types[GRASP1_GREEN   ].TR;
 	tr7 = DOF_types[GRASP2_GREEN   ].TR;
 
-	static int thrice = 0;
-	if (thrice < 4)
-	{
-		log_msg("mech type --> %i ", mech->type);
-		log_msg("GREEN ARM --> %i ", GREEN_ARM);
-		thrice++;
-	}
+
 
   }
 

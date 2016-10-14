@@ -369,7 +369,6 @@ void initDOFs(struct device *device0)
 		if (j == GRASP1)
 		{
 			_dof->tau_per_amp *= -1; //swap the torque sign for the first grasper
-			log_msg("grasp1 tau_per_amp swapped");
 		}
 #endif
             }

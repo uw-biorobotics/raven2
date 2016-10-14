@@ -45,13 +45,9 @@ void putUSBPackets(struct device *device0)
     {
         if (putUSBPacket(USBBoards.boards[i], &(device0->mech[i])) == -USB_WRITE_ERROR)
 	  {
-	                log_msg("Error writing to USB Board %d!\n", USBBoards.boards[i]);
+	      log_msg("Error writing to USB Board %d!\n", USBBoards.boards[i]);
 	  }
-     static int j = 0;
-     if (j < 5){
-    	 log_msg("put usb board id --> %i", USBBoards.boards[i]);
-    	 j++;
-     }
+
     }
 }
 

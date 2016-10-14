@@ -963,12 +963,6 @@ void joint2theta(double *out_iktheta, double *in_J, l_r in_arm)
 		out_iktheta[4] = in_J[4] + TH5_J4_L * d2r;
 		out_iktheta[5] = in_J[5] + TH6A_J5_L * d2r;
 
-		static int larm_check = 0;
-		if (larm_check < 2) {
-			log_msg("why left arm? -- j2t");
-			larm_check++;
-		}
-
 	}
 
 	else
@@ -980,11 +974,8 @@ void joint2theta(double *out_iktheta, double *in_J, l_r in_arm)
 		out_iktheta[3] = in_J[3] + TH4_J3_R * d2r;
 		out_iktheta[4] = in_J[4] + TH5_J4_R * d2r;
 		out_iktheta[5] = in_J[5] + TH6A_J5_R * d2r;
-		static int arm_check = 0;
-		if (arm_check < 2) {
-			log_msg("definitely still the right arm j2t");
-			arm_check++;
-		}
+
+
 	}
 
 	// bring to range {-pi , pi}

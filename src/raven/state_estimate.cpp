@@ -215,10 +215,10 @@ void getStateLPF(struct DOF *joint, int tool_type)
     joint->mvel = (motorPos - oldPos[0])/ STEP_PERIOD;
     joint->mpos = motorPos;
 
-    static int print_twice = 0;
-    if (print_twice < 2){
+    static int print_once = 0;
+    if (print_once < 1){
 	   log_msg("!!!!!!!!!!!!!    LPF FILTER IS OFF    !!!!!!111!!1!1!!!", 0);
-       print_twice++;
+       print_once++;
     }
 #else //use the filter
     joint->mvel = (filtPos - oldFiltPos[0]) / STEP_PERIOD;
