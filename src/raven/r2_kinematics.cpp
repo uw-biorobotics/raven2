@@ -35,7 +35,6 @@
 
 #include "r2_kinematics.h"
 #include "log.h"
-#include "tool.h"
 #include "local_io.h"
 #include "defines.h"
 

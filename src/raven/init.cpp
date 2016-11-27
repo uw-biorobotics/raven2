@@ -40,9 +40,6 @@
 #include "USB_init.h"
 #include "local_io.h"
 
-// TOOLS defines
-#include "tool.h"
-
 #ifdef DV_ADAPTER
 const e_tool_type use_tool = dv_adapter;
 #else
