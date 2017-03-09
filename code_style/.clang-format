@@ -1,0 +1,13 @@
+---
+BasedOnStyle:  Google
+ColumnLimit:    100
+ExperimentalAutoDetectBinPacking: false
+Standard:        Auto
+UseTab:          Never
+SpacesInParentheses: false
+SpacesInAngles:  false
+SpaceInEmptyParentheses: false
+SpacesInCStyleCastParentheses: false
+SpaceAfterControlStatementKeyword: true
+SpaceBeforeAssignmentOperators: true
+...
