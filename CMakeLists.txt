@@ -1,6 +1,8 @@
 cmake_minimum_required (VERSION 2.8.3)
 project(raven_2)
 
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules/")
+
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
@@ -12,6 +14,8 @@ find_package(catkin REQUIRED COMPONENTS
   visualization_msgs
   tf
 )
+
+find_package(Eigen3 REQUIRED)
 
 add_message_files(
   DIRECTORY msg
@@ -34,6 +38,7 @@ include_directories(
   include
   include/raven
   ${catkin_INCLUDE_DIRS}
+  ${EIGEN3_INCLUDE_DIR}
 )
 
 if(CMAKE_COMPILER_IS_GNUCXX)
