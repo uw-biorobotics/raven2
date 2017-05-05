@@ -31,7 +31,6 @@
 
 #include "struct.h"
 #include "defines.h"
-#include "fifo.h"
 #include "USB_init.h"
 
 int initLocalioData(void);

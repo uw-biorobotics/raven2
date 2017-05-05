@@ -58,7 +58,6 @@ set(r2_control_sources
   src/raven/local_io.cpp
   src/raven/log.cpp
   src/raven/mapping.cpp
-  src/raven/motor.cpp
   src/raven/network_layer.cpp
   src/raven/overdrive_detect.cpp
   src/raven/parallel.cpp

@@ -38,7 +38,6 @@
 #include "defines.h"
 
 #include "init.h"             // for initSurgicalArms()
-#include "inv_kinematics.h"
 #include "r2_kinematics.h"
 #include "inv_cable_coupling.h"
 #include "state_estimate.h"
@@ -46,7 +45,6 @@
 #include "grav_comp.h"
 #include "t_to_DAC_val.h"
 #include "fwd_cable_coupling.h"
-#include "fwd_kinematics.h"
 #include "trajectory.h"
 #include "homing.h"
 #include "local_io.h"
