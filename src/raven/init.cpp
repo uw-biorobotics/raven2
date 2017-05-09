@@ -16,21 +16,21 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Raven 2 Control.  If not, see <http://www.gnu.org/licenses/>.
  */
- 
+
 /**	\file 	init.cpp
 *
 *	\brief 	contains functions for initializing the robot
 * 	       	intializes the DOF structure AND runs initialization routine
 *
-* 	\fn These are the 4 functions in init.cpp file. 
+* 	\fn These are the 4 functions in init.cpp file.
 *           Functions marked with "*" are called explicitly from other files.
 * 	       *(1) initRobotData	 	:uses (2)(4)
-*       	(2) intDOFs	 
+*       	(2) intDOFs
 * 	       *(3) init_ravengains
 *		(4) setStartXYZ			:uses fwd_cable_coupling.cpp (1), r2_kinematics.cpp (2), local_io.cpp (6)
 *
 *  	\date 	7/29/2005
-* 
+*
 *  	\author Hawkeye King
 */
 
@@ -200,7 +200,7 @@ void initDOFs(struct device *device0)
 	DOF_types[ELBOW_GOLD].DAC_max     = MODERATE_ELBOW_MAX_DAC;
 	DOF_types[ELBOW_GREEN].DAC_max    = MODERATE_ELBOW_MAX_DAC;
 	DOF_types[Z_INS_GOLD].DAC_max     = MODERATE_Z_INS_MAX_DAC;
-	DOF_types[Z_INS_GREEN].DAC_max    = MODERATE_Z_INS_MAX_DAC;	
+	DOF_types[Z_INS_GREEN].DAC_max    = MODERATE_Z_INS_MAX_DAC;
     }
     else // SAFETY_LEVEL == ADVANCED_MODE
     {
@@ -209,7 +209,7 @@ void initDOFs(struct device *device0)
 	DOF_types[ELBOW_GOLD].DAC_max     = ADVANCED_ELBOW_MAX_DAC;
 	DOF_types[ELBOW_GREEN].DAC_max    = ADVANCED_ELBOW_MAX_DAC;
 	DOF_types[Z_INS_GOLD].DAC_max     = ADVANCED_Z_INS_MAX_DAC;
-	DOF_types[Z_INS_GREEN].DAC_max    = ADVANCED_Z_INS_MAX_DAC;	
+	DOF_types[Z_INS_GREEN].DAC_max    = ADVANCED_Z_INS_MAX_DAC;
     }
 
     /*

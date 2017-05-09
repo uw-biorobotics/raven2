@@ -1,5 +1,4 @@
 <launch>
     <rosparam file="$(find raven_2)/params/r2params.yaml" command="load" output="screen" />
     <node name ="r2_control" pkg="raven_2" type="r2_control" output="screen"/>
-
 </launch>

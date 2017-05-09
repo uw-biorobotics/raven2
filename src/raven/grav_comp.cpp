@@ -25,16 +25,16 @@
  *         However, arbitrary gravity vectors can be specified in the currParams data structure, which are then
  *         used in these calculations.
  *
- *  \fn    These are the 3 functions in grav_comp.cpp file. 
+ *  \fn    These are the 3 functions in grav_comp.cpp file.
  *         Functions marked with "*" are called explicitly from other files.
  *             (1) getCurrentG
  * 	      *(2) getGravityTorque			:uses (1)(3)
  *             (3) getMotorTorqueFromJointTorque
- * 
+ *
  *  \log   Re-written March 2013 by Andy Lewis and Hawkeye King
  *         Equations re-derived for UW Kinematics formulations for Raven II
  *         See Andy's MS thesis or ICRA '14 paper for technical details.
- * 
+ *
  *  \author Hawkeye King
  *          Andrew Lewis
  *
@@ -91,7 +91,7 @@ tf::Vector3 getCurrentG(struct device *d0, int m)
 	_mech = &(d0->mech[m]);
 	float xG0, yG0, zG0;
 	if (_mech->type == GOLD_ARM_SERIAL)
-	{	
+	{
 		//take new data and rotate to frame 0 GOLD and scale to m/s^2
 		xG0 = -1 *	((float)d0->grav_dir.z) / 100;
 		yG0 = 		((float)d0->grav_dir.x) / 100;
@@ -189,7 +189,7 @@ void getGravityTorque(struct device &d0, struct param_pass &params)
 		//tf::Vector3 COM3_0 = T01 * COM3_1; //unused?
 
 		// Get COM2
-		tf::Vector3 COM2_1 = T12 * COM2_2; 
+		tf::Vector3 COM2_1 = T12 * COM2_2;
 		//tf::Vector3 COM2_0 = T01 * COM2_1; //unused?
 
 		// Get COM1

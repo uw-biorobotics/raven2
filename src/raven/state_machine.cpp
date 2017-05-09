@@ -40,7 +40,7 @@ struct tms dummy_times;
  * \param device0 robot_device struct defined in DS0.h
  * \param currParam param_pass struct defined in DS1.h
  * \param rcvdParams param_pass struct
- * 
+ *
  * In SOFTWARE_RUNLEVEL mode, get desired runlevel from the rcvdParams.
  * In PLC_RUNLEVELS mode, get desired runlevel from the PLC via atmel inputs.
  * If the two PLC's give different runlevels, select  the lowest of the two.

@@ -17,13 +17,13 @@
  * along with Raven 2 Control.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/** 
+/**
  * 	\file utils.cpp
  *
  * 	\brief some common utility functions
  *
- * 	\author Kenneth Fodero 
- * 	
+ * 	\author Kenneth Fodero
+ *
  *	\date 2005
  */
 
@@ -72,9 +72,9 @@ int toShort(int value, short int *target)
 
 /**
 *	\fn int loop_over_joints(struct robot_device* device0, struct mechanism*& _mech, struct DOF*& _joint, int& mechnum, int& jnum)
-* 
+*
 *	\brief Iterate over all joints of all mechanisms
-*  
+*
 *	\desc To start iteration, call function with _joint == _mech == NULL
 *  		Function iterates by incrementing jnum and mnum from zero and returning the appropriate mech and joint.
 *  		Iteration terminates when function is called with jnum == MAX_DOF-1 and mnum = NUM_MECH-1.
@@ -85,13 +85,13 @@ int toShort(int value, short int *target)
 *  	\post jnum and mnum are incremented or reset as necessary
 *                   _mech points to device0.mech[mechnum]
 *                   _joint points to device0.mech[mechnum].joint[jnum+1]
-* 
+*
 *	\param device0 a pointer points to the robot_device struct
 * 	\param _mech   a pointer points to the mechanism struct, and it is updated at the end of the function
 * 	\param _joint  a pointer points to the DOF struct, and it is updated at the end of the function
 * 	\param mechnum integer value represents the mechanism id, and it is updated at the end of the function
 * 	\param jnum    integer value represents the joint id, and it is updated at the end of the function
-* 
+*
 *	\return 0 if reaches last joint index
 *			1 otherwise
 */
@@ -131,9 +131,9 @@ int loop_over_joints(struct robot_device* device0, struct mechanism*& _mech, str
 
 /**
 *	\fn loop_over_joints(struct mechanism* _mech, struct DOF*& _joint, int& jnum)
-* 
+*
 *	\brief Iterate over all joints of one mechanism.
-*  
+*
 *	\desc To start iteration, call function with _joint == NULL
 *  		Function iterates by incrementing jnum from zero and returning the appropriate joint.
 *  		Iteration terminates when function is called with jnum == MAX_DOF-1.
@@ -147,7 +147,7 @@ int loop_over_joints(struct robot_device* device0, struct mechanism*& _mech, str
 * 	\param _mech   a pointer points to the mechanism struct, and it is updated at the end of the function
 * 	\param _joint  a pointer points to the DOF struct, and it is updated at the end of the function
 * 	\param jnum    integer value represents the joint id, and it is updated at the end of the function
-* 	
+*
 *	\return 0 if reaches to last joint index
 *			1 otherwise
 */
@@ -179,11 +179,11 @@ int loop_over_joints(struct mechanism* _mech, struct DOF*& _joint, int& jnum)
 
 /**
 *	\fn int is_toolDOF(struct DOF *_joint)
-* 
+*
 *	\brief check if the current joint is a toolDOF
-* 
-*	\param _joint a DOF struct 
-* 
+*
+*	\param _joint a DOF struct
+*
 *	\return 1 if the joint is a toolDOF
 *			0 otherwise
 */
@@ -193,11 +193,11 @@ int is_toolDOF(struct DOF *_joint){
 
 /**
 *	\fn int is_toolDOF(int jointType)
-* 
+*
 *	\brief check if the current joint is a toolDOF
-* 
+*
 *	\param _joint an integer value of joint type
-* 
+*
 *	\return 1 if the joint is a toolDOF
 *			0 otherwise
 */
@@ -244,11 +244,11 @@ int tools_ready(struct mechanism *mech)
 
 /**
 *	\fn int robot_ready(struct robot_device* device0)
-* 
+*
 *	\brief check if robot is ready during homing procedure
-* 
+*
 *	\param mech  pointer to the robot_device struct
-* 
+*
 *	\return 1 if and only if all DOFS are ready
 *			0 otherwise
 */
@@ -269,9 +269,9 @@ int robot_ready(struct robot_device* device0)
 
 /**
 *	\fn void strtoken(char *str, char *result, char delim)
-* 
+*
 *	\brief function to tokenize a string
-* 
+*
 *	\param str 		the string
 * 	\param result   the resulting string
 * 	\param delim    the delimeter
@@ -313,12 +313,12 @@ void strtoken(char *str, char *result, char delim)
 
 /**
 *	\fn struct timespec tsSubtract ( struct  timespec  time1, struct  timespec  time2)
-* 
+*
 *	\brief function to get time interval
-* 
+*
 *	\param time1 - struct  timespec
 * 	\param time2 - struct  timespec
-* 
+*
 *	\return time1-time2  or  (0,0) if time2>time1
 *
 *	\return timespec struct with time interval result.tv_nsec
@@ -355,9 +355,9 @@ struct  timespec  tsSubtract ( struct  timespec  time1,
 
 /**
 *	\fn void getQuaternion(float* Q, float mat[3][3])
-* 
+*
 *	\brief function to convert a rotation matrix to quaternion
-* 
+*
 *	\param Q   float pointer
 * 	\param mat float 3x3 multidimensional array
 *
@@ -378,9 +378,9 @@ void getQuaternion(float* Q, float mat[3][3])
 
 /**
 *	\fn void set_posd_to_pos(struct robot_device* device0)
-* 
+*
 *	\brief set the desired position to the robots current position
-* 
+*
 *	\param device0 a pointer points to the robot_device struct
 *
 *	\return void

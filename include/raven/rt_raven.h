@@ -25,7 +25,7 @@
 *   \desc Code split out from rt_process_preempt.cpp, in order to provide more flexibility.
 *
 * 	\author Hawkeye
-* 
+*
 *	\date 10/2011
 *
 *   \ingroup Control

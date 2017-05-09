@@ -25,11 +25,11 @@
 *
 *  	\author Hawkeye King
 *
-* 	\fn These are the 3 functions in console_process.cpp file. 
+* 	\fn These are the 3 functions in console_process.cpp file.
 *           Functions marked with "*" are called explicitly from other files.
 * 	       *(1) console_process	 	:uses (2)(3)
-*       	(2) getkey	 
-* 		(3) outputRobotState	
+*       	(2) getkey
+* 		(3) outputRobotState
 *
 *  	\date ??
 *
@@ -47,12 +47,12 @@
 using namespace std;
 
 // from rt_process.cpp
-extern struct device device0;//robot_device struct defined in DS0.h 
+extern struct device device0;//robot_device struct defined in DS0.h
 
 extern unsigned long int gTime;//Defined in rt_process_preempt.cpp
 extern int soft_estopped;//Defined in rt_process_preempt.cpp
 extern struct DOF_type DOF_types[];//Defined in globals.cpp
-extern std::queue<char*> msgqueue; 
+extern std::queue<char*> msgqueue;
 
 void outputRobotState();
 int getkey();
@@ -117,15 +117,15 @@ void *console_process(void *)
             {
               log_msg("pedal down");
               setSurgeonMode(1);
-              updateMasterRelativeOrigin(&device0);  
+              updateMasterRelativeOrigin(&device0);
               break;
             }
             case 'u':
 	    case 'U':
             {
-              log_msg("pedal up");  
+              log_msg("pedal up");
               setSurgeonMode(0);
-              updateMasterRelativeOrigin(&device0);  
+              updateMasterRelativeOrigin(&device0);
               break;
             }
             case 'e':

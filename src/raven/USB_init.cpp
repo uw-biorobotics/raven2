@@ -22,10 +22,10 @@
 *
 *	\brief USB initialization module
 *
-*	\fn These are the 9 functions in USB_init.cpp file. 
+*	\fn These are the 9 functions in USB_init.cpp file.
 *           Functions marked with "*" are called explicitly from other files.
-* 		(1) getdir		 
-*       	(2) get_board_id_from_filename	 
+* 		(1) getdir
+*       	(2) get_board_id_from_filename
 * 		(3) write_zeros to board	:uses (8)
 * 	       *(4) USBInit			:uses (1)(2)(3)
 * 	       *(5) USBShutDown
@@ -174,25 +174,25 @@ reverse(files.begin(),files.end());
         boardid = get_board_id_from_filename(files[i]);
 		if((boardid == GREEN_ARM_SERIAL) || (boardid == GOLD_ARM_SERIAL ))
 		{
-	
+
 	        // Open usb dev
 	        int tmp_fileHandle = open(boardStr.c_str(), O_RDWR|O_NONBLOCK);    //Is NONBLOCK mode required??// open board chardev
-	
-	
+
+
 	        if (tmp_fileHandle <=0 )
 	        {
 	            perror("ERROR: couldn't open board");
 	            errno=0;
 	            continue; //Failed to open board, move to next one
 	        }
-	
+
 	        // Setup usb dev.  ioctl() performs an initialization in driver.
 	        if ( ioctl(tmp_fileHandle, BRL_RESET_BOARD) != 0)
 	        {
 	            ROS_ERROR("ERROR: ioctl error opening board %s", boardStr.c_str());
 	            errno = 0;
 	        }
-	
+
 	        device0->mech[i].type = 0;
 	        // Set mechanism type Green or Gold surgical robot
 	        if (boardid == GREEN_ARM_SERIAL)
@@ -213,16 +213,16 @@ reverse(files.begin(),files.end());
 	        {
 	            log_msg("*** WARNING: USB BOARD #%d NOT CONNECTED TO MECH (update defines?).",boardid);
 	        }
-	
+
 	        // Store usb dev parameters
 	        boardFile.push_back(tmp_fileHandle);  // Store file handle
 	        USBBoards.boards.push_back(boardid);  // Store board array index
 	        boardFPs[boardid] = tmp_fileHandle;   // Map serial (i) to fileHandle (tmp_fileHandle)
 	        USBBoards.activeAtStart++;            // Increment board count
-	
+
 	        log_msg("board FPs ---> %i", boardFPs[boardid]);
-	
-	
+
+
 	        if ( write_zeros_to_board(boardid) != 0){
 	            ROS_ERROR("Warning: failed initial board reset (set-to-zero)");
        		 }

@@ -18,19 +18,19 @@
  */
 
  /**\file get_USB_packet.cpp
-  * 
+  *
  * 	\brief 	contains functions for initializing the robot
  * 		intializes the DOF structure AND runs initialization routine
- * 
- * 	\fn These are the 4 functions in get_USB_packet.cpp file. 
+ *
+ * 	\fn These are the 4 functions in get_USB_packet.cpp file.
  *          Functions marked with "*" are called explicitly from other files.
  * 	       *(1) initiateUSBGet		:uses USB_init.cpp (6)
  * 	       *(2) getUSBPackets		:uses (3)
  * 		(3) getUSBPacket		:uses (4), USB_init.cpp (7)
  * 		(4) processEncoderPacket	:uses dof.cpp (1)
- * 
+ *
  * 	\author Kenneth Fodero
- * 
+ *
  * 	\date 2005
 */
 
@@ -43,7 +43,7 @@ extern USBStruct USBBoards;
 
 /**\fn void initiateUSBGet(struct device *device0)
   \brief Initiate data request from USB Board. Must be called before read
-  \struct device  
+  \struct device
   \param device0 pointer to device struct
 */
 
@@ -71,7 +71,7 @@ void initiateUSBGet(struct device *device0)
 /**\fn int getUSBPackets(struct device *device0)
   \brief Takes data from USB packet(s) and uses it to fill the
  *   DS0 data structure
-  \struct device  
+  \struct device
   \param device0 pointer to device struct
   \return zero on success and negative on failure
 */
@@ -83,9 +83,9 @@ int getUSBPackets(struct device *device0)
     //Loop through all USB Boards
     for (int i = 0; i < USBBoards.activeAtStart; i++)
     {
-        int err = getUSBPacket( 
-			   USBBoards.boards[i], 
-			   &(device0->mech[i] ) 
+        int err = getUSBPacket(
+			   USBBoards.boards[i],
+			   &(device0->mech[i] )
 			    );
 	if (err == -EBUSY || ret == -EBUSY)
 	  ret = -EBUSY;

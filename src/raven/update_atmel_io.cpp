@@ -35,7 +35,7 @@ extern int NUM_MECH;
 extern unsigned long int gTime;
 
 /**\fn void updateAtmelOutputs(struct device *device0, int runlevel)
- * \brief updates the software output: 8 bits of each arm (identical for both arms) are reserved(5 bits are used) for this output. 
+ * \brief updates the software output: 8 bits of each arm (identical for both arms) are reserved(5 bits are used) for this output.
  *        This output will later be written to the USB as hardware input.
  * \param device0 - pointer to device struct
  * \param runlevel - current runlevel

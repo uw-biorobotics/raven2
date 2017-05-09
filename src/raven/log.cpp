@@ -34,7 +34,7 @@ const static size_t MAX_MSG_LEN =1024;
 
 
 /**\fn int log_msg_later(const char* fmt,...)
-*  \brief 
+*  \brief
 *  \param fmt
 *  \return 0 on success -1 on failure
 */
@@ -59,7 +59,7 @@ int log_msg_later(const char* fmt,...)
 }
 
 /**\fn int log_msg(const char* fmt,...)
-*  \brief 
+*  \brief
 *  \param fmt
 *  \return 0 on success -1 on failure
 */
@@ -78,7 +78,7 @@ int log_msg(const char* fmt,...)
 }
 
 /**\fn int err_msg(const char* fmt,...)
-*  \brief 
+*  \brief
 *  \param fmt
 *  \return 0 on success -1 on failure
 */

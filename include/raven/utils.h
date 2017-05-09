@@ -23,7 +23,7 @@
 * 	\brief some common utility functions
 *
 * 	\author Kenneth Fodero
-* 
+*
 * 	\date 2005
 */
 
@@ -60,7 +60,7 @@ const int _Qx=0, _Qy=1, _Qz=2, _Qw=3;
 void getQuaternion(float* Q, float mat[3][3]);
 
 /**
-*	\fn static inline void tsnorm(struct timespec *ts) 
+*	\fn static inline void tsnorm(struct timespec *ts)
 *
 *	\brief the struct timespec consists of nanoseconds
 * 		and seconds. This rolls over the ns to seconds.
