@@ -41,7 +41,7 @@
  * \todo play with the feed-forward friction term in the PD controller
  */
 
-#include <stdlib.h>
+#include <cstdlib>
 #include "pid_control.h"
 #include "log.h"
 #include "utils.h"

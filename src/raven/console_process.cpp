@@ -36,7 +36,7 @@
 *  	\ingroup IO
 */
 
-#include <stdio.h>
+#include <cstdio>
 #include <iomanip>
 #include <termios.h>   // needed for terminal settings in getkey()
 #include <queue>

@@ -45,7 +45,7 @@
 *	\ingroup Control
 */
 
-#include <stdlib.h>
+#include <cstdlib>
 
 #include "trajectory.h"
 #include "pid_control.h"

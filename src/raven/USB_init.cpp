@@ -41,12 +41,12 @@
 *	\ingroup IO
 */
 
-#include <string.h>
+#include <cstring>
 #include <vector>
 #include <map>
 #include <dirent.h>
 #include <iostream>
-#include <stdio.h>
+#include <cstdio>
 #include <ros/console.h>
 
 #include "USB_init.h"

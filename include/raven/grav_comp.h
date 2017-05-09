@@ -28,7 +28,7 @@
 #ifndef GRAV_COMP_H
 #define GRAV_COMP_H
 
-#include <math.h>
+#include <cmath>
 #include <tf/transform_datatypes.h>
 
 #include "struct.h"

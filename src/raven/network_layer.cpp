@@ -41,16 +41,16 @@
 #include <netinet/in.h> // POSIX library: defines socket ip protocols/address structs
 #include <netdb.h>      // POSIX library: Definitions for network database operations, port/hostname lookup features.
 #include <arpa/inet.h>  // POSIX library: Definitions for internet operations
-#include <ctype.h>      // C Standard library: declares a set of functions to classify and transfrom individual characters
-#include <errno.h>      // C Standard library: Defines macros to report error conditions
-#include <stdio.h>      // C Standard library: Input and output operations
+#include <cctype>      // C Standard library: declares a set of functions to classify and transfrom individual characters
+#include <cerrno>      // C Standard library: Defines macros to report error conditions
+#include <cstdio>      // C Standard library: Input and output operations
 #include <fcntl.h>      // C Standard library: File control options
-#include <time.h>       // C Standard library: timer, time types and structures
+#include <ctime>       // C Standard library: timer, time types and structures
 #include <ros/ros.h>    // Use ROS
 #include <ros/console.h>// ROS console output header for ROS_DEBUG, unused
 
-#include <stdlib.h>     // C Standard library: General Utilities Library
-#include <string.h>     // C Standard library: String operations
+#include <cstdlib>     // C Standard library: General Utilities Library
+#include <cstring>     // C Standard library: String operations
 #include <unistd.h>     // POSIX library: standard symbolic constants and types
 //#include <rtai_fifos.h>
 

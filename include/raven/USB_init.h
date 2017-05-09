@@ -26,11 +26,11 @@
 #define __USB_INIT_H__
 
 //Include files
-#include <stdio.h>
+#include <cstdio>
 #include <sys/io.h>
 #include <fcntl.h>
-#include <errno.h>
-#include <stdlib.h>
+#include <cerrno>
+#include <cstdlib>
 #include <unistd.h>
 #include <sys/ioctl.h>
 #include <vector>

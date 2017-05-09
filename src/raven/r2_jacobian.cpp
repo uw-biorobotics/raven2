@@ -30,7 +30,7 @@
 
 
 #include "DS0.h"
-#include <stdio.h>
+#include <cstdio>
 #include <iostream>
 #include "r2_jacobian_defs.h"
 #include "defines.h"

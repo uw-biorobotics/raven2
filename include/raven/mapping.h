@@ -34,7 +34,7 @@
 #undef __attribute_pure__
 #endif*/
 
-#include <math.h>
+#include <cmath>
 #include <tf/transform_datatypes.h>
 
 #include "struct.h"

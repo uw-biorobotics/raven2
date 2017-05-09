@@ -39,7 +39,7 @@ ROS publishing is at the bottom half of this file.
 #define _GNU_SOURCE //For realtime posix support. see http://www.gnu.org/s/libc/manual/html_node/Feature-Test-Macros.html
 #endif
 
-#include <string.h>
+#include <cstring>
 #include <pthread.h>
 #include <ros/ros.h>
 #include <ros/transport_hints.h>

@@ -27,7 +27,7 @@
  *	\date 2005
  */
 
-#include <math.h>
+#include <cmath>
 #include "utils.h"
 #include "DS0.h"
 #include "defines.h"

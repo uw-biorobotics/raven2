@@ -39,8 +39,8 @@
  *  Configures and starts the RAVEN control RT process.
  */
 
-#include <stdlib.h>
-#include <stdio.h>
+#include <cstdlib>
+#include <cstdio>
 #include <sys/mman.h> // Needed for mlockall()
 #include <unistd.h> // needed for sysconf(int name);
 #include <malloc.h>
@@ -48,9 +48,9 @@
 #include <sys/resource.h> // needed for getrusage
 #include <sched.h>
 #include <stropts.h>
-#include <time.h>
+#include <ctime>
 #include <pthread.h>
-#include <string.h>
+#include <cstring>
 #include <iostream>
 #include <fcntl.h>
 #include <signal.h>

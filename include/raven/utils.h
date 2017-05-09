@@ -30,8 +30,7 @@
 #ifndef __UTILS_H__
 #define __UTILS_H__
 
-#include <time.h>
-#include <string.h>
+#include <ctime>
 
 #ifndef NULL
 #define NULL 0

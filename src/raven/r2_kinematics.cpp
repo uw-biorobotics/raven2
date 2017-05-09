@@ -30,7 +30,7 @@
  */
 
 #include <iostream>
-#include <math.h>
+#include <cmath>
 #include <ros/ros.h>
 
 #include "r2_kinematics.h"

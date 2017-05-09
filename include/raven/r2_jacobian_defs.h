@@ -28,7 +28,7 @@
 #ifndef R2_JACOBIAN_DEFS_H_
 #define R2_JACOBIAN_DEFS_H_
 
-#include <math.h>
+#include <cmath>
 
 #define L 				2  //shouldn't be 2
 #define La12			1 // shouldn't be 1
