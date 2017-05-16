@@ -194,7 +194,7 @@ int raven_homing(struct device *device0, struct param_pass *currParams, int begi
             if ((  !tools_ready(_mech) &&
                    _mech->joint[TOOL_ROT].state==jstate_hard_stop &&
                    _mech->joint[WRIST   ].state==jstate_hard_stop &&
-                   _mech->joint[GRASP1  ].state==jstate_hard_stop )
+                   _mech->joint[GRASP1  ].state==jstate_hard_stop )  // \TODO check for grasp2 - bug?
                     ||
                 (  tools_ready( _mech ) &&
                    _mech->joint[SHOULDER].state==jstate_hard_stop &&
@@ -428,6 +428,7 @@ void homing(struct DOF* _joint)
 * 	\ingroup Control
 *
 *	\return void
+*   \TODO refactor for tool class
 */
 void homing(struct DOF* _joint, tool a_tool)
 {
@@ -511,7 +512,7 @@ void homing(struct DOF* _joint, tool a_tool)
     return;
 }
 
-
+// \TODO move to more appropriate location
 #ifdef RAVEN_II_SQUARE
 // RII_Square has higher limits on tool b/c there's more friction
 const int homing_max_dac[8] = {2500,  //shoulder
