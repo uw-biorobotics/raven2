@@ -108,9 +108,6 @@ if __name__ == '__main__':
 
             ret, img_l_raw = cap_l.read()
             ret, img_r_raw = cap_r.read()
-            # flip images for reduced-baseline stereo
-            img_l_raw = cv2.flip(img_l_raw, 1)
-            img_r_raw = cv2.flip(img_r_raw, 1)
 
             img_l_rect = cv2.remap(img_l_raw, mapx1, mapy1, cv2.INTER_LINEAR)
             img_r_rect = cv2.remap(img_r_raw, mapx2, mapy2, cv2.INTER_LINEAR)
