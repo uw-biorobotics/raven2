@@ -1,10 +1,9 @@
 #!/usr/bin/env python
-# simple script to push a series of stereo images in a loop
-# to run and view left/right rgb + disparity, in separate terminals:
+# script to push a series of stereo images in a loop
+# sample operatin:
 #   roscore
 #   python pub_stereo.py
-#   ROS_NAMESPACE=stereo rosrun stereo_image_proc stereo_image_proc
-#   rosrun image_view stereo_view stereo:=/stereo image:=image_rect_color
+#   rosrun image_view image_view image:=/stereo/left/image_rect_color
 
 import cv2
 import numpy as np
@@ -72,17 +71,17 @@ if __name__ == '__main__':
         Image, queue_size=10)
     pub_right_raw = rospy.Publisher('stereo' + '/' + 'right/image_raw', 
         Image, queue_size=10)
-    pub_left_rect = rospy.Publisher('stereo' + '/' + 'left/image_rect', 
+    pub_left_rect = rospy.Publisher('stereo' + '/' + 'left/image_rect_color', 
         Image, queue_size=10)
-    pub_right_rect = rospy.Publisher('stereo' + '/' + 'right/image_rect', 
+    pub_right_rect = rospy.Publisher('stereo' + '/' + 'right/image_rect_color', 
         Image, queue_size=10)
     pub_left_info = rospy.Publisher('stereo' + '/' + 'left/camera_info', 
         CameraInfo, queue_size=10)
     pub_right_info = rospy.Publisher('stereo' + '/' + 'right/camera_info', 
         CameraInfo, queue_size=10)
+    # pub_disparity = rospy.Publisher('stereo' + '/' + 'disparity', 
+        # DisparityImage, queue_size=10)
     pub_disparity = rospy.Publisher('stereo' + '/' + 'disparity', 
-        DisparityImage, queue_size=10)
-    pub_disparity_mono = rospy.Publisher('stereo' + '/' + 'disparity_mono', 
         Image, queue_size=10)
 
     rospy.init_node('stereo_cam')
@@ -115,9 +114,9 @@ if __name__ == '__main__':
 
             img_l_rect = cv2.remap(img_l_raw, mapx1, mapy1, cv2.INTER_LINEAR)
             img_r_rect = cv2.remap(img_r_raw, mapx2, mapy2, cv2.INTER_LINEAR)
-            img_l_rect = cv2.cvtColor(img_l_rect, cv2.COLOR_BGR2GRAY)
-            img_r_rect = cv2.cvtColor(img_r_rect, cv2.COLOR_BGR2GRAY)
-            disparity = stereo.compute(img_l_rect, img_r_rect)
+            img_l_rect_bw = cv2.cvtColor(img_l_rect, cv2.COLOR_BGR2GRAY)
+            img_r_rect_bw = cv2.cvtColor(img_r_rect, cv2.COLOR_BGR2GRAY)
+            disparity = stereo.compute(img_l_rect_bw, img_r_rect_bw)
 
             disparity = cv2.convertScaleAbs(disparity)
 
@@ -138,11 +137,10 @@ if __name__ == '__main__':
             #publish images
             pub_left_raw.publish(img_l_raw_msg)
             pub_right_raw.publish(img_r_raw_msg)
-            # pub_disparity.publish(bridge.cv2_to_imgmsg(disparity, encoding="mono8"))
-            pub_disparity_mono.publish(bridge.cv2_to_imgmsg(disparity, encoding="mono8"))
+            pub_disparity.publish(bridge.cv2_to_imgmsg(disparity, encoding="mono8"))
 
-            pub_left_rect.publish(bridge.cv2_to_imgmsg(img_l_rect, encoding="mono8"))
-            pub_right_rect.publish(bridge.cv2_to_imgmsg(img_r_rect, encoding="mono8"))
+            pub_left_rect.publish(bridge.cv2_to_imgmsg(img_l_rect, encoding="bgr8"))
+            pub_right_rect.publish(bridge.cv2_to_imgmsg(img_r_rect, encoding="bgr8"))
 
             left_ci.header.stamp = stamp
             right_ci.header.stamp = stamp

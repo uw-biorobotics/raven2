@@ -1,16 +1,16 @@
 # Stereo Cameras
 
-Files are included here for publishing images from two usb cameras with known calibration matrices. Dependencies include OpenCV and Numpy.
+This folder contains a python script for publishing images from two usb cameras with known calibration matrices. The script parses a .yaml file, rectifies raw images, publishes, and depends on OpenCV and Numpy.
 
 Topics published:
 
-* stereo/(left & right)/image_raw
+* /stereo/(left & right)/image_raw
 
-* stereo/(left & right)/image_rect
+* /stereo/(left & right)/image_rect
 
-* stereo/(left & right)/camera_info
+* /stereo/(left & right)/camera_info
 
-* stereo/disparity
+* /stereo/disparity
 
 pub_stereo.py should be used as follows:
 
@@ -28,6 +28,4 @@ Sample operation:
 
   * python pub_stereo.py
 
-  * ROS_NAMESPACE=stereo rosrun stereo_image_proc stereo_image_proc
-
-  * rosrun image_view stereo_view stereo:=/stereo image:=image_rect_color
+  * rosrun image_view image_view image:=/stereo/left/image_rect_color
