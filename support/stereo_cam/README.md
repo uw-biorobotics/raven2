@@ -6,7 +6,7 @@ This folder contains a python script for publishing images from two usb cameras 
 
 * /stereo/(left & right)/image_raw
 
-* /stereo/(left & right)/image_rect
+* /stereo/(left & right)/image_rect_color
 
 * /stereo/(left & right)/camera_info
 
