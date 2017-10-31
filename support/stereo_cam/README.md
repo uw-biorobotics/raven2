@@ -2,7 +2,7 @@
 
 This folder contains a python script for publishing images from two usb cameras with known calibration matrices. The script parses a .yaml file, rectifies raw images, publishes, and depends on OpenCV and Numpy.
 
-Topics published:
+## Topics published:
 
 * /stereo/(left & right)/image_raw
 
@@ -12,7 +12,7 @@ Topics published:
 
 * /stereo/disparity
 
-pub_stereo.py should be used as follows:
+## pub_stereo.py should be used as follows:
 
 * Update the ``rate`` variable with the frame rate of your cameras.
 
@@ -20,7 +20,7 @@ pub_stereo.py should be used as follows:
 
 * Ensure the left stereo camera is dev1, and right camera dev2.
 
-Sample operation:
+## Sample operation:
 
 * In separate terminals, execute the following commands:
 
