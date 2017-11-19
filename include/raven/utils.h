@@ -31,6 +31,7 @@
 #define __UTILS_H__
 
 #include <time.h>
+#include <string.h>
 
 #ifndef NULL
 #define NULL 0
@@ -49,7 +50,6 @@ int loop_over_joints(struct mechanism* _mech, struct DOF*& _joint, int& jnum);
 
 int toShort(int value, short int *target);
 void strtoken(char *str, char *result, char delim);
-void strcopy(const char *src, char *dest);
 
 int is_toolDOF(struct DOF*);
 int is_toolDOF(int);

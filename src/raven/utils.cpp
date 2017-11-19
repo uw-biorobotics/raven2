@@ -287,7 +287,7 @@ void strtoken(char *str, char *result, char delim)
     //Copy over string
     if (str != NULL)
     {
-        strcopy(str, data);
+        std::strcpy(data, str);
         index = 0;
     }
 
@@ -309,31 +309,6 @@ void strtoken(char *str, char *result, char delim)
     result[i] = NULL;
     return;
 }
-
-
-/**
-*	\fn void strcopy(const char *src, char *dest)
-* 
-*	\brief function to copy a string from source to destination
-* 
-*	\param src  the source string
-* 	\param dest the resulting string
-*
-*	\return void
-*/
-void strcopy(const char *src, char *dest)
-{
-    int i = 0;
-
-    while (src[i] != '\0')
-    {
-        dest[i] = src[i];
-        i++;
-    }
-
-    dest[i] = NULL;
-}
-
 
 
 /**
