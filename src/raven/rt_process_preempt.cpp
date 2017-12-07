@@ -318,7 +318,7 @@ static void *rt_process(void* )
 /**
 * Initializes USB boards.
 */
-int init_module(void)
+int init_module()
 {
   log_msg("Initializing USB I/O...");
 

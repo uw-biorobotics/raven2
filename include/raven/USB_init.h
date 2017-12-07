@@ -71,9 +71,9 @@ typedef struct
 
 //Function Prototypes
 int USBInit(struct device *device0);
-void USBShutdown(void);
+void USBShutdown();
 
-void USBShutdown(void);
+void USBShutdown();
 
 int startUSBRead( int id );
 int usb_read(int id, void *buffer, size_t len);

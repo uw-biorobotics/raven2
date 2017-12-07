@@ -33,7 +33,7 @@
 #include "defines.h"
 #include "USB_init.h"
 
-int initLocalioData(void);
+int initLocalioData();
 
 // update controller state w/ toolkit input
 void teleopIntoDS1(struct u_struct*);
@@ -42,7 +42,7 @@ void teleopIntoDS1(struct u_struct*);
 int recieveUserspace(void *u,int size);
 
 // Check: have any command updates happened?
-int checkLocalUpdates(void);
+int checkLocalUpdates();
 
 // Return current parameter-update set
 struct param_pass * getRcvdParams(struct param_pass*);

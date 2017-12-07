@@ -61,7 +61,7 @@ void parallelUpdate(int runlevel, int endOfLoop)
  * \brief increment counter and write it to parallelport
  * \ingroup IO
  */
-void parport_out(void)
+void parport_out()
 {
   #ifdef PARPORT_DEBUG
   static unsigned char state=0;

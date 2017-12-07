@@ -240,12 +240,12 @@ reverse(files.begin(),files.end());
 }
 
 
- /**\fn void USBShutdown(void)
+ /**\fn void USBShutdown()
  * \brief shutsdown the USB modules, setting DAC outputs to zero before shutting down
  * \return void
  * \ingroup IO
  */
-void USBShutdown(void)
+void USBShutdown()
 {
     uint i;
 

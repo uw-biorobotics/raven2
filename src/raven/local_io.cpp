@@ -79,7 +79,7 @@ extern struct offsets offsets_r;
  * \ingroup DataStructures
  */
 
-int initLocalioData(void)
+int initLocalioData()
 {
     int i;
     pthread_mutexattr_init(&data1MutexAttr);

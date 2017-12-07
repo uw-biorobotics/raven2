@@ -87,8 +87,8 @@
 #define STACK_SIZE     50000
 #define USE_FPU        1
 
-int init_module(void);
-void cleanup_module(void);
+int init_module();
+void cleanup_module();
 //static void rt_process(long t);
 
 void displayVals(struct device device0, int period);
