@@ -61,15 +61,15 @@ extern unsigned long int gTime;
 const static double d2r = M_PI/180; //degrees to radians
 const static double r2d = 180/M_PI; //radians to degrees
 
-static struct param_pass data1;		//local data structure that needs mutex protection
+static param_pass data1;		//local data structure that needs mutex protection
 tf::Quaternion Q_ori[2];
 pthread_mutexattr_t data1MutexAttr;
 pthread_mutex_t data1Mutex;
 
 volatile int isUpdated; //TODO: HK volatile int instead of atomic_t ///Should we use atomic builtins? http://gcc.gnu.org/onlinedocs/gcc-4.1.2/gcc/Atomic-Builtins.html
 
-extern struct offsets offsets_l;
-extern struct offsets offsets_r;
+extern offsets offsets_l;
+extern offsets offsets_r;
 
 
 /**
@@ -117,10 +117,10 @@ int initLocalioData()
 
 int receiveUserspace(void *u,int size)
 {
-    if (size==sizeof(struct u_struct))
+    if (size==sizeof(u_struct))
     {
         isUpdated = TRUE;
-        teleopIntoDS1((struct u_struct*)u);
+        teleopIntoDS1((u_struct*)u);
     }
     return 0;
 }
@@ -137,9 +137,9 @@ int receiveUserspace(void *u,int size)
  *
  *  \ingroup DataStructures
  */
-void teleopIntoDS1(struct u_struct *us_t)
+void teleopIntoDS1(u_struct *us_t)
 {
-    struct position p;
+    position p;
     int i, armidx, armserial;
     pthread_mutex_lock(&data1Mutex);
     tf::Quaternion q_temp;
@@ -265,13 +265,13 @@ int checkLocalUpdates()
 *   \todo HK Check performance of trylock / default priority inversion scheme
 *  \ingroup DataStructures
 */
-struct param_pass * getRcvdParams(struct param_pass* d1)
+param_pass * getRcvdParams(param_pass* d1)
 {
     // \TODO Check performance of trylock / default priority inversion scheme
     if (pthread_mutex_trylock(&data1Mutex)!=0)   //Use trylock since this function is called form rt-thread. return immediately with old values if unable to lock
         return d1;
     //pthread_mutex_lock(&data1Mutex); //Priority inversion enabled. Should force completion of other parts and enter into this section.
-    memcpy(d1, &data1, sizeof(struct param_pass));
+    memcpy(d1, &data1, sizeof(param_pass));
     isUpdated = 0;
     pthread_mutex_unlock(&data1Mutex);
     return d1;
@@ -287,10 +287,10 @@ struct param_pass * getRcvdParams(struct param_pass* d1)
  * Reset writable copy of DS1
  *  \ingroup Networking
 */
-void updateMasterRelativeOrigin(struct device *device0)
+void updateMasterRelativeOrigin(device *device0)
 {
 	int armidx;
-    struct orientation *_ori;
+    orientation *_ori;
     tf::Matrix3x3 tmpmx;
 
     // update data1 (network position desired) to device0.position_desired (device position desired)
@@ -346,8 +346,8 @@ void setSurgeonMode(int pedalstate)
 #include <sensor_msgs/JointState.h>
 
 
-void publish_joints(struct robot_device*);
-void publish_marker(struct robot_device*);
+void publish_joints(robot_device*);
+void publish_marker(robot_device*);
 void autoincrCallback(raven_2::raven_automove);
 
 using namespace raven_2;
@@ -435,7 +435,7 @@ void autoincrCallback(raven_2::raven_automove msg)
 *   \param currParams the parameters being passed from the interfaces
 *  \ingroup ROS
 */
-void publish_ravenstate_ros(struct robot_device *dev,struct param_pass *currParams){
+void publish_ravenstate_ros(robot_device *dev, param_pass *currParams){
     static int count=0;
     static raven_state msg_ravenstate;  // satic variables to minimize memory allocation calls
     static ros::Time t1;
@@ -525,7 +525,7 @@ void publish_ravenstate_ros(struct robot_device *dev,struct param_pass *currPara
 *  \ingroup ROS
 *
 */
-void publish_joints(struct robot_device* device0){
+void publish_joints(robot_device* device0){
 
     static int count=0;
     static ros::Time t1;
@@ -642,12 +642,12 @@ void publish_joints(struct robot_device* device0){
  *
  *  \ingroup ROS
  */
-void publish_marker(struct robot_device* device0)
+void publish_marker(robot_device* device0)
 {
     visualization_msgs::Marker marker1, marker2;
     geometry_msgs::Point p, px,py,pz;
     tf::Quaternion bq;
-    struct orientation* _ori;
+    orientation* _ori;
     tf::Matrix3x3 xform;
 
     visualization_msgs::Marker axes[3];

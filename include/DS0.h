@@ -145,13 +145,13 @@ struct mechanism {
   u_16 type;
   e_tool_type tool_type;
   tool mech_tool;
-  struct position pos;
-  struct position pos_d;
-  struct position base_pos;     // base position in world frame
-  struct orientation ori;
-  struct orientation ori_d;
-  struct orientation base_ori;  // base orientation in world frame
-  struct DOF joint[MAX_DOF_PER_MECH];
+  position pos;
+  position pos_d;
+  position base_pos;     // base position in world frame
+  orientation ori;
+  orientation ori_d;
+  orientation base_ori;  // base orientation in world frame
+  DOF joint[MAX_DOF_PER_MECH];
   u_08 inputs;                  // input pins
   u_08 outputs;                 // output pins
   r2_jacobian r2_jac;  // class needed to avoid build error about forward declarations
@@ -168,9 +168,9 @@ struct robot_device {
   u_08 runlevel;	// nothing/init/joints/kinematics/e-stop
   u_08 sublevel;	// which experimental mode are we running
   int  surgeon_mode;	// Clutching/indexing state - 1==engaged; 0==disengaged
-  struct mechanism mech [MAX_MECH_PER_DEV];
+  mechanism mech [MAX_MECH_PER_DEV];
   float	 grav_mag;	    //gravity magnitude
-  struct position grav_dir; //gravity direction
+  position grav_dir; //gravity direction
 };
 
 #endif

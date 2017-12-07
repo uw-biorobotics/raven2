@@ -71,7 +71,7 @@ int toShort(int value, short int *target)
 
 
 /**
-*	\fn int loop_over_joints(struct robot_device* device0, struct mechanism*& _mech, struct DOF*& _joint, int& mechnum, int& jnum)
+*	\fn int loop_over_joints(robot_device* device0, mechanism*& _mech, DOF*& _joint, int& mechnum, int& jnum)
 *
 *	\brief Iterate over all joints of all mechanisms
 *
@@ -95,7 +95,7 @@ int toShort(int value, short int *target)
 *	\return 0 if reaches last joint index
 *			1 otherwise
 */
-int loop_over_joints(struct robot_device* device0, struct mechanism*& _mech, struct DOF*& _joint, int& mechnum, int& jnum)
+int loop_over_joints(robot_device* device0, mechanism*& _mech, DOF*& _joint, int& mechnum, int& jnum)
 {
     // Initialize iterators
     if (_mech == NULL || _joint == NULL)
@@ -130,7 +130,7 @@ int loop_over_joints(struct robot_device* device0, struct mechanism*& _mech, str
 }
 
 /**
-*	\fn loop_over_joints(struct mechanism* _mech, struct DOF*& _joint, int& jnum)
+*	\fn loop_over_joints(mechanism* _mech, DOF*& _joint, int& jnum)
 *
 *	\brief Iterate over all joints of one mechanism.
 *
@@ -151,7 +151,7 @@ int loop_over_joints(struct robot_device* device0, struct mechanism*& _mech, str
 *	\return 0 if reaches to last joint index
 *			1 otherwise
 */
-int loop_over_joints(struct mechanism* _mech, struct DOF*& _joint, int& jnum)
+int loop_over_joints(mechanism* _mech, DOF*& _joint, int& jnum)
 {
     // Initialize iterators
     if (_joint == NULL)
@@ -178,7 +178,7 @@ int loop_over_joints(struct mechanism* _mech, struct DOF*& _joint, int& jnum)
 
 
 /**
-*	\fn int is_toolDOF(struct DOF *_joint)
+*	\fn int is_toolDOF(DOF *_joint)
 *
 *	\brief check if the current joint is a toolDOF
 *
@@ -187,7 +187,7 @@ int loop_over_joints(struct mechanism* _mech, struct DOF*& _joint, int& jnum)
 *	\return 1 if the joint is a toolDOF
 *			0 otherwise
 */
-int is_toolDOF(struct DOF *_joint){
+int is_toolDOF(DOF *_joint){
     return is_toolDOF(_joint->type);
 }
 
@@ -217,7 +217,7 @@ int is_toolDOF(int jointType)
 
 
 /**
-*	\fn int tools_ready(struct mechanism *mech)
+*	\fn int tools_ready(mechanism *mech)
 *
 * 	\brief check if all tool joints of the current mechanism are in the ready state
 *
@@ -226,7 +226,7 @@ int is_toolDOF(int jointType)
 * 	\return 1 if and only if all toolDOFs are ready
 *			0 otherwise
 */
-int tools_ready(struct mechanism *mech)
+int tools_ready(mechanism *mech)
 {
     if ( mech->joint[TOOL_ROT].state != jstate_ready )
         return 0;
@@ -243,7 +243,7 @@ int tools_ready(struct mechanism *mech)
 
 
 /**
-*	\fn int robot_ready(struct robot_device* device0)
+*	\fn int robot_ready(robot_device* device0)
 *
 *	\brief check if robot is ready during homing procedure
 *
@@ -252,10 +252,10 @@ int tools_ready(struct mechanism *mech)
 *	\return 1 if and only if all DOFS are ready
 *			0 otherwise
 */
-int robot_ready(struct robot_device* device0)
+int robot_ready(robot_device* device0)
 {
-    struct mechanism* _mech = NULL;
-    struct DOF* _joint = NULL;
+    mechanism* _mech = NULL;
+    DOF* _joint = NULL;
     int i, j;
 
     while ( loop_over_joints(device0, _mech, _joint, i, j) )
@@ -268,7 +268,7 @@ int robot_ready(struct robot_device* device0)
 
 
 /**
-*	\fn struct timespec tsSubtract ( struct  timespec  time1, struct  timespec  time2)
+*	\fn  timespec tsSubtract (timespec time1, timespec time2)
 *
 *	\brief function to get time interval
 *
@@ -279,10 +279,9 @@ int robot_ready(struct robot_device* device0)
 *
 *	\return timespec struct with time interval result.tv_nsec
 */
-struct  timespec  tsSubtract ( struct  timespec  time1,
-                                           struct  timespec  time2)
+timespec tsSubtract(timespec time1, timespec time2)
 {
-    struct  timespec  result ;
+    timespec result;
 
     /* Subtract the second time from the first. */
     if ((time1.tv_sec < time2.tv_sec) ||
@@ -309,7 +308,7 @@ struct  timespec  tsSubtract ( struct  timespec  time1,
 
 
 /**
-*	\fn void set_posd_to_pos(struct robot_device* device0)
+*	\fn void set_posd_to_pos(robot_device* device0)
 *
 *	\brief set the desired position to the robots current position
 *
@@ -317,7 +316,7 @@ struct  timespec  tsSubtract ( struct  timespec  time1,
 *
 *	\return void
 */
-void set_posd_to_pos(struct robot_device* device0)
+void set_posd_to_pos(robot_device* device0)
 {
     for (int m = 0; m < NUM_MECH; m++) {
         device0->mech[m].pos_d.x     = device0->mech[m].pos.x;

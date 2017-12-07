@@ -39,7 +39,7 @@
 #include "defines.h"
 
 extern int NUM_MECH;
-extern struct DOF_type DOF_types[];
+extern DOF_type DOF_types[];
 
 const static double d2r = M_PI/180;
 const static double r2d = 180/M_PI;
@@ -116,14 +116,14 @@ tf::Transform getFKTransform(int a, int b)
 //  Forward kinematics
 //--------------------------------------------------------------------------------
 
-/**\fn int r2_fwd_kin(struct device *d0, int runlevel)
+/**\fn int r2_fwd_kin(device *d0, int runlevel)
  * \brief ravenII forward kinematics
  * \param d0 - a pointer points to the device struct, equivalent as robot_device struct, see define.h
  * \param runlevel - an integer value of the current runlevel
  * \return 0 on success -1 on failure
  *  \ingroup Kinematics
  */
-int r2_fwd_kin(struct device *d0, int runlevel)
+int r2_fwd_kin(device *d0, int runlevel)
 {
 	l_r arm;
 	tf::Transform xf;
@@ -237,7 +237,7 @@ int fwd_kin (double in_j[6], l_r in_arm, tf::Transform &out_xform)
 
 
 
-/**\fn int getATransform (struct mechanism &in_mch, tf::Transform &out_xform, int frameA, int frameB)
+/**\fn int getATransform (mechanism &in_mch, tf::Transform &out_xform, int frameA, int frameB)
  * \brief Runs the Raven II forward kinematics to determine the desired transform from frame A to frame B
  * \param in_mch - a reference of one arm
  * \param out_xform - a reference of a tf::Transform obejct represents the output transfrom
@@ -246,7 +246,7 @@ int fwd_kin (double in_j[6], l_r in_arm, tf::Transform &out_xform)
  * \return 0 on success, -1 on failure
  *  \ingroup Kinematics
  */
-int getATransform (struct mechanism &in_mch, tf::Transform &out_xform, int frameA, int frameB)
+int getATransform (mechanism &in_mch, tf::Transform &out_xform, int frameA, int frameB)
 {
 	l_r arm;
 
@@ -314,19 +314,19 @@ int getATransform (struct mechanism &in_mch, tf::Transform &out_xform, int frame
 //  Inverse kinematics
 //-------------------------------------------------------------------------------
 
-/**\fn int r2_inv_kin(struct device *d0, int runlevel)
+/**\fn int r2_inv_kin(device *d0, int runlevel)
  * \brief run the ravenII inverse kinematics from device struct
  * \param d0  - a pointer points to robot_device struct
  * \param runlevel - an integer value represents the runlevel
  * \return 0 on success -1 on failure
  *  \ingroup Kinematics
  */
-int r2_inv_kin(struct device *d0, int runlevel)
+int r2_inv_kin(device *d0, int runlevel)
 {
 	l_r arm;
 	tf::Transform xf;
-	struct orientation * ori_d;
-	struct position    * pos_d;
+	orientation * ori_d;
+	position    * pos_d;
 
 	//  Do FK for each mechanism
 	for (int m=0; m<NUM_MECH; m++)
@@ -1045,14 +1045,14 @@ void theta2joint(ik_solution in_iktheta, double *out_J)
 
 }
 
-/**\fn void showInverseKinematicsSolutions(struct device *d0, int runlevel)
+/**\fn void showInverseKinematicsSolutions(device *d0, int runlevel)
  * \brief
  * \param d0
  * \param runlevel
  * \return void
  *  \ingroup Kinematics
  */
-void showInverseKinematicsSolutions(struct device *d0, int runlevel)
+void showInverseKinematicsSolutions(device *d0, int runlevel)
 {
 	log_msg("print_ik_plz");
 	printIK = 1;

@@ -34,4 +34,4 @@
 #include "update_atmel_io.h"
 
 //Function prototypes
-void stateMachine(struct device *device0, struct param_pass *currParams, struct param_pass *rcvdParams);
+void stateMachine(device *device0, param_pass *currParams, param_pass *rcvdParams);

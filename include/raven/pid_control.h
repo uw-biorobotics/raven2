@@ -40,7 +40,7 @@
 #define MOTOR_VEL_CTRL  2
 
 //Function Prototypes
-void mpos_PD_control(struct DOF *joint, int reset_I=0);
-float jvel_PI_control(struct DOF*, int);
+void mpos_PD_control(DOF *joint, int reset_I=0);
+float jvel_PI_control(DOF*, int);
 
 #endif // PD_CONTROL_H

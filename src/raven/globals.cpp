@@ -35,8 +35,7 @@
 
 //unsigned long int gTime = 0;
 
-struct DOF_type DOF_types[MAX_MECH*MAX_DOF_PER_MECH];
-//struct traj trajectory[MAX_MECH*MAX_DOF_PER_MECH];
+DOF_type DOF_types[MAX_MECH*MAX_DOF_PER_MECH];
 USBStruct USBBoards;
 
 //tool gold_arm_tool (bipolar_forceps, GOLD_ARM);

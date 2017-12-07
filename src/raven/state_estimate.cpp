@@ -30,18 +30,18 @@
 #include "state_estimate.h"
 #include "log.h"
 
-extern struct DOF_type DOF_types[];
+extern DOF_type DOF_types[];
 extern int NUM_MECH;
 
-void getStateLPF(struct DOF *joint);
+void getStateLPF(DOF *joint);
 
 /*
  * stateEstimate()
  */
 
-void stateEstimate(struct robot_device *device0)
+void stateEstimate(robot_device *device0)
 {
-    struct DOF *_joint;
+    DOF *_joint;
     int i,j;
 
     //Loop through all joints
@@ -68,7 +68,7 @@ void stateEstimate(struct robot_device *device0)
  * will drive the cable transmission unstable.
  *
  */
-void getStateLPF(struct DOF *joint, int tool_type)
+void getStateLPF(DOF *joint, int tool_type)
 {
     // 50 HZ 3rd order butterworth
 //    float B[] = {0.0029,  0.0087,  0.0087,  0.0029};
@@ -237,7 +237,7 @@ void getStateLPF(struct DOF *joint, int tool_type)
 }
 
 
-void getStateLPF(struct DOF *joint, style t_style)
+void getStateLPF(DOF *joint, style t_style)
 {
     // 50 HZ 3rd order butterworth
 //    float B[] = {0.0029,  0.0087,  0.0087,  0.0029};
@@ -388,7 +388,7 @@ void getStateLPF(struct DOF *joint, style t_style)
 }
 
 
-void resetFilter(struct DOF* _joint)
+void resetFilter(DOF* _joint)
 {
     //reset filter
     for (int i=0;i<=2;i++)

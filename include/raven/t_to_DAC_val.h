@@ -44,11 +44,11 @@
  extern "C" {
  #endif
 
-short int tToDACVal(struct DOF *joint);
-void clearDACs(struct device *device0);
+short int tToDACVal(DOF *joint);
+void clearDACs(device *device0);
 
-int TorqueToDAC(struct device *device0);
-int TorqueToDACTest(struct device *device0); //Square wave for timing test
+int TorqueToDAC(device *device0);
+int TorqueToDACTest(device *device0); //Square wave for timing test
 
  #ifdef __cplusplus
  }

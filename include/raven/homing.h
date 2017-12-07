@@ -32,12 +32,12 @@
 
 /** prototype for homing()
  */
-void homing(struct DOF*);
+void homing(DOF*);
 
 /** prototype for homing()
  */
-void homing(struct DOF*, tool);
+void homing(DOF*, tool);
 
 /** prototype for check_homing_condition()
  */
-int check_homing_condition(struct DOF*);
+int check_homing_condition(DOF*);

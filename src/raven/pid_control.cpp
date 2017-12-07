@@ -48,14 +48,14 @@
 #include "t_to_DAC_val.h"
 #include "homing.h"
 
-extern struct DOF_type DOF_types[];
+extern DOF_type DOF_types[];
 extern unsigned long int gTime;
 
 /**
  * \brief calculates PD control (or PI) for
  */
 
-void mpos_PD_control(struct DOF *joint, int reset_I)
+void mpos_PD_control(DOF *joint, int reset_I)
 {
     float err=0.0;
     float errVel=0.0;
@@ -108,7 +108,7 @@ void mpos_PD_control(struct DOF *joint, int reset_I)
 *    jointVelControl()
 *       Move joints at constant rate.
 */
-float jvel_PI_control(struct DOF *_joint, int resetI){
+float jvel_PI_control(DOF *_joint, int resetI){
     // Set gains.  Gains have been "empirically" tuned.
     // TODO: move this to a permanent place.
     float ki;

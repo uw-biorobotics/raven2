@@ -48,7 +48,7 @@
 #include "log.h"
 
 extern int NUM_MECH;
-extern struct DOF_type DOF_types[];
+extern DOF_type DOF_types[];
 extern unsigned long int gTime;
 
 // Define COM's (units: meters)
@@ -73,7 +73,7 @@ const static double M3 = 0.231; // kg --> ? lb
 // masses updated using fresh links from raven 2.1 build 6/13
 
 
-tf::Vector3 getCurrentG(struct device *d0, int m);
+tf::Vector3 getCurrentG(device *d0, int m);
 void getMotorTorqueFromJointTorque(int, double, double, double, double&, double&, double&);
 
 /**
@@ -85,9 +85,9 @@ void getMotorTorqueFromJointTorque(int, double, double, double, double&, double&
  *
  * \return gravity vector in m/s^2
  */
-tf::Vector3 getCurrentG(struct device *d0, int m)
+tf::Vector3 getCurrentG(device *d0, int m)
 {
-	struct mechanism *_mech;
+	mechanism *_mech;
 	_mech = &(d0->mech[m]);
 	float xG0, yG0, zG0;
 	if (_mech->type == GOLD_ARM_SERIAL)
@@ -136,12 +136,12 @@ tf::Vector3 getCurrentG(struct device *d0, int m)
  *    GTx    - 3-vector of gravitational torque at joint x (z-component represents torque around joint)
  *    Mx     - mass of link x
  */
-void getGravityTorque(struct device &d0, struct param_pass &params)
+void getGravityTorque(device &d0, param_pass &params)
 {
 
 
 
-	struct mechanism *_mech;
+	mechanism *_mech;
 	tf::Vector3 G0;
 	//static tf::Vector3 G0Static = tf::Vector3(-9.8, 0, 0); //unused
 	tf::Vector3 COM1_1, COM2_2, COM3_3;

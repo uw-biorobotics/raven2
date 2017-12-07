@@ -31,7 +31,7 @@
 
 #include "overdrive_detect.h"
 
-extern struct DOF_type DOF_types[];//Defined in globals.cpp
+extern DOF_type DOF_types[];//Defined in globals.cpp
 extern int NUM_MECH; //Defined in rt_process_preempt.cpp
 extern int soft_estopped;//Defined in rt_process_preempt.cpp
 extern unsigned long int gTime;//Defined in rt_process_preempt.cpp
@@ -47,10 +47,10 @@ extern unsigned long int gTime;//Defined in rt_process_preempt.cpp
  * that could cause overheating or breakage, it checks joint current_cmd against
  * MAX_INST_DAC that is defined in defines.h
  */
-int overdriveDetect(struct device *device0, int runlevel)
+int overdriveDetect(device *device0, int runlevel)
 {
     int i, j;
-    struct DOF* _joint;
+    DOF* _joint;
     int ret = FALSE;
     static int count = 0;
 
@@ -122,10 +122,10 @@ int overdriveDetect(struct device *device0, int runlevel)
 }
 /*
 //This is the original code
-int overdriveDetect(struct device *device0)
+int overdriveDetect(device *device0)
 {
     int i, j;
-    struct DOF* _joint;
+    DOF* _joint;
     int ret = FALSE;
 
 

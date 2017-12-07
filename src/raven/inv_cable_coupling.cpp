@@ -41,7 +41,7 @@
 #include "inv_cable_coupling.h"
 #include "log.h"
 
-extern struct DOF_type DOF_types[];
+extern DOF_type DOF_types[];
 extern int NUM_MECH;
 extern unsigned long int gTime;
 /**
@@ -54,7 +54,7 @@ extern unsigned long int gTime;
 * \param runlevel current runlevel
 *
 */
-void invCableCoupling(struct device *device0, int runlevel)
+void invCableCoupling(device *device0, int runlevel)
 {
   int i;
 
@@ -70,7 +70,7 @@ void invCableCoupling(struct device *device0, int runlevel)
 * \todo update to matrix calculations for the coupling (here and fwd)
 */
 
-void invMechCableCoupling(struct mechanism *mech, int no_use_actual)
+void invMechCableCoupling(mechanism *mech, int no_use_actual)
 {
   if (mech->type != GOLD_ARM && mech->type != GREEN_ARM) {
   	log_msg("bad mech type!");

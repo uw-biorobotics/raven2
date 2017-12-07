@@ -75,8 +75,8 @@ extern int receiveUserspace(void *u,int size);  // Defined in the local_io.cpp
 int initSock (const char* port )
 {
     int request_sock;
-    struct servent *servp;       // stores port & protocol
-    struct sockaddr_in server;   // socket address in AF_<family>
+    servent *servp;       // stores port & protocol
+    sockaddr_in server;   // socket address in AF_<family>
 
     //------------ init --------------//
 
@@ -90,7 +90,7 @@ int initSock (const char* port )
     // initialize port/protocol struct.
     if (isdigit(port[0]))
     {
-        static struct servent s;
+        static servent s;
         servp = &s;
         s.s_port = htons((u_short)atoi(port));
     }
@@ -106,7 +106,7 @@ int initSock (const char* port )
     server.sin_port = servp->s_port;
 
     // "bind" the port to the socket.
-    if (bind(request_sock, (struct sockaddr *) &server, sizeof server) < 0)
+    if (bind(request_sock, (sockaddr *) &server, sizeof server) < 0)
     {
         perror("bind");
         return 0;
@@ -120,14 +120,14 @@ int initSock (const char* port )
 }
 
 
-/**\fn int UDPChecksum(struct u_struct *u)
+/**\fn int UDPChecksum(u_struct *u)
   \brief Calculate chesum for a teleoperation packet, not called anywhere
   \param u a u_struct pointer
   \struct u_struct structure passed from master to slave itp_teleoperation.h
   \return positive integer number
   \ingroup Network
 */
-int UDPChecksum(struct u_struct *u)
+int UDPChecksum(u_struct *u)
 {
     int chk=0;
     chk =  (u->surgeon_mode);
@@ -142,9 +142,9 @@ int UDPChecksum(struct u_struct *u)
 
 // \todo DELET line 144-147? why volatile v_struct?
 // Chek packet validity, incl. sequence numbering and checksumming
-//int checkPacket(struct u_struct &u, int seq);
+//int checkPacket(u_struct &u, int seq);
 // main //
-volatile struct v_struct v;
+volatile v_struct v;
 
 
 /**\fn void* network_process(void*)
@@ -160,12 +160,12 @@ void* network_process(void* param1)
     int nfound, maxfd;
     const char *port = SERVER_PORT;
     fd_set rmask, mask;
-    static struct timeval timeout = { 0, 500000 }; // .5 sec //
-    struct u_struct u;
+    static timeval timeout = { 0, 500000 }; // .5 sec //
+    u_struct u;
 
-    int uSize=sizeof(struct u_struct);
+    int uSize=sizeof(u_struct);
 
-    struct sockaddr_in clientName;
+    sockaddr_in clientName;
     int clientLength=sizeof(clientName);
     int retval;
     static int k = 0;
@@ -329,7 +329,7 @@ void* network_process(void* param1)
 
 #ifdef NET_SEND
         sendto ( sock, (void*)&v, vSize, 0,
-                 (struct sockaddr *) &clientName, clientLength);
+                 (sockaddr *) &clientName, clientLength);
 #endif
 
     } // end while(ros::ok())

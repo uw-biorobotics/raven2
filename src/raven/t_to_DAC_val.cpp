@@ -42,7 +42,7 @@
 #include "utils.h"
 #include "log.h"
 
-extern struct DOF_type DOF_types[];
+extern DOF_type DOF_types[];
 extern int NUM_MECH;
 
 extern unsigned int soft_estopped;
@@ -59,7 +59,7 @@ extern unsigned int soft_estopped;
  * \param device0 pointer to device structure
  *
  */
-int TorqueToDAC(struct device *device0)
+int TorqueToDAC(device *device0)
 {
     int i, j;
 
@@ -92,7 +92,7 @@ int TorqueToDAC(struct device *device0)
  * \param joint pointer to DOF structure
  * \output DAC value
  */
-short int tToDACVal(struct DOF *joint)
+short int tToDACVal(DOF *joint)
 {
     int        DACVal;
     short int  result;
@@ -120,7 +120,7 @@ short int tToDACVal(struct DOF *joint)
  * input: buffer_out
  * \param device0 pointer to device structure
  */
-void clearDACs(struct device *device0)
+void clearDACs(device *device0)
 {
     int i, j;
 
@@ -134,7 +134,7 @@ void clearDACs(struct device *device0)
  * \brief testing function for validating the control boards
  */
 
-int TorqueToDACTest(struct device *device0)
+int TorqueToDACTest(device *device0)
 {
     static int count;
     int i, j;

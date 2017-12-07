@@ -33,7 +33,7 @@ extern int NUM_MECH;//Defined in rt_process_preempt
 extern int soft_estopped; //Defined in rt_process_preempt
 extern int globalTime;
 #include <sys/times.h>
-struct tms dummy_times;
+tms dummy_times;
 
 /**
  * \brief This function puts data in a state machine
@@ -48,7 +48,7 @@ struct tms dummy_times;
  * \todo diagram of state machine and its effects on other functions
  *
  */
-void stateMachine(struct device *device0, struct param_pass *currParams, struct param_pass *rcvdParams)
+void stateMachine(device *device0, param_pass *currParams, param_pass *rcvdParams)
 {
     static int rlDelayCounter = 0; // This is a software workaround to a PLC switching transient.  Wait two cycles for the delay.
 

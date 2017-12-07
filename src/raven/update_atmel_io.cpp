@@ -34,7 +34,7 @@ extern int soft_estopped;
 extern int NUM_MECH;
 extern unsigned long int gTime;
 
-/**\fn void updateAtmelOutputs(struct device *device0, int runlevel)
+/**\fn void updateAtmelOutputs(device *device0, int runlevel)
  * \brief updates the software output: 8 bits of each arm (identical for both arms) are reserved(5 bits are used) for this output.
  *        This output will later be written to the USB as hardware input.
  * \param device0 - pointer to device struct
@@ -42,7 +42,7 @@ extern unsigned long int gTime;
  * \return void
  * \ingroup Hardware
  */
-void updateAtmelOutputs(struct device *device0, int runlevel)
+void updateAtmelOutputs(device *device0, int runlevel)
 {
     static int counter;
     unsigned char i, outputs = 0x00;
@@ -78,7 +78,7 @@ void updateAtmelOutputs(struct device *device0, int runlevel)
     counter++;
 }
 
-/**\fn void updateAtmelInputs(struct device device0, int runlevel)
+/**\fn void updateAtmelInputs(device device0, int runlevel)
  * \brief reads the hardware output received from the USB package and retrieves the runlevel in PLC.
  *        This function is mainly for debugging purpose.
  * \param device0 - device struct
@@ -88,7 +88,7 @@ void updateAtmelOutputs(struct device *device0, int runlevel)
  * \ingroup Debug
  * \todo I don't think this function does anything - nothing is returned and I don't think the device is updated
  */
-void updateAtmelInputs(struct device device0, int runlevel)
+void updateAtmelInputs(device device0, int runlevel)
 {
     //unsigned char inputs;
     int PLCState;

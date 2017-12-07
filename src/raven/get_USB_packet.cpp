@@ -41,13 +41,13 @@
 extern unsigned long int gTime;
 extern USBStruct USBBoards;
 
-/**\fn void initiateUSBGet(struct device *device0)
+/**\fn void initiateUSBGet(device *device0)
   \brief Initiate data request from USB Board. Must be called before read
   \struct device
   \param device0 pointer to device struct
 */
 
-void initiateUSBGet(struct device *device0)
+void initiateUSBGet(device *device0)
 {
   int i;
   int err=0;
@@ -68,7 +68,7 @@ void initiateUSBGet(struct device *device0)
 
 }
 
-/**\fn int getUSBPackets(struct device *device0)
+/**\fn int getUSBPackets(device *device0)
   \brief Takes data from USB packet(s) and uses it to fill the
  *   DS0 data structure
   \struct device
@@ -76,7 +76,7 @@ void initiateUSBGet(struct device *device0)
   \return zero on success and negative on failure
 */
 
-int getUSBPackets(struct device *device0)
+int getUSBPackets(device *device0)
 {
     int ret = 0;
 
@@ -99,7 +99,7 @@ int getUSBPackets(struct device *device0)
     return ret;
 }
 
-/**\fn int getUSBPacket(int id, struct mechanism *mech)
+/**\fn int getUSBPacket(int id, mechanism *mech)
   \brief Takes data from a USB packet and uses it to fill the
  *   DS0 data structure
   \struct mechanism the data structure to fill
@@ -108,7 +108,7 @@ int getUSBPackets(struct device *device0)
   \return zero on success and negative on failure
 */
 
-int getUSBPacket(int id, struct mechanism *mech)
+int getUSBPacket(int id, mechanism *mech)
 {
     int result, type;
     unsigned char buffer[MAX_IN_LENGTH];
@@ -140,12 +140,12 @@ int getUSBPacket(int id, struct mechanism *mech)
     return 0;
 }
 
-/**\fn void processEncoderPacket(struct mechanism* mech, unsigned char buffer[])
+/**\fn void processEncoderPacket(mechanism* mech, unsigned char buffer[])
   \struct mechanism the data structure to fill
   \param mech pointer to mechanism struct
   \param buffer
 */
-void processEncoderPacket(struct mechanism* mech, unsigned char buffer[])
+void processEncoderPacket(mechanism* mech, unsigned char buffer[])
 {
     int i, numChannels;
     int encVal;

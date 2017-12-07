@@ -91,7 +91,7 @@ int init_module();
 void cleanup_module();
 //static void rt_process(long t);
 
-void displayVals(struct device device0, int period);
+void displayVals(device device0, int period);
 int handler (int vec, int signo, struct pt_regs *regs, void *dummy);
 
 #endif

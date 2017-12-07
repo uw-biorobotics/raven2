@@ -82,7 +82,7 @@ int initialized=0;     // State initialized flag
 int soft_estopped=0;   // Soft estop flag- indicate desired software estop.
 
 int    deviceType = SURGICAL_ROBOT;//PULLEY_BOARD;
-struct device device0 ={0};  //Declaration Moved outside rt loop for access from console thread
+device device0 ={0};  //Declaration Moved outside rt loop for access from console thread
 int    mech_gravcomp_done[2]={0};
 
 int NUM_MECH=0;   // Define NUM_MECH as a C variable, not a c++ variable
@@ -93,7 +93,7 @@ pthread_t console_thread;
 pthread_t reconfigure_thread;
 
 //Global Variables from globals.c
-extern struct DOF_type DOF_types[];
+extern DOF_type DOF_types[];
 
 // flag to kill loops and stuff
 int r2_kill = 0;
@@ -150,15 +150,15 @@ int initialize_rt_memory_pool()
  */
 static void *rt_process(void* )
 {
-  struct param_pass currParams =
+  param_pass currParams =
     {
       0
     };          // robot command struct
-  struct param_pass rcvdParams =
+  param_pass rcvdParams =
     {
       0
     };
-  struct timespec t, tnow, t2, tbz;                           // Tracks the timer value
+  timespec t, tnow, t2, tbz;                           // Tracks the timer value
   int interval= 1 * MS;                        // task period in nanoseconds
 
   //CPU locking doesn't help timing.  Oh well.
@@ -173,7 +173,7 @@ static void *rt_process(void* )
   //   }
 
   // set thread priority and stuff
-  struct sched_param param;                    // process / thread priority settings
+  sched_param param;                    // process / thread priority settings
   param.sched_priority = 96;
   log_msg("Using realtime, priority: %d", param.sched_priority);
   int ret = pthread_setschedparam(pthread_self(), SCHED_FIFO, &param);

@@ -40,8 +40,8 @@
 //Function prototypes
 int processEncVal(unsigned char buffer[], int channel);
 
-void encToJPos(struct DOF *joint);
-void encToMPos(struct DOF *joint);
-float encToMPos2(struct DOF *joint);
-int normalizeEncCnt(struct DOF *joint);
+void encToJPos(DOF *joint);
+void encToMPos(DOF *joint);
+float encToMPos2(DOF *joint);
+int normalizeEncCnt(DOF *joint);
 

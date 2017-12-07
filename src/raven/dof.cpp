@@ -51,7 +51,7 @@
 
 #include "dof.h"
 
-extern struct DOF_type DOF_types[];
+extern DOF_type DOF_types[];
 
 /**
  * processEncVal - reads an encoder value from a USB packet buffer
@@ -88,7 +88,7 @@ int processEncVal(unsigned char buffer[], int channel)
  * \param joint pointer to degree of freedom to work on
  *
  */
-void encToMPos(struct DOF *joint)
+void encToMPos(DOF *joint)
 {
   //MPos is just the motor angle
   joint->mpos = encToMPos2(joint);
@@ -100,7 +100,7 @@ void encToMPos(struct DOF *joint)
 *  \param joint Pointer to structure containing joint info
 *  \return angle of the encoder
 */
-float encToMPos2(struct DOF *joint)
+float encToMPos2(DOF *joint)
 {
   float motorAngle;
   int normEnc;
@@ -123,7 +123,7 @@ float encToMPos2(struct DOF *joint)
  *
  * \return normalized encoder value
  */
-int normalizeEncCnt(struct DOF *joint)
+int normalizeEncCnt(DOF *joint)
 {
   return (joint->enc_val - joint->enc_offset);
 }

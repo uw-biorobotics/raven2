@@ -36,4 +36,4 @@
 
 /** prototype for controlRaven()
  */
-int controlRaven(struct robot_device*, struct param_pass*);
+int controlRaven(robot_device*, param_pass*);

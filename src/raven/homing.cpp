@@ -60,15 +60,15 @@
 
 #include <iostream>
 
-int set_joints_known_pos(struct mechanism* _mech, int tool_only);
+int set_joints_known_pos(mechanism* _mech, int tool_only);
 
 extern int NUM_MECH;
 extern unsigned long int gTime;
-extern struct DOF_type DOF_types[];
+extern DOF_type DOF_types[];
 extern unsigned int soft_estopped;
 
 /**
-*   \fn int raven_homing(struct device *device0, struct param_pass *currParams, int begin_homing)
+*   \fn int raven_homing(device *device0, param_pass *currParams, int begin_homing)
 *
 *	\brief Move to hard stops in controlled way, "zero" the joint value, and then move to "home" position
 *
@@ -89,12 +89,12 @@ extern unsigned int soft_estopped;
 *
 *   \todo   Homing limits should be Amps not DAC units (see homing()).
 */
-int raven_homing(struct device *device0, struct param_pass *currParams, int begin_homing)
+int raven_homing(device *device0, param_pass *currParams, int begin_homing)
 {
     static int homing_inited = 0;
     static unsigned long int delay, delay2;
-    struct DOF *_joint = NULL;
-    struct mechanism* _mech = NULL;
+    DOF *_joint = NULL;
+    mechanism* _mech = NULL;
     int i=0,j=0;
 
 #ifdef RICKS_TOOLS      // Refers to Enders Game Prop manager!!
@@ -175,7 +175,7 @@ int raven_homing(struct device *device0, struct param_pass *currParams, int begi
     _mech = NULL;  _joint = NULL;
     while ( loop_over_joints(device0, _mech, _joint, i,j) )
     {
-        struct DOF * _joint =  &(_mech->joint[j]); ///\todo is this line necessary?
+        DOF * _joint =  &(_mech->joint[j]); ///\todo is this line necessary?
 
         // Check to see if we've reached the joint limit.
         if( check_homing_condition(_joint) )
@@ -218,7 +218,7 @@ int raven_homing(struct device *device0, struct param_pass *currParams, int begi
 }
 
 /**
-*   \fn int set_joints_known_pos(struct mechanism* _mech, int tool_only)
+*   \fn int set_joints_known_pos(mechanism* _mech, int tool_only)
 *
 *	\brief  Set joint angles to known values after hard stops are reached.
 *
@@ -235,9 +235,9 @@ int raven_homing(struct device *device0, struct param_pass *currParams, int begi
 * 	\todo  Rationalize the sign changes on GREEN_ARM vs GOLD_ARM (see IFDEF below).
 * 	\todo  This MAYBE needs to be changed to support device specific parameter changes read from a config file or ROS service.
 */
-int set_joints_known_pos(struct mechanism* _mech, int tool_only)
+int set_joints_known_pos(mechanism* _mech, int tool_only)
 {
-    struct DOF* _joint=NULL;
+    DOF* _joint=NULL;
     int j=0;
 
     int scissor = ((_mech->mech_tool.t_end == mopocu_scissor) || (_mech->mech_tool.t_end == potts_scissor))? 1 : 0;
@@ -336,7 +336,7 @@ int set_joints_known_pos(struct mechanism* _mech, int tool_only)
 }
 
 /**
-*	\fn void homing(struct DOF* _joint)
+*	\fn void homing(DOF* _joint)
 *
 *	\brief Set trajectory behavior for each joint during the homing process.
 *
@@ -349,7 +349,7 @@ int set_joints_known_pos(struct mechanism* _mech, int tool_only)
 *   \todo  Homing limits should be Amps not DAC units
 *   \todo  Change square vs. diamond to a config-file based runtime system instead of #ifdef
 */
-void homing(struct DOF* _joint)
+void homing(DOF* _joint)
 {
     // duration for homing of each joint
     const float f_period[MAX_MECH*MAX_DOF_PER_MECH] = {1, 1, 1, 9999999, 1, 1, 1, 1,
@@ -418,7 +418,7 @@ void homing(struct DOF* _joint)
 }
 
 /**
-*	\fn void homing(struct DOF* _joint, tool a_tool)
+*	\fn void homing(DOF* _joint, tool a_tool)
 *
 *	\brief Set trajectory behavior for each tool joint during the homing process.
 *
@@ -430,7 +430,7 @@ void homing(struct DOF* _joint)
 *	\return void
 *   \TODO refactor for tool class
 */
-void homing(struct DOF* _joint, tool a_tool)
+void homing(DOF* _joint, tool a_tool)
 {
     // duration for homing of each joint
     const float f_period[MAX_MECH*MAX_DOF_PER_MECH] = {1, 1, 1, 9999999, 1, 1, 1, 1,
@@ -547,7 +547,7 @@ const int homing_max_dac[8] = {2500,  //shoulder
 
 
 /**
- *  \fn int check_homing_condition(struct DOF *_joint)
+ *  \fn int check_homing_condition(DOF *_joint)
  *
  * 	\brief Monitor joint currents to end the homing cycle at hard stop.
  *
@@ -563,7 +563,7 @@ const int homing_max_dac[8] = {2500,  //shoulder
  *
  *  \todo Homing limits should be Amps not DAC units (see homing()).
  */
-int check_homing_condition(struct DOF *_joint)
+int check_homing_condition(DOF *_joint)
 {
     if ( _joint->state != jstate_pos_unknown)
         return 0;

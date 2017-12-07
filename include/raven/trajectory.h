@@ -28,16 +28,16 @@
 #include "struct.h"
 
 // Setup and teardown of trajectory generation
-//int start_trajectory(struct DOF*);
-int start_trajectory(struct DOF*, float=0, float=0);
-int start_trajectory_mag(struct DOF*, float=0, float=0);
-int stop_trajectory(struct DOF*);
+//int start_trajectory(DOF*);
+int start_trajectory(DOF*, float=0, float=0);
+int start_trajectory_mag(DOF*, float=0, float=0);
+int stop_trajectory(DOF*);
 
 // Velocity Trajectories
-int update_sinusoid_velocity_trajectory(struct DOF*);
-int update_linear_sinusoid_velocity_trajectory(struct DOF*);
+int update_sinusoid_velocity_trajectory(DOF*);
+int update_linear_sinusoid_velocity_trajectory(DOF*);
 
 // Position trajectories
-int update_sinusoid_position_trajectory(struct DOF*);
-int update_linear_sinusoid_position_trajectory(struct DOF*);
-int update_position_trajectory(struct DOF*);
+int update_sinusoid_position_trajectory(DOF*);
+int update_linear_sinusoid_position_trajectory(DOF*);
+int update_position_trajectory(DOF*);

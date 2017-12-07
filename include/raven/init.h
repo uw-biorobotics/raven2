@@ -40,14 +40,14 @@
 #define ENC_MAX_NOT_SET  -10000
 #define ENC_MIN_NOT_SET   10000
 
-void initRobotData(struct device *device0, int runlevel, struct param_pass *currParams);
+void initRobotData(device *device0, int runlevel, param_pass *currParams);
 
 /// Structure initialization
-void initDOFs(struct device *device0);
+void initDOFs(device *device0);
 
 /// Get ravengains from ROS parameter server.
-int init_ravengains(ros::NodeHandle n, struct device *device0);
+int init_ravengains(ros::NodeHandle n, device *device0);
 
 /// set the starting xyz coordinate (pos_d = pos)
-void setStartXYZ(struct device *device0);
+void setStartXYZ(device *device0);
 

@@ -80,7 +80,7 @@ using namespace std;
 int getdir(string dir, vector<string> &files)
 {
     DIR *dp;
-    struct dirent *dirp;
+    dirent *dirp;
 
     if((dp  = opendir(dir.c_str())) == NULL) {
         cout << "Error(" << errno << ") opening " << dir << endl;
@@ -138,14 +138,14 @@ int write_zeros_to_board(int boardid)
 }
 
 
- /**\fn int USBInit(struct device *device0)
+ /**\fn int USBInit(device *device0)
  * \brief initialize the USB modules
  * \struct device
  * \param device0 - pointer to device struct
  * \return 0 if no USB board found, USB_INIT_ERROR if error was encountered, or # of boards if initialized successfully
  * \ingroup IO
  */
-int USBInit(struct device *device0)
+int USBInit(device *device0)
 {
   //DELETEME    char buf[10]; //buffer to be used for clearing usb read buffers
     string boardStr;

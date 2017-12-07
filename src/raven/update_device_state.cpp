@@ -20,8 +20,7 @@
 #include "update_device_state.h"
 #include "log.h"
 
-extern struct DOF_type DOF_types[];
-extern struct traj trajectory[];
+extern DOF_type DOF_types[];
 extern int NUM_MECH;
 extern volatile int isUpdated;
 extern unsigned long gTime;
@@ -41,7 +40,7 @@ t_controlmode newRobotControlMode = homing_mode;
  * \param device0           pointer to device informaiton
  *
  */
-int updateDeviceState(struct param_pass *currParams, struct param_pass *rcvdParams, struct device *device0)
+int updateDeviceState(param_pass *currParams, param_pass *rcvdParams, device *device0)
 {
 	currParams->last_sequence = rcvdParams->last_sequence;
     for (int i = 0; i < NUM_MECH; i++)

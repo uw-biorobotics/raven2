@@ -35,5 +35,5 @@
 #include "t_to_DAC_val.h"
 
 //Function prototypes
-void putUSBPackets(struct device *device0);
-int putUSBPacket(int id, struct mechanism *mech);
+void putUSBPackets(device *device0);
+int putUSBPacket(int id, mechanism *mech);

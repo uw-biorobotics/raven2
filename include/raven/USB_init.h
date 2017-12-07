@@ -50,12 +50,12 @@
 /* USB packet lengths */
 #define OUT_LENGTH      (3+MAX_DOF_PER_MECH*2) /* (3+8*2) w/ output pins */
 
-typedef struct
+struct USBStruct
 {
     std::vector <int>    boards;   /// Vector of serial numbers
     int activeAtStart;    /// Number of active boards
 
-} USBStruct;
+};
 
 
 //Defines
@@ -70,7 +70,7 @@ typedef struct
 #define USB_RESET         1
 
 //Function Prototypes
-int USBInit(struct device *device0);
+int USBInit(device *device0);
 void USBShutdown();
 
 void USBShutdown();

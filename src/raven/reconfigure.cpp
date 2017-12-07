@@ -22,8 +22,8 @@
 #include <ros/ros.h>
 #include "reconfigure.h"
 
-struct offsets offsets_l;
-struct offsets offsets_r;
+offsets offsets_l;
+offsets offsets_r;
 
 // Dynamic reconfigure callback
 void reconfigure_callback(raven_2::Raven2Config &config, uint32_t level)
