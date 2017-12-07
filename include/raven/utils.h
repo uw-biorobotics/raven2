@@ -48,15 +48,11 @@ int loop_over_joints(struct robot_device*, struct mechanism*&, struct DOF*&, int
 int loop_over_joints(struct mechanism* _mech, struct DOF*& _joint, int& jnum);
 
 int toShort(int value, short int *target);
-void strtoken(char *str, char *result, char delim);
 
 int is_toolDOF(struct DOF*);
 int is_toolDOF(int);
 int tools_ready(struct mechanism *mech);
 int robot_ready(struct robot_device* device0);
-
-const int _Qx=0, _Qy=1, _Qz=2, _Qw=3;
-void getQuaternion(float* Q, float mat[3][3]);
 
 /**
 *	\fn static inline void tsnorm(struct timespec *ts)

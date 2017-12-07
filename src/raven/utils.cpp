@@ -268,50 +268,6 @@ int robot_ready(struct robot_device* device0)
 
 
 /**
-*	\fn void strtoken(char *str, char *result, char delim)
-*
-*	\brief function to tokenize a string
-*
-*	\param str 		the string
-* 	\param result   the resulting string
-* 	\param delim    the delimeter
-*
-*	\return void
-*/
-void strtoken(char *str, char *result, char delim)
-{
-    static char data[200] = {0};
-    static int index = 0;
-    int i = 0;
-
-    //Copy over string
-    if (str != NULL)
-    {
-        std::strcpy(data, str);
-        index = 0;
-    }
-
-    //Loop through for delimeter
-    while (data[index] != '\0')
-    {
-        //Found delimeter
-        if (data[index] == delim)
-        {
-            result[i] = '\0';
-            index++;
-            return;
-        }
-
-        result[i++] = data[index];
-        index++;
-    }
-
-    result[i] = NULL;
-    return;
-}
-
-
-/**
 *	\fn struct timespec tsSubtract ( struct  timespec  time1, struct  timespec  time2)
 *
 *	\brief function to get time interval
@@ -349,30 +305,6 @@ struct  timespec  tsSubtract ( struct  timespec  time1,
         }
     }
     return (result);
-}
-
-
-
-/**
-*	\fn void getQuaternion(float* Q, float mat[3][3])
-*
-*	\brief function to convert a rotation matrix to quaternion
-*
-*	\param Q   float pointer
-* 	\param mat float 3x3 multidimensional array
-*
-*	\return void
-*/
-void getQuaternion(float* Q, float mat[3][3])
-{
-    Q[_Qw] = sqrt( fmax( 0, 1 + mat[0][0] + mat[1][1] + mat[2][2] ) ) / 2;
-    Q[_Qx] = sqrt( fmax( 0, 1 + mat[0][0] - mat[1][1] - mat[2][2] ) ) / 2;
-    Q[_Qy] = sqrt( fmax( 0, 1 - mat[0][0] + mat[1][1] - mat[2][2] ) ) / 2;
-    Q[_Qz] = sqrt( fmax( 0, 1 - mat[0][0] - mat[1][1] + mat[2][2] ) ) / 2;
-
-    Q[_Qx] = copysignf( Q[1], mat[2][1] - mat[1][2] );
-    Q[_Qy] = copysignf( Q[2], mat[0][2] - mat[2][0] );
-    Q[_Qz] = copysignf( Q[3], mat[1][0] - mat[0][1] );
 }
 
 
