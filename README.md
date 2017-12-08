@@ -10,9 +10,9 @@ To build and read the documentation,
 
 1. clone this project
 
-1. > cd Doxygen
+1. \> cd Doxygen
 
-1. > doxygen Doxyfile
+1. \> doxygen Doxyfile
 
 1. go to a new browser tab and type ^O
 
