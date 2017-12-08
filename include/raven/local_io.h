@@ -40,7 +40,7 @@ int initLocalioData();
 void teleopIntoDS1(u_struct*);
 
 // fifo handler to recv command data
-int recieveUserspace(void *u,int size);
+int receiveUserspace(void *u,int size);
 
 // Check: have any command updates happened?
 int checkLocalUpdates();

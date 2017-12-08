@@ -58,12 +58,11 @@
 #include "DS0.h"
 #include "DS1.h"
 #include "log.h"
+#include "local_io.h"
 
 #define SERVER_PORT  "36000"             // used if the robot needs to send data to the server
 //#define SERVER_ADDR  "192.168.0.102"
 #define SERVER_ADDR  "128.95.205.206"    // used only if the robot needs to send data to the server
-
-extern int receiveUserspace(void *u,int size);  // Defined in the local_io.cpp
 
 /**\fn int initSock (const char* port )
   \brief This function initializes a socket
