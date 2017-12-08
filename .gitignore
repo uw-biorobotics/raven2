@@ -23,3 +23,7 @@ msg_gen/**
 .project
 .cproject
 .project
+
+#raven 2 excludes:
+#  Doxygen generated html files:
+/html   

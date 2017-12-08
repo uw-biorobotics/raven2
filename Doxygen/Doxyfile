@@ -14,7 +14,8 @@ IMAGE_PATH				= ../include
 EXTRACT_ALL				= YES
 RECURSIVE 				= YES
 
-OUTPUT_DIRECTORY		= ../../../doxygen
+#OUTPUT_DIRECTORY		= ../../../doxygen
+OUTPUT_DIRECTORY		= ..
 
 SOURCE_BROWSER 			= YES
 
