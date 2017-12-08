@@ -173,4 +173,6 @@ struct robot_device {
   position grav_dir; //gravity direction
 };
 
+typedef robot_device device;
+
 #endif
