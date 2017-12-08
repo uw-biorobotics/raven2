@@ -3,7 +3,7 @@ raven2
 
 Raven II Surgical Robot
 
-For pre-compiled Doxygen documentation, 
+To build and read the documentation, 
 
 1. install doxygen and graphviz  
 (e.g. > sudo apt-get install doxygen)
