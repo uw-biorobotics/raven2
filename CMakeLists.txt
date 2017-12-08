@@ -60,7 +60,6 @@ set(r2_control_sources
   src/raven/mapping.cpp
   src/raven/network_layer.cpp
   src/raven/overdrive_detect.cpp
-  src/raven/parallel.cpp
   src/raven/pid_control.cpp
   src/raven/put_USB_packet.cpp
   src/raven/r2_jacobian.cpp

@@ -36,7 +36,6 @@
 
 
 #include "get_USB_packet.h"
-#include "parallel.h"
 
 extern unsigned long int gTime;
 extern USBStruct USBBoards;

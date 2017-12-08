@@ -49,7 +49,6 @@
 #include "homing.h"
 #include "local_io.h"
 #include "update_device_state.h"
-#include "parallel.h"
 #include "r2_jacobian.h"
 
 extern int NUM_MECH; //Defined in rt_process_preempt.cpp
@@ -222,8 +221,6 @@ int raven_cartesian_space_command(device *device0, param_pass *currParams){
     	set_posd_to_pos(device0);
     	updateMasterRelativeOrigin(device0);
     }
-
-    parport_out(0x01);
 
     //Inverse kinematics
     r2_inv_kin(device0, currParams->runlevel);

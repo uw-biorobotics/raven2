@@ -26,7 +26,6 @@
 #include "put_USB_packet.h"
 #include "USB_init.h"
 #include "update_atmel_io.h"
-#include "parallel.h"
 
 extern unsigned long int gTime;
 extern USBStruct USBBoards;

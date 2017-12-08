@@ -59,7 +59,6 @@
 #include "overdrive_detect.h"
 #include "inv_cable_coupling.h"
 #include "fwd_cable_coupling.h"
-#include "parallel.h"
 #include "state_machine.h"
 #include "state_estimate.h"
 #include "grav_comp.h"

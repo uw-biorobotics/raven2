@@ -50,7 +50,6 @@
 #include <ros/console.h>
 
 #include "USB_init.h"
-#include "parallel.h"
 
 //Four device files for connection to four boards
 #define BRL_USB_DEV_DIR     "/dev/"

@@ -63,7 +63,6 @@
 #include "rt_raven.h"
 #include "r2_kinematics.h"
 #include "network_layer.h"
-#include "parallel.h"
 #include "reconfigure.h"
 
 using namespace std;
@@ -225,10 +224,8 @@ static void *rt_process(void* )
       if (sleeploops!=1)
 	std::cout<< "slplup"<< sleeploops <<std::endl;
 
-      parport_out(0x00);
       /// SLEEP until next timer shot
       clock_nanosleep(0, TIMER_ABSTIME, &t, NULL);
-      parport_out(0x03);
       gTime++;
 
       // Get USB data that's been initiated already
@@ -365,9 +362,6 @@ int main(int argc, char **argv)
 {
   // set ctrl-C handler (override ROS b/c it's slow to cancel)
   signal( SIGINT,&sigTrap);
-
-  // set parallelport permissions
-  ioperm(PARPORT,1,1);
 
   // init stuff (usb, local-io, rt-memory, etc.);
   if ( init_module() )
