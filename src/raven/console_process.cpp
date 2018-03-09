@@ -25,18 +25,18 @@
 *
 *  	\author Hawkeye King
 *
-* 	\fn These are the 3 functions in console_process.cpp file. 
+* 	\fn These are the 3 functions in console_process.cpp file.
 *           Functions marked with "*" are called explicitly from other files.
 * 	       *(1) console_process	 	:uses (2)(3)
-*       	(2) getkey	 
-* 		(3) outputRobotState	
+*       	(2) getkey
+* 		(3) outputRobotState
 *
 *  	\date ??
 *
 *  	\ingroup IO
 */
 
-#include <stdio.h>
+#include <cstdio>
 #include <iomanip>
 #include <termios.h>   // needed for terminal settings in getkey()
 #include <queue>
@@ -47,12 +47,12 @@
 using namespace std;
 
 // from rt_process.cpp
-extern struct device device0;//robot_device struct defined in DS0.h 
+extern device device0;//robot_device  defined in DS0.h
 
 extern unsigned long int gTime;//Defined in rt_process_preempt.cpp
 extern int soft_estopped;//Defined in rt_process_preempt.cpp
-extern struct DOF_type DOF_types[];//Defined in globals.cpp
-extern std::queue<char*> msgqueue; 
+extern DOF_type DOF_types[];//Defined in globals.cpp
+extern std::queue<char*> msgqueue;
 
 void outputRobotState();
 int getkey();
@@ -78,7 +78,7 @@ void *console_process(void *)
     t2=t2.now();
 
     //Low priority non realtime thread
-    struct sched_param param;                    // priority settings
+    sched_param param;                    // priority settings
     param.sched_priority = 0;
     if (sched_setscheduler(0, SCHED_OTHER, &param)==-1)
     {
@@ -117,15 +117,15 @@ void *console_process(void *)
             {
               log_msg("pedal down");
               setSurgeonMode(1);
-              updateMasterRelativeOrigin(&device0);  
+              updateMasterRelativeOrigin(&device0);
               break;
             }
             case 'u':
 	    case 'U':
             {
-              log_msg("pedal up");  
+              log_msg("pedal up");
               setSurgeonMode(0);
-              updateMasterRelativeOrigin(&device0);  
+              updateMasterRelativeOrigin(&device0);
               break;
             }
             case 'e':
@@ -230,12 +230,12 @@ void *console_process(void *)
 */
 int getkey() {
     int character;
-    struct termios orig_term_attr;
-    struct termios new_term_attr;
+    termios orig_term_attr;
+    termios new_term_attr;
 
     /* set the terminal to raw mode */
     tcgetattr(fileno(stdin), &orig_term_attr);
-    memcpy(&new_term_attr, &orig_term_attr, sizeof(struct termios));
+    memcpy(&new_term_attr, &orig_term_attr, sizeof(termios));
     new_term_attr.c_lflag &= ~(ECHO|ICANON);
     new_term_attr.c_cc[VTIME] = 0;
     new_term_attr.c_cc[VMIN] = 0;

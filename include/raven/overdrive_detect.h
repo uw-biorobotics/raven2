@@ -27,10 +27,10 @@
 #include "defines.h"
 #include "utils.h"
 #include "log.h"
-#include <stdlib.h>
+#include <cstdlib>
 
 #define TIME_WINDOW  10000
 #define MAX_OVERDRIVE_TIME 50000
 
 //Function prototypes
-int overdriveDetect(struct device *device0,int runlevel);
+int overdriveDetect(device *device0,int runlevel);

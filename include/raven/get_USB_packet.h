@@ -39,7 +39,7 @@
 #define IN_LENGTH          27 /* 27 with input pins */
 
 //Function prototypes
-void initiateUSBGet(struct device *device0);
-int getUSBPackets(struct device *device0);
-int getUSBPacket(int id, struct mechanism *mech);
-void processEncoderPacket(struct mechanism *mech, unsigned char buffer[]);
+void initiateUSBGet(device *device0);
+int getUSBPackets(device *device0);
+int getUSBPacket(int id, mechanism *mech);
+void processEncoderPacket(mechanism *mech, unsigned char buffer[]);

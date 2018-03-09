@@ -57,11 +57,8 @@
 #include "update_device_state.h"
 #include "update_atmel_io.h"
 #include "overdrive_detect.h"
-#include "inv_kinematics.h"
 #include "inv_cable_coupling.h"
-#include "fwd_kinematics.h"
 #include "fwd_cable_coupling.h"
-#include "parallel.h"
 #include "state_machine.h"
 #include "state_estimate.h"
 #include "grav_comp.h"
@@ -89,11 +86,11 @@
 #define STACK_SIZE     50000
 #define USE_FPU        1
 
-int init_module(void);
-void cleanup_module(void);
+int init_module();
+void cleanup_module();
 //static void rt_process(long t);
 
-void displayVals(struct device device0, int period);
+void displayVals(device device0, int period);
 int handler (int vec, int signo, struct pt_regs *regs, void *dummy);
 
 #endif

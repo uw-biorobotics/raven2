@@ -62,5 +62,5 @@
 #define PIN_PS1    BIT7    // state bit 1  (MSB)
 
 //Function Prototypes
-void updateAtmelOutputs(struct device *device0, int runlevel);
-void updateAtmelInputs(struct device device0, int runlevel);
+void updateAtmelOutputs(device *device0, int runlevel);
+void updateAtmelInputs(device device0, int runlevel);

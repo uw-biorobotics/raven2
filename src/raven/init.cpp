@@ -16,21 +16,21 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Raven 2 Control.  If not, see <http://www.gnu.org/licenses/>.
  */
- 
+
 /**	\file 	init.cpp
 *
 *	\brief 	contains functions for initializing the robot
 * 	       	intializes the DOF structure AND runs initialization routine
 *
-* 	\fn These are the 4 functions in init.cpp file. 
+* 	\fn These are the 4 functions in init.cpp file.
 *           Functions marked with "*" are called explicitly from other files.
 * 	       *(1) initRobotData	 	:uses (2)(4)
-*       	(2) intDOFs	 
+*       	(2) intDOFs
 * 	       *(3) init_ravengains
 *		(4) setStartXYZ			:uses fwd_cable_coupling.cpp (1), r2_kinematics.cpp (2), local_io.cpp (6)
 *
 *  	\date 	7/29/2005
-* 
+*
 *  	\author Hawkeye King
 */
 
@@ -61,8 +61,7 @@ extern tool green_arm_tool;
 
 extern int initialized;
 
-extern struct traj trajectory[];
-extern struct DOF_type DOF_types[];
+extern DOF_type DOF_types[];
 
 extern char usb_board_count;
 extern USBStruct USBBoards;
@@ -70,7 +69,7 @@ extern int NUM_MECH;
 extern int soft_estopped;
 
 
-/**\fn void initRobotData (struct device *device0, int runlevel, struct param_pass *currParams)
+/**\fn void initRobotData (device *device0, int runlevel, param_pass *currParams)
   \brief This function initializes the robot data
   \struct device
   \struct param_pass
@@ -80,7 +79,7 @@ extern int soft_estopped;
   \return
   \ingroup  DataStructures
 */
-void initRobotData(struct device *device0, int runlevel, struct param_pass *currParams)
+void initRobotData(device *device0, int runlevel, param_pass *currParams)
 {
     // init_wait_loop is a klugy way to wait a few times through the loop for our kinematics to propogate.
     static int init_wait_loop=0;
@@ -150,7 +149,7 @@ void initRobotData(struct device *device0, int runlevel, struct param_pass *curr
 }
 
 
- /**\fn void initDOFs(struct device *device0)
+ /**\fn void initDOFs(device *device0)
   \brief This function intializes all structures which are not DOF specific
   \struct device
   \param device0 pointer to device struct
@@ -159,7 +158,7 @@ void initRobotData(struct device *device0, int runlevel, struct param_pass *curr
   \todo Add runtime config file (or use ROS parameter server) to elminate square/diamond #ifdefs. And support new tool types
 
 */
-void initDOFs(struct device *device0)
+void initDOFs(device *device0)
 {
     static int dofs_inited=0;
     if (dofs_inited)
@@ -200,7 +199,7 @@ void initDOFs(struct device *device0)
 	DOF_types[ELBOW_GOLD].DAC_max     = MODERATE_ELBOW_MAX_DAC;
 	DOF_types[ELBOW_GREEN].DAC_max    = MODERATE_ELBOW_MAX_DAC;
 	DOF_types[Z_INS_GOLD].DAC_max     = MODERATE_Z_INS_MAX_DAC;
-	DOF_types[Z_INS_GREEN].DAC_max    = MODERATE_Z_INS_MAX_DAC;	
+	DOF_types[Z_INS_GREEN].DAC_max    = MODERATE_Z_INS_MAX_DAC;
     }
     else // SAFETY_LEVEL == ADVANCED_MODE
     {
@@ -209,7 +208,7 @@ void initDOFs(struct device *device0)
 	DOF_types[ELBOW_GOLD].DAC_max     = ADVANCED_ELBOW_MAX_DAC;
 	DOF_types[ELBOW_GREEN].DAC_max    = ADVANCED_ELBOW_MAX_DAC;
 	DOF_types[Z_INS_GOLD].DAC_max     = ADVANCED_Z_INS_MAX_DAC;
-	DOF_types[Z_INS_GREEN].DAC_max    = ADVANCED_Z_INS_MAX_DAC;	
+	DOF_types[Z_INS_GREEN].DAC_max    = ADVANCED_Z_INS_MAX_DAC;
     }
 
     /*
@@ -272,9 +271,9 @@ void initDOFs(struct device *device0)
 
         for (int j = 0; j < MAX_DOF_PER_MECH; j++)
         {
-            struct DOF *_joint    = &(device0->mech[i].joint[j]);
+            DOF *_joint    = &(device0->mech[i].joint[j]);
             int dofindex = _joint->type;
-            struct DOF_type *_dof = &(DOF_types[dofindex]);
+            DOF_type *_dof = &(DOF_types[dofindex]);
 
             //Initialize joint and motor position variables
             _joint->jpos = 0;
@@ -449,7 +448,7 @@ void initDOFs(struct device *device0)
     dofs_inited=1;
 }
 
-/**\fn int init_ravengains(ros::NodeHandle n, struct device *device0)
+/**\fn int init_ravengains(ros::NodeHandle n, device *device0)
   \brief Get ravengains from ROS parameter server.
   \struct device
   \param device0 pointer to device struct
@@ -459,7 +458,7 @@ void initDOFs(struct device *device0)
   \return
   \ingroup DataStructures
 */
-int init_ravengains(ros::NodeHandle n, struct device *device0)
+int init_ravengains(ros::NodeHandle n, device *device0)
 {
     XmlRpc::XmlRpcValue kp_green, kp_gold, kd_green, kd_gold, ki_green, ki_gold;
     bool res=0;
@@ -560,7 +559,7 @@ int init_ravengains(ros::NodeHandle n, struct device *device0)
 }
 
 
-/**\fn void setStartXYZ(struct device *device0)
+/**\fn void setStartXYZ(device *device0)
   \brief set the starting desired xyz coordinate (pos_d = pos)
 
   Set the initial desired position equal to the actual position so that
@@ -572,7 +571,7 @@ int init_ravengains(ros::NodeHandle n, struct device *device0)
   \ingroup Control
   (could also be [ ]ingroup DataStructures )
 */
-void setStartXYZ(struct device *device0)
+void setStartXYZ(device *device0)
 {
     int i;
     static int j;
@@ -615,8 +614,8 @@ void setStartXYZ(struct device *device0)
 /*
 
     int i=0, j=0;
-    struct mechanism* _mech=NULL;
-    struct DOF* _joint=NULL;
+    mechanism* _mech=NULL;
+    DOF* _joint=NULL;
     float amps_on_wait = 0.9; // 900ms
     float bump_encoder_wait = amps_on_wait + 0.05; // 50ms
     static int startflag=0;

@@ -27,10 +27,9 @@
 #ifndef __DEFINE_H__
 #define __DEFINE_H__
 
-#include <math.h>
+#include <cmath>
 
 #define RAVEN_MODULE_VERSION RAVEN_II_RELEASE_02
-#define device robot_device
 
 #define SURGICAL_ROBOT     	1
 #define RAVEN_II        	1

@@ -38,7 +38,6 @@
 #include "defines.h"
 
 #include "init.h"             // for initSurgicalArms()
-#include "inv_kinematics.h"
 #include "r2_kinematics.h"
 #include "inv_cable_coupling.h"
 #include "state_estimate.h"
@@ -46,36 +45,34 @@
 #include "grav_comp.h"
 #include "t_to_DAC_val.h"
 #include "fwd_cable_coupling.h"
-#include "fwd_kinematics.h"
 #include "trajectory.h"
 #include "homing.h"
 #include "local_io.h"
 #include "update_device_state.h"
-#include "parallel.h"
 #include "r2_jacobian.h"
 
 extern int NUM_MECH; //Defined in rt_process_preempt.cpp
 extern unsigned long int gTime; //Defined in rt_process_preempt.cpp
-extern struct DOF_type DOF_types[]; //Defined in DOF_type.h
-extern t_controlmode newRobotControlMode; //Defined in struct.h
+extern DOF_type DOF_types[]; //Defined in DOF_type.h
+extern t_controlmode newRobotControlMode; //Defined in .h
 
-int raven_cartesian_space_command(struct device *device0, struct param_pass *currParams);
-int raven_joint_velocity_control(struct device *device0, struct param_pass *currParams);
-int raven_motor_position_control(struct device *device0, struct param_pass *currParams);
-int raven_homing(struct device *device0, struct param_pass *currParams, int begin_homing=0);
-int applyTorque(struct device *device0, struct param_pass *currParams);
-int raven_sinusoidal_joint_motion(struct device *device0, struct param_pass *currParams);
+int raven_cartesian_space_command(device *device0, param_pass *currParams);
+int raven_joint_velocity_control( device *device0, param_pass *currParams);
+int raven_motor_position_control( device *device0, param_pass *currParams);
+int raven_homing(device *device0, param_pass *currParams, int begin_homing=0);
+int applyTorque(device *device0, param_pass *currParams);
+int raven_sinusoidal_joint_motion(device *device0, param_pass *currParams);
 
 extern int initialized; //Defined in rt_process_preempt.cpp
 
 /**
-*  	\fn int controlRaven(struct device *device0, struct param_pass *currParams)
+*  	\fn int controlRaven(device *device0, param_pass *currParams)
 *
 *	\brief This function controls the RAVEN for one loop cycle based on the desired control mode.
 *
 *	\desc This function first initializes the robot and then it computes Mpos and Velocities by calling
-* 			stateEstimate() and then it calls fwdCableCoupling() and r2_fwd_kin() to calculate the 
-* 			forward cable coupling and inverse kinematics respectively. 
+* 			stateEstimate() and then it calls fwdCableCoupling() and r2_fwd_kin() to calculate the
+* 			forward cable coupling and inverse kinematics respectively.
 * 			The following types of control can be selected from the control mode:
 *  				-No control
 *  				-Cartesian Space Control
@@ -95,7 +92,7 @@ extern int initialized; //Defined in rt_process_preempt.cpp
 *	\return 0 on success
 *		   -1 on no action
 */
-int controlRaven(struct device *device0, struct param_pass *currParams){
+int controlRaven(device *device0, param_pass *currParams){
     int ret = 0;
     //Desired control mode
     t_controlmode controlmode = (t_controlmode)currParams->robotControlMode;
@@ -116,21 +113,21 @@ int controlRaven(struct device *device0, struct param_pass *currParams){
 
     switch (controlmode){
 
-        //this is handy for checking that gravity compensation works - also allows for robot to be 
+        //this is handy for checking that gravity compensation works - also allows for robot to be
 		//manipulated without brakes
         case no_control:
         {
             initialized = false;
 
-            struct DOF *_joint = NULL;
-            struct mechanism* _mech = NULL;
+            DOF *_joint = NULL;
+            mechanism* _mech = NULL;
             int i=0,j=0;
 
             // Gravity compensation calculation
             getGravityTorque(*device0, *currParams);
 
             while ( loop_over_joints(device0, _mech, _joint, i,j) )
-                _joint->tau_d = _joint->tau_g;  // Add gravity torque 
+                _joint->tau_d = _joint->tau_g;  // Add gravity torque
 
             TorqueToDAC(device0);
 
@@ -190,7 +187,7 @@ int controlRaven(struct device *device0, struct param_pass *currParams){
 }
 
 /**
-*	\fn int raven_cartesian_space_command(struct device *device0, struct param_pass *currParams)
+*	\fn int raven_cartesian_space_command(device *device0, param_pass *currParams)
 *
 *  	\brief  This function runs pd_control on motor position.
 *
@@ -205,14 +202,14 @@ int controlRaven(struct device *device0, struct param_pass *currParams){
 *  	\param currParams param_pass struct defined in DS1.h
 *
 *  	\return 0 when torque is applied to DAC
-*		   -1 if Pedal is up and 
+*		   -1 if Pedal is up and
 *
 *	\ingroup Control
 */
-int raven_cartesian_space_command(struct device *device0, struct param_pass *currParams){
+int raven_cartesian_space_command(device *device0, param_pass *currParams){
 
-    struct DOF *_joint = NULL;
-    struct mechanism* _mech = NULL;
+    DOF *_joint = NULL;
+    mechanism* _mech = NULL;
     int i=0,j=0;
 
     if (currParams->runlevel < RL_PEDAL_UP)
@@ -224,8 +221,6 @@ int raven_cartesian_space_command(struct device *device0, struct param_pass *cur
     	set_posd_to_pos(device0);
     	updateMasterRelativeOrigin(device0);
     }
-
-    parport_out(0x01);
 
     //Inverse kinematics
     r2_inv_kin(device0, currParams->runlevel);
@@ -262,11 +257,11 @@ int raven_cartesian_space_command(struct device *device0, struct param_pass *cur
 
 
 /**
-*	\fn raven_sinusoidal_joint_motion(struct device *device0, struct param_pass *currParams)
+*	\fn raven_sinusoidal_joint_motion(device *device0, param_pass *currParams)
 *
 *  	\brief  This function applies a sinusoidal trajectory to all joints
 *
-*	\desc This function: 
+*	\desc This function:
 *  			1. returns 0 if not in pedal down or init.init (do nothing)
 *  			2. it sets trajectories on all the joints
 *  			3. calls the invCableCoupling() to calculate inverse cable coupling
@@ -280,7 +275,7 @@ int raven_cartesian_space_command(struct device *device0, struct param_pass *cur
 *
 *  	\ingroup Control
 */
-int raven_sinusoidal_joint_motion(struct device *device0, struct param_pass *currParams){
+int raven_sinusoidal_joint_motion(device *device0, param_pass *currParams){
     static int controlStart = 0;
     static unsigned long int delay=0;
     const float f_period[8] = {6, 7, 10, 9999999, 10, 5, 10, 6};
@@ -300,13 +295,13 @@ int raven_sinusoidal_joint_motion(struct device *device0, struct param_pass *cur
         {
             for (int j = 0; j < MAX_DOF_PER_MECH; j++)
             {
-                struct DOF* _joint =  &(device0->mech[i].joint[j]);
+                DOF* _joint =  &(device0->mech[i].joint[j]);
                 _joint->mpos_d = _joint->mpos;
                 _joint->jpos_d = _joint->jpos;
                 _joint->tau_d = 0;
             }
         }
-        return 0; 
+        return 0;
     }
 
 
@@ -321,7 +316,7 @@ int raven_sinusoidal_joint_motion(struct device *device0, struct param_pass *cur
     {
         for (int j = 0; j < MAX_DOF_PER_MECH; j++)
         {
-            struct DOF * _joint =  &(device0->mech[i].joint[j]);
+            DOF * _joint =  &(device0->mech[i].joint[j]);
             int sgn = 1;
 
             if (device0->mech[i].type == GREEN_ARM)
@@ -344,7 +339,7 @@ int raven_sinusoidal_joint_motion(struct device *device0, struct param_pass *cur
     {
         for (int j = 0; j < MAX_DOF_PER_MECH; j++)
         {
-            struct DOF * _joint =  &(device0->mech[i].joint[j]);
+            DOF* _joint =  &(device0->mech[i].joint[j]);
 
             // Do PD control
             mpos_PD_control(_joint);
@@ -362,14 +357,14 @@ int raven_sinusoidal_joint_motion(struct device *device0, struct param_pass *cur
 
 
 /**
-*	\fn applyTorque(struct device *device0, struct param_pass *currParams)
+*	\fn applyTorque(device *device0, param_pass *currParams)
 *
 *  	\brief For debugging robot,  apply a set torque command (tau_d) to a joint.
 *
 *	\desc This function: only run in runlevel 1.2
 *  			1. It checks the run level
 *  			2. loops over all the joints and mechanisim to set the torque value
-*  				MAX_DOF_PER_MECH is 8 and is defined in DS0.h 
+*  				MAX_DOF_PER_MECH is 8 and is defined in DS0.h
 *  				NUM_MECH is the number of mechanisim of the robot
 *
 *  	\param device0 is robot_device struct defined in DS0.h
@@ -379,7 +374,7 @@ int raven_sinusoidal_joint_motion(struct device *device0, struct param_pass *cur
 *
 *  	\ingroup Control
 */
-int applyTorque(struct device *device0, struct param_pass *currParams)
+int applyTorque(device *device0, param_pass *currParams)
 {
     // Only run in runlevel 1.2
     if ( ! (currParams->runlevel == RL_INIT && currParams->sublevel == SL_AUTO_INIT ))
@@ -407,7 +402,7 @@ int applyTorque(struct device *device0, struct param_pass *currParams)
 
 
 /**\
-*	\fn raven_motor_position_control(struct device *device0, struct param_pass *currParams)
+*	\fn raven_motor_position_control(device *device0, param_pass *currParams)
 *
 *  	\brief This function runs PD control on motor position
 *
@@ -425,13 +420,13 @@ int applyTorque(struct device *device0, struct param_pass *currParams)
 *
 *	\ingroup Control
 */
-int raven_motor_position_control(struct device *device0, struct param_pass *currParams)
+int raven_motor_position_control(device *device0, param_pass *currParams)
 {
     static int controlStart = 0;
     static unsigned long int delay=0;
 
-    struct DOF *_joint = NULL;
-    struct mechanism* _mech = NULL;
+    DOF *_joint = NULL;
+    mechanism* _mech = NULL;
     int i=0,j=0;
 
     // If we're not in pedal down or init.init then do nothing.
@@ -490,7 +485,7 @@ int raven_motor_position_control(struct device *device0, struct param_pass *curr
 }
 
 /**
-*	\fn raven_joint_velocity_control(struct device *device0, struct param_pass *currParams)
+*	\fn raven_joint_velocity_control(device *device0, param_pass *currParams)
 *
 * 	\brief This function runs pi_control on joint velocity
 *
@@ -509,7 +504,7 @@ int raven_motor_position_control(struct device *device0, struct param_pass *curr
 *
 * 	\ingroup Control
 */
-int raven_joint_velocity_control(struct device *device0, struct param_pass *currParams)
+int raven_joint_velocity_control(device *device0, param_pass *currParams)
 {
     static int controlStart;
     static unsigned long int delay=0;
@@ -527,7 +522,7 @@ int raven_joint_velocity_control(struct device *device0, struct param_pass *curr
         {
             for (int j = 0; j < MAX_DOF_PER_MECH; j++)
             {
-                struct DOF * _joint =  &(device0->mech[i].joint[j]);
+                DOF* _joint =  &(device0->mech[i].joint[j]);
 
                 if (device0->mech[i].type == GOLD_ARM) /// why only gold arm??
                 {
@@ -536,7 +531,7 @@ int raven_joint_velocity_control(struct device *device0, struct param_pass *curr
                         start_trajectory(_joint);
 
                     // Get the desired joint velocities
-                    update_linear_sinusoid_velocity_trajectory(_joint); /// also only gold arm 
+                    update_linear_sinusoid_velocity_trajectory(_joint); /// also only gold arm
 
                     // Run PI control
                     jvel_PI_control(_joint, !controlStart);

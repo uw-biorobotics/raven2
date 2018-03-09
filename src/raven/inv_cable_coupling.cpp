@@ -18,16 +18,16 @@
  */
 
 
-/* 
+/*
 *  \file inv_cable_coupling.cpp
-* 
+*
 *  \brief Calculate the inverse cable coupling from a Joint Space Pose,
 * 	(th1, th2, d3) express the desired motor pose (m1, m2, m3)
 *
-*  \fn:These are the 2 functions in inv_cable_coupling.cpp file. 
+*  \fn:These are the 2 functions in inv_cable_coupling.cpp file.
 *      Functions marked with "*" are called explicitly from other files.
 * 	   *(1) invCableCoupling	 	:uses (2)
-*      	    (2) invMechCableCoupling	
+*      	    (2) invMechCableCoupling
 *
 *  \ingroup Control
 *           Tool
@@ -41,7 +41,7 @@
 #include "inv_cable_coupling.h"
 #include "log.h"
 
-extern struct DOF_type DOF_types[];
+extern DOF_type DOF_types[];
 extern int NUM_MECH;
 extern unsigned long int gTime;
 /**
@@ -54,7 +54,7 @@ extern unsigned long int gTime;
 * \param runlevel current runlevel
 *
 */
-void invCableCoupling(struct device *device0, int runlevel)
+void invCableCoupling(device *device0, int runlevel)
 {
   int i;
 
@@ -70,7 +70,7 @@ void invCableCoupling(struct device *device0, int runlevel)
 * \todo update to matrix calculations for the coupling (here and fwd)
 */
 
-void invMechCableCoupling(struct mechanism *mech, int no_use_actual)
+void invMechCableCoupling(mechanism *mech, int no_use_actual)
 {
   if (mech->type != GOLD_ARM && mech->type != GREEN_ARM) {
   	log_msg("bad mech type!");
@@ -141,7 +141,7 @@ void invMechCableCoupling(struct mechanism *mech, int no_use_actual)
 //        -tr3*CABLE_COUPLING_02/GB_RATIO -tr3*CABLE_COUPLING_12G/B_RATIO  -tr3/GB_RATIO  0   0  0  tr7;]
 // -------------------------------------------------------------------------------------------------
 // Tool Type: Raven Square Tool
-// C_l=C_r 
+// C_l=C_r
 //      = [tr1 				   0 				   0 	          0   0   0  0;
 //        tr2*CABLE_COUPLING_01            tr2 				   0 	          0   0   0  0;
 //        tr3*CABLE_COUPLING_02            tr3*CABLE_COUPLING_12           tr3            0   0   0  0;
@@ -151,7 +151,7 @@ void invMechCableCoupling(struct mechanism *mech, int no_use_actual)
 //        -tr3*CABLE_COUPLING_02/GB_RATIO -tr3*CABLE_COUPLING_12G/B_RATIO  -tr3/GB_RATIO  0   0  0  tr7;]
 // -------------------------------------------------------------------------------------------------
 // Tool Type: DaVinci Square Tool
-// C_l=C_r 
+// C_l=C_r
 //      = [tr1 				   0 				   0 	          0   0       0   0;
 //        tr2*CABLE_COUPLING_01            tr2 				   0 	          0   0       0   0;
 //        tr3*CABLE_COUPLING_02            tr3*CABLE_COUPLING_12           tr3            0   0       0   0;

@@ -39,11 +39,11 @@
 #include "fwd_cable_coupling.h"
 #include "log.h"
 
-extern struct DOF_type DOF_types[];
+extern DOF_type DOF_types[];
 extern int NUM_MECH;
 
 /**
-* \fn void fwdCableCoupling(struct device *device0, int runlevel)
+* \fn void fwdCableCoupling(device *device0, int runlevel)
 * \brief Calls fwdMechCableCoupling for each mechanism in device
 * \param device0 - pointer to device struct
 * \param runlevel - current runlevel
@@ -51,7 +51,7 @@ extern int NUM_MECH;
 * \todo Remove runlevel from args.
 */
 
-void fwdCableCoupling(struct device *device0, int runlevel)
+void fwdCableCoupling(device *device0, int runlevel)
 {
 	//Run fwd cable coupling for each mechanism.
 	// This should be run in all runlevels.
@@ -60,12 +60,12 @@ void fwdCableCoupling(struct device *device0, int runlevel)
 }
 
 /**
-* \fn void fwdMechCableCoupling(struct mechanism *mech)
+* \fn void fwdMechCableCoupling(mechanism *mech)
 * \param mech
 * \return void
 */
 
-void fwdMechCableCoupling(struct mechanism *mech)
+void fwdMechCableCoupling(mechanism *mech)
 {
 	float th1, th2, th3, th5, th6, th7;
 	float th1_dot, th2_dot;
@@ -178,7 +178,7 @@ void fwdMechCableCoupling(struct mechanism *mech)
 
 
 /**
-* \fn void fwdTorqueCoupling(struct device *device0, int runlevel)
+* \fn void fwdTorqueCoupling(device *device0, int runlevel)
 * \brief Calls fwdMechTorqueCoupling for each mechanism in device
 * \param device0 - pointer to device struct
 * \param runlevel - current runlevel
@@ -186,7 +186,7 @@ void fwdMechCableCoupling(struct mechanism *mech)
 * \todo Remove runlevel from args.
 */
 
-void fwdTorqueCoupling(struct device *device0, int runlevel)
+void fwdTorqueCoupling(device *device0, int runlevel)
 {
 	//Run fwd cable coupling for each mechanism.
 	// This should be run in all runlevels.
@@ -195,14 +195,14 @@ void fwdTorqueCoupling(struct device *device0, int runlevel)
 }
 
 /**
-* \fn void fwdMechTorqueCoupling(struct mechanism *mech)
+* \fn void fwdMechTorqueCoupling(mechanism *mech)
 * \brief calculates joint position and velocity based on motor position and velocity
 *
 * \param mech
 * \return void
 */
 
-void fwdMechTorqueCoupling(struct mechanism *mech)
+void fwdMechTorqueCoupling(mechanism *mech)
 {
 	float th1=0, th2=0, th3=0, th5=0, th6=0, th7=0;
 	float th1_dot, th2_dot;

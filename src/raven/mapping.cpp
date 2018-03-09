@@ -35,7 +35,7 @@ const int USE_ITP = 1;
 const static double d2r = M_PI/180;
 float xRot_rad = -25 * d2r;
 
-/** \fn void fromITP(struct position *delpos, tf::Quaternion &delrot, int armserial)
+/** \fn void fromITP(position *delpos, tf::Quaternion &delrot, int armserial)
  * \brief Transform a position increment and an orientation increment from ITP coordinate frame into local robot zero coordinate frame.
  *        Do this using inv(R)*C*R : R= transform, C= increment
  * \param delpos - a pointer points to a position struct
@@ -43,7 +43,7 @@ float xRot_rad = -25 * d2r;
  * \param armserial - an integer number of of mechanisam id
  * \question why post multiply with R inverse?
 */
-void fromITP(struct position *delpos, tf::Quaternion &delrot, int armserial)
+void fromITP(position *delpos, tf::Quaternion &delrot, int armserial)
 {
 #ifdef ORIENTATION_V
 

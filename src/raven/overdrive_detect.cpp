@@ -19,7 +19,7 @@
 
 
 /**
- * \file: overdrive_detect.c 
+ * \file: overdrive_detect.c
  * \author Kenneth Fodero
  * \version 2005
  * \brief  Functions related to checking for motor over heating
@@ -31,7 +31,7 @@
 
 #include "overdrive_detect.h"
 
-extern struct DOF_type DOF_types[];//Defined in globals.cpp
+extern DOF_type DOF_types[];//Defined in globals.cpp
 extern int NUM_MECH; //Defined in rt_process_preempt.cpp
 extern int soft_estopped;//Defined in rt_process_preempt.cpp
 extern unsigned long int gTime;//Defined in rt_process_preempt.cpp
@@ -47,10 +47,10 @@ extern unsigned long int gTime;//Defined in rt_process_preempt.cpp
  * that could cause overheating or breakage, it checks joint current_cmd against
  * MAX_INST_DAC that is defined in defines.h
  */
-int overdriveDetect(struct device *device0, int runlevel)
+int overdriveDetect(device *device0, int runlevel)
 {
     int i, j;
-    struct DOF* _joint;
+    DOF* _joint;
     int ret = FALSE;
     static int count = 0;
 
@@ -93,21 +93,21 @@ int overdriveDetect(struct device *device0, int runlevel)
 	    		else
 			    err_msg("[SOFT_REG] Joint type %d current clipped low (%d) at DAC:%d\n", _joint->type, _dac_max*-1,  _joint->current_cmd);
 		     }
-			   
+
 		     _joint->current_cmd = (_joint->current_cmd > 0) ? _dac_max : _dac_max*-1; // Clip current to max_torque or -1*max_torque
 		     count = 0;
 
 		}
 		else  // SAFETY_POLICY == HARD_REGULATION
 		{
-        	
+
 		    if(count > 10)
 		    {
 	    		    if(_joint->current_cmd > 0)
 	    		        err_msg("[HARD_REG] Joint type %d current Estop high (%d) at DAC:%d\n", _joint->type, _dac_max, _joint->current_cmd);
 	    		    else
 				err_msg("[HARD_REG] Joint type %d current Estop low (%d) at DAC:%d\n", _joint->type, _dac_max*-1,  _joint->current_cmd);
-	   	
+
 			    _joint->current_cmd = 0; // Reset current to 0 (and trigger Estop)
 			    ret = TRUE;
                             count = 0;
@@ -122,10 +122,10 @@ int overdriveDetect(struct device *device0, int runlevel)
 }
 /*
 //This is the original code
-int overdriveDetect(struct device *device0)
+int overdriveDetect(device *device0)
 {
     int i, j;
-    struct DOF* _joint;
+    DOF* _joint;
     int ret = FALSE;
 
 
@@ -158,7 +158,7 @@ int overdriveDetect(struct device *device0)
                     err_msg("Joint type %d is current clipped low (%d) at DAC:%d\n", _joint->type, _dac_max*-1,  _joint->current_cmd);
                 _joint->current_cmd = _dac_max*-1;
             }
-			
+
 			// \todo find a better place to calculate the actual commanded torque
             //calculate actual joint torque at motor capstan from commanded dac value
             double _tau_per_amp = DOF_types[_joint->type].tau_per_amp;

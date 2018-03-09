@@ -23,15 +23,15 @@
 * 	\brief some common utility functions
 *
 * 	\author Kenneth Fodero
-* 
+*
 * 	\date 2005
 */
 
 #ifndef __UTILS_H__
 #define __UTILS_H__
 
-#include <time.h>
-#include <string.h>
+#include <ctime>
+#include "DS0.h"
 
 #ifndef NULL
 #define NULL 0
@@ -45,22 +45,18 @@
 #define SHORT_OVERFLOW    1
 #define SHORT_UNDERFLOW  -1
 
-int loop_over_joints(struct robot_device*, struct mechanism*&, struct DOF*&, int&, int&);
-int loop_over_joints(struct mechanism* _mech, struct DOF*& _joint, int& jnum);
+int loop_over_joints(robot_device*, mechanism*&, DOF*&, int&, int&);
+int loop_over_joints(mechanism* _mech, DOF*& _joint, int& jnum);
 
 int toShort(int value, short int *target);
-void strtoken(char *str, char *result, char delim);
 
-int is_toolDOF(struct DOF*);
+int is_toolDOF(DOF*);
 int is_toolDOF(int);
-int tools_ready(struct mechanism *mech);
-int robot_ready(struct robot_device* device0);
-
-const int _Qx=0, _Qy=1, _Qz=2, _Qw=3;
-void getQuaternion(float* Q, float mat[3][3]);
+int tools_ready(mechanism *mech);
+int robot_ready(robot_device* device0);
 
 /**
-*	\fn static inline void tsnorm(struct timespec *ts) 
+*	\fn static inline void tsnorm(timespec *ts)
 *
 *	\brief the struct timespec consists of nanoseconds
 * 		and seconds. This rolls over the ns to seconds.
@@ -68,7 +64,7 @@ void getQuaternion(float* Q, float mat[3][3]);
 *	\param ts 	timespec struct containing nanosec times to convert to sec
 */
 #define NSEC_PER_SEC    1000000000          // nanoseconds per sec
-static inline void tsnorm(struct timespec *ts)
+static inline void tsnorm(timespec *ts)
 {
     while (ts->tv_nsec >= NSEC_PER_SEC)
     {
@@ -77,10 +73,10 @@ static inline void tsnorm(struct timespec *ts)
     }
 }
 
-struct  timespec  tsSubtract ( struct  timespec  time1,
-                                           struct  timespec  time2);
+timespec tsSubtract (timespec time1, timespec time2);
+
 // Reset posd so that it is coincident with pos.
-void set_posd_to_pos(struct robot_device* device0);
+void set_posd_to_pos(robot_device* device0);
 
 #define isbefore(a, b) ( (a.tv_sec < b.tv_sec) || (a.tv_sec == b.tv_sec && a.tv_nsec < b.tv_nsec ))
 

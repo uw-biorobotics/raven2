@@ -31,8 +31,7 @@
 
 #include <Eigen/Dense>
 
-
-//#include "DS0.h"
+struct robot_device;
 
 
 /**
@@ -75,6 +74,6 @@ public:
 
 };
 
-int r2_device_jacobian(struct robot_device *d0, int runlevel);
+int r2_device_jacobian(robot_device *d0, int runlevel);
 
 #endif /* R2_JACOBIAN_H_ */

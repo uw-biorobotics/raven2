@@ -30,7 +30,7 @@
 
 
 #include "DS0.h"
-#include <stdio.h>
+#include <cstdio>
 #include <iostream>
 #include "r2_jacobian_defs.h"
 #include "defines.h"
@@ -39,7 +39,7 @@
 
 
 extern int NUM_MECH;
-extern struct DOF_type DOF_types[];
+extern DOF_type DOF_types[];
 
 
 /** r2_jacobian constructor with pre-set velocities and forces
@@ -199,7 +199,7 @@ int r2_jacobian::calc_forces(float j_torques[6]){
  * \return int success = 1
  *
  */
-int r2_device_jacobian(struct robot_device *d0, int runlevel){
+int r2_device_jacobian(robot_device *d0, int runlevel){
 	int success = 1;
 	float j_pos[6];
 	float j_vel[6];

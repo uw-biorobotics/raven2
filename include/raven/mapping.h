@@ -34,7 +34,7 @@
 #undef __attribute_pure__
 #endif*/
 
-#include <math.h>
+#include <cmath>
 #include <tf/transform_datatypes.h>
 
 #include "struct.h"
@@ -45,5 +45,5 @@
 #define Y_ROT_GREEN_ARM -1.5707
 #define Y_ROT_GOLD_ARM 1.5707
 
-void masterToSlave(struct position*, int);
-void fromITP(struct position*, tf::Quaternion&, int);
+void masterToSlave(position*, int);
+void fromITP(position*, tf::Quaternion&, int);

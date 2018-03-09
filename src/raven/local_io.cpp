@@ -39,7 +39,7 @@ ROS publishing is at the bottom half of this file.
 #define _GNU_SOURCE //For realtime posix support. see http://www.gnu.org/s/libc/manual/html_node/Feature-Test-Macros.html
 #endif
 
-#include <string.h>
+#include <cstring>
 #include <pthread.h>
 #include <ros/ros.h>
 #include <ros/transport_hints.h>
@@ -61,15 +61,15 @@ extern unsigned long int gTime;
 const static double d2r = M_PI/180; //degrees to radians
 const static double r2d = 180/M_PI; //radians to degrees
 
-static struct param_pass data1;		//local data structure that needs mutex protection
+static param_pass data1;		//local data structure that needs mutex protection
 tf::Quaternion Q_ori[2];
 pthread_mutexattr_t data1MutexAttr;
 pthread_mutex_t data1Mutex;
 
 volatile int isUpdated; //TODO: HK volatile int instead of atomic_t ///Should we use atomic builtins? http://gcc.gnu.org/onlinedocs/gcc-4.1.2/gcc/Atomic-Builtins.html
 
-extern struct offsets offsets_l;
-extern struct offsets offsets_r;
+extern offsets offsets_l;
+extern offsets offsets_r;
 
 
 /**
@@ -79,7 +79,7 @@ extern struct offsets offsets_r;
  * \ingroup DataStructures
  */
 
-int initLocalioData(void)
+int initLocalioData()
 {
     int i;
     pthread_mutexattr_init(&data1MutexAttr);
@@ -117,10 +117,10 @@ int initLocalioData(void)
 
 int receiveUserspace(void *u,int size)
 {
-    if (size==sizeof(struct u_struct))
+    if (size==sizeof(u_struct))
     {
         isUpdated = TRUE;
-        teleopIntoDS1((struct u_struct*)u);
+        teleopIntoDS1((u_struct*)u);
     }
     return 0;
 }
@@ -137,9 +137,9 @@ int receiveUserspace(void *u,int size)
  *
  *  \ingroup DataStructures
  */
-void teleopIntoDS1(struct u_struct *us_t)
+void teleopIntoDS1(u_struct *us_t)
 {
-    struct position p;
+    position p;
     int i, armidx, armserial;
     pthread_mutex_lock(&data1Mutex);
     tf::Quaternion q_temp;
@@ -265,13 +265,13 @@ int checkLocalUpdates()
 *   \todo HK Check performance of trylock / default priority inversion scheme
 *  \ingroup DataStructures
 */
-struct param_pass * getRcvdParams(struct param_pass* d1)
+param_pass * getRcvdParams(param_pass* d1)
 {
     // \TODO Check performance of trylock / default priority inversion scheme
     if (pthread_mutex_trylock(&data1Mutex)!=0)   //Use trylock since this function is called form rt-thread. return immediately with old values if unable to lock
         return d1;
     //pthread_mutex_lock(&data1Mutex); //Priority inversion enabled. Should force completion of other parts and enter into this section.
-    memcpy(d1, &data1, sizeof(struct param_pass));
+    memcpy(d1, &data1, sizeof(param_pass));
     isUpdated = 0;
     pthread_mutex_unlock(&data1Mutex);
     return d1;
@@ -287,10 +287,10 @@ struct param_pass * getRcvdParams(struct param_pass* d1)
  * Reset writable copy of DS1
  *  \ingroup Networking
 */
-void updateMasterRelativeOrigin(struct device *device0)
+void updateMasterRelativeOrigin(device *device0)
 {
 	int armidx;
-    struct orientation *_ori;
+    orientation *_ori;
     tf::Matrix3x3 tmpmx;
 
     // update data1 (network position desired) to device0.position_desired (device position desired)
@@ -342,12 +342,10 @@ void setSurgeonMode(int pedalstate)
 #include <tf/transform_datatypes.h>
 #include <raven_2/raven_state.h>
 #include <raven_2/raven_automove.h>
-#include <visualization_msgs/Marker.h>
 #include <sensor_msgs/JointState.h>
 
 
-void publish_joints(struct robot_device*);
-void publish_marker(struct robot_device*);
+void publish_joints(robot_device*);
 void autoincrCallback(raven_2::raven_automove);
 
 using namespace raven_2;
@@ -355,8 +353,6 @@ using namespace raven_2;
 ros::Publisher pub_ravenstate;
 ros::Subscriber sub_automove;
 ros::Publisher joint_publisher;
-ros::Publisher vis_pub1;
-ros::Publisher vis_pub2;
 
 /**
 *  \brief Initiates all ROS publishers and subscribers
@@ -371,9 +367,6 @@ ros::Publisher vis_pub2;
 int init_ravenstate_publishing(ros::NodeHandle &n){
     pub_ravenstate = n.advertise<raven_state>("ravenstate", 1 ); //, ros::TransportHints().unreliable().tcpNoDelay() );
     joint_publisher = n.advertise<sensor_msgs::JointState>("joint_states", 1);
-    vis_pub1 = n.advertise<visualization_msgs::Marker>( "visualization_marker1", 0 );
-    vis_pub2 = n.advertise<visualization_msgs::Marker>( "visualization_marker2", 0 );
-
 
 	sub_automove = n.subscribe<raven_automove>("raven_automove", 1, autoincrCallback, ros::TransportHints().unreliable() );
 
@@ -435,7 +428,7 @@ void autoincrCallback(raven_2::raven_automove msg)
 *   \param currParams the parameters being passed from the interfaces
 *  \ingroup ROS
 */
-void publish_ravenstate_ros(struct robot_device *dev,struct param_pass *currParams){
+void publish_ravenstate_ros(robot_device *dev, param_pass *currParams){
     static int count=0;
     static raven_state msg_ravenstate;  // satic variables to minimize memory allocation calls
     static ros::Time t1;
@@ -525,7 +518,7 @@ void publish_ravenstate_ros(struct robot_device *dev,struct param_pass *currPara
 *  \ingroup ROS
 *
 */
-void publish_joints(struct robot_device* device0){
+void publish_joints(robot_device* device0){
 
     static int count=0;
     static ros::Time t1;
@@ -542,8 +535,6 @@ void publish_joints(struct robot_device* device0){
     if (d.toSec()<0.030)
         return;
     t1=t2;
-
-    publish_marker(device0);
 
     sensor_msgs::JointState joint_state;
     //update joint_state
@@ -631,607 +622,4 @@ void publish_joints(struct robot_device* device0){
     //Publish the joint states
     joint_publisher.publish(joint_state);
 
-}
-
-/**
- * \brief Publish the visualization marker for the robot visualization
- *
- * \param device0 the robot device and all of its ins and outs
- *
- * \author Sina?
- *
- *  \ingroup ROS
- */
-void publish_marker(struct robot_device* device0)
-{
-    visualization_msgs::Marker marker1, marker2;
-    geometry_msgs::Point p, px,py,pz;
-    tf::Quaternion bq;
-    struct orientation* _ori;
-    tf::Matrix3x3 xform;
-
-    visualization_msgs::Marker axes[3];
-    tf::Quaternion axq, oriq;
-
-    int left,right;
-
-    if (device0->mech[0].type == GOLD_ARM)
-    {
-        left = 0;
-        right = 1;
-    }
-    else
-    {
-        left = 1;
-        right = 0;
-    }
-
-    // setup marker
-    marker1.type = visualization_msgs::Marker::SPHERE;
-    marker1.action = visualization_msgs::Marker::ADD;   // Set the marker action.  Options are ADD and DELETE
-    marker1.header.stamp = ros::Time::now();
-    marker1.ns = "RCM_marker";
-    marker1.lifetime = ros::Duration();
-    // Set the scale of the marker -- 1x1x1 here means 1m on a side
-    marker1.scale.x = 0.020;
-    marker1.scale.y = 0.020;
-    marker1.scale.z = 0.020;
-
-
-    // DRAW TEH SPHERE
-    int draw_L_sphere=0;
-    if (draw_L_sphere)
-    {
-        marker1.type = visualization_msgs::Marker::SPHERE;
-        // Set the frame ID and timestamp.  See the TF tutorials for information on these.
-        marker1.header.frame_id = "/base_link_L";
-        marker1.id = 0;
-        // Set the pose of the marker.  This is a full 6DOF pose relative to the frame/time specified in the header
-        p.x = device0->mech[left].pos.x/1e6;
-        p.y = device0->mech[left].pos.y/1e6;
-        p.z = device0->mech[left].pos.z/1e6;
-        marker1.pose.position.x = device0->mech[left].pos.x/1e6;
-        marker1.pose.position.y = device0->mech[left].pos.y/1e6;
-        marker1.pose.position.z = device0->mech[left].pos.z/1e6;
-
-        // Get quaternion representation of rotation
-        _ori = &(device0->mech[left].ori);
-        xform.setValue(_ori->R[0][0], _ori->R[0][1], _ori->R[0][2],
-                       _ori->R[1][0], _ori->R[1][1], _ori->R[1][2],
-                       _ori->R[2][0], _ori->R[2][1], _ori->R[2][2]);
-        xform.getRotation(bq);
-        marker1.pose.orientation.x = bq.getX();
-        marker1.pose.orientation.y = bq.getY();
-        marker1.pose.orientation.z = bq.getZ();
-        marker1.pose.orientation.w = bq.getW();
-
-        // Set the color -- be sure to set alpha to something non-zero!
-        marker1.color.r = 1.0f;
-        marker1.color.g = 0.0f;
-        marker1.color.b = 0.0f;
-        marker1.color.a = 1.0;
-        // Publish the marker
-        vis_pub1.publish(marker1);
-    }
-
-
-    int draw_L_axes=0;
-    if (draw_L_axes)
-    {
-        for (int i=0;i<3;i++)
-        {
-            axes[i].type = visualization_msgs::Marker::ARROW;
-            axes[i].action = visualization_msgs::Marker::ADD;   // Set the marker action.  Options are ADD and DELETE
-            axes[i].header.stamp = ros::Time::now();
-            axes[i].ns = "RCM_marker";
-            axes[i].lifetime = ros::Duration();
-            // Set the scale of the marker -- 1x1x1 here means 1m on a side
-            axes[i].scale.x = 0.020;
-            axes[i].scale.y = 0.020;
-            axes[i].scale.z = 0.020;
-
-            // Set the frame ID and timestamp.  See the TF tutorials for information on these.
-            axes[i].header.frame_id = "/base_link_L";
-            axes[i].id = 10+i;
-            // Set the pose of the marker.  This is a full 6DOF pose relative to the frame/time specified in the header
-            axes[i].pose.position.x = device0->mech[left].pos.x/1e6;
-            axes[i].pose.position.y = device0->mech[left].pos.y/1e6;
-            axes[i].pose.position.z = device0->mech[left].pos.z/1e6;
-
-            // Set the color -- be sure to set alpha to something non-zero!
-            axes[i].color.r = 0.0f;
-            axes[i].color.g = 0.0f;
-            axes[i].color.b = 0.0f;
-            axes[i].color.a = 1.0;
-
-        }
-
-        // get the transform rotation
-        _ori = &(device0->mech[left].ori);
-//        xform.setValue(_ori->R[0][0], _ori->R[1][0], _ori->R[2][0],
-//                            _ori->R[0][1], _ori->R[1][1], _ori->R[2][1],
-//                            _ori->R[0][2], _ori->R[1][2], _ori->R[2][2]);
-        xform.setValue(_ori->R[0][0], _ori->R[0][1], _ori->R[0][2],
-                       _ori->R[1][0], _ori->R[1][1], _ori->R[1][2],
-                       _ori->R[2][0], _ori->R[2][1], _ori->R[2][2]);
-        xform.getRotation(bq);
-
-        // draw the axes
-        xform.setValue(1,0,0,   0,1,0,    0,0,1);
-        xform.getRotation(axq);
-        oriq = bq * axq;
-        axes[0].pose.orientation.x = oriq.getX();
-        axes[0].pose.orientation.y = oriq.getY();
-        axes[0].pose.orientation.z = oriq.getZ();
-        axes[0].pose.orientation.w = oriq.getW();
-        axes[0].color.r = 1.0f;
-
-        xform.setValue(0,-1,0,    1,0,0,     0,0,1);
-        xform.getRotation(axq);
-        oriq = bq * axq;
-        axes[1].pose.orientation.x = oriq.getX();
-        axes[1].pose.orientation.y = oriq.getY();
-        axes[1].pose.orientation.z = oriq.getZ();
-        axes[1].pose.orientation.w = oriq.getW();
-        axes[1].color.g = 1.0f;
-
-        xform.setValue(0,0,-1,   0,1,0,    1,0,0);
-        xform.getRotation(axq);
-        oriq = bq * axq;
-        axes[2].pose.orientation.x = oriq.getX();
-        axes[2].pose.orientation.y = oriq.getY();
-        axes[2].pose.orientation.z = oriq.getZ();
-        axes[2].pose.orientation.w = oriq.getW();
-        axes[2].color.b = 1.0f;
-
-        // Publish the marker
-        vis_pub1.publish(axes[0]);
-        vis_pub1.publish(axes[1]);
-        vis_pub1.publish(axes[2]);
-    }
-
-    int draw_R_sphere=0;
-    if (draw_R_sphere)
-    {
-        marker1.type = visualization_msgs::Marker::SPHERE;
-
-        // Set the frame ID and timestamp.  See the TF tutorials for information on these.
-        marker1.header.frame_id = "/base_link_R";
-        marker1.id = 1;
-        // Set the pose of the marker.  This is a full 6DOF pose relative to the frame/time specified in the header
-        marker1.pose.position.x = device0->mech[right].pos.x/1e6;
-        marker1.pose.position.y = device0->mech[right].pos.y/1e6;
-        marker1.pose.position.z = device0->mech[right].pos.z/1e6;
-
-        // Get quaternion representation of rotation
-        _ori = &(device0->mech[right].ori);
-        xform.setValue(_ori->R[0][0], _ori->R[0][1], _ori->R[0][2],
-                       _ori->R[1][0], _ori->R[1][1], _ori->R[1][2],
-                       _ori->R[2][0], _ori->R[2][1], _ori->R[2][2]);
-        xform.getRotation(bq);
-        marker1.pose.orientation.x = bq.getX();
-        marker1.pose.orientation.y = bq.getY();
-        marker1.pose.orientation.z = bq.getZ();
-        marker1.pose.orientation.w = bq.getW();
-
-        // Set the color -- be sure to set alpha to something non-zero!
-        marker1.color.r = 0.0f;
-        marker1.color.g = 1.0f;
-        marker1.color.b = 0.0f;
-        marker1.color.a = 1.0;
-        // Publish the marker
-        vis_pub1.publish(marker1);
-    }
-
-
-
-    int draw_R_axes=0;
-    if (draw_R_axes)
-    {
-        for (int i=0;i<3;i++)
-        {
-            axes[i].type = visualization_msgs::Marker::ARROW;
-            axes[i].action = visualization_msgs::Marker::ADD;   // Set the marker action.  Options are ADD and DELETE
-            axes[i].header.stamp = ros::Time::now();
-            axes[i].ns = "RCM_marker";
-            axes[i].lifetime = ros::Duration();
-            // Set the scale of the marker -- 1x1x1 here means 1m on a side
-            axes[i].scale.x = 0.020;
-            axes[i].scale.y = 0.020;
-            axes[i].scale.z = 0.020;
-
-            // Set the frame ID and timestamp.  See the TF tutorials for information on these.
-            axes[i].header.frame_id = "/base_link_R";
-            axes[i].id = 30+i;
-            // Set the pose of the marker.  This is a full 6DOF pose relative to the frame/time specified in the header
-            axes[i].pose.position.x = device0->mech[right].pos.x/1e6;
-            axes[i].pose.position.y = device0->mech[right].pos.y/1e6;
-            axes[i].pose.position.z = device0->mech[right].pos.z/1e6;
-
-            // Set the color -- be sure to set alpha to something non-zero!
-            axes[i].color.r = 0.0f;
-            axes[i].color.g = 0.0f;
-            axes[i].color.b = 0.0f;
-            axes[i].color.a = 1.0;
-
-        }
-
-        // get the transform rotation
-        _ori = &(device0->mech[right].ori);
-//        xform.setValue(_ori->R[0][0], _ori->R[1][0], _ori->R[2][0],
-//                            _ori->R[0][1], _ori->R[1][1], _ori->R[2][1],
-//                            _ori->R[0][2], _ori->R[1][2], _ori->R[2][2]);
-        xform.setValue(_ori->R[0][0], _ori->R[0][1], _ori->R[0][2],
-                       _ori->R[1][0], _ori->R[1][1], _ori->R[1][2],
-                       _ori->R[2][0], _ori->R[2][1], _ori->R[2][2]);
-        xform.getRotation(bq);
-
-        // draw the axes
-        xform.setValue(1,0,0,   0,1,0,    0,0,1);
-        xform.getRotation(axq);
-        oriq = bq * axq;
-        axes[0].pose.orientation.x = oriq.getX();
-        axes[0].pose.orientation.y = oriq.getY();
-        axes[0].pose.orientation.z = oriq.getZ();
-        axes[0].pose.orientation.w = oriq.getW();
-        axes[0].color.r = 1.0f;
-
-        xform.setValue(0,-1,0,    1,0,0,     0,0,1);
-        xform.getRotation(axq);
-        oriq = bq * axq;
-        axes[1].pose.orientation.x = oriq.getX();
-        axes[1].pose.orientation.y = oriq.getY();
-        axes[1].pose.orientation.z = oriq.getZ();
-        axes[1].pose.orientation.w = oriq.getW();
-        axes[1].color.g = 1.0f;
-
-        xform.setValue(0,0,-1,   0,1,0,    1,0,0);
-        xform.getRotation(axq);
-        oriq = bq * axq;
-        axes[2].pose.orientation.x = oriq.getX();
-        axes[2].pose.orientation.y = oriq.getY();
-        axes[2].pose.orientation.z = oriq.getZ();
-        axes[2].pose.orientation.w = oriq.getW();
-        axes[2].color.b = 1.0f;
-
-        // Publish the marker
-        vis_pub1.publish(axes[0]);
-        vis_pub1.publish(axes[1]);
-        vis_pub1.publish(axes[2]);
-    }
-
-    int draw_L2_sphere = 0;
-    if (draw_L2_sphere)
-    {
-        // Set the frame ID and timestamp.  See the TF tutorials for information on these.
-        marker1.header.frame_id = "/base_link_L2";
-        marker1.id = 2;
-        // Set the pose of the marker.  This is a full 6DOF pose relative to the frame/time specified in the header
-        marker1.pose.position.x = device0->mech[left].pos_d.x/1e6;
-        marker1.pose.position.y = device0->mech[left].pos_d.y/1e6;
-        marker1.pose.position.z = device0->mech[left].pos_d.z/1e6;
-        _ori = &(device0->mech[left].ori_d);
-        xform.setValue(_ori->R[0][0], _ori->R[0][1], _ori->R[0][2],
-                       _ori->R[1][0], _ori->R[1][1], _ori->R[1][2],
-                       _ori->R[2][0], _ori->R[2][1], _ori->R[2][2]);
-        xform.getRotation(bq);
-        marker1.pose.orientation.x = bq.getX();
-        marker1.pose.orientation.y = bq.getY();
-        marker1.pose.orientation.z = bq.getZ();
-        marker1.pose.orientation.w = bq.getW();
-
-        // Set the color -- be sure to set alpha to something non-zero!
-        marker1.color.r = 1.0f;
-        marker1.color.g = 0.5f;
-        marker1.color.b = 0.0f;
-        marker1.color.a = 1.0;
-        // Publish the marker
-        vis_pub2.publish(marker1);
-    }
-
-    int draw_L2_axes = 1;
-    if (draw_L2_axes)
-    {
-        for (int i=0;i<3;i++)
-        {
-            axes[i].type = visualization_msgs::Marker::ARROW;
-            axes[i].action = visualization_msgs::Marker::ADD;   // Set the marker action.  Options are ADD and DELETE
-            axes[i].header.stamp = ros::Time::now();
-            axes[i].ns = "RCM_marker";
-            axes[i].lifetime = ros::Duration();
-            // Set the scale of the marker -- 1x1x1 here means 1m on a side
-            axes[i].scale.x = 0.020;
-            axes[i].scale.y = 0.020;
-            axes[i].scale.z = 0.020;
-
-            // Set the frame ID and timestamp.  See the TF tutorials for information on these.
-            axes[i].header.frame_id = "/base_link_L2";
-            axes[i].id = 50+i;
-            // Set the pose of the marker.  This is a full 6DOF pose relative to the frame/time specified in the header
-            axes[i].pose.position.x = device0->mech[left].pos_d.x/1e6;
-            axes[i].pose.position.y = device0->mech[left].pos_d.y/1e6;
-            axes[i].pose.position.z = device0->mech[left].pos_d.z/1e6;
-
-            // Set the color -- be sure to set alpha to something non-zero!
-            axes[i].color.r = 0.0f;
-            axes[i].color.g = 0.0f;
-            axes[i].color.b = 0.0f;
-            axes[i].color.a = 1.0;
-
-        }
-        // Get the device transform
-        _ori = &(device0->mech[left].ori_d);
-        xform.setValue(_ori->R[0][0], _ori->R[0][1], _ori->R[0][2],
-                       _ori->R[1][0], _ori->R[1][1], _ori->R[1][2],
-                       _ori->R[2][0], _ori->R[2][1], _ori->R[2][2]);
-        xform.getRotation(bq);
-        // Draw the axes
-        xform.setValue(1,0,0,   0,1,0,    0,0,1);
-        xform.getRotation(axq);
-        oriq = bq * axq;
-        axes[0].pose.orientation.x = oriq.getX();
-        axes[0].pose.orientation.y = oriq.getY();
-        axes[0].pose.orientation.z = oriq.getZ();
-        axes[0].pose.orientation.w = oriq.getW();
-        axes[0].color.r = 1.0f;
-
-        xform.setValue(0,-1,0,    1,0,0,     0,0,1);
-        xform.getRotation(axq);
-        oriq = bq * axq;
-        axes[1].pose.orientation.x = oriq.getX();
-        axes[1].pose.orientation.y = oriq.getY();
-        axes[1].pose.orientation.z = oriq.getZ();
-        axes[1].pose.orientation.w = oriq.getW();
-        axes[1].color.g = 1.0f;
-
-        xform.setValue(0,0,-1,   0,1,0,    1,0,0);
-        xform.getRotation(axq);
-        oriq = bq * axq;
-        axes[2].pose.orientation.x = oriq.getX();
-        axes[2].pose.orientation.y = oriq.getY();
-        axes[2].pose.orientation.z = oriq.getZ();
-        axes[2].pose.orientation.w = oriq.getW();
-        axes[2].color.b = 1.0f;
-
-        // Publish the marker
-        vis_pub2.publish(axes[0]);
-        vis_pub2.publish(axes[1]);
-        vis_pub2.publish(axes[2]);
-    }
-
-    int draw_R2_sphere = 0;
-    if (draw_R2_sphere)
-    {
-        // Set the frame ID and timestamp.  See the TF tutorials for information on these.
-        marker1.header.frame_id = "/base_link_R2";
-        marker1.id = 3;
-        // Set the pose of the marker.  This is a full 6DOF pose relative to the frame/time specified in the header
-        marker1.pose.position.x = device0->mech[right].pos_d.x/1e6;
-        marker1.pose.position.y = device0->mech[right].pos_d.y/1e6;
-        marker1.pose.position.z = device0->mech[right].pos_d.z/1e6;
-        _ori = &(device0->mech[right].ori_d);
-        xform.setValue(_ori->R[0][0], _ori->R[0][1], _ori->R[0][2],
-                       _ori->R[1][0], _ori->R[1][1], _ori->R[1][2],
-                       _ori->R[2][0], _ori->R[2][1], _ori->R[2][2]);
-        xform.getRotation(bq);
-        marker1.pose.orientation.x = bq.getX();
-        marker1.pose.orientation.y = bq.getY();
-        marker1.pose.orientation.z = bq.getZ();
-        marker1.pose.orientation.w = bq.getW();
-        // Set the color -- be sure to set alpha to something non-zero!
-        marker1.color.r = 0.5f;
-        marker1.color.g = 1.0f;
-        marker1.color.b = 0.0f;
-        marker1.color.a = 1.0;
-        // Publish the marker
-        vis_pub2.publish(marker1);
-    }
-
-    int draw_R2_axes = 1;
-    if (draw_R2_axes)
-    {
-        for (int i=0;i<3;i++)
-        {
-            axes[i].type = visualization_msgs::Marker::ARROW;
-            axes[i].action = visualization_msgs::Marker::ADD;   // Set the marker action.  Options are ADD and DELETE
-            axes[i].header.stamp = ros::Time::now();
-            axes[i].ns = "RCM_marker";
-            axes[i].lifetime = ros::Duration();
-            // Set the scale of the marker -- 1x1x1 here means 1m on a side
-            axes[i].scale.x = 0.020;
-            axes[i].scale.y = 0.020;
-            axes[i].scale.z = 0.020;
-
-            // Set the frame ID and timestamp.  See the TF tutorials for information on these.
-            axes[i].header.frame_id = "/base_link_R2";
-            axes[i].id = 40+i;
-            // Set the pose of the marker.  This is a full 6DOF pose relative to the frame/time specified in the header
-            axes[i].pose.position.x = device0->mech[right].pos_d.x/1e6;
-            axes[i].pose.position.y = device0->mech[right].pos_d.y/1e6;
-            axes[i].pose.position.z = device0->mech[right].pos_d.z/1e6;
-
-            // Set the color -- be sure to set alpha to something non-zero!
-            axes[i].color.r = 0.0f;
-            axes[i].color.g = 0.0f;
-            axes[i].color.b = 0.0f;
-            axes[i].color.a = 1.0;
-
-        }
-        // Get the device transform
-        _ori = &(device0->mech[right].ori_d);
-        xform.setValue(_ori->R[0][0], _ori->R[0][1], _ori->R[0][2],
-                       _ori->R[1][0], _ori->R[1][1], _ori->R[1][2],
-                       _ori->R[2][0], _ori->R[2][1], _ori->R[2][2]);
-        xform.getRotation(bq);
-        // Draw the axes
-        xform.setValue(1,0,0,   0,1,0,    0,0,1);
-        xform.getRotation(axq);
-        oriq = bq * axq;
-        axes[0].pose.orientation.x = oriq.getX();
-        axes[0].pose.orientation.y = oriq.getY();
-        axes[0].pose.orientation.z = oriq.getZ();
-        axes[0].pose.orientation.w = oriq.getW();
-        axes[0].color.r = 1.0f;
-
-        xform.setValue(0,-1,0,    1,0,0,     0,0,1);
-        xform.getRotation(axq);
-        oriq = bq * axq;
-        axes[1].pose.orientation.x = oriq.getX();
-        axes[1].pose.orientation.y = oriq.getY();
-        axes[1].pose.orientation.z = oriq.getZ();
-        axes[1].pose.orientation.w = oriq.getW();
-        axes[1].color.g = 1.0f;
-
-        xform.setValue(0,0,-1,   0,1,0,    1,0,0);
-        xform.getRotation(axq);
-        oriq = bq * axq;
-        axes[2].pose.orientation.x = oriq.getX();
-        axes[2].pose.orientation.y = oriq.getY();
-        axes[2].pose.orientation.z = oriq.getZ();
-        axes[2].pose.orientation.w = oriq.getW();
-        axes[2].color.b = 1.03f;
-
-        // Publish the marker
-        vis_pub2.publish(axes[0]);
-        vis_pub2.publish(axes[1]);
-        vis_pub2.publish(axes[2]);
-    }
-
-    int draw_xx_axes=0;
-    if (draw_xx_axes)
-    {
-        for (int i=0;i<3;i++)
-        {
-            axes[i].type = visualization_msgs::Marker::ARROW;
-            axes[i].action = visualization_msgs::Marker::ADD;   // Set the marker action.  Options are ADD and DELETE
-            axes[i].header.stamp = ros::Time::now();
-            axes[i].ns = "RCM_marker";
-            axes[i].lifetime = ros::Duration();
-            // Set the scale of the marker -- 1x1x1 here means 1m on a side
-            axes[i].scale.x = 0.020;
-            axes[i].scale.y = 0.020;
-            axes[i].scale.z = 0.020;
-
-            // Set the frame ID and timestamp.  See the TF tutorials for information on these.
-            axes[i].header.frame_id = "/link3_L2";
-            axes[i].id = 20+i;
-            // Set the pose of the marker.  This is a full 6DOF pose relative to the frame/time specified in the header
-            axes[i].pose.position.x = 0;
-            axes[i].pose.position.y = 0;
-            axes[i].pose.position.z = 0;
-
-            // Set the color -- be sure to set alpha to something non-zero!
-            axes[i].color.r = 0.0f;
-            axes[i].color.g = 0.0f;
-            axes[i].color.b = 0.0f;
-            axes[i].color.a = 1.0;
-
-        }
-
-        // get the transform rotation
-        _ori = &(device0->mech[left].ori);
-
-        // draw the axes
-        xform.setValue(1,0,0,   0,1,0,    0,0,1);
-        xform.getRotation(axq);
-        oriq = axq;
-        axes[0].pose.orientation.x = oriq.getX();
-        axes[0].pose.orientation.y = oriq.getY();
-        axes[0].pose.orientation.z = oriq.getZ();
-        axes[0].pose.orientation.w = oriq.getW();
-        axes[0].color.r = 1.0f;
-
-        xform.setValue(0,-1,0,    1,0,0,     0,0,1);
-        xform.getRotation(axq);
-        oriq = axq;
-        axes[1].pose.orientation.x = oriq.getX();
-        axes[1].pose.orientation.y = oriq.getY();
-        axes[1].pose.orientation.z = oriq.getZ();
-        axes[1].pose.orientation.w = oriq.getW();
-        axes[1].color.g = 1.0f;
-
-        xform.setValue(0,0,-1,   0,1,0,    1,0,0);
-        xform.getRotation(axq);
-        oriq = axq;
-        axes[2].pose.orientation.x = oriq.getX();
-        axes[2].pose.orientation.y = oriq.getY();
-        axes[2].pose.orientation.z = oriq.getZ();
-        axes[2].pose.orientation.w = oriq.getW();
-        axes[2].color.b = 1.0f;
-
-        // Publish the marker
-        vis_pub2.publish(axes[0]);
-        vis_pub2.publish(axes[1]);
-        vis_pub2.publish(axes[2]);
-    }
-
-
-
-    int draw_xxx_axes=0;
-    if (draw_xxx_axes)
-    {
-        for (int i=0;i<3;i++)
-        {
-            axes[i].type = visualization_msgs::Marker::ARROW;
-            axes[i].action = visualization_msgs::Marker::ADD;   // Set the marker action.  Options are ADD and DELETE
-            axes[i].header.stamp = ros::Time::now();
-            axes[i].ns = "RCM_marker";
-            axes[i].lifetime = ros::Duration();
-            // Set the scale of the marker -- 1x1x1 here means 1m on a side
-            axes[i].scale.x = 0.020;
-            axes[i].scale.y = 0.020;
-            axes[i].scale.z = 0.020;
-
-            // Set the frame ID and timestamp.  See the TF tutorials for information on these.
-            axes[i].header.frame_id = "/link3_R2";
-            axes[i].id = 20+i;
-            // Set the pose of the marker.  This is a full 6DOF pose relative to the frame/time specified in the header
-            axes[i].pose.position.x = 0;
-            axes[i].pose.position.y = 0;
-            axes[i].pose.position.z = 0;
-
-            // Set the color -- be sure to set alpha to something non-zero!
-            axes[i].color.r = 0.0f;
-            axes[i].color.g = 0.0f;
-            axes[i].color.b = 0.0f;
-            axes[i].color.a = 1.0;
-
-        }
-
-        // get the transform rotation
-        _ori = &(device0->mech[left].ori);
-
-        // draw the axes
-        xform.setValue(1,0,0,   0,1,0,    0,0,1);
-        xform.getRotation(axq);
-        oriq = axq;
-        axes[0].pose.orientation.x = oriq.getX();
-        axes[0].pose.orientation.y = oriq.getY();
-        axes[0].pose.orientation.z = oriq.getZ();
-        axes[0].pose.orientation.w = oriq.getW();
-        axes[0].color.r = 1.0f;
-
-        xform.setValue(0,-1,0,    1,0,0,     0,0,1);
-        xform.getRotation(axq);
-        oriq = axq;
-        axes[1].pose.orientation.x = oriq.getX();
-        axes[1].pose.orientation.y = oriq.getY();
-        axes[1].pose.orientation.z = oriq.getZ();
-        axes[1].pose.orientation.w = oriq.getW();
-        axes[1].color.g = 1.0f;
-
-        xform.setValue(0,0,-1,   0,1,0,    1,0,0);
-        xform.getRotation(axq);
-        oriq = axq;
-        axes[2].pose.orientation.x = oriq.getX();
-        axes[2].pose.orientation.y = oriq.getY();
-        axes[2].pose.orientation.z = oriq.getZ();
-        axes[2].pose.orientation.w = oriq.getW();
-        axes[2].color.b = 1.0f;
-
-        // Publish the marker
-        vis_pub2.publish(axes[0]);
-        vis_pub2.publish(axes[1]);
-        vis_pub2.publish(axes[2]);
-    }
 }

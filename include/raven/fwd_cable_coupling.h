@@ -47,8 +47,8 @@
 #define CABLE_COUPLING_12 (float)(0.008077387) //averaged from Ji's calcs
 
 
-void fwdCableCoupling(struct device *device0, int runlevel);
-void fwdMechCableCoupling(struct mechanism *mech);
+void fwdCableCoupling(device *device0, int runlevel);
+void fwdMechCableCoupling(mechanism *mech);
 
-void fwdTorqueCoupling(struct device *device0, int runlevel);
-void fwdMechTorqueCoupling(struct mechanism *mech);
+void fwdTorqueCoupling(device *device0, int runlevel);
+void fwdMechTorqueCoupling(mechanism *mech);

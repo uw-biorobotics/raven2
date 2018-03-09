@@ -26,19 +26,18 @@
 #include "put_USB_packet.h"
 #include "USB_init.h"
 #include "update_atmel_io.h"
-#include "parallel.h"
 
 extern unsigned long int gTime;
 extern USBStruct USBBoards;
 
-/**\fn void putUSBPackets(struct device *device0)
+/**\fn void putUSBPackets(device *device0)
   \brief Takes data from robot to send to USB board(s)
   \struct device
   \param device0 pointer to device struct
   \ingroup Network
 */
 
-void putUSBPackets(struct device *device0)
+void putUSBPackets(device *device0)
 {
     //Loop through all USB Boards
     for (int i = 0; i < USBBoards.activeAtStart; i++)
@@ -52,8 +51,8 @@ void putUSBPackets(struct device *device0)
 }
 
 
-/**\fn int putUSBPacket(int id, struct mechanism *mech)
-  \brief Takes data from mech struct and uses it to fill a USB
+/**\fn int putUSBPacket(int id, mechanism *mech)
+  \brief Takes data from mech  and uses it to fill a USB
    packet on specified board
 
   \param mech pointer to mechanism struct
@@ -62,7 +61,7 @@ void putUSBPackets(struct device *device0)
   \ingroup Network
 */
 
-int putUSBPacket(int id, struct mechanism *mech)
+int putUSBPacket(int id, mechanism *mech)
 {
     int i = 0;
     unsigned char buffer_out[MAX_OUT_LENGTH];

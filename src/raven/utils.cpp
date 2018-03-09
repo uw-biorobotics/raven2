@@ -17,17 +17,17 @@
  * along with Raven 2 Control.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/** 
+/**
  * 	\file utils.cpp
  *
  * 	\brief some common utility functions
  *
- * 	\author Kenneth Fodero 
- * 	
+ * 	\author Kenneth Fodero
+ *
  *	\date 2005
  */
 
-#include <math.h>
+#include <cmath>
 #include "utils.h"
 #include "DS0.h"
 #include "defines.h"
@@ -71,10 +71,10 @@ int toShort(int value, short int *target)
 
 
 /**
-*	\fn int loop_over_joints(struct robot_device* device0, struct mechanism*& _mech, struct DOF*& _joint, int& mechnum, int& jnum)
-* 
+*	\fn int loop_over_joints(robot_device* device0, mechanism*& _mech, DOF*& _joint, int& mechnum, int& jnum)
+*
 *	\brief Iterate over all joints of all mechanisms
-*  
+*
 *	\desc To start iteration, call function with _joint == _mech == NULL
 *  		Function iterates by incrementing jnum and mnum from zero and returning the appropriate mech and joint.
 *  		Iteration terminates when function is called with jnum == MAX_DOF-1 and mnum = NUM_MECH-1.
@@ -85,17 +85,17 @@ int toShort(int value, short int *target)
 *  	\post jnum and mnum are incremented or reset as necessary
 *                   _mech points to device0.mech[mechnum]
 *                   _joint points to device0.mech[mechnum].joint[jnum+1]
-* 
+*
 *	\param device0 a pointer points to the robot_device struct
 * 	\param _mech   a pointer points to the mechanism struct, and it is updated at the end of the function
 * 	\param _joint  a pointer points to the DOF struct, and it is updated at the end of the function
 * 	\param mechnum integer value represents the mechanism id, and it is updated at the end of the function
 * 	\param jnum    integer value represents the joint id, and it is updated at the end of the function
-* 
+*
 *	\return 0 if reaches last joint index
 *			1 otherwise
 */
-int loop_over_joints(struct robot_device* device0, struct mechanism*& _mech, struct DOF*& _joint, int& mechnum, int& jnum)
+int loop_over_joints(robot_device* device0, mechanism*& _mech, DOF*& _joint, int& mechnum, int& jnum)
 {
     // Initialize iterators
     if (_mech == NULL || _joint == NULL)
@@ -130,10 +130,10 @@ int loop_over_joints(struct robot_device* device0, struct mechanism*& _mech, str
 }
 
 /**
-*	\fn loop_over_joints(struct mechanism* _mech, struct DOF*& _joint, int& jnum)
-* 
+*	\fn loop_over_joints(mechanism* _mech, DOF*& _joint, int& jnum)
+*
 *	\brief Iterate over all joints of one mechanism.
-*  
+*
 *	\desc To start iteration, call function with _joint == NULL
 *  		Function iterates by incrementing jnum from zero and returning the appropriate joint.
 *  		Iteration terminates when function is called with jnum == MAX_DOF-1.
@@ -147,11 +147,11 @@ int loop_over_joints(struct robot_device* device0, struct mechanism*& _mech, str
 * 	\param _mech   a pointer points to the mechanism struct, and it is updated at the end of the function
 * 	\param _joint  a pointer points to the DOF struct, and it is updated at the end of the function
 * 	\param jnum    integer value represents the joint id, and it is updated at the end of the function
-* 	
+*
 *	\return 0 if reaches to last joint index
 *			1 otherwise
 */
-int loop_over_joints(struct mechanism* _mech, struct DOF*& _joint, int& jnum)
+int loop_over_joints(mechanism* _mech, DOF*& _joint, int& jnum)
 {
     // Initialize iterators
     if (_joint == NULL)
@@ -178,26 +178,26 @@ int loop_over_joints(struct mechanism* _mech, struct DOF*& _joint, int& jnum)
 
 
 /**
-*	\fn int is_toolDOF(struct DOF *_joint)
-* 
+*	\fn int is_toolDOF(DOF *_joint)
+*
 *	\brief check if the current joint is a toolDOF
-* 
-*	\param _joint a DOF struct 
-* 
+*
+*	\param _joint a DOF struct
+*
 *	\return 1 if the joint is a toolDOF
 *			0 otherwise
 */
-int is_toolDOF(struct DOF *_joint){
+int is_toolDOF(DOF *_joint){
     return is_toolDOF(_joint->type);
 }
 
 /**
 *	\fn int is_toolDOF(int jointType)
-* 
+*
 *	\brief check if the current joint is a toolDOF
-* 
+*
 *	\param _joint an integer value of joint type
-* 
+*
 *	\return 1 if the joint is a toolDOF
 *			0 otherwise
 */
@@ -217,7 +217,7 @@ int is_toolDOF(int jointType)
 
 
 /**
-*	\fn int tools_ready(struct mechanism *mech)
+*	\fn int tools_ready(mechanism *mech)
 *
 * 	\brief check if all tool joints of the current mechanism are in the ready state
 *
@@ -226,7 +226,7 @@ int is_toolDOF(int jointType)
 * 	\return 1 if and only if all toolDOFs are ready
 *			0 otherwise
 */
-int tools_ready(struct mechanism *mech)
+int tools_ready(mechanism *mech)
 {
     if ( mech->joint[TOOL_ROT].state != jstate_ready )
         return 0;
@@ -243,19 +243,19 @@ int tools_ready(struct mechanism *mech)
 
 
 /**
-*	\fn int robot_ready(struct robot_device* device0)
-* 
+*	\fn int robot_ready(robot_device* device0)
+*
 *	\brief check if robot is ready during homing procedure
-* 
+*
 *	\param mech  pointer to the robot_device struct
-* 
+*
 *	\return 1 if and only if all DOFS are ready
 *			0 otherwise
 */
-int robot_ready(struct robot_device* device0)
+int robot_ready(robot_device* device0)
 {
-    struct mechanism* _mech = NULL;
-    struct DOF* _joint = NULL;
+    mechanism* _mech = NULL;
+    DOF* _joint = NULL;
     int i, j;
 
     while ( loop_over_joints(device0, _mech, _joint, i, j) )
@@ -268,65 +268,20 @@ int robot_ready(struct robot_device* device0)
 
 
 /**
-*	\fn void strtoken(char *str, char *result, char delim)
-* 
-*	\brief function to tokenize a string
-* 
-*	\param str 		the string
-* 	\param result   the resulting string
-* 	\param delim    the delimeter
+*	\fn  timespec tsSubtract (timespec time1, timespec time2)
 *
-*	\return void
-*/
-void strtoken(char *str, char *result, char delim)
-{
-    static char data[200] = {0};
-    static int index = 0;
-    int i = 0;
-
-    //Copy over string
-    if (str != NULL)
-    {
-        std::strcpy(data, str);
-        index = 0;
-    }
-
-    //Loop through for delimeter
-    while (data[index] != '\0')
-    {
-        //Found delimeter
-        if (data[index] == delim)
-        {
-            result[i] = '\0';
-            index++;
-            return;
-        }
-
-        result[i++] = data[index];
-        index++;
-    }
-
-    result[i] = NULL;
-    return;
-}
-
-
-/**
-*	\fn struct timespec tsSubtract ( struct  timespec  time1, struct  timespec  time2)
-* 
 *	\brief function to get time interval
-* 
+*
 *	\param time1 - struct  timespec
 * 	\param time2 - struct  timespec
-* 
+*
 *	\return time1-time2  or  (0,0) if time2>time1
 *
 *	\return timespec struct with time interval result.tv_nsec
 */
-struct  timespec  tsSubtract ( struct  timespec  time1,
-                                           struct  timespec  time2)
+timespec tsSubtract(timespec time1, timespec time2)
 {
-    struct  timespec  result ;
+    timespec result;
 
     /* Subtract the second time from the first. */
     if ((time1.tv_sec < time2.tv_sec) ||
@@ -352,40 +307,16 @@ struct  timespec  tsSubtract ( struct  timespec  time1,
 }
 
 
-
 /**
-*	\fn void getQuaternion(float* Q, float mat[3][3])
-* 
-*	\brief function to convert a rotation matrix to quaternion
-* 
-*	\param Q   float pointer
-* 	\param mat float 3x3 multidimensional array
+*	\fn void set_posd_to_pos(robot_device* device0)
 *
-*	\return void
-*/
-void getQuaternion(float* Q, float mat[3][3])
-{
-    Q[_Qw] = sqrt( fmax( 0, 1 + mat[0][0] + mat[1][1] + mat[2][2] ) ) / 2;
-    Q[_Qx] = sqrt( fmax( 0, 1 + mat[0][0] - mat[1][1] - mat[2][2] ) ) / 2;
-    Q[_Qy] = sqrt( fmax( 0, 1 - mat[0][0] + mat[1][1] - mat[2][2] ) ) / 2;
-    Q[_Qz] = sqrt( fmax( 0, 1 - mat[0][0] - mat[1][1] + mat[2][2] ) ) / 2;
-
-    Q[_Qx] = copysignf( Q[1], mat[2][1] - mat[1][2] );
-    Q[_Qy] = copysignf( Q[2], mat[0][2] - mat[2][0] );
-    Q[_Qz] = copysignf( Q[3], mat[1][0] - mat[0][1] );
-}
-
-
-/**
-*	\fn void set_posd_to_pos(struct robot_device* device0)
-* 
 *	\brief set the desired position to the robots current position
-* 
+*
 *	\param device0 a pointer points to the robot_device struct
 *
 *	\return void
 */
-void set_posd_to_pos(struct robot_device* device0)
+void set_posd_to_pos(robot_device* device0)
 {
     for (int m = 0; m < NUM_MECH; m++) {
         device0->mech[m].pos_d.x     = device0->mech[m].pos.x;

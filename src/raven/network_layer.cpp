@@ -41,16 +41,16 @@
 #include <netinet/in.h> // POSIX library: defines socket ip protocols/address structs
 #include <netdb.h>      // POSIX library: Definitions for network database operations, port/hostname lookup features.
 #include <arpa/inet.h>  // POSIX library: Definitions for internet operations
-#include <ctype.h>      // C Standard library: declares a set of functions to classify and transfrom individual characters
-#include <errno.h>      // C Standard library: Defines macros to report error conditions
-#include <stdio.h>      // C Standard library: Input and output operations
+#include <cctype>      // C Standard library: declares a set of functions to classify and transfrom individual characters
+#include <cerrno>      // C Standard library: Defines macros to report error conditions
+#include <cstdio>      // C Standard library: Input and output operations
 #include <fcntl.h>      // C Standard library: File control options
-#include <time.h>       // C Standard library: timer, time types and structures
+#include <ctime>       // C Standard library: timer, time types and structures
 #include <ros/ros.h>    // Use ROS
 #include <ros/console.h>// ROS console output header for ROS_DEBUG, unused
 
-#include <stdlib.h>     // C Standard library: General Utilities Library
-#include <string.h>     // C Standard library: String operations
+#include <cstdlib>     // C Standard library: General Utilities Library
+#include <cstring>     // C Standard library: String operations
 #include <unistd.h>     // POSIX library: standard symbolic constants and types
 //#include <rtai_fifos.h>
 
@@ -58,12 +58,11 @@
 #include "DS0.h"
 #include "DS1.h"
 #include "log.h"
+#include "local_io.h"
 
 #define SERVER_PORT  "36000"             // used if the robot needs to send data to the server
 //#define SERVER_ADDR  "192.168.0.102"
 #define SERVER_ADDR  "128.95.205.206"    // used only if the robot needs to send data to the server
-
-extern int receiveUserspace(void *u,int size);  // Defined in the local_io.cpp
 
 /**\fn int initSock (const char* port )
   \brief This function initializes a socket
@@ -75,8 +74,8 @@ extern int receiveUserspace(void *u,int size);  // Defined in the local_io.cpp
 int initSock (const char* port )
 {
     int request_sock;
-    struct servent *servp;       // stores port & protocol
-    struct sockaddr_in server;   // socket address in AF_<family>
+    servent *servp;       // stores port & protocol
+    sockaddr_in server;   // socket address in AF_<family>
 
     //------------ init --------------//
 
@@ -90,7 +89,7 @@ int initSock (const char* port )
     // initialize port/protocol struct.
     if (isdigit(port[0]))
     {
-        static struct servent s;
+        static servent s;
         servp = &s;
         s.s_port = htons((u_short)atoi(port));
     }
@@ -106,7 +105,7 @@ int initSock (const char* port )
     server.sin_port = servp->s_port;
 
     // "bind" the port to the socket.
-    if (bind(request_sock, (struct sockaddr *) &server, sizeof server) < 0)
+    if (bind(request_sock, (sockaddr *) &server, sizeof server) < 0)
     {
         perror("bind");
         return 0;
@@ -120,14 +119,14 @@ int initSock (const char* port )
 }
 
 
-/**\fn int UDPChecksum(struct u_struct *u)
+/**\fn int UDPChecksum(u_struct *u)
   \brief Calculate chesum for a teleoperation packet, not called anywhere
   \param u a u_struct pointer
   \struct u_struct structure passed from master to slave itp_teleoperation.h
   \return positive integer number
   \ingroup Network
 */
-int UDPChecksum(struct u_struct *u)
+int UDPChecksum(u_struct *u)
 {
     int chk=0;
     chk =  (u->surgeon_mode);
@@ -142,9 +141,9 @@ int UDPChecksum(struct u_struct *u)
 
 // \todo DELET line 144-147? why volatile v_struct?
 // Chek packet validity, incl. sequence numbering and checksumming
-//int checkPacket(struct u_struct &u, int seq);
+//int checkPacket(u_struct &u, int seq);
 // main //
-volatile struct v_struct v;
+volatile v_struct v;
 
 
 /**\fn void* network_process(void*)
@@ -152,7 +151,7 @@ volatile struct v_struct v;
   \param param1 void pointer
   \return void
   \ingroup Network
-  \todo do something with retval to keep the compiler from complaining 
+  \todo do something with retval to keep the compiler from complaining
 */
 void* network_process(void* param1)
 {
@@ -160,12 +159,12 @@ void* network_process(void* param1)
     int nfound, maxfd;
     const char *port = SERVER_PORT;
     fd_set rmask, mask;
-    static struct timeval timeout = { 0, 500000 }; // .5 sec //
-    struct u_struct u;
+    static timeval timeout = { 0, 500000 }; // .5 sec //
+    u_struct u;
 
-    int uSize=sizeof(struct u_struct);
+    int uSize=sizeof(u_struct);
 
-    struct sockaddr_in clientName;
+    sockaddr_in clientName;
     int clientLength=sizeof(clientName);
     int retval;
     static int k = 0;
@@ -329,7 +328,7 @@ void* network_process(void* param1)
 
 #ifdef NET_SEND
         sendto ( sock, (void*)&v, vSize, 0,
-                 (struct sockaddr *) &clientName, clientLength);
+                 (sockaddr *) &clientName, clientLength);
 #endif
 
     } // end while(ros::ok())

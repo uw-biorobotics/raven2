@@ -47,12 +47,12 @@ struct param_pass {
   float  jvel_d[MAX_MECH_PER_DEV * MAX_DOF_PER_MECH];     // desired joint velocity
   float  kp[MAX_MECH_PER_DEV * MAX_DOF_PER_MECH];         // position gain
   float  kd[MAX_MECH_PER_DEV * MAX_DOF_PER_MECH];         // derivative gain
-  struct position xd[MAX_MECH_PER_DEV];		                // desired end-point position
-  struct orientation rd[MAX_MECH_PER_DEV];	              // desired end-point orientation
+  position xd[MAX_MECH_PER_DEV];		                // desired end-point position
+  orientation rd[MAX_MECH_PER_DEV];	              // desired end-point orientation
   int    torque_vals[MAX_MECH_PER_DEV * MAX_DOF_PER_MECH];// desired force/torque
   float	 grav_mag;	    //gravity magnitude
-  struct position grav_dir; //gravity direction
-  char   cmdStr[200];          
+  position grav_dir; //gravity direction
+  char   cmdStr[200];
   int    surgeon_mode;
   int    robotControlMode;
   int 	 last_sequence;

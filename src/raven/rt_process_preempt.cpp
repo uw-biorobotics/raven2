@@ -39,8 +39,8 @@
  *  Configures and starts the RAVEN control RT process.
  */
 
-#include <stdlib.h>
-#include <stdio.h>
+#include <cstdlib>
+#include <cstdio>
 #include <sys/mman.h> // Needed for mlockall()
 #include <unistd.h> // needed for sysconf(int name);
 #include <malloc.h>
@@ -48,9 +48,9 @@
 #include <sys/resource.h> // needed for getrusage
 #include <sched.h>
 #include <stropts.h>
-#include <time.h>
+#include <ctime>
 #include <pthread.h>
-#include <string.h>
+#include <cstring>
 #include <iostream>
 #include <fcntl.h>
 #include <signal.h>
@@ -63,7 +63,6 @@
 #include "rt_raven.h"
 #include "r2_kinematics.h"
 #include "network_layer.h"
-#include "parallel.h"
 #include "reconfigure.h"
 
 using namespace std;
@@ -82,7 +81,7 @@ int initialized=0;     // State initialized flag
 int soft_estopped=0;   // Soft estop flag- indicate desired software estop.
 
 int    deviceType = SURGICAL_ROBOT;//PULLEY_BOARD;
-struct device device0 ={0};  //Declaration Moved outside rt loop for access from console thread
+device device0 ={0};  //Declaration Moved outside rt loop for access from console thread
 int    mech_gravcomp_done[2]={0};
 
 int NUM_MECH=0;   // Define NUM_MECH as a C variable, not a c++ variable
@@ -93,7 +92,7 @@ pthread_t console_thread;
 pthread_t reconfigure_thread;
 
 //Global Variables from globals.c
-extern struct DOF_type DOF_types[];
+extern DOF_type DOF_types[];
 
 // flag to kill loops and stuff
 int r2_kill = 0;
@@ -150,15 +149,15 @@ int initialize_rt_memory_pool()
  */
 static void *rt_process(void* )
 {
-  struct param_pass currParams =
+  param_pass currParams =
     {
       0
     };          // robot command struct
-  struct param_pass rcvdParams =
+  param_pass rcvdParams =
     {
       0
     };
-  struct timespec t, tnow, t2, tbz;                           // Tracks the timer value
+  timespec t, tnow, t2, tbz;                           // Tracks the timer value
   int interval= 1 * MS;                        // task period in nanoseconds
 
   //CPU locking doesn't help timing.  Oh well.
@@ -173,7 +172,7 @@ static void *rt_process(void* )
   //   }
 
   // set thread priority and stuff
-  struct sched_param param;                    // process / thread priority settings
+  sched_param param;                    // process / thread priority settings
   param.sched_priority = 96;
   log_msg("Using realtime, priority: %d", param.sched_priority);
   int ret = pthread_setschedparam(pthread_self(), SCHED_FIFO, &param);
@@ -225,10 +224,8 @@ static void *rt_process(void* )
       if (sleeploops!=1)
 	std::cout<< "slplup"<< sleeploops <<std::endl;
 
-      parport_out(0x00);
       /// SLEEP until next timer shot
       clock_nanosleep(0, TIMER_ABSTIME, &t, NULL);
-      parport_out(0x03);
       gTime++;
 
       // Get USB data that's been initiated already
@@ -318,7 +315,7 @@ static void *rt_process(void* )
 /**
 * Initializes USB boards.
 */
-int init_module(void)
+int init_module()
 {
   log_msg("Initializing USB I/O...");
 
@@ -366,9 +363,6 @@ int main(int argc, char **argv)
   // set ctrl-C handler (override ROS b/c it's slow to cancel)
   signal( SIGINT,&sigTrap);
 
-  // set parallelport permissions
-  ioperm(PARPORT,1,1);
-
   // init stuff (usb, local-io, rt-memory, etc.);
   if ( init_module() )
     {
@@ -387,8 +381,8 @@ int main(int argc, char **argv)
     }
 
   // init reconfigure
-  dynamic_reconfigure::Server<raven_2::MyStuffConfig> srv;
-  dynamic_reconfigure::Server<raven_2::MyStuffConfig>::CallbackType f;
+  dynamic_reconfigure::Server<raven_2::Raven2Config> srv;
+  dynamic_reconfigure::Server<raven_2::Raven2Config>::CallbackType f;
   f = boost::bind(&reconfigure_callback, _1, _2);
   srv.setCallback(f);
 

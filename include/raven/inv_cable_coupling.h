@@ -36,5 +36,5 @@
 
 #include "fwd_cable_coupling.h"
 
-void invCableCoupling(struct device *device0, int runlevel);
-void invMechCableCoupling(struct mechanism *mech, int no_use_actual = 0);
+void invCableCoupling(device *device0, int runlevel);
+void invMechCableCoupling(mechanism *mech, int no_use_actual = 0);

@@ -52,7 +52,7 @@ struct _trajectory
    /*@{*/
 
 };
-struct _trajectory trajectory[MAX_MECH*MAX_DOF_PER_MECH];
+_trajectory trajectory[MAX_MECH*MAX_DOF_PER_MECH];
 
 
 /**
@@ -80,7 +80,7 @@ struct _trajectory trajectory[MAX_MECH*MAX_DOF_PER_MECH];
 * \todo The trajectory generator seems to have a lot of hacks and special cases.  Need more general refactoring.  Also consider polynomial trajectories.
 *
 */
-int start_trajectory(struct DOF* _joint, float _endPos, float _period)
+int start_trajectory(DOF* _joint, float _endPos, float _period)
 {
     trajectory[_joint->type].startTime = trajectory[_joint->type].startTime.now();
     trajectory[_joint->type].startPos = _joint->jpos;
@@ -107,7 +107,7 @@ int start_trajectory(struct DOF* _joint, float _endPos, float _period)
 *   \param  _mag      how big a move
 *   \param _period    duration ( of one cycle)
 */
-int start_trajectory_mag(struct DOF* _joint, float _mag, float _period)
+int start_trajectory_mag(DOF* _joint, float _mag, float _period)
 {
     trajectory[_joint->type].startTime = trajectory[_joint->type].startTime.now();
     trajectory[_joint->type].startPos = _joint->jpos;
@@ -129,7 +129,7 @@ int start_trajectory_mag(struct DOF* _joint, float _mag, float _period)
 *   \ingroup Control
 *
 */
-int stop_trajectory(struct DOF* _joint)
+int stop_trajectory(DOF* _joint)
 {
     trajectory[_joint->type].startTime = trajectory[_joint->type].startTime.now();
     trajectory[_joint->type].startPos = _joint->jpos;
@@ -151,7 +151,7 @@ int stop_trajectory(struct DOF* _joint)
 *
 * \todo This seems to only work for a single joint of the GOLD arm???
 */
-int update_sinusoid_velocity_trajectory(struct DOF* _joint)
+int update_sinusoid_velocity_trajectory(DOF* _joint)
 {
     const float maxspeed = 15 DEG2RAD;
     const float f_period = 2000;         // 2 sec
@@ -182,7 +182,7 @@ int update_sinusoid_velocity_trajectory(struct DOF* _joint)
 *
 * \todo Why is this specific to the GOLD arm 1st three joints only?
 */
-int update_linear_sinusoid_velocity_trajectory(struct DOF* _joint)
+int update_linear_sinusoid_velocity_trajectory(DOF* _joint)
 {
     const float maxspeed[8] = {-4 DEG2RAD, 4 DEG2RAD, 0.02, 15 DEG2RAD};
     const float f_period = 2;         // 2 sec
@@ -216,9 +216,9 @@ int update_linear_sinusoid_velocity_trajectory(struct DOF* _joint)
 *
 *   /todo What is the underlying equation?  Why piecewise at f_period/4??
 */
-int update_sinusoid_position_trajectory(struct DOF* _joint)
+int update_sinusoid_position_trajectory(DOF* _joint)
 {
-    struct _trajectory* traj = &(trajectory[_joint->type]);
+    _trajectory* traj = &(trajectory[_joint->type]);
     float f_magnitude = traj->magnitude;
     float f_period    = traj->period;
 
@@ -239,11 +239,11 @@ int update_sinusoid_position_trajectory(struct DOF* _joint)
 *     Sinusoidal position trajectory
 *     \ingroup Control
 */
-int update_linear_sinusoid_position_trajectory(struct DOF* _joint)
+int update_linear_sinusoid_position_trajectory(DOF* _joint)
 {
 //    const float f_magnitude[8] = {-10 DEG2RAD, 10 DEG2RAD, 0.01, 0, 60 DEG2RAD, 60 DEG2RAD, 60 DEG2RAD, 60 DEG2RAD};
 //    const float f_period[8] = {7000, 3200, 7000, 0000, 5000, 5000, 5000, 5000};
-    struct _trajectory* traj = &(trajectory[_joint->type]);
+    _trajectory* traj = &(trajectory[_joint->type]);
 
     ros::Duration t = ros::Time::now() - traj->startTime;
 
@@ -263,9 +263,9 @@ int update_linear_sinusoid_position_trajectory(struct DOF* _joint)
 *     Sinusoidal position trajectory
 *     \ingroup Control
 */
-int update_position_trajectory(struct DOF* _joint)
+int update_position_trajectory(DOF* _joint)
 {
-    struct _trajectory* traj = &(trajectory[_joint->type]);
+    _trajectory* traj = &(trajectory[_joint->type]);
     float magnitude = traj->magnitude;
     float period  = traj->period;
 

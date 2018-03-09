@@ -18,7 +18,7 @@
  */
 
 #include <dynamic_reconfigure/server.h>
-#include <raven_2/MyStuffConfig.h>
+#include <raven_2/Raven2Config.h>
 
 
 struct offsets{
@@ -31,5 +31,5 @@ struct offsets{
         double grasp2_off ;
 };
 
-void reconfigure_callback(raven_2::MyStuffConfig &config, uint32_t level);
- 
+void reconfigure_callback(raven_2::Raven2Config &config, uint32_t level);
+

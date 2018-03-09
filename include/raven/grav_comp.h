@@ -28,7 +28,7 @@
 #ifndef GRAV_COMP_H
 #define GRAV_COMP_H
 
-#include <math.h>
+#include <cmath>
 #include <tf/transform_datatypes.h>
 
 #include "struct.h"
@@ -38,6 +38,6 @@
 /*
  * Calculate gravity load on joints 1,2,3 on both arms
  */
-void getGravityTorque(struct device &d0, struct param_pass &params);
+void getGravityTorque(device &d0, param_pass &params);
 
 #endif

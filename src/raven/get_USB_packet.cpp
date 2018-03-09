@@ -18,36 +18,35 @@
  */
 
  /**\file get_USB_packet.cpp
-  * 
+  *
  * 	\brief 	contains functions for initializing the robot
  * 		intializes the DOF structure AND runs initialization routine
- * 
- * 	\fn These are the 4 functions in get_USB_packet.cpp file. 
+ *
+ * 	\fn These are the 4 functions in get_USB_packet.cpp file.
  *          Functions marked with "*" are called explicitly from other files.
  * 	       *(1) initiateUSBGet		:uses USB_init.cpp (6)
  * 	       *(2) getUSBPackets		:uses (3)
  * 		(3) getUSBPacket		:uses (4), USB_init.cpp (7)
  * 		(4) processEncoderPacket	:uses dof.cpp (1)
- * 
+ *
  * 	\author Kenneth Fodero
- * 
+ *
  * 	\date 2005
 */
 
 
 #include "get_USB_packet.h"
-#include "parallel.h"
 
 extern unsigned long int gTime;
 extern USBStruct USBBoards;
 
-/**\fn void initiateUSBGet(struct device *device0)
+/**\fn void initiateUSBGet(device *device0)
   \brief Initiate data request from USB Board. Must be called before read
-  \struct device  
+  \struct device
   \param device0 pointer to device struct
 */
 
-void initiateUSBGet(struct device *device0)
+void initiateUSBGet(device *device0)
 {
   int i;
   int err=0;
@@ -68,24 +67,24 @@ void initiateUSBGet(struct device *device0)
 
 }
 
-/**\fn int getUSBPackets(struct device *device0)
+/**\fn int getUSBPackets(device *device0)
   \brief Takes data from USB packet(s) and uses it to fill the
  *   DS0 data structure
-  \struct device  
+  \struct device
   \param device0 pointer to device struct
   \return zero on success and negative on failure
 */
 
-int getUSBPackets(struct device *device0)
+int getUSBPackets(device *device0)
 {
     int ret = 0;
 
     //Loop through all USB Boards
     for (int i = 0; i < USBBoards.activeAtStart; i++)
     {
-        int err = getUSBPacket( 
-			   USBBoards.boards[i], 
-			   &(device0->mech[i] ) 
+        int err = getUSBPacket(
+			   USBBoards.boards[i],
+			   &(device0->mech[i] )
 			    );
 	if (err == -EBUSY || ret == -EBUSY)
 	  ret = -EBUSY;
@@ -99,7 +98,7 @@ int getUSBPackets(struct device *device0)
     return ret;
 }
 
-/**\fn int getUSBPacket(int id, struct mechanism *mech)
+/**\fn int getUSBPacket(int id, mechanism *mech)
   \brief Takes data from a USB packet and uses it to fill the
  *   DS0 data structure
   \struct mechanism the data structure to fill
@@ -108,7 +107,7 @@ int getUSBPackets(struct device *device0)
   \return zero on success and negative on failure
 */
 
-int getUSBPacket(int id, struct mechanism *mech)
+int getUSBPacket(int id, mechanism *mech)
 {
     int result, type;
     unsigned char buffer[MAX_IN_LENGTH];
@@ -140,12 +139,12 @@ int getUSBPacket(int id, struct mechanism *mech)
     return 0;
 }
 
-/**\fn void processEncoderPacket(struct mechanism* mech, unsigned char buffer[])
+/**\fn void processEncoderPacket(mechanism* mech, unsigned char buffer[])
   \struct mechanism the data structure to fill
   \param mech pointer to mechanism struct
   \param buffer
 */
-void processEncoderPacket(struct mechanism* mech, unsigned char buffer[])
+void processEncoderPacket(mechanism* mech, unsigned char buffer[])
 {
     int i, numChannels;
     int encVal;

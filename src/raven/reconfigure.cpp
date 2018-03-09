@@ -18,15 +18,15 @@
  */
 
 #include <dynamic_reconfigure/server.h>
-#include <raven_2/MyStuffConfig.h>
+#include <raven_2/Raven2Config.h>
 #include <ros/ros.h>
 #include "reconfigure.h"
 
-struct offsets offsets_l;
-struct offsets offsets_r;
+offsets offsets_l;
+offsets offsets_r;
 
-// Dynamic reconfigure callback 
-void reconfigure_callback(raven_2::MyStuffConfig &config, uint32_t level)
+// Dynamic reconfigure callback
+void reconfigure_callback(raven_2::Raven2Config &config, uint32_t level)
 {
   ROS_INFO("Reconfigure request : %f  ", config.shoulder_l);
   offsets_l.shoulder_off =  config.shoulder_l* M_PI/180.0;

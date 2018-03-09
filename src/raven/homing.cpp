@@ -27,17 +27,17 @@
 *	\desc raven_homing called 1000 times per sec during INIT mode. Moves joints
 * 			to their limits (hard stop indicated by increased current) and then
 *			to their predefined "home" position.
-* 
-*	\fn These are the 5 functions in homing.cpp file. 
+*
+*	\fn These are the 5 functions in homing.cpp file.
 *           Functions marked with "*" are called explicitly from other files.
-* 	       *(1) raven_homing	 	:uses (2)(3)(4)(5), utils.cpp (2)(3)(4)(6), inv_cable_coupling.cpp (1), 
+* 	       *(1) raven_homing	 	:uses (2)(3)(4)(5), utils.cpp (2)(3)(4)(6), inv_cable_coupling.cpp (1),
 *                                                     trajectory.cpp (3), t_to_DAC_val.cpp (1), pid_control.cpp (1)(2)
 *       	(2) set_joints_known_pos	:uses (2)(3)(4)(5), utils.cpp (3)(4), state_estimate.cpp (2)(3),
 *                                                     inv_cable_coupling.cpp (1), fwd_cable_coupling.cpp (2)
 * 		(3) homing(joint)		:uses trajectory.cpp (1)(2)(7)(8)
 * 		(4) homing(joint,tool)
 * 		(5) check_homing_condition
-* 
+*
 *	\author Hawkeye King
 *
 *       \date 3-Nov-2011
@@ -45,7 +45,7 @@
 *	\ingroup Control
 */
 
-#include <stdlib.h>
+#include <cstdlib>
 
 #include "trajectory.h"
 #include "pid_control.h"
@@ -60,15 +60,15 @@
 
 #include <iostream>
 
-int set_joints_known_pos(struct mechanism* _mech, int tool_only);
+int set_joints_known_pos(mechanism* _mech, int tool_only);
 
 extern int NUM_MECH;
 extern unsigned long int gTime;
-extern struct DOF_type DOF_types[];
+extern DOF_type DOF_types[];
 extern unsigned int soft_estopped;
 
 /**
-*   \fn int raven_homing(struct device *device0, struct param_pass *currParams, int begin_homing)
+*   \fn int raven_homing(device *device0, param_pass *currParams, int begin_homing)
 *
 *	\brief Move to hard stops in controlled way, "zero" the joint value, and then move to "home" position
 *
@@ -78,7 +78,7 @@ extern unsigned int soft_estopped;
 *           joint at a smooth rate until current increases which indicates hitting hard mechanical stop.
 *    -# Move joints to "home" position.  In this phase the robot moves from the joint limits to a
 *			designated pose in the center of the workspace.
-* 
+*
 *  	\param device0           Which  (top level) device to home (usually only one device per system)
 *   \param currParams        Current parameters (for Run Level)
 *   \param begin_homing      Flag to start the homing process
@@ -86,15 +86,15 @@ extern unsigned int soft_estopped;
 *   \ingroup Control
 *
 *	\return 0
-*  
+*
 *   \todo   Homing limits should be Amps not DAC units (see homing()).
 */
-int raven_homing(struct device *device0, struct param_pass *currParams, int begin_homing)
+int raven_homing(device *device0, param_pass *currParams, int begin_homing)
 {
     static int homing_inited = 0;
     static unsigned long int delay, delay2;
-    struct DOF *_joint = NULL;
-    struct mechanism* _mech = NULL;
+    DOF *_joint = NULL;
+    mechanism* _mech = NULL;
     int i=0,j=0;
 
 #ifdef RICKS_TOOLS      // Refers to Enders Game Prop manager!!
@@ -175,7 +175,7 @@ int raven_homing(struct device *device0, struct param_pass *currParams, int begi
     _mech = NULL;  _joint = NULL;
     while ( loop_over_joints(device0, _mech, _joint, i,j) )
     {
-        struct DOF * _joint =  &(_mech->joint[j]); ///\todo is this line necessary?
+        DOF * _joint =  &(_mech->joint[j]); ///\todo is this line necessary?
 
         // Check to see if we've reached the joint limit.
         if( check_homing_condition(_joint) )
@@ -218,7 +218,7 @@ int raven_homing(struct device *device0, struct param_pass *currParams, int begi
 }
 
 /**
-*   \fn int set_joints_known_pos(struct mechanism* _mech, int tool_only)
+*   \fn int set_joints_known_pos(mechanism* _mech, int tool_only)
 *
 *	\brief  Set joint angles to known values after hard stops are reached.
 *
@@ -235,9 +235,9 @@ int raven_homing(struct device *device0, struct param_pass *currParams, int begi
 * 	\todo  Rationalize the sign changes on GREEN_ARM vs GOLD_ARM (see IFDEF below).
 * 	\todo  This MAYBE needs to be changed to support device specific parameter changes read from a config file or ROS service.
 */
-int set_joints_known_pos(struct mechanism* _mech, int tool_only)
+int set_joints_known_pos(mechanism* _mech, int tool_only)
 {
-    struct DOF* _joint=NULL;
+    DOF* _joint=NULL;
     int j=0;
 
     int scissor = ((_mech->mech_tool.t_end == mopocu_scissor) || (_mech->mech_tool.t_end == potts_scissor))? 1 : 0;
@@ -336,7 +336,7 @@ int set_joints_known_pos(struct mechanism* _mech, int tool_only)
 }
 
 /**
-*	\fn void homing(struct DOF* _joint)
+*	\fn void homing(DOF* _joint)
 *
 *	\brief Set trajectory behavior for each joint during the homing process.
 *
@@ -349,7 +349,7 @@ int set_joints_known_pos(struct mechanism* _mech, int tool_only)
 *   \todo  Homing limits should be Amps not DAC units
 *   \todo  Change square vs. diamond to a config-file based runtime system instead of #ifdef
 */
-void homing(struct DOF* _joint)
+void homing(DOF* _joint)
 {
     // duration for homing of each joint
     const float f_period[MAX_MECH*MAX_DOF_PER_MECH] = {1, 1, 1, 9999999, 1, 1, 1, 1,
@@ -418,7 +418,7 @@ void homing(struct DOF* _joint)
 }
 
 /**
-*	\fn void homing(struct DOF* _joint, tool a_tool)
+*	\fn void homing(DOF* _joint, tool a_tool)
 *
 *	\brief Set trajectory behavior for each tool joint during the homing process.
 *
@@ -430,7 +430,7 @@ void homing(struct DOF* _joint)
 *	\return void
 *   \TODO refactor for tool class
 */
-void homing(struct DOF* _joint, tool a_tool)
+void homing(DOF* _joint, tool a_tool)
 {
     // duration for homing of each joint
     const float f_period[MAX_MECH*MAX_DOF_PER_MECH] = {1, 1, 1, 9999999, 1, 1, 1, 1,
@@ -547,11 +547,11 @@ const int homing_max_dac[8] = {2500,  //shoulder
 
 
 /**
- *  \fn int check_homing_condition(struct DOF *_joint)
+ *  \fn int check_homing_condition(DOF *_joint)
  *
  * 	\brief Monitor joint currents to end the homing cycle at hard stop.
  *
- *  \desc Checks to see if a joint current is above a certain max value which indicates that the 
+ *  \desc Checks to see if a joint current is above a certain max value which indicates that the
  *			joint has reached it's mechanical limit.
  *
  *  \param _joint    A joint struct
@@ -563,7 +563,7 @@ const int homing_max_dac[8] = {2500,  //shoulder
  *
  *  \todo Homing limits should be Amps not DAC units (see homing()).
  */
-int check_homing_condition(struct DOF *_joint)
+int check_homing_condition(DOF *_joint)
 {
     if ( _joint->state != jstate_pos_unknown)
         return 0;
