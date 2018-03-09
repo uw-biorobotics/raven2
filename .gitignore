@@ -1,3 +1,12 @@
+# Text editor backups
 *~
-*.user
+
+# Python byte code
 *.pyc
+
+# Qt Creator specific
+CMakeLists.txt.user*
+
+# Eclipse specific
+.project
+.cproject
