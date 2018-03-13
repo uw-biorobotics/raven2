@@ -177,7 +177,7 @@ void* network_process(void* param1)
 
     // print some status messages
     log_msg("Starting network services...");
-    log_msg("  u_struct size: %i",uSize);
+    //log_msg("  u_struct size: %i",uSize);
     log_msg("  Using default port %s",port);
 
     ///// open log file

@@ -199,7 +199,7 @@ static void *rt_process(void* )
   tsnorm(&t);
   clock_nanosleep(0, TIMER_ABSTIME, &t, NULL);
 
-  log_msg("*** Ready to teleoperate ***");
+
 
 
 

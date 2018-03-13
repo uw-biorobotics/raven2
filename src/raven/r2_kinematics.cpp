@@ -1025,11 +1025,6 @@ void theta2joint(ik_solution in_iktheta, double *out_J)
 		out_J[4] = in_iktheta.th5 - TH5_J4_R * d2r;
 		out_J[5] = in_iktheta.th6 - TH6A_J5_R * d2r;
 
-		static int arm_check = 0;
-		if (arm_check < 2) {
-			log_msg("definitely the right arm -- t2j");
-			arm_check++;
-		}
 	}
 
 	// bring to range {-pi , pi}

@@ -235,12 +235,9 @@ void initDOFs(device *device0)
 
         device0->mech[i].tool_type = use_tool;
 
-        log_msg("tool type %i", device0->mech[i].tool_type);
-
         /// Initialize joint types
         if ( device0->mech[i].type == GOLD_ARM)
         {
-            log_msg("    Initing gold arm");
             //Set DOF type to unique index
             device0->mech[i].joint[SHOULDER].type = SHOULDER_GOLD;
             device0->mech[i].joint[ELBOW].type    = ELBOW_GOLD;
@@ -255,7 +252,6 @@ void initDOFs(device *device0)
         }
         else if (device0->mech[i].type == GREEN_ARM)
         {
-            log_msg("    Initing green arm");
             device0->mech[i].joint[SHOULDER].type = SHOULDER_GREEN;
             device0->mech[i].joint[ELBOW].type    = ELBOW_GREEN;
             device0->mech[i].joint[Z_INS].type    = Z_INS_GREEN;

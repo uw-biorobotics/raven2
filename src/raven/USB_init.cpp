@@ -227,8 +227,6 @@ int USBInit(device *device0)
 	        boardFPs[boardid] = tmp_fileHandle;   // Map serial (i) to fileHandle (tmp_fileHandle)
 	        USBBoards.activeAtStart++;            // Increment board count
 
-	        log_msg("board FPs ---> %i", boardFPs[boardid]);
-
 
 	        if ( write_zeros_to_board(boardid) != 0){
 	            ROS_ERROR("Warning: failed initial board reset (set-to-zero)");

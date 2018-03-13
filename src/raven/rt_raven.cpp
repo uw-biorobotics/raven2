@@ -164,6 +164,7 @@ int controlRaven(device *device0, param_pass *currParams){
             {
                 currParams->robotControlMode = cartesian_space_control;
                 newRobotControlMode = cartesian_space_control;
+                log_msg("*** Ready to teleoperate ***");
             }
             break;
 	//Runs applyTorque() to set torque command (tau_d) to a joint for debugging purposes
