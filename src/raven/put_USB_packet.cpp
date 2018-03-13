@@ -112,10 +112,10 @@ int putUSBPacket(int id, mechanism *mech)
 }
 
 /**\fn int putJointEncUSBPacket(int id)
-  \brief sends empty packet to specified Joint Enc board
+  \brief 		sends empty packet to specified Joint Enc board
 
-  \param id the usb board id number (serial#)
-  \return success of the operation
+  \param id 	the usb board id number (serial#)
+  \return 		success of the operation
   \ingroup Network
  */
 int putJointEncUSBPacket(int id)
@@ -131,7 +131,6 @@ int putJointEncUSBPacket(int id)
 		buffer_out[2*i+2] = (char) DAC_OFFSET;
 		buffer_out[2*i+3] = (char) (DAC_OFFSET >> 8);
 
-		//Remove offset
 	}
 
 	// Set PortF outputs to zero
