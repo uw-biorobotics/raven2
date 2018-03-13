@@ -37,3 +37,4 @@
 //Function prototypes
 void putUSBPackets(device *device0);
 int putUSBPacket(int id, mechanism *mech);
+int putJointEncUSBPacket(int id);

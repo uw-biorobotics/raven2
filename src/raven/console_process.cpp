@@ -386,7 +386,7 @@ void outputRobotState(){
         for (int i=0;i<MAX_DOF_PER_MECH;i++)
             cout<<fixed<<setprecision(3)<<DOF_types[j*MAX_DOF_PER_MECH+i].KD<<"\t";
         cout<<"\n";
-
+/*
         cout<<"jac force:\t";
         float forces[6];
         device0.mech[j].r2_jac.get_force(forces);
@@ -400,6 +400,14 @@ void outputRobotState(){
         for (int i=0; i < 6;i++)
             cout<<fixed<<"\t"<<setprecision(3)<<velocity[i];
         cout<<"\n";
+*/
+        if (JOINT_ENCODERS){
+        	cout<<"j_enc_val:\t";
+        	for (int i=0;i<MAX_DOF_PER_MECH/2;i++)
+        		cout<<device0.mech[j].joint[i].joint_enc_val<<"\t";
+        	cout<<"\n";
+        }
+
 //
 //        cout<<"enc_offset:\t";
 //        for (int i=0;i<MAX_DOF_PER_MECH;i++)

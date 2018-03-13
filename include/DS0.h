@@ -97,25 +97,27 @@ enum jointState{
  */
 struct DOF {
   u_16 type;
-  jointState state;            // is this DoF enabled?
-  s_24 enc_val;		// encoder value
-  s_16 current_cmd;	// DAC command to achieve tau at actuator
-  float jpos;		// actual DOF coordinate (rad)
+  jointState state;     // is this DoF enabled?
+  s_24 enc_val;			// encoder value
+  s_24 joint_enc_val;	// Joint encoder value
+  s_16 current_cmd;		// DAC command to achieve tau at actuator
+  float jpos;			// actual DOF coordinate (rad)
   float mpos;
   //  float jpos_old;       // previous DOF coordinate (rad)
   //  float mpos_old;
-  float jvel; 		// actual DOF velocity(q-dot)
+  float jvel; 			// actual DOF velocity(q-dot)
   float mvel;
-  float tau;		// actual DOF force/torque at joint
-  float tau_d;		// desired DOF force/torque at motor capstan after gearbox
-  float tau_g;		// Estimated gravity force/torque on joint.
-  float jpos_d;		// desired DOF coordinate (rad)
+  float tau;			// actual DOF force/torque at joint
+  float tau_d;			// desired DOF force/torque at motor capstan after gearbox
+  float tau_g;			// Estimated gravity force/torque on joint.
+  float jpos_d;			// desired DOF coordinate (rad)
   float mpos_d;
   float jpos_d_old;     // previous desired DOF coordinate (rad)
   float mpos_d_old;
-  float jvel_d;		// desired DOF velocity (q-dot-desired)
+  float jvel_d;			// desired DOF velocity (q-dot-desired)
   float mvel_d;
   int enc_offset;       // Encoder offset to "zero"
+  int joint_enc_offset; // Joint Encoder offset to "zero"
   float perror_int;     // integrated position error for joint space position control
 };
 

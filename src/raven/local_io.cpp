@@ -32,7 +32,7 @@ active use.
 
 ROS publishing is at the bottom half of this file.
 
-***************************************/
+ ***************************************/
 
 ///TODO: Modify the guts of local comm and network layer
 #ifndef _GNU_SOURCE
@@ -81,27 +81,27 @@ extern offsets offsets_r;
 
 int initLocalioData()
 {
-    int i;
-    pthread_mutexattr_init(&data1MutexAttr);
-    pthread_mutexattr_setprotocol(&data1MutexAttr,PTHREAD_PRIO_INHERIT);
-    pthread_mutex_init(&data1Mutex,&data1MutexAttr);
+	int i;
+	pthread_mutexattr_init(&data1MutexAttr);
+	pthread_mutexattr_setprotocol(&data1MutexAttr,PTHREAD_PRIO_INHERIT);
+	pthread_mutex_init(&data1Mutex,&data1MutexAttr);
 
-    pthread_mutex_lock(&data1Mutex);
-    for (i=0;i<NUM_MECH;i++)
-    {
-        data1.xd[i].x = 0;
-        data1.xd[i].y = 0;
-        data1.xd[i].z = 0;
-        data1.rd[i].yaw = 0;
-        data1.rd[i].pitch = 0;
-        data1.rd[i].roll = 0;
-        data1.rd[i].grasp = 0;
-        Q_ori[i] = Q_ori[i].getIdentity();
-    }
-    data1.surgeon_mode=0;
-    data1.last_sequence = 111;
-    pthread_mutex_unlock(&data1Mutex);
-    return 0;
+	pthread_mutex_lock(&data1Mutex);
+	for (i=0;i<NUM_MECH;i++)
+	{
+		data1.xd[i].x = 0;
+		data1.xd[i].y = 0;
+		data1.xd[i].z = 0;
+		data1.rd[i].yaw = 0;
+		data1.rd[i].pitch = 0;
+		data1.rd[i].roll = 0;
+		data1.rd[i].grasp = 0;
+		Q_ori[i] = Q_ori[i].getIdentity();
+	}
+	data1.surgeon_mode=0;
+	data1.last_sequence = 111;
+	pthread_mutex_unlock(&data1Mutex);
+	return 0;
 }
 
 
@@ -117,12 +117,12 @@ int initLocalioData()
 
 int receiveUserspace(void *u,int size)
 {
-    if (size==sizeof(u_struct))
-    {
-        isUpdated = TRUE;
-        teleopIntoDS1((u_struct*)u);
-    }
-    return 0;
+	if (size==sizeof(u_struct))
+	{
+		isUpdated = TRUE;
+		teleopIntoDS1((u_struct*)u);
+	}
+	return 0;
 }
 
 
@@ -139,85 +139,97 @@ int receiveUserspace(void *u,int size)
  */
 void teleopIntoDS1(u_struct *us_t)
 {
-    position p;
-    int i, armidx, armserial;
-    pthread_mutex_lock(&data1Mutex);
-    tf::Quaternion q_temp;
-    tf::Matrix3x3 rot_mx_temp;
+	position p;
+	int i, armidx, armserial, loops;
+	pthread_mutex_lock(&data1Mutex);
+	tf::Quaternion q_temp;
+	tf::Matrix3x3 rot_mx_temp;
 
 
-    // TODO:: APPLY TRANSFORM TO INCOMING DATA
+	// TODO:: APPLY TRANSFORM TO INCOMING DATA
 
+	//this function wants to loop through boards instead of mechanisms
+	// TODO:: loop over mechanisms instead?
+	loops = USBBoards.activeAtStart;
 
+	for (i=0;i<loops;i++)
+	{
 
-    for (i=0;i<NUM_MECH;i++)
-    {
-        armserial = USBBoards.boards[i]==GREEN_ARM_SERIAL ? GREEN_ARM_SERIAL : GOLD_ARM_SERIAL;
-        armidx    = USBBoards.boards[i]==GREEN_ARM_SERIAL ? 1 : 0;
+		if (USBBoards.boards[i]==GOLD_ARM_SERIAL){
+			armserial = GOLD_ARM_SERIAL;
+			armidx = 0;
+		}
+		else if (USBBoards.boards[i]==GREEN_ARM_SERIAL){
+			armserial = GREEN_ARM_SERIAL;
+			armidx = 1;
+		}
+		else if (USBBoards.boards[i]==JOINT_ENC_SERIAL){
+			continue; //don't do any teleop data for joint encoders
+		}
 
-        // apply mapping to teleop data
-        p.x = us_t->delx[armidx];
-        p.y = us_t->dely[armidx];
-        p.z = us_t->delz[armidx];
+		// apply mapping to teleop data
+		p.x = us_t->delx[armidx];
+		p.y = us_t->dely[armidx];
+		p.z = us_t->delz[armidx];
 
-        //set local quaternion from teleop quaternion data
-        q_temp.setX( us_t->Qx[armidx] );
-        q_temp.setY( us_t->Qy[armidx] );
-        q_temp.setZ( us_t->Qz[armidx] );
-        q_temp.setW( us_t->Qw[armidx] );
+		//set local quaternion from teleop quaternion data
+		q_temp.setX( us_t->Qx[armidx] );
+		q_temp.setY( us_t->Qy[armidx] );
+		q_temp.setZ( us_t->Qz[armidx] );
+		q_temp.setW( us_t->Qw[armidx] );
 
-        fromITP(&p, q_temp, armserial);
+		fromITP(&p, q_temp, armserial);
 
-        data1.xd[i].x += p.x;
-        data1.xd[i].y += p.y;
-        data1.xd[i].z += p.z;
+		data1.xd[i].x += p.x;
+		data1.xd[i].y += p.y;
+		data1.xd[i].z += p.z;
 
-        //Add quaternion increment
-        Q_ori[armidx]= q_temp*Q_ori[armidx];
-        rot_mx_temp.setRotation(Q_ori[armidx]);
+		//Add quaternion increment
+		Q_ori[armidx]= q_temp*Q_ori[armidx];
+		rot_mx_temp.setRotation(Q_ori[armidx]);
 
-        // Set rotation command
-        for (int j=0;j<3;j++)
-            for (int k=0;k<3;k++)
-                data1.rd[i].R[j][k] = rot_mx_temp[j][k];
+		// Set rotation command
+		for (int j=0;j<3;j++)
+			for (int k=0;k<3;k++)
+				data1.rd[i].R[j][k] = rot_mx_temp[j][k];
 
 #ifdef OMNI_GAIN
-	const int grasp_gain = OMNI_GAIN;
+		const int grasp_gain = OMNI_GAIN;
 #else
-	const int grasp_gain = 1;
+		const int grasp_gain = 1;
 #endif
 
 #ifdef SCISSOR_RIGHT
-	if (armserial == GREEN_ARM_SERIAL) grasp_gain *= 4;
+		if (armserial == GREEN_ARM_SERIAL) grasp_gain *= 4;
 
 #endif
 
 
-        const int graspmax = (M_PI/2 * 1000);
-        int graspmin = (-10.0 * 1000.0 DEG2RAD);
+		const int graspmax = (M_PI/2 * 1000);
+		int graspmin = (-10.0 * 1000.0 DEG2RAD);
 
 #ifdef SCISSOR_RIGHT
-        if (armserial == GREEN_ARM_SERIAL) graspmin = (-40.0 * 1000.0 DEG2RAD);
+		if (armserial == GREEN_ARM_SERIAL) graspmin = (-40.0 * 1000.0 DEG2RAD);
 #endif
 		data1.rd[i].grasp -= grasp_gain * us_t->grasp[armidx];
 		if (data1.rd[i].grasp>graspmax) data1.rd[i].grasp=graspmax;
 		else if(data1.rd[i].grasp<graspmin) data1.rd[i].grasp=graspmin;
-    }
+	}
 
-    /// \question HK: why is this a hack?
-    // HACK HACK HACK
-    // HACK HACK HACK
-    // HACK HACK HACK
-    // HACK HACK HACK
-    data1.last_sequence = us_t->sequence;
+	/// \question HK: why is this a hack?
+	// HACK HACK HACK
+	// HACK HACK HACK
+	// HACK HACK HACK
+	// HACK HACK HACK
+	data1.last_sequence = us_t->sequence;
 
-    // commented debug output
-    //    log_msg("updated d1.xd to: (%d,%d,%d)/(%d,%d,%d)",
-    //           data1.xd[0].x, data1.xd[0].y, data1.xd[0].z,
-    //           data1.xd[1].x, data1.xd[1].y, data1.xd[1].z);
+	// commented debug output
+	//    log_msg("updated d1.xd to: (%d,%d,%d)/(%d,%d,%d)",
+	//           data1.xd[0].x, data1.xd[0].y, data1.xd[0].z,
+	//           data1.xd[1].x, data1.xd[1].y, data1.xd[1].z);
 
-    data1.surgeon_mode = us_t->surgeon_mode;
-    pthread_mutex_unlock(&data1Mutex);
+	data1.surgeon_mode = us_t->surgeon_mode;
+	pthread_mutex_unlock(&data1Mutex);
 }
 
 /**
@@ -234,47 +246,47 @@ void teleopIntoDS1(u_struct *us_t)
  */
 int checkLocalUpdates()
 {
-    static unsigned long int lastUpdated;
+	static unsigned long int lastUpdated;
 
-    if (isUpdated || lastUpdated == 0)
-    {
-        lastUpdated = gTime;
-    }
-    else if (((gTime-lastUpdated) > MASTER_CONN_TIMEOUT) && ( data1.surgeon_mode ))
-    {
-        // if timeout period is expired, set surgeon_mode "DISENGAGED" if currently "ENGAGED"
-        log_msg("Master connection timeout.  surgeon_mode -> up.\n");
-        data1.surgeon_mode = SURGEON_DISENGAGED;
- //       data1.surgeon_mode = 1;
+	if (isUpdated || lastUpdated == 0)
+	{
+		lastUpdated = gTime;
+	}
+	else if (((gTime-lastUpdated) > MASTER_CONN_TIMEOUT) && ( data1.surgeon_mode ))
+	{
+		// if timeout period is expired, set surgeon_mode "DISENGAGED" if currently "ENGAGED"
+		log_msg("Master connection timeout.  surgeon_mode -> up.\n");
+		data1.surgeon_mode = SURGEON_DISENGAGED;
+		//       data1.surgeon_mode = 1;
 
-        lastUpdated = gTime;
-        isUpdated = TRUE;
-    }
+		lastUpdated = gTime;
+		isUpdated = TRUE;
+	}
 
-    return isUpdated;
+	return isUpdated;
 }
 
 /** \brief Give the latest updated DS1 to the caller.
-*
-*   \pre d1 is a pointer to allocated memory
-*   \post memory location of d1 contains latest DS1 Data from network/toolkit.
-*
-*   \param d1 pointer to the protected data structure
-*   \return a copy of the data as a param_pass structure
-*
-*   \todo HK Check performance of trylock / default priority inversion scheme
-*  \ingroup DataStructures
-*/
+ *
+ *   \pre d1 is a pointer to allocated memory
+ *   \post memory location of d1 contains latest DS1 Data from network/toolkit.
+ *
+ *   \param d1 pointer to the protected data structure
+ *   \return a copy of the data as a param_pass structure
+ *
+ *   \todo HK Check performance of trylock / default priority inversion scheme
+ *  \ingroup DataStructures
+ */
 param_pass * getRcvdParams(param_pass* d1)
 {
-    // \TODO Check performance of trylock / default priority inversion scheme
-    if (pthread_mutex_trylock(&data1Mutex)!=0)   //Use trylock since this function is called form rt-thread. return immediately with old values if unable to lock
-        return d1;
-    //pthread_mutex_lock(&data1Mutex); //Priority inversion enabled. Should force completion of other parts and enter into this section.
-    memcpy(d1, &data1, sizeof(param_pass));
-    isUpdated = 0;
-    pthread_mutex_unlock(&data1Mutex);
-    return d1;
+	// \TODO Check performance of trylock / default priority inversion scheme
+	if (pthread_mutex_trylock(&data1Mutex)!=0)   //Use trylock since this function is called form rt-thread. return immediately with old values if unable to lock
+		return d1;
+	//pthread_mutex_lock(&data1Mutex); //Priority inversion enabled. Should force completion of other parts and enter into this section.
+	memcpy(d1, &data1, sizeof(param_pass));
+	isUpdated = 0;
+	pthread_mutex_unlock(&data1Mutex);
+	return d1;
 }
 
 /**
@@ -286,53 +298,53 @@ param_pass * getRcvdParams(param_pass* d1)
  *
  * Reset writable copy of DS1
  *  \ingroup Networking
-*/
+ */
 void updateMasterRelativeOrigin(device *device0)
 {
 	int armidx;
-    orientation *_ori;
-    tf::Matrix3x3 tmpmx;
+	orientation *_ori;
+	tf::Matrix3x3 tmpmx;
 
-    // update data1 (network position desired) to device0.position_desired (device position desired)
-    //   This eliminates accumulation of deltas from network while robot is idle.
-    pthread_mutex_lock(&data1Mutex);
-    for (int i=0;i<NUM_MECH;i++)
-    {
-        data1.xd[i].x = device0->mech[i].pos_d.x;
-        data1.xd[i].y = device0->mech[i].pos_d.y;
-        data1.xd[i].z = device0->mech[i].pos_d.z;
-        _ori = &(device0->mech[i].ori_d);
+	// update data1 (network position desired) to device0.position_desired (device position desired)
+	//   This eliminates accumulation of deltas from network while robot is idle.
+	pthread_mutex_lock(&data1Mutex);
+	for (int i=0;i<NUM_MECH;i++)
+	{
+		data1.xd[i].x = device0->mech[i].pos_d.x;
+		data1.xd[i].y = device0->mech[i].pos_d.y;
+		data1.xd[i].z = device0->mech[i].pos_d.z;
+		_ori = &(device0->mech[i].ori_d);
 
-        // CHECK GRASP SKIPPING CONDITION
-        // Grasp angle should not be updated unless the angle change is "large"
-        if (      fabs( data1.rd[i].grasp - _ori->grasp ) / 1000    >    45*d2r )
-        	data1.rd[i].grasp = _ori->grasp;
+		// CHECK GRASP SKIPPING CONDITION
+		// Grasp angle should not be updated unless the angle change is "large"
+		if (      fabs( data1.rd[i].grasp - _ori->grasp ) / 1000    >    45*d2r )
+			data1.rd[i].grasp = _ori->grasp;
 
-        for (int j=0;j<3;j++)
-            for (int k=0;k<3;k++)
-                data1.rd[i].R[j][k] = _ori->R[j][k];
+		for (int j=0;j<3;j++)
+			for (int k=0;k<3;k++)
+				data1.rd[i].R[j][k] = _ori->R[j][k];
 
-        // Set the local quaternion orientation rep.
-        armidx = USBBoards.boards[i]==GREEN_ARM_SERIAL ? 1 : 0;
-        tmpmx.setValue(_ori->R[0][0], _ori->R[0][1], _ori->R[0][2],
-                        _ori->R[1][0], _ori->R[1][1], _ori->R[1][2],
-                        _ori->R[2][0], _ori->R[2][1], _ori->R[2][2]);
-        tmpmx.getRotation(Q_ori[armidx]);
+		// Set the local quaternion orientation rep.
+		armidx = device0->mech[i].type==GREEN_ARM_SERIAL ? 1 : 0;
+		tmpmx.setValue(_ori->R[0][0], _ori->R[0][1], _ori->R[0][2],
+				_ori->R[1][0], _ori->R[1][1], _ori->R[1][2],
+				_ori->R[2][0], _ori->R[2][1], _ori->R[2][2]);
+		tmpmx.getRotation(Q_ori[armidx]);
 
-    }
-    pthread_mutex_unlock(&data1Mutex);
-    isUpdated = TRUE;
+	}
+	pthread_mutex_unlock(&data1Mutex);
+	isUpdated = TRUE;
 
-    return;
+	return;
 }
 
 void setSurgeonMode(int pedalstate)
 {
-    pthread_mutex_lock(&data1Mutex);
-    data1.surgeon_mode = pedalstate;
-    pthread_mutex_unlock(&data1Mutex);
-    isUpdated = TRUE;
-    log_msg("surgeon mode: %d",data1.surgeon_mode);
+	pthread_mutex_lock(&data1Mutex);
+	data1.surgeon_mode = pedalstate;
+	pthread_mutex_unlock(&data1Mutex);
+	isUpdated = TRUE;
+	log_msg("surgeon mode: %d",data1.surgeon_mode);
 }
 
 
@@ -355,22 +367,22 @@ ros::Subscriber sub_automove;
 ros::Publisher joint_publisher;
 
 /**
-*  \brief Initiates all ROS publishers and subscribers
-*
-*  Currently advertises ravenstate, joint states, and 2 visualization markers.
-*  Subscribes to automove
-*
-*  \param n the address of a nodeHandle
-* \ingroup ROS
-*  \todo rename this functionto reflect it's current use as a general ROS topic initializer
-*/
+ *  \brief Initiates all ROS publishers and subscribers
+ *
+ *  Currently advertises ravenstate, joint states, and 2 visualization markers.
+ *  Subscribes to automove
+ *
+ *  \param n the address of a nodeHandle
+ * \ingroup ROS
+ *  \todo rename this functionto reflect it's current use as a general ROS topic initializer
+ */
 int init_ravenstate_publishing(ros::NodeHandle &n){
-    pub_ravenstate = n.advertise<raven_state>("ravenstate", 1 ); //, ros::TransportHints().unreliable().tcpNoDelay() );
-    joint_publisher = n.advertise<sensor_msgs::JointState>("joint_states", 1);
+	pub_ravenstate = n.advertise<raven_state>("ravenstate", 1 ); //, ros::TransportHints().unreliable().tcpNoDelay() );
+	joint_publisher = n.advertise<sensor_msgs::JointState>("joint_states", 1);
 
 	sub_automove = n.subscribe<raven_automove>("raven_automove", 1, autoincrCallback, ros::TransportHints().unreliable() );
 
-    return 0;
+	return 0;
 }
 
 
@@ -386,240 +398,255 @@ int init_ravenstate_publishing(ros::NodeHandle &n){
  */
 void autoincrCallback(raven_2::raven_automove msg)
 {
-  tf::Transform in_incr[2];
-  tf::transformMsgToTF(msg.tf_incr[0], in_incr[0]);
-  tf::transformMsgToTF(msg.tf_incr[1], in_incr[1]);
+	tf::Transform in_incr[2];
+	tf::transformMsgToTF(msg.tf_incr[0], in_incr[0]);
+	tf::transformMsgToTF(msg.tf_incr[1], in_incr[1]);
 
-  pthread_mutex_lock(&data1Mutex);
+	pthread_mutex_lock(&data1Mutex);
 
-  for (int i=0;i<2;i++)
-    {
-      //add position increment
-      tf::Vector3 tmpvec = in_incr[i].getOrigin();
-      data1.xd[i].x += int(tmpvec[0]);
-      data1.xd[i].y += int(tmpvec[1]);
-      data1.xd[i].z += int(tmpvec[2]);
+	//this function wants to loop through boards instead of mechanisms
+	// TODO:: loop over mechanisms instead?
+	int loops = USBBoards.activeAtStart;
+	int armidx;
 
-      //add rotation increment
-      tf::Quaternion q_temp(in_incr[i].getRotation());
-      if (q_temp != tf::Quaternion::getIdentity())
+	for (int i=0;i<loops;i++)
 	{
-	  int armidx    = USBBoards.boards[i]==GREEN_ARM_SERIAL ? 1 : 0;
-	  Q_ori[armidx] = q_temp*Q_ori[armidx];
-	  tf::Matrix3x3 rot_mx_temp(Q_ori[armidx]);
-	  for (int j=0;j<3;j++)
-	    for (int k=0;k<3;k++)
-	      data1.rd[i].R[j][k] = rot_mx_temp[j][k];
+
+		if (USBBoards.boards[i]==GOLD_ARM_SERIAL){
+			armidx = 0;
+		}
+		else if (USBBoards.boards[i]==GREEN_ARM_SERIAL){
+			armidx = 1;
+		}
+		else if (USBBoards.boards[i]==JOINT_ENC_SERIAL){
+			continue; //don't do any teleop data for joint encoders
+		}
+
+		//add position increment
+		tf::Vector3 tmpvec = in_incr[i].getOrigin();
+		data1.xd[i].x += int(tmpvec[0]);
+		data1.xd[i].y += int(tmpvec[1]);
+		data1.xd[i].z += int(tmpvec[2]);
+
+		//add rotation increment
+		tf::Quaternion q_temp(in_incr[i].getRotation());
+		if (q_temp != tf::Quaternion::getIdentity())
+		{
+			Q_ori[armidx] = q_temp*Q_ori[armidx];
+			tf::Matrix3x3 rot_mx_temp(Q_ori[armidx]);
+			for (int j=0;j<3;j++)
+				for (int k=0;k<3;k++)
+					data1.rd[i].R[j][k] = rot_mx_temp[j][k];
+		}
 	}
-    }
 
 
-    pthread_mutex_unlock(&data1Mutex);
-    isUpdated = TRUE;
+	pthread_mutex_unlock(&data1Mutex);
+	isUpdated = TRUE;
 
 }
 
 
 
 /**
-* \brief Publishes the raven_state message from the robot and currParams structures
-*
-*   \param dev robot device structure with the current state of the robot
-*   \param currParams the parameters being passed from the interfaces
-*  \ingroup ROS
-*/
+ * \brief Publishes the raven_state message from the robot and currParams structures
+ *
+ *   \param dev robot device structure with the current state of the robot
+ *   \param currParams the parameters being passed from the interfaces
+ *  \ingroup ROS
+ */
 void publish_ravenstate_ros(robot_device *dev, param_pass *currParams){
-    static int count=0;
-    static raven_state msg_ravenstate;  // satic variables to minimize memory allocation calls
-    static ros::Time t1;
-    static ros::Time t2;
-    static ros::Duration d;
+	static int count=0;
+	static raven_state msg_ravenstate;  // satic variables to minimize memory allocation calls
+	static ros::Time t1;
+	static ros::Time t2;
+	static ros::Duration d;
 
-    msg_ravenstate.last_seq = currParams->last_sequence;
+	msg_ravenstate.last_seq = currParams->last_sequence;
 
-    if (count == 0){
-        t1 = t1.now();
-    }
-    count ++;
-    t2 = t2.now();
-    d = t2-t1;
+	if (count == 0){
+		t1 = t1.now();
+	}
+	count ++;
+	t2 = t2.now();
+	d = t2-t1;
 
-//    if (d.toSec()<0.01)
-//        return;
+	//    if (d.toSec()<0.01)
+	//        return;
 
-    msg_ravenstate.dt=d;
-    t1=t2;
+	msg_ravenstate.dt=d;
+	t1=t2;
 
-    publish_joints(dev);
+	publish_joints(dev);
 
-    // Copy the robot state to the output datastructure.
-    int numdof=8;
-    int j;
-    for (int i=0; i<NUM_MECH; i++){
-    	j = dev->mech[i].type == GREEN_ARM ? 1 : 0;
-        msg_ravenstate.type[j]    = dev->mech[j].type;
-        msg_ravenstate.pos[j*3]   = dev->mech[j].pos.x;
-        msg_ravenstate.pos[j*3+1] = dev->mech[j].pos.y;
-        msg_ravenstate.pos[j*3+2] = dev->mech[j].pos.z;
-        msg_ravenstate.pos_d[j*3]   = dev->mech[j].pos_d.x;
-        msg_ravenstate.pos_d[j*3+1] = dev->mech[j].pos_d.y;
-        msg_ravenstate.pos_d[j*3+2] = dev->mech[j].pos_d.z;
-        msg_ravenstate.grasp_d[j] = (float)dev->mech[j].ori_d.grasp/1000;
+	// Copy the robot state to the output datastructure.
+	int numdof=8;
+	int j;
+	for (int i=0; i<NUM_MECH; i++){
+		j = dev->mech[i].type == GREEN_ARM ? 1 : 0;
+		msg_ravenstate.type[j]    = dev->mech[j].type;
+		msg_ravenstate.pos[j*3]   = dev->mech[j].pos.x;
+		msg_ravenstate.pos[j*3+1] = dev->mech[j].pos.y;
+		msg_ravenstate.pos[j*3+2] = dev->mech[j].pos.z;
+		msg_ravenstate.pos_d[j*3]   = dev->mech[j].pos_d.x;
+		msg_ravenstate.pos_d[j*3+1] = dev->mech[j].pos_d.y;
+		msg_ravenstate.pos_d[j*3+2] = dev->mech[j].pos_d.z;
+		msg_ravenstate.grasp_d[j] = (float)dev->mech[j].ori_d.grasp/1000;
 
-        for (int orii=0; orii<3; orii++)
-        {
-            for (int orij=0; orij<3; orij++)
-            {
-            	msg_ravenstate.ori[j*9 + orii*3+orij] = dev->mech[j].ori.R[orii][orij];
-            	msg_ravenstate.ori_d[j*9 + orii*3+orij] = dev->mech[j].ori_d.R[orii][orij];
-            }
-        }
+		for (int orii=0; orii<3; orii++)
+		{
+			for (int orij=0; orij<3; orij++)
+			{
+				msg_ravenstate.ori[j*9 + orii*3+orij] = dev->mech[j].ori.R[orii][orij];
+				msg_ravenstate.ori_d[j*9 + orii*3+orij] = dev->mech[j].ori_d.R[orii][orij];
+			}
+		}
 
 
-        for (int m=0; m<numdof; m++){
-            int jtype = dev->mech[j].joint[m].type;
-            msg_ravenstate.encVals[jtype]    = dev->mech[j].joint[m].enc_val;
-            msg_ravenstate.tau[jtype]        = dev->mech[j].joint[m].tau_d;
-            msg_ravenstate.mpos[jtype]       = dev->mech[j].joint[m].mpos RAD2DEG;
-            msg_ravenstate.jpos[jtype]       = dev->mech[j].joint[m].jpos RAD2DEG;
-            msg_ravenstate.mvel[jtype]       = dev->mech[j].joint[m].mvel RAD2DEG;
-            msg_ravenstate.jvel[jtype]       = dev->mech[j].joint[m].jvel RAD2DEG;
-            msg_ravenstate.jpos_d[jtype]     = dev->mech[j].joint[m].jpos_d RAD2DEG;
-            msg_ravenstate.mpos_d[jtype]     = dev->mech[j].joint[m].mpos_d RAD2DEG;
-            msg_ravenstate.encoffsets[jtype] = dev->mech[j].joint[m].enc_offset;
-            msg_ravenstate.dac_val[jtype]    = dev->mech[j].joint[m].current_cmd;
-        }
+		for (int m=0; m<numdof; m++){
+			int jtype = dev->mech[j].joint[m].type;
+			msg_ravenstate.encVals[jtype]    = dev->mech[j].joint[m].enc_val;
+			msg_ravenstate.tau[jtype]        = dev->mech[j].joint[m].tau_d;
+			msg_ravenstate.mpos[jtype]       = dev->mech[j].joint[m].mpos RAD2DEG;
+			msg_ravenstate.jpos[jtype]       = dev->mech[j].joint[m].jpos RAD2DEG;
+			msg_ravenstate.mvel[jtype]       = dev->mech[j].joint[m].mvel RAD2DEG;
+			msg_ravenstate.jvel[jtype]       = dev->mech[j].joint[m].jvel RAD2DEG;
+			msg_ravenstate.jpos_d[jtype]     = dev->mech[j].joint[m].jpos_d RAD2DEG;
+			msg_ravenstate.mpos_d[jtype]     = dev->mech[j].joint[m].mpos_d RAD2DEG;
+			msg_ravenstate.encoffsets[jtype] = dev->mech[j].joint[m].enc_offset;
+			msg_ravenstate.dac_val[jtype]    = dev->mech[j].joint[m].current_cmd;
+		}
 
-        //grab jacobian velocities and forces
-        float vel[6];
-        float f[6];
-        j = dev->mech[i].type == GREEN_ARM ? 1 : 0;
-        dev->mech[j].r2_jac.get_vel(vel);
-        dev->mech[j].r2_jac.get_vel(f);
-        for (int k=0; k<6; k++){
-        	msg_ravenstate.jac_vel[j*6+k] = vel[k];
-        	msg_ravenstate.jac_f[j*6+k] = f[k];
-        }
-    }
-//    msg_ravenstate.f_secs = d.toSec();
-    msg_ravenstate.hdr.stamp = msg_ravenstate.hdr.stamp.now();
-    msg_ravenstate.runlevel=currParams->runlevel;
-    msg_ravenstate.sublevel=currParams->sublevel;
+		//grab jacobian velocities and forces
+		float vel[6];
+		float f[6];
+		j = dev->mech[i].type == GREEN_ARM ? 1 : 0;
+		dev->mech[j].r2_jac.get_vel(vel);
+		dev->mech[j].r2_jac.get_vel(f);
+		for (int k=0; k<6; k++){
+			msg_ravenstate.jac_vel[j*6+k] = vel[k];
+			msg_ravenstate.jac_f[j*6+k] = f[k];
+		}
+	}
+	//    msg_ravenstate.f_secs = d.toSec();
+	msg_ravenstate.hdr.stamp = msg_ravenstate.hdr.stamp.now();
+	msg_ravenstate.runlevel=currParams->runlevel;
+	msg_ravenstate.sublevel=currParams->sublevel;
 
-    // Publish the raven data to ROS
-    pub_ravenstate.publish(msg_ravenstate);
+	// Publish the raven data to ROS
+	pub_ravenstate.publish(msg_ravenstate);
 }
 
 /**
-*  \brief Publishes the joint angles for the visualization
-*
-*  \param device0 the robot and its state
-*
-*  \ingroup ROS
-*
-*/
+ *  \brief Publishes the joint angles for the visualization
+ *
+ *  \param device0 the robot and its state
+ *
+ *  \ingroup ROS
+ *
+ */
 void publish_joints(robot_device* device0){
 
-    static int count=0;
-    static ros::Time t1;
-    static ros::Time t2;
-    static ros::Duration d;
+	static int count=0;
+	static ros::Time t1;
+	static ros::Time t2;
+	static ros::Duration d;
 
-    if (count == 0){
-        t1 = t1.now();
-    }
-    count ++;
-    t2 = t2.now();
-    d = t2-t1;
+	if (count == 0){
+		t1 = t1.now();
+	}
+	count ++;
+	t2 = t2.now();
+	d = t2-t1;
 
-    if (d.toSec()<0.030)
-        return;
-    t1=t2;
+	if (d.toSec()<0.030)
+		return;
+	t1=t2;
 
-    sensor_msgs::JointState joint_state;
-    //update joint_state
-    joint_state.header.stamp = ros::Time::now();
-    joint_state.name.resize(28);
-    joint_state.position.resize(28);
-//    joint_state.name.resize(14);
-//    joint_state.position.resize(14);
-    int left, right;
-    if (device0->mech[0].type == GOLD_ARM)
-    {
-        left = 0;
-        right = 1;
-    }
-    else
-    {
-        left = 1;
-        right = 0;
-    }
-    //======================LEFT ARM===========================
-    joint_state.name[0] ="shoulder_L";
-    joint_state.position[0] = device0->mech[left].joint[0].jpos + offsets_l.shoulder_off;
-    joint_state.name[1] ="elbow_L";
-    joint_state.position[1] = device0->mech[left].joint[1].jpos + offsets_l.elbow_off;
-    joint_state.name[2] ="insertion_L";
-    joint_state.position[2] = device0->mech[left].joint[2].jpos + d4 + offsets_l.insertion_off;
-    joint_state.name[3] ="tool_roll_L";
-    joint_state.position[3] = device0->mech[left].joint[4].jpos - 45 * d2r + offsets_l.roll_off;
-    joint_state.name[4] ="wrist_joint_L";
-    joint_state.position[4] = device0->mech[left].joint[5].jpos + offsets_l.wrist_off;
-    joint_state.name[5] ="grasper_joint_1_L";
-    joint_state.position[5] = device0->mech[left].joint[6].jpos + offsets_l.grasp1_off;
-    joint_state.name[6] ="grasper_joint_2_L";
-    joint_state.position[6] = device0->mech[left].joint[7].jpos * -1 + offsets_l.grasp2_off;
+	sensor_msgs::JointState joint_state;
+	//update joint_state
+	joint_state.header.stamp = ros::Time::now();
+	joint_state.name.resize(28);
+	joint_state.position.resize(28);
+	//    joint_state.name.resize(14);
+	//    joint_state.position.resize(14);
+	int left, right;
+	if (device0->mech[0].type == GOLD_ARM)
+	{
+		left = 0;
+		right = 1;
+	}
+	else
+	{
+		left = 1;
+		right = 0;
+	}
+	//======================LEFT ARM===========================
+	joint_state.name[0] ="shoulder_L";
+	joint_state.position[0] = device0->mech[left].joint[0].jpos + offsets_l.shoulder_off;
+	joint_state.name[1] ="elbow_L";
+	joint_state.position[1] = device0->mech[left].joint[1].jpos + offsets_l.elbow_off;
+	joint_state.name[2] ="insertion_L";
+	joint_state.position[2] = device0->mech[left].joint[2].jpos + d4 + offsets_l.insertion_off;
+	joint_state.name[3] ="tool_roll_L";
+	joint_state.position[3] = device0->mech[left].joint[4].jpos - 45 * d2r + offsets_l.roll_off;
+	joint_state.name[4] ="wrist_joint_L";
+	joint_state.position[4] = device0->mech[left].joint[5].jpos + offsets_l.wrist_off;
+	joint_state.name[5] ="grasper_joint_1_L";
+	joint_state.position[5] = device0->mech[left].joint[6].jpos + offsets_l.grasp1_off;
+	joint_state.name[6] ="grasper_joint_2_L";
+	joint_state.position[6] = device0->mech[left].joint[7].jpos * -1 + offsets_l.grasp2_off;
 
-    //======================RIGHT ARM===========================
-    joint_state.name[7] ="shoulder_R";
-    joint_state.position[7] = device0->mech[right].joint[0].jpos + offsets_r.shoulder_off;
-    joint_state.name[8] ="elbow_R";
-    joint_state.position[8] = device0->mech[right].joint[1].jpos + offsets_r.elbow_off;
-    joint_state.name[9] ="insertion_R";
-    joint_state.position[9] = device0->mech[right].joint[2].jpos + d4 + offsets_r.insertion_off;
-    joint_state.name[10] ="tool_roll_R";
-    joint_state.position[10] = device0->mech[right].joint[4].jpos + 45 * d2r + offsets_r.roll_off;
-    joint_state.name[11] ="wrist_joint_R";
-    joint_state.position[11] = device0->mech[right].joint[5].jpos * -1 + offsets_r.wrist_off;
-    joint_state.name[12] ="grasper_joint_1_R";
-    joint_state.position[12] = device0->mech[right].joint[6].jpos + offsets_r.grasp1_off;
-    joint_state.name[13] ="grasper_joint_2_R";
-    joint_state.position[13] = device0->mech[right].joint[7].jpos * -1 + offsets_r.grasp2_off;
+	//======================RIGHT ARM===========================
+	joint_state.name[7] ="shoulder_R";
+	joint_state.position[7] = device0->mech[right].joint[0].jpos + offsets_r.shoulder_off;
+	joint_state.name[8] ="elbow_R";
+	joint_state.position[8] = device0->mech[right].joint[1].jpos + offsets_r.elbow_off;
+	joint_state.name[9] ="insertion_R";
+	joint_state.position[9] = device0->mech[right].joint[2].jpos + d4 + offsets_r.insertion_off;
+	joint_state.name[10] ="tool_roll_R";
+	joint_state.position[10] = device0->mech[right].joint[4].jpos + 45 * d2r + offsets_r.roll_off;
+	joint_state.name[11] ="wrist_joint_R";
+	joint_state.position[11] = device0->mech[right].joint[5].jpos * -1 + offsets_r.wrist_off;
+	joint_state.name[12] ="grasper_joint_1_R";
+	joint_state.position[12] = device0->mech[right].joint[6].jpos + offsets_r.grasp1_off;
+	joint_state.name[13] ="grasper_joint_2_R";
+	joint_state.position[13] = device0->mech[right].joint[7].jpos * -1 + offsets_r.grasp2_off;
 
-    //======================LEFT ARM===========================
+	//======================LEFT ARM===========================
 
-    joint_state.name[14] ="shoulder_L2";
-    joint_state.position[14] = device0->mech[left].joint[0].jpos_d + offsets_l.shoulder_off;
-    joint_state.name[15] ="elbow_L2";
-    joint_state.position[15] = device0->mech[left].joint[1].jpos_d + offsets_l.elbow_off;
-    joint_state.name[16] ="insertion_L2";
-    joint_state.position[16] = device0->mech[left].joint[2].jpos_d + d4 + offsets_l.insertion_off;
-    joint_state.name[17] ="tool_roll_L2";
-    joint_state.position[17] = device0->mech[left].joint[4].jpos_d - 45 * d2r + offsets_l.roll_off;
-    joint_state.name[18] ="wrist_joint_L2";
-    joint_state.position[18] = device0->mech[left].joint[5].jpos_d + offsets_l.wrist_off;
-    joint_state.name[19] ="grasper_joint_1_L2";
-    joint_state.position[19] = device0->mech[left].joint[6].jpos_d + offsets_l.grasp1_off;
-    joint_state.name[20] ="grasper_joint_2_L2";
-    joint_state.position[20] = device0->mech[left].joint[7].jpos_d * -1 + offsets_l.grasp2_off;
+	joint_state.name[14] ="shoulder_L2";
+	joint_state.position[14] = device0->mech[left].joint[0].jpos_d + offsets_l.shoulder_off;
+	joint_state.name[15] ="elbow_L2";
+	joint_state.position[15] = device0->mech[left].joint[1].jpos_d + offsets_l.elbow_off;
+	joint_state.name[16] ="insertion_L2";
+	joint_state.position[16] = device0->mech[left].joint[2].jpos_d + d4 + offsets_l.insertion_off;
+	joint_state.name[17] ="tool_roll_L2";
+	joint_state.position[17] = device0->mech[left].joint[4].jpos_d - 45 * d2r + offsets_l.roll_off;
+	joint_state.name[18] ="wrist_joint_L2";
+	joint_state.position[18] = device0->mech[left].joint[5].jpos_d + offsets_l.wrist_off;
+	joint_state.name[19] ="grasper_joint_1_L2";
+	joint_state.position[19] = device0->mech[left].joint[6].jpos_d + offsets_l.grasp1_off;
+	joint_state.name[20] ="grasper_joint_2_L2";
+	joint_state.position[20] = device0->mech[left].joint[7].jpos_d * -1 + offsets_l.grasp2_off;
 
-    //======================RIGHT ARM===========================
-    joint_state.name[21] ="shoulder_R2";
-    joint_state.position[21] = device0->mech[right].joint[0].jpos_d + offsets_r.shoulder_off;
-    joint_state.name[22] ="elbow_R2";
-    joint_state.position[22] = device0->mech[right].joint[1].jpos_d + offsets_r.elbow_off;
-    joint_state.name[23] ="insertion_R2";
-    joint_state.position[23] = device0->mech[right].joint[2].jpos_d + d4 + offsets_r.insertion_off;
-    joint_state.name[24] ="tool_roll_R2";
-    joint_state.position[24] = device0->mech[right].joint[4].jpos_d + 45 * d2r + offsets_r.roll_off;
-    joint_state.name[25] ="wrist_joint_R2";
-    joint_state.position[25] = device0->mech[right].joint[5].jpos_d * -1 + offsets_r.wrist_off;
-    joint_state.name[26] ="grasper_joint_1_R2";
-    joint_state.position[26] = device0->mech[right].joint[6].jpos_d + offsets_r.grasp1_off;
-    joint_state.name[27] ="grasper_joint_2_R2";
-    joint_state.position[27] = device0->mech[right].joint[7].jpos_d * -1 + offsets_r.grasp2_off;
+	//======================RIGHT ARM===========================
+	joint_state.name[21] ="shoulder_R2";
+	joint_state.position[21] = device0->mech[right].joint[0].jpos_d + offsets_r.shoulder_off;
+	joint_state.name[22] ="elbow_R2";
+	joint_state.position[22] = device0->mech[right].joint[1].jpos_d + offsets_r.elbow_off;
+	joint_state.name[23] ="insertion_R2";
+	joint_state.position[23] = device0->mech[right].joint[2].jpos_d + d4 + offsets_r.insertion_off;
+	joint_state.name[24] ="tool_roll_R2";
+	joint_state.position[24] = device0->mech[right].joint[4].jpos_d + 45 * d2r + offsets_r.roll_off;
+	joint_state.name[25] ="wrist_joint_R2";
+	joint_state.position[25] = device0->mech[right].joint[5].jpos_d * -1 + offsets_r.wrist_off;
+	joint_state.name[26] ="grasper_joint_1_R2";
+	joint_state.position[26] = device0->mech[right].joint[6].jpos_d + offsets_r.grasp1_off;
+	joint_state.name[27] ="grasper_joint_2_R2";
+	joint_state.position[27] = device0->mech[right].joint[7].jpos_d * -1 + offsets_r.grasp2_off;
 
-    //Publish the joint states
-    joint_publisher.publish(joint_state);
+	//Publish the joint states
+	joint_publisher.publish(joint_state);
 
 }

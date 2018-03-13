@@ -62,10 +62,10 @@
 
 int set_joints_known_pos(mechanism* _mech, int tool_only);
 
-extern int NUM_MECH;
+
 extern unsigned long int gTime;
 extern DOF_type DOF_types[];
-extern unsigned int soft_estopped;
+
 
 /**
 *   \fn int raven_homing(device *device0, param_pass *currParams, int begin_homing)
@@ -536,7 +536,7 @@ const int homing_max_dac[8] = {2500,  //shoulder
 #else
 const int homing_max_dac[8] = {2500,  //shoulder
                             2500,  //elbow
-                            2600, //1900,  //z_ins
+                            2100, //1900,  //z_ins
                             0,
                             1900,  //tool_rot  //rasised from 1400 alewis 3/4/14
                             1900,  //wrist

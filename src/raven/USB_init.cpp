@@ -155,7 +155,7 @@ int USBInit(device *device0)
     vector<string> files = vector<string>();
     getdir(BRL_USB_DEV_DIR, files);
 	sort(files.begin(), files.end());
-reverse(files.begin(),files.end());
+	reverse(files.begin(),files.end());
 
     log_msg("  Found board files::");
     for (unsigned int i = 0;i < files.size();i++) {
@@ -171,7 +171,10 @@ reverse(files.begin(),files.end());
         boardStr = BRL_USB_DEV_DIR;
         boardStr += files[i];
         boardid = get_board_id_from_filename(files[i]);
-		if((boardid == GREEN_ARM_SERIAL) || (boardid == GOLD_ARM_SERIAL ))
+
+        // Is this a USB device that we know or care about?
+		if((boardid == GREEN_ARM_SERIAL) || (boardid == GOLD_ARM_SERIAL )
+				|| (boardid == JOINT_ENC_SERIAL ))
 		{
 
 	        // Open usb dev
@@ -208,6 +211,11 @@ reverse(files.begin(),files.end());
 	            device0->mech[mechcounter].type = GOLD_ARM;
 				mechcounter++;
 	        }
+	        else if (boardid == JOINT_ENC_SERIAL)
+	        {
+	            okboards++;
+	            log_msg("  Joint Encoder on board #%d.",boardid);
+	        }
 	        else
 	        {
 	            log_msg("*** WARNING: USB BOARD #%d NOT CONNECTED TO MECH (update defines?).",boardid);
@@ -230,10 +238,13 @@ reverse(files.begin(),files.end());
 
     if (okboards < 2){
         ROS_ERROR("Error: failed to init two boards!  Behavior is henceforce undetermined...");
-//        return 0;
     }
+//      return 0;
     //Only now we have info about number of boards and set it to number of mechanisms
-    NUM_MECH = USBBoards.activeAtStart;
+    //should this be the number of arms or number of USB boards
+    // lets try to do it as # arms
+    //JOINT_ENCODERS tag
+    NUM_MECH = mechcounter;//USBBoards.activeAtStart;
 
     return USBBoards.activeAtStart;
 }
