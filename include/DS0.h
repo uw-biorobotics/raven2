@@ -102,6 +102,7 @@ struct DOF {
   s_24 joint_enc_val;	// Joint encoder value
   s_16 current_cmd;		// DAC command to achieve tau at actuator
   float jpos;			// actual DOF coordinate (rad)
+  float j_enc_pos;		// actual DOF coordinate of Joint encoder (rad)
   float mpos;
   //  float jpos_old;       // previous DOF coordinate (rad)
   //  float mpos_old;

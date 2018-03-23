@@ -103,8 +103,13 @@ int controlRaven(device *device0, param_pass *currParams){
     //Compute Mpos & Velocities
     stateEstimate(device0);
 
-    //Foward Cable Coupling
+    //Forward Cable Coupling
     fwdCableCoupling(device0, currParams->runlevel);
+
+    //Calculate joint positions from joint encoders
+    if(JOINT_ENCODERS){
+    	fwdJointEncoders(device0);
+    }
 
     //Forward kinematics
     r2_fwd_kin(device0, currParams->runlevel);

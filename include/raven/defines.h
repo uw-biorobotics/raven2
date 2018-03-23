@@ -39,8 +39,8 @@
 
 //~~~~~~~~~ tool adapter definition ~~~~~~~~~~~~~~~~
 
-//#define RAVEN_TOOLS
-#define DV_ADAPTER			1
+#define RAVEN_TOOLS
+//#define DV_ADAPTER			1
 #define RICKS_TOOLS     //skips tool initialization
 //#define SCISSOR_RIGHT
 #define OPPOSE_GRIP
@@ -49,10 +49,10 @@
 //~~~~~~~~~ USB Board definition ~~~~~~~~~~~~~~~~~~~
 // Two arm identification
 // Change this to match device ID in /dev/brl_usbXX
-#define GREEN_ARM_SERIAL 37
-#define GOLD_ARM_SERIAL  29
+#define GREEN_ARM_SERIAL 10
+#define GOLD_ARM_SERIAL  25
 
-#define JOINT_ENC_SERIAL 46 	//99 if no joint encoder board
+#define JOINT_ENC_SERIAL 26 	//99 if no joint encoder board
 
 
 //~~~~~~~~ Other settings, experts only ~~~~~~~~~~~~
@@ -100,6 +100,13 @@
 
 #define ENC_CNT_PER_DEG (float)(ENC_CNTS_PER_REV / 360)
 #define ENC_CNT_PER_RAD (float)(ENC_CNTS_PER_REV / (2*M_PI))
+
+#define ROTARY_JOINT_ENC_PER_REV	2048 * 4
+#define LINEAR_JOINT_ENC_PER_M		200000 //maybe 800,000?
+
+#define JOINT_ENC_CNT_PER_DEG (float)(ENC_CNTS_PER_REV / 360)
+
+
 
 //Verbose mode
 //#define MORE_MESSAGES 1

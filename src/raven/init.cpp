@@ -373,18 +373,27 @@ void initDOFs(device *device0)
         }
 
         /// Set the encoder offset from Kinematic Zero
-        //   Note: enc_offset initialized first above
+        //  Note: enc_offset initialized first above
+        //	Note: all evaluate to 0.0;
         if ( device0->mech[i].type == GOLD_ARM)
         {
             device0->mech[i].joint[SHOULDER].enc_offset += SHOULDER_GOLD_KIN_OFFSET * ENC_CNT_PER_DEG * DOF_types[SHOULDER_GOLD].TR; // Degrees * enc/degree *
             device0->mech[i].joint[ELBOW].enc_offset    += ELBOW_GOLD_KIN_OFFSET    * ENC_CNT_PER_DEG * DOF_types[ELBOW_GOLD].TR;
             device0->mech[i].joint[Z_INS].enc_offset    += Z_INS_GOLD_KIN_OFFSET    * DOF_types[Z_INS_GOLD].TR * ENC_CNT_PER_RAD;  // use enc/rad because conversion from meters to revolutions is in radians
+
+            device0->mech[i].joint[SHOULDER].joint_enc_offset += SHOULDER_GOLD_KIN_OFFSET * JOINT_ENC_CNT_PER_DEG; // Degrees * enc/degree *
+            device0->mech[i].joint[ELBOW].joint_enc_offset    += ELBOW_GOLD_KIN_OFFSET    * JOINT_ENC_CNT_PER_DEG;
+            device0->mech[i].joint[Z_INS].joint_enc_offset    += Z_INS_GOLD_KIN_OFFSET    * LINEAR_JOINT_ENC_PER_M;  // use enc/rad because conversion from meters to revolutions is in radians
         }
         else if (device0->mech[i].type == GREEN_ARM)
         {
             device0->mech[i].joint[SHOULDER].enc_offset += SHOULDER_GREEN_KIN_OFFSET * ENC_CNT_PER_DEG * DOF_types[SHOULDER_GREEN].TR;
             device0->mech[i].joint[ELBOW].enc_offset    += ELBOW_GREEN_KIN_OFFSET    * ENC_CNT_PER_DEG * DOF_types[ELBOW_GREEN].TR;
             device0->mech[i].joint[Z_INS].enc_offset    += Z_INS_GREEN_KIN_OFFSET    * DOF_types[Z_INS_GREEN].TR * ENC_CNT_PER_RAD;  // use enc/rad because conversion from meters to revolutions is in radians
+
+            device0->mech[i].joint[SHOULDER].joint_enc_offset += SHOULDER_GREEN_KIN_OFFSET * JOINT_ENC_CNT_PER_DEG; // Degrees * enc/degree *
+            device0->mech[i].joint[ELBOW].joint_enc_offset    += ELBOW_GREEN_KIN_OFFSET    * JOINT_ENC_CNT_PER_DEG;
+            device0->mech[i].joint[Z_INS].joint_enc_offset    += Z_INS_GREEN_KIN_OFFSET    * LINEAR_JOINT_ENC_PER_M;  // use enc/rad because conversion from meters to revolutions is in radians
         }
 
         /// Initialize some more mechanism stuff
