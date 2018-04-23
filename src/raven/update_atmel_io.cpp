@@ -1,5 +1,6 @@
 /* Raven 2 Control - Control software for the Raven II robot
- * Copyright (C) 2005-2012  H. Hawkeye King, Blake Hannaford, and the University of Washington BioRobotics Laboratory
+ * Copyright (C) 2005-2012  H. Hawkeye King, Blake Hannaford, and the University of Washington
+ *BioRobotics Laboratory
  *
  * This file is part of Raven 2 Control.
  *
@@ -17,7 +18,6 @@
  * along with Raven 2 Control.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 /**\file update_atmel_io.cpp
  * \brief
  * \author Kenneth Fodero
@@ -32,48 +32,41 @@
 extern int initialized;
 extern int soft_estopped;
 extern int NUM_MECH;
-extern unsigned long int gTime;
+extern uint64_t gTime;
 
 /**\fn void updateAtmelOutputs(struct device *device0, int runlevel)
- * \brief updates the software output: 8 bits of each arm (identical for both arms) are reserved(5 bits are used) for this output. 
+ * \brief updates the software output: 8 bits of each arm (identical for both arms) are reserved(5
+ * bits are used) for this output.
  *        This output will later be written to the USB as hardware input.
  * \param device0 - pointer to device struct
  * \param runlevel - current runlevel
  * \return void
  * \ingroup Hardware
  */
-void updateAtmelOutputs(struct device *device0, int runlevel)
-{
+void updateAtmelOutputs(struct device *device0, int runlevel) {
     static int counter;
     unsigned char i, outputs = 0x00;
 
-    //Update Foot Pedal
-    if ( (runlevel>1) && (device0->surgeon_mode) )
-        outputs |= PIN_FP;
+    // Update Foot Pedal
+    if ((runlevel > 1) && (device0->surgeon_mode)) outputs |= PIN_FP;
 
-    //Update Ready
-    if (initialized)
-        outputs |= PIN_READY;
+    // Update Ready
+    if (initialized) outputs |= PIN_READY;
 
-    //Update Linux State
+    // Update Linux State
     outputs |= (runlevel & (PIN_LS0 | PIN_LS1));
 
-    //Update WD Timer - if not software triggered
-    if ( !soft_estopped )
-    {
-        if ( counter <= (WD_PERIOD / 2) )
-        {
+    // Update WD Timer - if not software triggered
+    if (!soft_estopped) {
+        if (counter <= (WD_PERIOD / 2)) {
             outputs |= PIN_WD;
-        }
-        else if (counter >= WD_PERIOD)
-        {
+        } else if (counter >= WD_PERIOD) {
             counter = 0;
         }
     }
 
-    //Write Changes
-    for (i = 0; i < NUM_MECH; i++)
-        device0->mech[i].outputs = outputs;
+    // Write Changes
+    for (i = 0; i < NUM_MECH; i++) device0->mech[i].outputs = outputs;
 
     counter++;
 }
@@ -86,20 +79,20 @@ void updateAtmelOutputs(struct device *device0, int runlevel)
  * \return void
  * \ingroup Hardware
  * \ingroup Debug
- * \todo I don't think this function does anything - nothing is returned and I don't think the device is updated
+ * \todo I don't think this function does anything - nothing is returned and I don't think the
+ * device is updated
  */
-void updateAtmelInputs(struct device device0, int runlevel)
-{
-    //unsigned char inputs;
+void updateAtmelInputs(struct device device0, int runlevel) {
+    // unsigned char inputs;
     int PLCState;
 
-    //Update PLC State
+    // Update PLC State
     PLCState = (device0.mech[0].inputs & (PIN_PS0 | PIN_PS1)) >> 6;
 
     //  printk("Mech0.inputs: %#x\n",device0.mech[0].inputs);
     //  static int j;
-    //if (j++ % 1000 == 0)
+    // if (j++ % 1000 == 0)
     //  printk("PLC State is %d\n",PLCState);
-    //if (PLCState != runlevel)
+    // if (PLCState != runlevel)
     // printk("RunLevels on Linux Box and PLC do not match!!!\n");
 }

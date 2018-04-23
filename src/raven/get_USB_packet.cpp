@@ -1,5 +1,6 @@
 /* Raven 2 Control - Control software for the Raven II robot
- * Copyright (C) 2005-2012  H. Hawkeye King, Blake Hannaford, and the University of Washington BioRobotics Laboratory
+ * Copyright (C) 2005-2012  H. Hawkeye King, Blake Hannaford, and the University of Washington
+ * BioRobotics Laboratory
  *
  * This file is part of Raven 2 Control.
  *
@@ -17,82 +18,68 @@
  * along with Raven 2 Control.  If not, see <http://www.gnu.org/licenses/>.
  */
 
- /**\file get_USB_packet.cpp
-  * 
+/**\file get_USB_packet.cpp
+ *
  * 	\brief 	contains functions for initializing the robot
  * 		intializes the DOF structure AND runs initialization routine
- * 
- * 	\fn These are the 4 functions in get_USB_packet.cpp file. 
+ *
+ * 	\fn These are the 4 functions in get_USB_packet.cpp file.
  *          Functions marked with "*" are called explicitly from other files.
  * 	       *(1) initiateUSBGet		:uses USB_init.cpp (6)
  * 	       *(2) getUSBPackets		:uses (3)
  * 		(3) getUSBPacket		:uses (4), USB_init.cpp (7)
  * 		(4) processEncoderPacket	:uses dof.cpp (1)
- * 
+ *
  * 	\author Kenneth Fodero
- * 
+ *
  * 	\date 2005
-*/
-
+ */
 
 #include "get_USB_packet.h"
 #include "parallel.h"
 
-extern unsigned long int gTime;
+extern uint64_t gTime;
 extern USBStruct USBBoards;
 
 /**\fn void initiateUSBGet(struct device *device0)
   \brief Initiate data request from USB Board. Must be called before read
-  \struct device  
+  \struct device
   \param device0 pointer to device struct
 */
 
-void initiateUSBGet(struct device *device0)
-{
-  int i;
-  int err=0;
+void initiateUSBGet(struct device *device0) {
+    int i;
+    int err = 0;
 
-  //Loop through all USB Boards
-  for (i = 0; i < USBBoards.activeAtStart; i++)
-    {
-
-	  err = startUSBRead( USBBoards.boards[i] );
-      if ( err < 0)
-        {
-		  //log_msg("Error (%d) initiating USB read %d on loop %d!", err, USBBoards.boards[i], gTime);
+    // Loop through all USB Boards
+    for (i = 0; i < USBBoards.activeAtStart; i++) {
+        err = startUSBRead(USBBoards.boards[i]);
+        if (err < 0) {
+            // log_msg("Error (%d) initiating USB read %d on loop %d!", err, USBBoards.boards[i],
+            // gTime);
         }
-
-
-
     }
-
 }
 
 /**\fn int getUSBPackets(struct device *device0)
   \brief Takes data from USB packet(s) and uses it to fill the
  *   DS0 data structure
-  \struct device  
+  \struct device
   \param device0 pointer to device struct
   \return zero on success and negative on failure
 */
 
-int getUSBPackets(struct device *device0)
-{
+int getUSBPackets(struct device *device0) {
     int ret = 0;
 
-    //Loop through all USB Boards
-    for (int i = 0; i < USBBoards.activeAtStart; i++)
-    {
-        int err = getUSBPacket( 
-			   USBBoards.boards[i], 
-			   &(device0->mech[i] ) 
-			    );
-	if (err == -EBUSY || ret == -EBUSY)
-	  ret = -EBUSY;
+    // Loop through all USB Boards
+    for (int i = 0; i < USBBoards.activeAtStart; i++) {
+        int err = getUSBPacket(USBBoards.boards[i], &(device0->mech[i]));
+        if (err == -EBUSY || ret == -EBUSY)
+            ret = -EBUSY;
 
-        else if ( err < 0 )
-        {
-	  ret = err;
+        else if (err < 0) {
+            ret = err;
         }
     }
 
@@ -108,34 +95,32 @@ int getUSBPackets(struct device *device0)
   \return zero on success and negative on failure
 */
 
-int getUSBPacket(int id, struct mechanism *mech)
-{
+int getUSBPacket(int id, struct mechanism *mech) {
     int result, type;
     unsigned char buffer[MAX_IN_LENGTH];
 
-    //Read USB Packet
-    result = usb_read(id,buffer,IN_LENGTH);
+    // Read USB Packet
+    result = usb_read(id, buffer, IN_LENGTH);
 
     // -- Check for read errors --
-    if (result < 0){
-      return result;
+    if (result < 0) {
+        return result;
     }
 
     // No data or something. Boo.
     else if ((result == 0) || (result != IN_LENGTH))
-      return -EIO;
+        return -EIO;
 
     // -- Good packet so process it --
     type = buffer[0];
 
-    //Load in the data from the USB packet
-    switch (type)
-      {
-        //Handle and Encoder USB packet
-      case ENC:
-        processEncoderPacket(mech, buffer);
-        break;
-      }
+    // Load in the data from the USB packet
+    switch (type) {
+            // Handle and Encoder USB packet
+        case ENC:
+            processEncoderPacket(mech, buffer);
+            break;
+    }
 
     return 0;
 }
@@ -145,25 +130,23 @@ int getUSBPacket(int id, struct mechanism *mech)
   \param mech pointer to mechanism struct
   \param buffer
 */
-void processEncoderPacket(struct mechanism* mech, unsigned char buffer[])
-{
+void processEncoderPacket(struct mechanism *mech, unsigned char buffer[]) {
     int i, numChannels;
     int encVal;
 
-    //Determine channels of data received
+    // Determine channels of data received
     numChannels = buffer[1];
 
-    //Get the input pin status
+    // Get the input pin status
 #ifdef RAVEN_I
     mech->inputs = ~buffer[2];
 #else
     mech->inputs = buffer[2];
 #endif
 
-    //Loop through and read data for each channel
-    for (i = 0; i < numChannels; i++)
-    {
-        //Load encoder values
+    // Loop through and read data for each channel
+    for (i = 0; i < numChannels; i++) {
+        // Load encoder values
         encVal = processEncVal(buffer, i);
         mech->joint[i].enc_val = encVal;
     }

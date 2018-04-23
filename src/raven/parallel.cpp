@@ -1,5 +1,6 @@
 /* Raven 2 Control - Control software for the Raven II robot
- * Copyright (C) 2005-2012  H. Hawkeye King, Blake Hannaford, and the University of Washington BioRobotics Laboratory
+ * Copyright (C) 2005-2012  H. Hawkeye King, Blake Hannaford, and the University of Washington
+ *BioRobotics Laboratory
  *
  * This file is part of Raven 2 Control.
  *
@@ -37,47 +38,39 @@
 *  \ingroup IO
 */
 
-void parallelUpdate(int runlevel, int endOfLoop)
-{
-  unsigned char data = 0x00;
+void parallelUpdate(int runlevel, int endOfLoop) {
+    unsigned char data = 0x00;
 
-  //Update RL pins
-  data |= ((char)runlevel & 0x03);
+    // Update RL pins
+    data |= (static_cast<char>(runlevel) & 0x03);
 
+    // Update Duty Cycle pins
+    if (!endOfLoop) data |= DUTY_CYCLE_BIT;
 
-  //Update Duty Cycle pins
-  if (!endOfLoop)
-    data |= DUTY_CYCLE_BIT;
+    log_msg("parallel B");
 
-	log_msg("parallel B");
-
-  //Write the data
-  outb(data, PARPORT);
-	log_msg("parallel C");
-
+    // Write the data
+    outb(data, PARPORT);
+    log_msg("parallel C");
 }
 /* increment counter and write to parallelport */
 /**
  * \brief increment counter and write it to parallelport
  * \ingroup IO
  */
-void parport_out(void)
-{
-  #ifdef PARPORT_DEBUG
-  static unsigned char state=0;
-  outb(state++,PARPORT);
-  #endif
+void parport_out(void) {
+#ifdef PARPORT_DEBUG
+    static unsigned char state = 0;
+    outb(state++, PARPORT);
+#endif
 }
 /**
  * \brief put data out in the parallel port
  * \param out_byte  the actual bits to output
  * \ingroup IO
  */
-void parport_out(unsigned char out_byte)
-{
-  #ifdef PARPORT_DEBUG
-  outb(out_byte,PARPORT);
-  #endif
+void parport_out(unsigned char out_byte) {
+#ifdef PARPORT_DEBUG
+    outb(out_byte, PARPORT);
+#endif
 }
-
-

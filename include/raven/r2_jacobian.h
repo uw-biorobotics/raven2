@@ -1,5 +1,6 @@
 /* Raven 2 Control - Control software for the Raven II robot
- * Copyright (C) 2005-2012  H. Hawkeye King, Blake Hannaford, and the University of Washington BioRobotics Laboratory
+ * Copyright (C) 2005-2012  H. Hawkeye King, Blake Hannaford, and the University of Washington
+ *BioRobotics Laboratory
  *
  * This file is part of Raven 2 Control.
  *
@@ -17,7 +18,6 @@
  * along with Raven 2 Control.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 /** Class header for jacobian class
  *
  *
@@ -28,51 +28,44 @@
 #ifndef R2_JACOBIAN_H_
 #define R2_JACOBIAN_H_
 
-
 #include <Eigen/Dense>
 
-
 //#include "DS0.h"
-
 
 /**
  * \class The r2_jacobian class holds the 6-DOF velocity and force vectors for a RAVEN mechanism
  *
  *
  */
-class r2_jacobian{
+class r2_jacobian {
+   private:
+    Eigen::VectorXf velocity;
+    Eigen::VectorXf force;
+    Eigen::Matrix<float, 6, 6> j_matrix;
 
-private:
-	Eigen::VectorXf velocity;
-	Eigen::VectorXf force;
-	Eigen::Matrix<float,6,6> j_matrix;
+    void set_vel(Eigen::VectorXf);
 
+    void set_force(Eigen::VectorXf);
 
+    int calc_jacobian(float[6], tool, int);
 
-	void set_vel(Eigen::VectorXf);
+    int calc_velocities(float[6]);
 
-	void set_force(Eigen::VectorXf);
+    int calc_forces(float[6]);
 
-	int calc_jacobian(float[6], tool, int);
-
-	int calc_velocities(float[6]);
-
-	int calc_forces(float[6]);
-
-//methods
-public:
+    // methods
+   public:
     r2_jacobian(){};
 
     r2_jacobian(Eigen::VectorXf, Eigen::VectorXf);
 
-	~r2_jacobian(){};
+    ~r2_jacobian(){};
 
-	void get_vel(float*);
+    void get_vel(float *);
 
-	void get_force(float*);
+    void get_force(float *);
 
     int update_r2_jacobian(float[6], float[6], float[6], tool, int);
-
 };
 
 int r2_device_jacobian(struct robot_device *d0, int runlevel);

@@ -1,5 +1,6 @@
 /* Raven 2 Control - Control software for the Raven II robot
- * Copyright (C) 2005-2012  H. Hawkeye King, Blake Hannaford, and the University of Washington BioRobotics Laboratory
+ * Copyright (C) 2005-2012  H. Hawkeye King, Blake Hannaford, and the University of Washington
+ * BioRobotics Laboratory
  *
  * This file is part of Raven 2 Control.
  *
@@ -25,25 +26,26 @@
  * 2005
  *
  */
+#ifndef FIFO_H
+#define FIFO_H
 
-//Rtai Include Files
+// Rtai Include Files
 //#include <rtai.h>
 //#include <rtai_sched.h>
 //#include <rtai_fifos.h>
 
-//Include Files
-#include "struct.h" //Includes DS0, DS1, DOF_type
+// Include Files
 #include "defines.h"
+#include "struct.h"  //Includes DS0, DS1, DOF_type
 
-#include "stddef.h" //For size_t
+#include "stddef.h"  //For size_t
 
-#define NO_PACKET_FOUND   0
-#define CMD_PACKET_RCVD   1
-#define BAD_PACKET_FND    2
+#define NO_PACKET_FOUND 0
+#define CMD_PACKET_RCVD 1
+#define BAD_PACKET_FND 2
 
 int putFIFOData(int FIFO, struct device *device0);
-int putFIFODataSized(int FIFO, void* data, size_t size);
+int putFIFODataSized(int FIFO, void *data, size_t size);
 int getFIFOData(int FIFO, struct param_pass *rcv_params);
 
-
-
+#endif // FIFO_H

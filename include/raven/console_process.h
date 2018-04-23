@@ -1,5 +1,6 @@
 /* Raven 2 Control - Control software for the Raven II robot
- * Copyright (C) 2005-2012  H. Hawkeye King, Blake Hannaford, and the University of Washington BioRobotics Laboratory
+ * Copyright (C) 2005-2012  H. Hawkeye King, Blake Hannaford, and the University of Washington
+ * BioRobotics Laboratory
  *
  * This file is part of Raven 2 Control.
  *
@@ -18,14 +19,16 @@
  */
 
 /**
-*	\file console_process.h
-*
-*  	\brief Outputs data to the console periodically, so that we know our robot lives.
-*
-*  	\author Hawkeye King
-*
-*	\ingroup IO
-*/
+ *	\file console_process.h
+ *
+ *  	\brief Outputs data to the console periodically, so that we know our robot lives.
+ *
+ *  	\author Hawkeye King
+ *
+ *	\ingroup IO
+ */
+#ifndef CONSOLE_PROCESS_H
+#define CONSOLE_PROCESS_H
 
 /** prototype for console_process()
  */
@@ -34,3 +37,5 @@ void *console_process(void *);
 /** prototype for outputRobotState()
  */
 void outputRobotState();
+
+#endif // CONSOLE_PROCESS_H

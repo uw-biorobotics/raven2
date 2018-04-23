@@ -1,5 +1,6 @@
 /* Raven 2 Control - Control software for the Raven II robot
- * Copyright (C) 2005-2012  H. Hawkeye King, Blake Hannaford, and the University of Washington BioRobotics Laboratory
+ * Copyright (C) 2005-2012  H. Hawkeye King, Blake Hannaford, and the University of Washington
+ *BioRobotics Laboratory
  *
  * This file is part of Raven 2 Control.
  *
@@ -51,12 +52,10 @@ extern int NUM_MECH;
 * \todo Remove runlevel from args.
 */
 
-void fwdCableCoupling(struct device *device0, int runlevel)
-{
-	//Run fwd cable coupling for each mechanism.
-	// This should be run in all runlevels.
-	for (int i = 0; i < NUM_MECH; i++)
-		fwdMechCableCoupling(&(device0->mech[i]));
+void fwdCableCoupling(struct device *device0, int runlevel) {
+    // Run fwd cable coupling for each mechanism.
+    // This should be run in all runlevels.
+    for (int i = 0; i < NUM_MECH; i++) fwdMechCableCoupling(&(device0->mech[i]));
 }
 
 /**
@@ -65,117 +64,105 @@ void fwdCableCoupling(struct device *device0, int runlevel)
 * \return void
 */
 
-void fwdMechCableCoupling(struct mechanism *mech)
-{
-	float th1, th2, th3, th5, th6, th7;
-	float th1_dot, th2_dot;
-	float d4;
-	float d4_dot;
-	float m1, m2, m3, m4, m5, m6, m7;
-	float m1_dot, m2_dot, m4_dot;
-	float tr1=0, tr2=0, tr3=0, tr4=0, tr5=0, tr6=0, tr7=0;
+void fwdMechCableCoupling(struct mechanism *mech) {
+    float th1, th2, th3, th5, th6, th7;
+    float th1_dot, th2_dot;
+    float d4;
+    float d4_dot;
+    float m1, m2, m3, m4, m5, m6, m7;
+    float m1_dot, m2_dot, m4_dot;
+    float tr1 = 0, tr2 = 0, tr3 = 0, tr4 = 0, tr5 = 0, tr6 = 0, tr7 = 0;
 
-	m1 = mech->joint[SHOULDER].mpos;
-	m2 = mech->joint[ELBOW].mpos;
-	m3 = mech->joint[TOOL_ROT].mpos;
-	m4 = mech->joint[Z_INS].mpos;
-	m5 = mech->joint[WRIST].mpos;
-	m6 = mech->joint[GRASP1].mpos;
-	m7 = mech->joint[GRASP2].mpos;
+    m1 = mech->joint[SHOULDER].mpos;
+    m2 = mech->joint[ELBOW].mpos;
+    m3 = mech->joint[TOOL_ROT].mpos;
+    m4 = mech->joint[Z_INS].mpos;
+    m5 = mech->joint[WRIST].mpos;
+    m6 = mech->joint[GRASP1].mpos;
+    m7 = mech->joint[GRASP2].mpos;
 
-	m1_dot = mech->joint[SHOULDER].mvel;
-	m2_dot = mech->joint[ELBOW].mvel;
-	m4_dot = mech->joint[Z_INS].mvel;
+    m1_dot = mech->joint[SHOULDER].mvel;
+    m2_dot = mech->joint[ELBOW].mvel;
+    m4_dot = mech->joint[Z_INS].mvel;
 
-	if (mech->type == GOLD_ARM){
-		tr1=DOF_types[SHOULDER_GOLD].TR;
-		tr2=DOF_types[ELBOW_GOLD].TR;
-		tr3=DOF_types[TOOL_ROT_GOLD].TR;
-		tr4=DOF_types[Z_INS_GOLD].TR;
-		tr5=DOF_types[WRIST_GOLD].TR;
-		tr6=DOF_types[GRASP1_GOLD].TR;
-		tr7=DOF_types[GRASP2_GOLD].TR;
+    if (mech->type == GOLD_ARM) {
+        tr1 = DOF_types[SHOULDER_GOLD].TR;
+        tr2 = DOF_types[ELBOW_GOLD].TR;
+        tr3 = DOF_types[TOOL_ROT_GOLD].TR;
+        tr4 = DOF_types[Z_INS_GOLD].TR;
+        tr5 = DOF_types[WRIST_GOLD].TR;
+        tr6 = DOF_types[GRASP1_GOLD].TR;
+        tr7 = DOF_types[GRASP2_GOLD].TR;
 
-	} else if (mech->type == GREEN_ARM){
-		tr1=DOF_types[SHOULDER_GREEN].TR;
-		tr2=DOF_types[ELBOW_GREEN].TR;
-		tr3=DOF_types[TOOL_ROT_GREEN].TR;
-		tr4=DOF_types[Z_INS_GREEN].TR;
-		tr5=DOF_types[WRIST_GREEN].TR;
-		tr6=DOF_types[GRASP1_GREEN].TR;
-		tr7=DOF_types[GRASP2_GREEN].TR;
-	}
-	else {
-		log_msg("ERROR: incorrect device type in fwdMechCableCoupling");
-		return;
-	}
-
-	// Forward Cable Coupling equations
-	//   Originally based on 11/7/2005, Mitch notebook pg. 169
-	//   Updated from UCSC code.  Code simplified by HK 8/11
-	th1 = (1.0/tr1) * m1;
-
-	// DELETEME
-	//	th2 = (1.0/tr2) * m2; // additional CC terms added 3/13
-	//	d4  = (1.0/tr4) * m4;
-
-	th2 = (1.0/tr2) * m2 - CABLE_COUPLING_01 * th1;
-	d4  = (1.0/tr4) * m4 - CABLE_COUPLING_02 * th1 - CABLE_COUPLING_12 * th2;
-
-
-	// TODO:: Update with new cable coupling terms
-	th1_dot = (1.0/tr1) * m1_dot;
-	th2_dot = (1.0/tr2) * m2_dot;
-	d4_dot  = (1.0/tr4) * m4_dot;
-
-
-	// Tool degrees of freedom ===========================================
-    int sgn = 0;
-    switch(mech->mech_tool.t_style){
-	  case raven:
-		sgn = (mech->type == GOLD_ARM) ? 1 : -1;
-		break;
-	  case dv:
-		sgn = (mech->type != GOLD_ARM) ? 1 : -1;
-		break;
-	  case square_raven:
-		sgn = -1;
-		break;
-	  default:
-		log_msg("undefined tool style!!! inv_cable_coupling.cpp");
-		break;
+    } else if (mech->type == GREEN_ARM) {
+        tr1 = DOF_types[SHOULDER_GREEN].TR;
+        tr2 = DOF_types[ELBOW_GREEN].TR;
+        tr3 = DOF_types[TOOL_ROT_GREEN].TR;
+        tr4 = DOF_types[Z_INS_GREEN].TR;
+        tr5 = DOF_types[WRIST_GREEN].TR;
+        tr6 = DOF_types[GRASP1_GREEN].TR;
+        tr7 = DOF_types[GRASP2_GREEN].TR;
+    } else {
+        log_msg("ERROR: incorrect device type in fwdMechCableCoupling");
+        return;
     }
 
-	int sgn_6 = sgn;
+    // Forward Cable Coupling equations
+    //   Originally based on 11/7/2005, Mitch notebook pg. 169
+    //   Updated from UCSC code.  Code simplified by HK 8/11
+    th1 = (1.0 / tr1) * m1;
+
+    th2 = (1.0 / tr2) * m2 - CABLE_COUPLING_01 * th1;
+    d4 = (1.0 / tr4) * m4 - CABLE_COUPLING_02 * th1 - CABLE_COUPLING_12 * th2;
+
+    // TODO:: Update with new cable coupling terms
+    th1_dot = (1.0 / tr1) * m1_dot;
+    th2_dot = (1.0 / tr2) * m2_dot;
+    d4_dot = (1.0 / tr4) * m4_dot;
+
+    // Tool degrees of freedom ===========================================
+    int sgn = 0;
+    switch (mech->mech_tool.t_style) {
+        case raven:
+            sgn = (mech->type == GOLD_ARM) ? 1 : -1;
+            break;
+        case dv:
+            sgn = (mech->type != GOLD_ARM) ? 1 : -1;
+            break;
+        case square_raven:
+            sgn = -1;
+            break;
+        default:
+            log_msg("undefined tool style!!! inv_cable_coupling.cpp");
+            break;
+    }
+
+    int sgn_6 = sgn;
 #ifdef OPPOSE_GRIP
-	sgn_6 *= -1;
+    sgn_6 *= -1;
 #endif
 
     float tool_coupling = mech->mech_tool.wrist_coupling;
-    th3 = (1.0/tr3) * (m3 - sgn*m4/GB_RATIO);
-    th5 = (1.0/tr5) * (m5 - sgn*m4/GB_RATIO);
-    th6 = (1.0/tr6) * (m6 - sgn_6*m4/GB_RATIO) - th5*tool_coupling;
-    th7 = (1.0/tr7) * (m7 - sgn*m4/GB_RATIO) + th5*tool_coupling;
+    th3 = (1.0 / tr3) * (m3 - sgn * m4 / GB_RATIO);
+    th5 = (1.0 / tr5) * (m5 - sgn * m4 / GB_RATIO);
+    th6 = (1.0 / tr6) * (m6 - sgn_6 * m4 / GB_RATIO) - th5 * tool_coupling;
+    th7 = (1.0 / tr7) * (m7 - sgn * m4 / GB_RATIO) + th5 * tool_coupling;
 
+    // Now have solved for th1, th2, d3, th4, th5, th6
+    mech->joint[SHOULDER].jpos = th1;  // - mech->joint[SHOULDER].jpos_off;
+    mech->joint[ELBOW].jpos = th2;     // - mech->joint[ELBOW].jpos_off;
+    mech->joint[TOOL_ROT].jpos = th3;  // - mech->joint[TOOL_ROT].jpos_off;
+    mech->joint[Z_INS].jpos = d4;      //  - mech->joint[Z_INS].jpos_off;
+    mech->joint[WRIST].jpos = th5;     // - mech->joint[WRIST].jpos_off;
+    mech->joint[GRASP1].jpos = th6;    // - mech->joint[GRASP1].jpos_off;
+    mech->joint[GRASP2].jpos = th7;    // - mech->joint[GRASP2].jpos_off;
 
-	// Now have solved for th1, th2, d3, th4, th5, th6
-	mech->joint[SHOULDER].jpos 		= th1;// - mech->joint[SHOULDER].jpos_off;
-	mech->joint[ELBOW].jpos 		= th2;// - mech->joint[ELBOW].jpos_off;
-	mech->joint[TOOL_ROT].jpos 		= th3;// - mech->joint[TOOL_ROT].jpos_off;
-	mech->joint[Z_INS].jpos 		= d4;//  - mech->joint[Z_INS].jpos_off;
-	mech->joint[WRIST].jpos 		= th5;// - mech->joint[WRIST].jpos_off;
-	mech->joint[GRASP1].jpos 		= th6;// - mech->joint[GRASP1].jpos_off;
-	mech->joint[GRASP2].jpos 		= th7;// - mech->joint[GRASP2].jpos_off;
+    mech->joint[SHOULDER].jvel = th1_dot;  // - mech->joint[SHOULDER].jpos_off;
+    mech->joint[ELBOW].jvel = th2_dot;     // - mech->joint[ELBOW].jpos_off;
+    mech->joint[Z_INS].jvel = d4_dot;      //  - mech->joint[Z_INS].jpos_off;
 
-	mech->joint[SHOULDER].jvel 		= th1_dot;// - mech->joint[SHOULDER].jpos_off;
-	mech->joint[ELBOW].jvel 		= th2_dot;// - mech->joint[ELBOW].jpos_off;
-	mech->joint[Z_INS].jvel 		= d4_dot;//  - mech->joint[Z_INS].jpos_off;
-
-	return;
+    return;
 }
-
-
-
 
 /**
 * \fn void fwdTorqueCoupling(struct device *device0, int runlevel)
@@ -186,12 +173,10 @@ void fwdMechCableCoupling(struct mechanism *mech)
 * \todo Remove runlevel from args.
 */
 
-void fwdTorqueCoupling(struct device *device0, int runlevel)
-{
-	//Run fwd cable coupling for each mechanism.
-	// This should be run in all runlevels.
-	for (int i = 0; i < NUM_MECH; i++)
-		fwdMechTorqueCoupling(&(device0->mech[i]));
+void fwdTorqueCoupling(struct device *device0, int runlevel) {
+    // Run fwd cable coupling for each mechanism.
+    // This should be run in all runlevels.
+    for (int i = 0; i < NUM_MECH; i++) fwdMechTorqueCoupling(&(device0->mech[i]));
 }
 
 /**
@@ -202,100 +187,87 @@ void fwdTorqueCoupling(struct device *device0, int runlevel)
 * \return void
 */
 
-void fwdMechTorqueCoupling(struct mechanism *mech)
-{
-	float th1=0, th2=0, th3=0, th5=0, th6=0, th7=0;
-	float th1_dot, th2_dot;
-	float d4;
-	float d4_dot;
-	float m1, m2, m3, m4, m5, m6, m7;
-	float m1_dot, m2_dot, m4_dot;
-	float tr1=0, tr2=0, tr3=0, tr4=0, tr5=0, tr6=0, tr7=0;
+void fwdMechTorqueCoupling(struct mechanism *mech) {
+    float th1 = 0, th2 = 0, th3 = 0, th5 = 0, th6 = 0, th7 = 0;
+    float th1_dot, th2_dot;
+    float d4;
+    float d4_dot;
+    float m1, m2, m3, m4, m5, m6, m7;
+    float m1_dot, m2_dot, m4_dot;
+    float tr1 = 0, tr2 = 0, tr3 = 0, tr4 = 0, tr5 = 0, tr6 = 0, tr7 = 0;
 
-	m1 = mech->joint[SHOULDER].mpos;
-	m2 = mech->joint[ELBOW].mpos;
-	m3 = mech->joint[TOOL_ROT].mpos;
-	m4 = mech->joint[Z_INS].mpos;
-	m5 = mech->joint[WRIST].mpos;
-	m6 = mech->joint[GRASP1].mpos;
-	m7 = mech->joint[GRASP2].mpos;
+    m1 = mech->joint[SHOULDER].mpos;
+    m2 = mech->joint[ELBOW].mpos;
+    m3 = mech->joint[TOOL_ROT].mpos;
+    m4 = mech->joint[Z_INS].mpos;
+    m5 = mech->joint[WRIST].mpos;
+    m6 = mech->joint[GRASP1].mpos;
+    m7 = mech->joint[GRASP2].mpos;
 
-	m1_dot = mech->joint[SHOULDER].mvel;
-	m2_dot = mech->joint[ELBOW].mvel;
-	m4_dot = mech->joint[Z_INS].mvel;
+    m1_dot = mech->joint[SHOULDER].mvel;
+    m2_dot = mech->joint[ELBOW].mvel;
+    m4_dot = mech->joint[Z_INS].mvel;
 
-	if (mech->type == GOLD_ARM){
-		tr1=DOF_types[SHOULDER_GOLD].TR;
-		tr2=DOF_types[ELBOW_GOLD].TR;
-		tr3=DOF_types[TOOL_ROT_GOLD].TR;
-		tr4=DOF_types[Z_INS_GOLD].TR;
-		tr5=DOF_types[WRIST_GOLD].TR;
-		tr6=DOF_types[GRASP1_GOLD].TR;
-		tr7=DOF_types[GRASP2_GOLD].TR;
+    if (mech->type == GOLD_ARM) {
+        tr1 = DOF_types[SHOULDER_GOLD].TR;
+        tr2 = DOF_types[ELBOW_GOLD].TR;
+        tr3 = DOF_types[TOOL_ROT_GOLD].TR;
+        tr4 = DOF_types[Z_INS_GOLD].TR;
+        tr5 = DOF_types[WRIST_GOLD].TR;
+        tr6 = DOF_types[GRASP1_GOLD].TR;
+        tr7 = DOF_types[GRASP2_GOLD].TR;
 
-	} else if (mech->type == GREEN_ARM){
-		tr1=DOF_types[SHOULDER_GREEN].TR;
-		tr2=DOF_types[ELBOW_GREEN].TR;
-		tr3=DOF_types[TOOL_ROT_GREEN].TR;
-		tr4=DOF_types[Z_INS_GREEN].TR;
-		tr5=DOF_types[WRIST_GREEN].TR;
-		tr6=DOF_types[GRASP1_GREEN].TR;
-		tr7=DOF_types[GRASP2_GREEN].TR;
-	}
-	else {
-		log_msg("ERROR: incorrect device type in fwdMechCableCoupling");
-		return;
-	}
+    } else if (mech->type == GREEN_ARM) {
+        tr1 = DOF_types[SHOULDER_GREEN].TR;
+        tr2 = DOF_types[ELBOW_GREEN].TR;
+        tr3 = DOF_types[TOOL_ROT_GREEN].TR;
+        tr4 = DOF_types[Z_INS_GREEN].TR;
+        tr5 = DOF_types[WRIST_GREEN].TR;
+        tr6 = DOF_types[GRASP1_GREEN].TR;
+        tr7 = DOF_types[GRASP2_GREEN].TR;
+    } else {
+        log_msg("ERROR: incorrect device type in fwdMechCableCoupling");
+        return;
+    }
 
-	// Forward Cable Coupling equations
-	//   Originally based on 11/7/2005, Mitch notebook pg. 169
-	//   Updated from UCSC code.  Code simplified by HK 8/11
-	th1 = (1.0/tr1) * m1;
+    // Forward Cable Coupling equations
+    //   Originally based on 11/7/2005, Mitch notebook pg. 169
+    //   Updated from UCSC code.  Code simplified by HK 8/11
+    th1 = (1.0 / tr1) * m1;
 
-	// DELETEME
-	//	th2 = (1.0/tr2) * m2; // additional CC terms added 3/13
-	//	d4  = (1.0/tr4) * m4;
+    th2 = (1.0 / tr2) * m2 - CABLE_COUPLING_01 * th1;
+    d4 = (1.0 / tr4) * m4 - CABLE_COUPLING_02 * th1 - CABLE_COUPLING_12 * th2;
 
-	th2 = (1.0/tr2) * m2 - CABLE_COUPLING_01 * th1;
-	d4  = (1.0/tr4) * m4 - CABLE_COUPLING_02 * th1 -CABLE_COUPLING_12 * th2;
+    // TODO:: Update with new cable coupling terms
+    th1_dot = (1.0 / tr1) * m1_dot;
+    th2_dot = (1.0 / tr2) * m2_dot;
+    d4_dot = (1.0 / tr4) * m4_dot;
 
-
-	// TODO:: Update with new cable coupling terms
-	th1_dot = (1.0/tr1) * m1_dot;
-	th2_dot = (1.0/tr2) * m2_dot;
-	d4_dot  = (1.0/tr4) * m4_dot;
-
-
-
-// TODO:: why is only the RAVEN tool referenced in this?
-	// Tool degrees of freedom ===========================================
-//	if (mech->tool_type == TOOL_GRASPER_10MM)
-//	{
-		int sgn = (mech->type == GOLD_ARM) ? 1 : -1;
-		int sgn_6 = sgn;
+    // TODO:: why is only the RAVEN tool referenced in this?
+    // Tool degrees of freedom ===========================================
+    //  if (mech->tool_type == TOOL_GRASPER_10MM) {
+    int sgn = (mech->type == GOLD_ARM) ? 1 : -1;
+    int sgn_6 = sgn;
 #ifdef OPPOSE_GRIP
-		sgn_6 = -1 * sgn;
+    sgn_6 = -1 * sgn;
 #endif
-		th3 = (1.0/tr3) * (m3 - sgn*m4/GB_RATIO);
-		th5 = (1.0/tr5) * (m5 - sgn*m4/GB_RATIO);
-		th6 = (1.0/tr6) * (m6 - sgn_6*m4/GB_RATIO);
-		th7 = (1.0/tr7) * (m7 - sgn*m4/GB_RATIO);
-//	}
+    th3 = (1.0 / tr3) * (m3 - sgn * m4 / GB_RATIO);
+    th5 = (1.0 / tr5) * (m5 - sgn * m4 / GB_RATIO);
+    th6 = (1.0 / tr6) * (m6 - sgn_6 * m4 / GB_RATIO);
+    th7 = (1.0 / tr7) * (m7 - sgn * m4 / GB_RATIO);
 
-	// Now have solved for th1, th2, d3, th4, th5, th6
-	mech->joint[SHOULDER].jpos 	= th1;// - mech->joint[SHOULDER].jpos_off;
-	mech->joint[ELBOW].jpos 	= th2;// - mech->joint[ELBOW].jpos_off;
-	mech->joint[TOOL_ROT].jpos 	= th3;// - mech->joint[TOOL_ROT].jpos_off;
-	mech->joint[Z_INS].jpos 	= d4;//  - mech->joint[Z_INS].jpos_off;
-	mech->joint[WRIST].jpos 	= th5;// - mech->joint[WRIST].jpos_off;
-	mech->joint[GRASP1].jpos 	= th6;// - mech->joint[GRASP1].jpos_off;
-	mech->joint[GRASP2].jpos 	= th7;// - mech->joint[GRASP2].jpos_off;
+    // Now have solved for th1, th2, d3, th4, th5, th6
+    mech->joint[SHOULDER].jpos = th1;  // - mech->joint[SHOULDER].jpos_off;
+    mech->joint[ELBOW].jpos = th2;     // - mech->joint[ELBOW].jpos_off;
+    mech->joint[TOOL_ROT].jpos = th3;  // - mech->joint[TOOL_ROT].jpos_off;
+    mech->joint[Z_INS].jpos = d4;      //  - mech->joint[Z_INS].jpos_off;
+    mech->joint[WRIST].jpos = th5;     // - mech->joint[WRIST].jpos_off;
+    mech->joint[GRASP1].jpos = th6;    // - mech->joint[GRASP1].jpos_off;
+    mech->joint[GRASP2].jpos = th7;    // - mech->joint[GRASP2].jpos_off;
 
-	mech->joint[SHOULDER].jvel 	= th1_dot;// - mech->joint[SHOULDER].jpos_off;
-	mech->joint[ELBOW].jvel 	= th2_dot;// - mech->joint[ELBOW].jpos_off;
-	mech->joint[Z_INS].jvel 	= d4_dot;//  - mech->joint[Z_INS].jpos_off;
+    mech->joint[SHOULDER].jvel = th1_dot;  // - mech->joint[SHOULDER].jpos_off;
+    mech->joint[ELBOW].jvel = th2_dot;     // - mech->joint[ELBOW].jpos_off;
+    mech->joint[Z_INS].jvel = d4_dot;      //  - mech->joint[Z_INS].jpos_off;
 
-	return;
+    return;
 }
-
-

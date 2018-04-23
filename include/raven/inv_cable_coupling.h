@@ -1,5 +1,6 @@
 /* Raven 2 Control - Control software for the Raven II robot
- * Copyright (C) 2005-2012  H. Hawkeye King, Blake Hannaford, and the University of Washington BioRobotics Laboratory
+ * Copyright (C) 2005-2012  H. Hawkeye King, Blake Hannaford, and the University of Washington
+ *BioRobotics Laboratory
  *
  * This file is part of Raven 2 Control.
  *
@@ -17,6 +18,9 @@
  * along with Raven 2 Control.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef INV_CABLE_COUPLING_H
+#define INV_CABLE_COUPLING_H
+
 /*************************************************
  *
  * File: inv_cable_coupling.h
@@ -26,9 +30,9 @@
  *
  ************************************************/
 
-//#include <linux/kernel.h>
-//#include <linux/module.h>
-//#include <rtai.h>
+// #include <linux/kernel.h>
+// #include <linux/module.h>
+// #include <rtai.h>
 
 #include "struct.h"
 #include "utils.h"
@@ -38,3 +42,5 @@
 
 void invCableCoupling(struct device *device0, int runlevel);
 void invMechCableCoupling(struct mechanism *mech, int no_use_actual = 0);
+
+#endif

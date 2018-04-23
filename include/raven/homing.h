@@ -1,5 +1,6 @@
 /* Raven 2 Control - Control software for the Raven II robot
- * Copyright (C) 2005-2012  H. Hawkeye King, Blake Hannaford, and the University of Washington BioRobotics Laboratory
+ * Copyright (C) 2005-2012  H. Hawkeye King, Blake Hannaford, and the University of Washington
+ *BioRobotics Laboratory
  *
  * This file is part of Raven 2 Control.
  *
@@ -17,14 +18,17 @@
  * along with Raven 2 Control.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef HOMING_H
+#define HOMING_H
 /**
 *   \file homing.h
 *
-*	\brief Based on concept by UCSC, I implement a procedure for joint position discovery from relative encoders.
+*	\brief Based on concept by UCSC, I implement a procedure for joint position discovery from
+*relative encoders.
 *
 *	\author	Hawkeye King
-*	
-*   \date 3-Nov-2011 
+*
+*   \date 3-Nov-2011
 *
 *   \ingroup Control
 */
@@ -41,3 +45,5 @@ void homing(struct DOF*, tool);
 /** prototype for check_homing_condition()
  */
 int check_homing_condition(struct DOF*);
+
+#endif

@@ -1,5 +1,6 @@
 /* Raven 2 Control - Control software for the Raven II robot
- * Copyright (C) 2005-2012  H. Hawkeye King, Blake Hannaford, and the University of Washington BioRobotics Laboratory
+ * Copyright (C) 2005-2012  H. Hawkeye King, Blake Hannaford, and the University of Washington
+ *BioRobotics Laboratory
  *
  * This file is part of Raven 2 Control.
  *
@@ -25,12 +26,13 @@
 *   \desc Code split out from rt_process_preempt.cpp, in order to provide more flexibility.
 *
 * 	\author Hawkeye
-* 
+*
 *	\date 10/2011
 *
 *   \ingroup Control
 */
-
+#ifndef RT_RAVEN_H_
+#define RT_RAVEN_H_
 #include "DS0.h"
 #include "DS1.h"
 
