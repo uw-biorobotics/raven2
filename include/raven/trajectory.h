@@ -1,5 +1,6 @@
 /* Raven 2 Control - Control software for the Raven II robot
- * Copyright (C) 2005-2012  H. Hawkeye King, Blake Hannaford, and the University of Washington BioRobotics Laboratory
+ * Copyright (C) 2005-2012  H. Hawkeye King, Blake Hannaford, and the University of Washington
+ *BioRobotics Laboratory
  *
  * This file is part of Raven 2 Control.
  *
@@ -25,12 +26,15 @@
 *    Internal datastructures track trajectory state, and update DOFs as needed upon calling.
 */
 
+#ifndef TRAJECTORY_H
+#define TRAJECTORY_H
+
 #include "struct.h"
 
 // Setup and teardown of trajectory generation
-//int start_trajectory(struct DOF*);
-int start_trajectory(struct DOF*, float=0, float=0);
-int start_trajectory_mag(struct DOF*, float=0, float=0);
+// int start_trajectory(struct DOF*);
+int start_trajectory(struct DOF*, float = 0, float = 0);
+int start_trajectory_mag(struct DOF*, float = 0, float = 0);
 int stop_trajectory(struct DOF*);
 
 // Velocity Trajectories
@@ -41,3 +45,5 @@ int update_linear_sinusoid_velocity_trajectory(struct DOF*);
 int update_sinusoid_position_trajectory(struct DOF*);
 int update_linear_sinusoid_position_trajectory(struct DOF*);
 int update_position_trajectory(struct DOF*);
+
+#endif

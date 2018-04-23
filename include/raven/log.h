@@ -1,5 +1,6 @@
 /* Raven 2 Control - Control software for the Raven II robot
- * Copyright (C) 2005-2012  H. Hawkeye King, Blake Hannaford, and the University of Washington BioRobotics Laboratory
+ * Copyright (C) 2005-2012  H. Hawkeye King, Blake Hannaford, and the University of Washington
+ *BioRobotics Laboratory
  *
  * This file is part of Raven 2 Control.
  *
@@ -17,10 +18,10 @@
  * along with Raven 2 Control.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef LOG_H
-#define LOG_H
+#ifndef RAVEN_2_CODE_STYLE_LOG_CLANGED_H_
+#define RAVEN_2_CODE_STYLE_LOG_CLANGED_H_
 
-int log_msg(const char* fmt,...);
-int err_msg(const char* fmt,...);
+int log_msg(const char* fmt, ...);
+int err_msg(const char* fmt, ...);
 
-#endif // LOG_H
+#endif  // RAVEN_2_CODE_STYLE_LOG_CLANGED_H_

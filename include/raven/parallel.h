@@ -1,5 +1,6 @@
 /* Raven 2 Control - Control software for the Raven II robot
- * Copyright (C) 2005-2012  H. Hawkeye King, Blake Hannaford, and the University of Washington BioRobotics Laboratory
+ * Copyright (C) 2005-2012  H. Hawkeye King, Blake Hannaford, and the University of Washington
+ *BioRobotics Laboratory
  *
  * This file is part of Raven 2 Control.
  *
@@ -27,17 +28,21 @@
  */
 
 
-//Data Structures
+#ifndef PARALLEL_H
+#define PARALLEL_H
+// Data Structures
 #include "struct.h" /*Includes DS0, DS1, DOF_type*/
 #include "defines.h"
 
-//Parallel Port points
-//#include <asm/io.h>
+// Parallel Port points
+// #include <asm/io.h>
 
-//Pin Information
-#define DUTY_CYCLE_BIT     0x04
-#define PARPORT            0x378 //0xec00      // address of parallel port for debugging
+// Pin Information
+#define DUTY_CYCLE_BIT 0x04
+#define PARPORT 0x378  // 0xec00      // address of parallel port for debugging
 
 void parallelUpdate(int runlevel, int endOfLoop);
 void parport_out();
 void parport_out(unsigned char out_byte);
+
+#endif

@@ -1,5 +1,6 @@
 /* Raven 2 Control - Control software for the Raven II robot
- * Copyright (C) 2005-2012  H. Hawkeye King, Blake Hannaford, and the University of Washington BioRobotics Laboratory
+ * Copyright (C) 2005-2012  H. Hawkeye King, Blake Hannaford, and the University of Washington
+ *BioRobotics Laboratory
  *
  * This file is part of Raven 2 Control.
  *
@@ -36,7 +37,6 @@
  * Modified by Hawkeye King
  */
 
-
 #include "t_to_DAC_val.h"
 #include "motor.h"
 #include "utils.h"
@@ -47,11 +47,11 @@ extern int NUM_MECH;
 
 extern unsigned int soft_estopped;
 
-
 /**
  * \brief Converts desired torque on each joint to desired DAC level
  *
- *	This function loops over all of the joints in the device to cal the conversion calculation for the desired torque values.
+ *	This function loops over all of the joints in the device to cal the conversion calculation
+ *for the desired torque values.
  *	There are checks for the mechanism connection status and software e-stops.
  *
  * \pre tau_d has been set for each joint
@@ -59,25 +59,21 @@ extern unsigned int soft_estopped;
  * \param device0 pointer to device structure
  *
  */
-int TorqueToDAC(struct device *device0)
-{
+int TorqueToDAC(struct device *device0) {
     int i, j;
 
     // for each arm
-    for (i=0; i < NUM_MECH; i++)
-        for (j=0; j < MAX_DOF_PER_MECH ; j++) {
-            if (device0->mech[i].joint[j].type == NO_CONNECTION_GOLD || device0->mech[i].joint[j].type == NO_CONNECTION_GREEN)
-            {
-            	continue;
+    for (i = 0; i < NUM_MECH; i++)
+        for (j = 0; j < MAX_DOF_PER_MECH; j++) {
+            if (device0->mech[i].joint[j].type == NO_CONNECTION_GOLD ||
+                device0->mech[i].joint[j].type == NO_CONNECTION_GREEN) {
+                continue;
             }
 
-            device0->mech[i].joint[j].current_cmd = tToDACVal( &(device0->mech[i].joint[j]) );  // Convert torque to DAC value
+            device0->mech[i].joint[j].current_cmd =
+                tToDACVal(&(device0->mech[i].joint[j]));  // Convert torque to DAC value
 
-
-
-            if ( soft_estopped )
-                device0->mech[i].joint[j].current_cmd = 0;
-
+            if (soft_estopped) device0->mech[i].joint[j].current_cmd = 0;
         }
     return 0;
 }
@@ -92,27 +88,25 @@ int TorqueToDAC(struct device *device0)
  * \param joint pointer to DOF structure
  * \output DAC value
  */
-short int tToDACVal(struct DOF *joint)
-{
-    int        DACVal;
-    short int  result;
-    float      TFamplifier,
-    TFmotor;
+int16 tToDACVal(struct DOF *joint) {
+    int DACVal;
+    int16 result;
+    float TFamplifier, TFmotor;
 
     int j_index = joint->type;
 
-    TFmotor     = 1 / DOF_types[j_index].tau_per_amp;    // Determine the motor TF  = 1/(tau per amp)
-    TFamplifier =     DOF_types[j_index].DAC_per_amp;    // Determine the amplifier TF = (DAC_per_amp)
+    TFmotor = 1 / DOF_types[j_index].tau_per_amp;  // Determine the motor TF  = 1/(tau per amp)
+    TFamplifier = DOF_types[j_index].DAC_per_amp;  // Determine the amplifier TF = (DAC_per_amp)
 
-    DACVal = (int)(joint->tau_d * TFmotor * TFamplifier);  //compute DAC value: DAC=[tau*(amp/torque)*(DACs/amp)]
+    DACVal = static_cast<int>(joint->tau_d * TFmotor *
+                   TFamplifier);  // compute DAC value: DAC=[tau*(amp/torque)*(DACs/amp)]
 
-    //Perform range checking and convert to short int
-    //Note: toShort saturates at max value for short int.
+    // Perform range checking and convert to short int
+    // Note: toShort saturates at max value for short int.
     toShort(DACVal, &result);
 
     return result;
 }
-
 
 /**
  * /brief sets DACs to 0V
@@ -120,25 +114,22 @@ short int tToDACVal(struct DOF *joint)
  * input: buffer_out
  * \param device0 pointer to device structure
  */
-void clearDACs(struct device *device0)
-{
+void clearDACs(struct device *device0) {
     int i, j;
 
-    //Set all encoder values to no movement
+    // Set all encoder values to no movement
     for (i = 0; i < NUM_MECH; i++)
-        for (j = 0; j < MAX_DOF_PER_MECH; j++)
-            device0->mech[i].joint[j].current_cmd = 0;
+        for (j = 0; j < MAX_DOF_PER_MECH; j++) device0->mech[i].joint[j].current_cmd = 0;
 }
 
 /**
  * \brief testing function for validating the control boards
  */
 
-int TorqueToDACTest(struct device *device0)
-{
+int TorqueToDACTest(struct device *device0) {
     static int count;
     int i, j;
-    static unsigned int output=0x4000;
+    static unsigned int output = 0x4000;
     if (output < 0x8000)
         output = 0xa000;
     else
@@ -146,10 +137,8 @@ int TorqueToDACTest(struct device *device0)
     // for each arm
     count++;
 
-    for (i=0; i < NUM_MECH; i++)
-    {
-        for (j=0; j < MAX_DOF_PER_MECH ; j++)
-        {
+    for (i = 0; i < NUM_MECH; i++) {
+        for (j = 0; j < MAX_DOF_PER_MECH; j++) {
             device0->mech[i].joint[j].current_cmd = output;
         }
     }
