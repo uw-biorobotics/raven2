@@ -103,8 +103,13 @@ int controlRaven(device *device0, param_pass *currParams){
     //Compute Mpos & Velocities
     stateEstimate(device0);
 
-    //Foward Cable Coupling
+    //Forward Cable Coupling
     fwdCableCoupling(device0, currParams->runlevel);
+
+    //Calculate joint positions from joint encoders
+    if(JOINT_ENCODERS){
+    	fwdJointEncoders(device0);
+    }
 
     //Forward kinematics
     r2_fwd_kin(device0, currParams->runlevel);
@@ -164,6 +169,7 @@ int controlRaven(device *device0, param_pass *currParams){
             {
                 currParams->robotControlMode = cartesian_space_control;
                 newRobotControlMode = cartesian_space_control;
+                log_msg("*** Ready to teleoperate ***");
             }
             break;
 	//Runs applyTorque() to set torque command (tau_d) to a joint for debugging purposes

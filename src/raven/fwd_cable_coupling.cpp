@@ -18,38 +18,39 @@
  */
 
 /**
-*  \file fwd_cable_coupling.cpp
-*
-*  	\brief  Calculate the forward cable coupling from a motor space Pose,
-*         	(m1, m2,m3) express the desired joint pose (th1, th2, d3)
-*
-* 	\desc	The fwdCableCoupling is called by function controlRaven in rt_raven.cpp file.
-*		To translate from motor position/velocity to joint position/velocity.
-*
-* 	\fn These are the 4 functions in fwd_cable_coupling.cpp file.
-*           Functions marked with "*" are called explicitly from other files.
-* 	       *(1) fwdCableCoupling		:uses (2)
-* 		(2) fwdMechCableCoupling
-* 	       *(3) fwdTorqueCoupling		:uses (4)
-* 		(4) fwdMechTorqueCoupling
-*
-*  	\author Hawkeye
-*/
+ *  \file fwd_cable_coupling.cpp
+ *
+ *  	\brief  Calculate the forward cable coupling from a motor space Pose,
+ *         	(m1, m2,m3) express the desired joint pose (th1, th2, d3)
+ *
+ * 	\desc	The fwdCableCoupling is called by function controlRaven in rt_raven.cpp file.
+ *		To translate from motor position/velocity to joint position/velocity.
+ *
+ * 	\fn These are the 4 functions in fwd_cable_coupling.cpp file.
+ *           Functions marked with "*" are called explicitly from other files.
+ * 	       *(1) fwdCableCoupling		:uses (2)
+ * 		(2) fwdMechCableCoupling
+ * 	       *(3) fwdTorqueCoupling		:uses (4)
+ * 		(4) fwdMechTorqueCoupling
+ *
+ *  	\author Hawkeye
+ */
 
 #include "fwd_cable_coupling.h"
 #include "log.h"
 
 extern DOF_type DOF_types[];
 extern int NUM_MECH;
+extern unsigned long int gTime; //Defined in rt_process_preempt.cpp //just here for debugging
 
 /**
-* \fn void fwdCableCoupling(device *device0, int runlevel)
-* \brief Calls fwdMechCableCoupling for each mechanism in device
-* \param device0 - pointer to device struct
-* \param runlevel - current runlevel
-* \return void
-* \todo Remove runlevel from args.
-*/
+ * \fn void fwdCableCoupling(device *device0, int runlevel)
+ * \brief Calls fwdMechCableCoupling for each mechanism in device
+ * \param device0 - pointer to device struct
+ * \param runlevel - current runlevel
+ * \return void
+ * \todo Remove runlevel from args.
+ */
 
 void fwdCableCoupling(device *device0, int runlevel)
 {
@@ -59,11 +60,65 @@ void fwdCableCoupling(device *device0, int runlevel)
 		fwdMechCableCoupling(&(device0->mech[i]));
 }
 
+
+/** calculates joint positions from joint encoder values
+ * \fn int fwdJointEncoders(device *device0)
+ * \param device0 	robot device
+ * \return int		0 if success
+ */
+int fwdJointEncoders(device *device0)
+{
+    DOF *_joint = NULL;
+    mechanism* _mech = NULL;
+    int i=0,j=0;
+    int enc_count_per_unit;
+    int enc_val, enc_off;
+    static int twice = 0;
+
+    //loop over joints, calculate only major axes with joint encoders
+	while (loop_over_joints(device0, _mech, _joint, i,j) )
+	{
+		if (!is_toolDOF(_joint))
+		{
+			if ((j == SHOULDER)||(j == ELBOW)) //if joint is shoulder or elbow
+				enc_count_per_unit = ROTARY_JOINT_ENC_PER_REV / (2 * PI);
+			else if (j == Z_INS)
+				enc_count_per_unit = LINEAR_JOINT_ENC_PER_M;
+
+			enc_val 	= _joint->joint_enc_val;
+			enc_off 	= _joint->joint_enc_offset;
+
+			//flip encoder direction for GOLD arm
+			if((_mech->type == GREEN_ARM)){
+				enc_val *= -1;
+			}
+			if (j == Z_INS){
+				enc_val *= -1;
+			}
+
+
+			_joint->j_enc_pos = (float)(enc_val - enc_off)/(float)((enc_count_per_unit));
+			/*
+			if (gTime % 3000 == 0){
+				log_msg("joint		%d", j);
+				log_msg("enc value			= %d", encoder_val);
+				log_msg("enc offset			= %d", encoder_off);
+				log_msg("enc count per rev 	= %d", enc_count_per_rev);
+				log_msg("");
+				twice++;
+			}
+			*/
+		}
+	}
+
+	return 0;
+}
+
 /**
-* \fn void fwdMechCableCoupling(mechanism *mech)
-* \param mech
-* \return void
-*/
+ * \fn void fwdMechCableCoupling(mechanism *mech)
+ * \param mech
+ * \return void
+ */
 
 void fwdMechCableCoupling(mechanism *mech)
 {
@@ -75,6 +130,8 @@ void fwdMechCableCoupling(mechanism *mech)
 	float m1_dot, m2_dot, m4_dot;
 	float tr1=0, tr2=0, tr3=0, tr4=0, tr5=0, tr6=0, tr7=0;
 
+
+	//get motor positions
 	m1 = mech->joint[SHOULDER].mpos;
 	m2 = mech->joint[ELBOW].mpos;
 	m3 = mech->joint[TOOL_ROT].mpos;
@@ -83,10 +140,12 @@ void fwdMechCableCoupling(mechanism *mech)
 	m6 = mech->joint[GRASP1].mpos;
 	m7 = mech->joint[GRASP2].mpos;
 
+	//get motor velocities
 	m1_dot = mech->joint[SHOULDER].mvel;
 	m2_dot = mech->joint[ELBOW].mvel;
 	m4_dot = mech->joint[Z_INS].mvel;
 
+	//get transfer ratios for each arm
 	if (mech->type == GOLD_ARM){
 		tr1=DOF_types[SHOULDER_GOLD].TR;
 		tr2=DOF_types[ELBOW_GOLD].TR;
@@ -130,32 +189,32 @@ void fwdMechCableCoupling(mechanism *mech)
 
 
 	// Tool degrees of freedom ===========================================
-    int sgn = 0;
-    switch(mech->mech_tool.t_style){
-	  case raven:
+	int sgn = 0;
+	switch(mech->mech_tool.t_style){
+	case raven:
 		sgn = (mech->type == GOLD_ARM) ? 1 : -1;
 		break;
-	  case dv:
+	case dv:
 		sgn = (mech->type != GOLD_ARM) ? 1 : -1;
 		break;
-	  case square_raven:
+	case square_raven:
 		sgn = -1;
 		break;
-	  default:
+	default:
 		log_msg("undefined tool style!!! inv_cable_coupling.cpp");
 		break;
-    }
+	}
 
 	int sgn_6 = sgn;
 #ifdef OPPOSE_GRIP
 	sgn_6 *= -1;
 #endif
 
-    float tool_coupling = mech->mech_tool.wrist_coupling;
-    th3 = (1.0/tr3) * (m3 - sgn*m4/GB_RATIO);
-    th5 = (1.0/tr5) * (m5 - sgn*m4/GB_RATIO);
-    th6 = (1.0/tr6) * (m6 - sgn_6*m4/GB_RATIO) - th5*tool_coupling;
-    th7 = (1.0/tr7) * (m7 - sgn*m4/GB_RATIO) + th5*tool_coupling;
+	float tool_coupling = mech->mech_tool.wrist_coupling;
+	th3 = (1.0/tr3) * (m3 - sgn*m4/GB_RATIO);
+	th5 = (1.0/tr5) * (m5 - sgn*m4/GB_RATIO);
+	th6 = (1.0/tr6) * (m6 - sgn_6*m4/GB_RATIO) - th5*tool_coupling;
+	th7 = (1.0/tr7) * (m7 - sgn*m4/GB_RATIO) + th5*tool_coupling;
 
 
 	// Now have solved for th1, th2, d3, th4, th5, th6
@@ -178,13 +237,13 @@ void fwdMechCableCoupling(mechanism *mech)
 
 
 /**
-* \fn void fwdTorqueCoupling(device *device0, int runlevel)
-* \brief Calls fwdMechTorqueCoupling for each mechanism in device
-* \param device0 - pointer to device struct
-* \param runlevel - current runlevel
-* \return void
-* \todo Remove runlevel from args.
-*/
+ * \fn void fwdTorqueCoupling(device *device0, int runlevel)
+ * \brief Calls fwdMechTorqueCoupling for each mechanism in device
+ * \param device0 - pointer to device struct
+ * \param runlevel - current runlevel
+ * \return void
+ * \todo Remove runlevel from args.
+ */
 
 void fwdTorqueCoupling(device *device0, int runlevel)
 {
@@ -195,12 +254,12 @@ void fwdTorqueCoupling(device *device0, int runlevel)
 }
 
 /**
-* \fn void fwdMechTorqueCoupling(mechanism *mech)
-* \brief calculates joint position and velocity based on motor position and velocity
-*
-* \param mech
-* \return void
-*/
+ * \fn void fwdMechTorqueCoupling(mechanism *mech)
+ * \brief calculates joint position and velocity based on motor position and velocity
+ *
+ * \param mech
+ * \return void
+ */
 
 void fwdMechTorqueCoupling(mechanism *mech)
 {
@@ -267,20 +326,20 @@ void fwdMechTorqueCoupling(mechanism *mech)
 
 
 
-// TODO:: why is only the RAVEN tool referenced in this?
+	// TODO:: why is only the RAVEN tool referenced in this?
 	// Tool degrees of freedom ===========================================
-//	if (mech->tool_type == TOOL_GRASPER_10MM)
-//	{
-		int sgn = (mech->type == GOLD_ARM) ? 1 : -1;
-		int sgn_6 = sgn;
+	//	if (mech->tool_type == TOOL_GRASPER_10MM)
+	//	{
+	int sgn = (mech->type == GOLD_ARM) ? 1 : -1;
+	int sgn_6 = sgn;
 #ifdef OPPOSE_GRIP
-		sgn_6 = -1 * sgn;
+	sgn_6 = -1 * sgn;
 #endif
-		th3 = (1.0/tr3) * (m3 - sgn*m4/GB_RATIO);
-		th5 = (1.0/tr5) * (m5 - sgn*m4/GB_RATIO);
-		th6 = (1.0/tr6) * (m6 - sgn_6*m4/GB_RATIO);
-		th7 = (1.0/tr7) * (m7 - sgn*m4/GB_RATIO);
-//	}
+	th3 = (1.0/tr3) * (m3 - sgn*m4/GB_RATIO);
+	th5 = (1.0/tr5) * (m5 - sgn*m4/GB_RATIO);
+	th6 = (1.0/tr6) * (m6 - sgn_6*m4/GB_RATIO);
+	th7 = (1.0/tr7) * (m7 - sgn*m4/GB_RATIO);
+	//	}
 
 	// Now have solved for th1, th2, d3, th4, th5, th6
 	mech->joint[SHOULDER].jpos 	= th1;// - mech->joint[SHOULDER].jpos_off;

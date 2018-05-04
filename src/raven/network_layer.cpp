@@ -177,14 +177,14 @@ void* network_process(void* param1)
 
     // print some status messages
     log_msg("Starting network services...");
-    log_msg("  u_struct size: %i",uSize);
+    //log_msg("  u_struct size: %i",uSize);
     log_msg("  Using default port %s",port);
 
     ///// open log file
     logFile = open("err_network.log", O_WRONLY | O_CREAT | O_APPEND  | O_NONBLOCK , 0664);
     if ( logFile < 0 )
     {
-        ROS_ERROR("ERROR: could not open log file.\n");
+        ROS_ERROR("ERROR: could not open log file. %d -- %s\n", logFile, std::strerror(errno));
         exit(1);
     }
     gettimeofday(&tv,&tz);

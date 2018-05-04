@@ -52,3 +52,5 @@ void fwdMechCableCoupling(mechanism *mech);
 
 void fwdTorqueCoupling(device *device0, int runlevel);
 void fwdMechTorqueCoupling(mechanism *mech);
+
+int fwdJointEncoders(device *device0);

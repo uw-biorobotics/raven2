@@ -41,5 +41,8 @@
 //Function prototypes
 void initiateUSBGet(device *device0);
 int getUSBPackets(device *device0);
-int getUSBPacket(int id, mechanism *mech);
+
 void processEncoderPacket(mechanism *mech, unsigned char buffer[]);
+
+int getUSBPacket(int id, device *dev, int index);
+void processJointEncoderPacket(device* dev, unsigned char buffer[]);

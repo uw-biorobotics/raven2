@@ -39,8 +39,8 @@ DOF_type DOF_types[MAX_MECH*MAX_DOF_PER_MECH];
 USBStruct USBBoards;
 
 //tool gold_arm_tool (bipolar_forceps, GOLD_ARM);
-tool gold_arm_tool(large_needle, GOLD_ARM);
-//tool gold_arm_tool(r_grasper, GOLD_ARM);
+//tool gold_arm_tool(large_needle, GOLD_ARM);
+tool gold_arm_tool(r_grasper, GOLD_ARM);
 //tool gold_arm_tool(micro_forceps, GOLD_ARM);
 
 //#ifdef SCISSOR_RIGHT
@@ -51,6 +51,6 @@ tool gold_arm_tool(large_needle, GOLD_ARM);
 
 //tool green_arm_tool(mopocu_scissor, GREEN_ARM);
 //tool green_arm_tool(potts_scissor, GREEN_ARM);
-//tool green_arm_tool(r_grasper, GREEN_ARM);
-tool green_arm_tool(bipolar_forceps, GREEN_ARM);
+tool green_arm_tool(r_grasper, GREEN_ARM);
+//tool green_arm_tool(bipolar_forceps, GREEN_ARM);
 
