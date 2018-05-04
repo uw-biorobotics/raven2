@@ -34,7 +34,7 @@
 #define SURGICAL_ROBOT     	1
 #define RAVEN_II        	1
 //#define KIST
-#define JOINT_ENCODERS		1 	// 1 indicates that there is a USB board for joint encoders
+#define JOINT_ENCODERS		0 	// 1 indicates that there is a USB board for joint encoders
 								// 0 if no joint encoders
 
 //~~~~~~~~~ tool adapter definition ~~~~~~~~~~~~~~~~
@@ -49,10 +49,10 @@
 //~~~~~~~~~ USB Board definition ~~~~~~~~~~~~~~~~~~~
 // Two arm identification
 // Change this to match device ID in /dev/brl_usbXX
-#define GREEN_ARM_SERIAL 10
-#define GOLD_ARM_SERIAL  25
+#define GREEN_ARM_SERIAL 27
+#define GOLD_ARM_SERIAL  24
 
-#define JOINT_ENC_SERIAL 26 	//99 if no joint encoder board
+#define JOINT_ENC_SERIAL 99 	//99 if no joint encoder board
 
 
 //~~~~~~~~ Other settings, experts only ~~~~~~~~~~~~

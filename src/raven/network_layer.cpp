@@ -184,7 +184,7 @@ void* network_process(void* param1)
     logFile = open("err_network.log", O_WRONLY | O_CREAT | O_APPEND  | O_NONBLOCK , 0664);
     if ( logFile < 0 )
     {
-        ROS_ERROR("ERROR: could not open log file.\n");
+        ROS_ERROR("ERROR: could not open log file. %d -- %s\n", logFile, std::strerror(errno));
         exit(1);
     }
     gettimeofday(&tv,&tz);
