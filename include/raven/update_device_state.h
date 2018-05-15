@@ -30,3 +30,4 @@ int updateDeviceState(param_pass * params_current, param_pass * params_update, d
 
 void setRobotControlMode(t_controlmode);
 void setDofTorque(unsigned int, unsigned int, int);
+void addDofPos(unsigned int in_mech, unsigned int in_dof, float in_pos);

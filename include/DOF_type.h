@@ -73,11 +73,13 @@ struct DOF_type {
 	//Motor Transmission Ratio
 	float TR;
 
-	//Torque per amp - motor dependant
+	//Torque per amp - motor dependent
 	float tau_per_amp;
 
 	//DAC counts per amp - different for high / low current amps.
 	float DAC_per_amp;
+
+	float DAC_zero_offset;
 
 	//Controller Gains
 	float KP;

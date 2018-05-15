@@ -229,6 +229,25 @@ void initDOFs(device *device0)
     DOF_types[GRASP2_GOLD].DAC_max    = GRASP2_MAX_DAC;
     DOF_types[GRASP2_GREEN].DAC_max   = GRASP2_MAX_DAC;
 
+    //DAC offsets to compensate for amp-specific output - defined in motor.h
+    DOF_types[SHOULDER_GOLD].DAC_zero_offset 	= DAC_ZERO_0_0;
+    DOF_types[ELBOW_GOLD].DAC_zero_offset 		= DAC_ZERO_0_1;
+    DOF_types[Z_INS_GOLD].DAC_zero_offset 		= DAC_ZERO_0_2;
+    DOF_types[NO_CONNECTION_GOLD].DAC_zero_offset 	= DAC_ZERO_0_3;
+    DOF_types[TOOL_ROT_GOLD].DAC_zero_offset  	= DAC_ZERO_0_4;
+    DOF_types[WRIST_GOLD].DAC_zero_offset 		= DAC_ZERO_0_5;
+    DOF_types[GRASP1_GOLD].DAC_zero_offset  	= DAC_ZERO_0_6;
+    DOF_types[GRASP2_GOLD].DAC_zero_offset  	= DAC_ZERO_0_7;
+
+    DOF_types[SHOULDER_GREEN].DAC_zero_offset 	= DAC_ZERO_1_0;
+    DOF_types[ELBOW_GREEN].DAC_zero_offset 		= DAC_ZERO_1_1;
+    DOF_types[Z_INS_GREEN].DAC_zero_offset 		= DAC_ZERO_1_2;
+    DOF_types[NO_CONNECTION_GREEN].DAC_zero_offset 	= DAC_ZERO_1_3;
+    DOF_types[TOOL_ROT_GREEN].DAC_zero_offset  	= DAC_ZERO_1_4;
+    DOF_types[WRIST_GREEN].DAC_zero_offset 		= DAC_ZERO_1_5;
+    DOF_types[GRASP1_GREEN].DAC_zero_offset  	= DAC_ZERO_1_6;
+    DOF_types[GRASP2_GREEN].DAC_zero_offset  	= DAC_ZERO_1_7;
+    
     /// Initialize values of joint and DOF structures
     for (int i = 0; i < NUM_MECH; i++)
     {

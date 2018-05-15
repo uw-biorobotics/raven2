@@ -69,7 +69,7 @@ int overdriveDetect(device *device0, int runlevel)
 		count = 0;
             }
 
-            else if (abs(_joint->current_cmd) > _dac_max && runlevel > 2)
+            else if (abs(_joint->current_cmd) > _dac_max && runlevel >= RL_INIT)
             {
 		if(SAFETY_POLICY == NO_REGULATION)// print and do nothing
 		{
@@ -93,8 +93,8 @@ int overdriveDetect(device *device0, int runlevel)
 	    		else
 			    err_msg("[SOFT_REG] Joint type %d current clipped low (%d) at DAC:%d\n", _joint->type, _dac_max*-1,  _joint->current_cmd);
 		     }
-
-		     _joint->current_cmd = (_joint->current_cmd > 0) ? _dac_max : _dac_max*-1; // Clip current to max_torque or -1*max_torque
+		     // Clip current to max_torque or -1*max_torque
+		     _joint->current_cmd = (_joint->current_cmd > 0) ? _dac_max : _dac_max*-1;
 		     count = 0;
 
 		}

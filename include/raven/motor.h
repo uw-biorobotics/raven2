@@ -62,6 +62,27 @@
 /// Encoder ticks per motor revolution
 #define ENC_CNTS_PER_REV ENC_CNTS_PER_REV_R_II
 
+//GOLD AMP offsets in DAC units -- robot and box specific
+#define DAC_ZERO_0_0	 0.
+#define DAC_ZERO_0_1	 0.	
+#define DAC_ZERO_0_2	 0.	
+#define DAC_ZERO_0_3	 0.	
+#define DAC_ZERO_0_4	 0.	
+#define DAC_ZERO_0_5	 0.
+#define DAC_ZERO_0_6	 0.
+#define DAC_ZERO_0_7	 0.
+
+//GREEN AMP offsets in DAC units -- robot and box specific
+#define DAC_ZERO_1_0	 0.	
+#define DAC_ZERO_1_1	 0.
+#define DAC_ZERO_1_2	 0. 
+#define DAC_ZERO_1_3	 0.	
+#define DAC_ZERO_1_4	 0.
+#define DAC_ZERO_1_5	 0.
+#define DAC_ZERO_1_6	 0.
+#define DAC_ZERO_1_7	 0.
+
+
 //void getMotorIMax(int joint, float *iMax);
 //void getMotorTR(int joint, float *tr);
 //int getMotorType(int joint);

@@ -199,6 +199,7 @@ static void *rt_process(void* )
   tsnorm(&t);
   clock_nanosleep(0, TIMER_ABSTIME, &t, NULL);
 
+	log_msg("*** Ready to teleoperate ***");
 
 
 
@@ -302,16 +303,6 @@ static void *rt_process(void* )
 
 
 
-
-
-
-
-
-
-
-
-
-
 /**
 * Initializes USB boards.
 */
@@ -401,6 +392,12 @@ int main(int argc, char **argv)
 
 
   log_msg("\n\n\nI'm shutting down now... \n\n\n");
+  usleep(1e6); //Sleep for 1 second
+
+  usleep(1e6); //Sleep for 1 second
+  //log_msg("\n\n\nzzzz... \n\n\n");
+  usleep(1e6); //Sleep for 1 second
+  log_msg("\n\n\nzzzzzzzz... \n\n\n");
   usleep(1e6); //Sleep for 1 second
 
   exit(0);

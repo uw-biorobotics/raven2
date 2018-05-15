@@ -95,10 +95,11 @@ void *console_process(void *)
 	{
 		// Output UI hints
 		if ( print_msg ){
-			log_msg("[[\t'C'  : toggle console messages ]]");
-			log_msg("[[\t'T'  : specify joint torque    ]]");
-			log_msg("[[\t'M'  : set control mode        ]]");
-			log_msg("[[\t'^C' : Quit                    ]]");
+			log_msg("[[\t'C'    : toggle console messages ]]");
+			log_msg("[[\t'T'    : specify joint torque    ]]");
+			log_msg("[[\t'M'    : set control mode        ]]");
+			log_msg("[[\t'U/D'  : Pedal Up/Down           ]]");			
+			log_msg("[[\t'^C'   : Quit                      ]]");
 			print_msg=0;
 		}
 		// Get UI command
@@ -165,13 +166,17 @@ void *console_process(void *)
 			if ( _mech > 1 ) break;
 
 			// Get user-input joint #
-			printf("\nEnter a joint number: 0-shoulder, 1-elbow, 2-zins, 4-tool_rot, 5-wrist, 6/7- grasp 1/2:\t");
+			printf("\nEnter a joint number: 0-shoulder, 1-elbow, 2-zins, 4-tool_roll, 5-wrist, 6/7- grasp 1/2:\t");
 			cin.getline (inputbuffer,100);
 			unsigned int _joint = atoi(inputbuffer);
 			if ( _joint > MAX_DOF_PER_MECH ) break;
 
-			// Get user-input DAC value #
+// Get user-input DAC value #
+#ifndef  DAC_TEST
 			printf("\nEnter a torque value in miliNewton-meters:\t");
+#else
+			printf("\nEnter a torque value in DAC UNITS:\t");
+#endif
 			cin.getline (inputbuffer,100);
 			int _torqueval = atoi(inputbuffer);
 
@@ -186,7 +191,7 @@ void *console_process(void *)
 			printf("\n\nEnter new control mode: 0=NULL, 1=NULL, 2=joint_velocity, 3=apply_torque, 4=homing, 5=motor_pd, 6=cartesian_space_motion, 7=multi_dof_sinusoid \t");
 			cin.getline (inputbuffer,100);
 			t_controlmode _cmode = (t_controlmode)(atoi(inputbuffer));
-			log_msg("recieved control mode:%d\n\n",_cmode);
+			log_msg("received control mode:%d\n\n",_cmode);
 			setRobotControlMode(_cmode);
 			print_msg=1;
 			break;
@@ -374,7 +379,7 @@ void outputRobotState(){
 
 		cout<<"DAC:\t\t";
 		for (int i=0;i<MAX_DOF_PER_MECH;i++)
-			cout<<fixed<<setprecision(3)<<device0.mech[j].joint[i].current_cmd<<"\t";
+			cout<<fixed<<setprecision(3)<<(device0.mech[j].joint[i].current_cmd - DOF_types[j*MAX_DOF_PER_MECH + i].DAC_zero_offset)<<"\t";
 		cout<<"\n";
 
 		cout<<"KP gains:\t";

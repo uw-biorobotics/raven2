@@ -94,17 +94,27 @@ int TorqueToDAC(device *device0)
  */
 short int tToDACVal(DOF *joint)
 {
-    int        DACVal;
+    int        DACVal, offset;
     short int  result;
     float      TFamplifier,
     TFmotor;
 
     int j_index = joint->type;
 
+
+#ifdef DAC_TEST // treat the desired torque as the desired DAC output
+    TFmotor     = 1;
+    TFamplifier = 1;
+    offset = 0;
+
+    //offset = DOF_types[j_index].DAC_zero_offset;
+#else
     TFmotor     = 1 / DOF_types[j_index].tau_per_amp;    // Determine the motor TF  = 1/(tau per amp)
     TFamplifier =     DOF_types[j_index].DAC_per_amp;    // Determine the amplifier TF = (DAC_per_amp)
-
-    DACVal = (int)(joint->tau_d * TFmotor * TFamplifier);  //compute DAC value: DAC=[tau*(amp/torque)*(DACs/amp)]
+    offset 	= DOF_types[j_index].DAC_zero_offset;
+#endif
+    //compute DAC value: DAC=[tau*(amp/torque)*(DACs/amp)+zero_offset(DACs)]
+    DACVal = (int)(joint->tau_d * TFmotor * TFamplifier + offset);
 
     //Perform range checking and convert to short int
     //Note: toShort saturates at max value for short int.

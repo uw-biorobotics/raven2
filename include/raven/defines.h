@@ -54,11 +54,18 @@
 
 #define JOINT_ENC_SERIAL 99 	//99 if no joint encoder board
 
+// Our choice of the safety level and policy for RAVEN teleoperation
+#define SAFETY_POLICY	SOFT_REGULATION // User can change this! (this value is used in overdrive_detect.cpp)
+#define SAFETY_LEVEL	BEGINNER_MODE 	// User can change this! (this value is used in init.cpp)
+
+
 
 //~~~~~~~~ Other settings, experts only ~~~~~~~~~~~~
 #define NO_LPF    // This setting short circuits the Low Pass Filter in state_estimate.cpp
 //#define OMNI_GAIN  2  // Get a little more oomph out of the omni grasping button - sets a gain in local__io.cpp
 //#define ORIENTATION_V
+#define DAC_TEST  				// treat the desired torque as the desired DAC output
+
 
 //~~~~~~~~ Other defines ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -164,8 +171,8 @@
 #define WRIST_SCALE_FACTOR (float)(1.5) /*used in update_device_state.c on incoming param*/
 
 //Amplifier constants.
-#define K_DAC_PER_AMP_LOW_CURRENT   5461   // Empirically validated as the same as MFHD constant
-#define K_DAC_PER_AMP_HIGH_CURRENT  2730   // High current amplifiers output double the low.
+#define K_DAC_PER_AMP_LOW_CURRENT   5461   // Empirically validated as the same as MFHD constant  (2^15bits/6A)
+#define K_DAC_PER_AMP_HIGH_CURRENT  2730   // High current amplifiers output double the low. (2^15bits/12A)
 
 // Gear box ratios
 #define GEAR_BOX_GP42_TR (49.0/4.0)  // 12.25
@@ -323,9 +330,6 @@
 #define ADVANCED_ELBOW_MAX_DAC      5000
 #define ADVANCED_Z_INS_MAX_DAC      4000
 
-// Our choice of the safety level and policy for RAVEN teleoperation
-#define SAFETY_POLICY	SOFT_REGULATION // User can change this! (this value is used in overdrive_detect.cpp)
-#define SAFETY_LEVEL	BEGINNER_MODE 	// User can change this! (this value is used in init.cpp)
 
 
 

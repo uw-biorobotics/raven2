@@ -374,6 +374,7 @@ void tool::set_wrist_coupling() {
 		break;
 
 	default:
+		wrist_coupling = 0.0;
 		break;
 	}
 
@@ -428,6 +429,8 @@ void tool::set_DH_params() {
 		break;
 
 	default:
+		shaft_length = 0.5;
+		wrist_length = 0.009;
 		break;
 	}
 }
@@ -473,6 +476,7 @@ void tool::set_max_opening_angle() {
 		break;
 
 	default:
+		max_opening_angle = 20 DEG2RAD;
 		break;
 	}
 }
