@@ -29,7 +29,7 @@
 
 #include <cmath>
 
-#define RAVEN_MODULE_VERSION RAVEN_II_RELEASE_02
+#define RAVEN_MODULE_VERSION RAVEN_II_RELEASE_18_05
 
 #define SURGICAL_ROBOT     	1
 #define RAVEN_II        	1
@@ -41,7 +41,7 @@
 
 #define RAVEN_TOOLS
 //#define DV_ADAPTER			1
-#define RICKS_TOOLS     //skips tool initialization
+//#define RICKS_TOOLS     //skips tool initialization
 //#define SCISSOR_RIGHT
 #define OPPOSE_GRIP
 
@@ -49,14 +49,15 @@
 //~~~~~~~~~ USB Board definition ~~~~~~~~~~~~~~~~~~~
 // Two arm identification
 // Change this to match device ID in /dev/brl_usbXX
-#define GREEN_ARM_SERIAL 27
-#define GOLD_ARM_SERIAL  24
+#define GREEN_ARM_SERIAL 22
+#define GOLD_ARM_SERIAL  28
 
-#define JOINT_ENC_SERIAL 99 	//99 if no joint encoder board
+#define JOINT_ENC_SERIAL 46 	//99 if no joint encoder board
 
 // Our choice of the safety level and policy for RAVEN teleoperation
 #define SAFETY_POLICY	SOFT_REGULATION // User can change this! (this value is used in overdrive_detect.cpp)
-#define SAFETY_LEVEL	BEGINNER_MODE 	// User can change this! (this value is used in init.cpp)
+#define SAFETY_LEVEL	MODERATE_MODE 	// User can change this! (this value is used in init.cpp)
+										// CHOICES: BEGINNER, MODERATE, ADVANCED
 
 
 
@@ -64,7 +65,7 @@
 #define NO_LPF    // This setting short circuits the Low Pass Filter in state_estimate.cpp
 //#define OMNI_GAIN  2  // Get a little more oomph out of the omni grasping button - sets a gain in local__io.cpp
 //#define ORIENTATION_V
-#define DAC_TEST  				// treat the desired torque as the desired DAC output
+//#define DAC_TEST  				// treat the desired torque as the desired DAC output
 
 
 //~~~~~~~~ Other defines ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
