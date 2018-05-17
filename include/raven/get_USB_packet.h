@@ -1,5 +1,6 @@
 /* Raven 2 Control - Control software for the Raven II robot
- * Copyright (C) 2005-2012  H. Hawkeye King, Blake Hannaford, and the University of Washington BioRobotics Laboratory
+ * Copyright (C) 2005-2012  H. Hawkeye King, Blake Hannaford, and the University
+ *of Washington BioRobotics Laboratory
  *
  * This file is part of Raven 2 Control.
  *
@@ -26,23 +27,23 @@
  *
  */
 
-//RTAI + Linux include files
+// RTAI + Linux include files
 //#include <linux/module.h> //used for jiffies
 //#include <rtai.h>
 
-//Include files
+// Include files
 #include "struct.h" /*Includes DS0, DS1, DOF_type*/
 #include "dof.h"
 #include "USB_init.h"
 
 /* USB packet lengths */
-#define IN_LENGTH          27 /* 27 with input pins */
+#define IN_LENGTH 27 /* 27 with input pins */
 
-//Function prototypes
+// Function prototypes
 void initiateUSBGet(device *device0);
 int getUSBPackets(device *device0);
 
 void processEncoderPacket(mechanism *mech, unsigned char buffer[]);
 
 int getUSBPacket(int id, device *dev, int index);
-void processJointEncoderPacket(device* dev, unsigned char buffer[]);
+void processJointEncoderPacket(device *dev, unsigned char buffer[]);

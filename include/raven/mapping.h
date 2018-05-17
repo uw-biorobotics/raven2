@@ -1,5 +1,6 @@
 /* Raven 2 Control - Control software for the Raven II robot
- * Copyright (C) 2005-2012  H. Hawkeye King, Blake Hannaford, and the University of Washington BioRobotics Laboratory
+ * Copyright (C) 2005-2012  H. Hawkeye King, Blake Hannaford, and the University
+ *of Washington BioRobotics Laboratory
  *
  * This file is part of Raven 2 Control.
  *
@@ -24,7 +25,6 @@
  *
 */
 
-
 //#include <rtai.h>
 // Hack to get rid of annoying compiler warnings w/ math.h
 /*#ifdef __attribute_used__
@@ -40,10 +40,10 @@
 #include "struct.h"
 #include "defines.h"
 
-//Rotation about Ymaster into Slave Frame
-//green arm using +1.5707 was 45 deg off in actual, so we hacked this number
+// Rotation about Ymaster into Slave Frame
+// green arm using +1.5707 was 45 deg off in actual, so we hacked this number
 #define Y_ROT_GREEN_ARM -1.5707
 #define Y_ROT_GOLD_ARM 1.5707
 
-void masterToSlave(position*, int);
-void fromITP(position*, tf::Quaternion&, int);
+void masterToSlave(position *, int);
+void fromITP(position *, tf::Quaternion &, int);

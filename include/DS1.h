@@ -1,5 +1,6 @@
 /* Raven 2 Control - Control software for the Raven II robot
- * Copyright (C) 2005-2012  H. Hawkeye King, Blake Hannaford, and the University of Washington BioRobotics Laboratory
+ * Copyright (C) 2005-2012  H. Hawkeye King, Blake Hannaford, and the University
+ *of Washington BioRobotics Laboratory
  *
  * This file is part of Raven 2 Control.
  *
@@ -35,27 +36,27 @@
 #include "DS0.h"
 #endif
 
-#define STOP 0    // runlevel 0 is STOP state
+#define STOP 0  // runlevel 0 is STOP state
 
 //* \todo Delete stuff from OLD R_I code!
 struct param_pass {
-  u_08   runlevel;				  // device runlevel
-  u_08   sublevel;				  // device runlevel
-  int    enc_d[MAX_MECH_PER_DEV * MAX_DOF_PER_MECH];      // desired encoder position
-  int    dac_d[MAX_MECH_PER_DEV * MAX_DOF_PER_MECH];      // desired dac level
-  float  jpos_d[MAX_MECH_PER_DEV * MAX_DOF_PER_MECH];     // desired joint coordinates
-  float  jvel_d[MAX_MECH_PER_DEV * MAX_DOF_PER_MECH];     // desired joint velocity
-  float  kp[MAX_MECH_PER_DEV * MAX_DOF_PER_MECH];         // position gain
-  float  kd[MAX_MECH_PER_DEV * MAX_DOF_PER_MECH];         // derivative gain
-  position xd[MAX_MECH_PER_DEV];		                // desired end-point position
-  orientation rd[MAX_MECH_PER_DEV];	              // desired end-point orientation
-  int    torque_vals[MAX_MECH_PER_DEV * MAX_DOF_PER_MECH];// desired force/torque
-  float	 grav_mag;	    //gravity magnitude
-  position grav_dir; //gravity direction
-  char   cmdStr[200];
-  int    surgeon_mode;
-  int    robotControlMode;
-  int 	 last_sequence;
+  u_08 runlevel;                                         // device runlevel
+  u_08 sublevel;                                         // device runlevel
+  int enc_d[MAX_MECH_PER_DEV * MAX_DOF_PER_MECH];        // desired encoder position
+  int dac_d[MAX_MECH_PER_DEV * MAX_DOF_PER_MECH];        // desired dac level
+  float jpos_d[MAX_MECH_PER_DEV * MAX_DOF_PER_MECH];     // desired joint coordinates
+  float jvel_d[MAX_MECH_PER_DEV * MAX_DOF_PER_MECH];     // desired joint velocity
+  float kp[MAX_MECH_PER_DEV * MAX_DOF_PER_MECH];         // position gain
+  float kd[MAX_MECH_PER_DEV * MAX_DOF_PER_MECH];         // derivative gain
+  position xd[MAX_MECH_PER_DEV];                         // desired end-point position
+  orientation rd[MAX_MECH_PER_DEV];                      // desired end-point orientation
+  int torque_vals[MAX_MECH_PER_DEV * MAX_DOF_PER_MECH];  // desired force/torque
+  float grav_mag;                                        // gravity magnitude
+  position grav_dir;                                     // gravity direction
+  char cmdStr[200];
+  int surgeon_mode;
+  int robotControlMode;
+  int last_sequence;
 };
 
 #endif

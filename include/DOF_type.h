@@ -1,5 +1,6 @@
 /* Raven 2 Control - Control software for the Raven II robot
- * Copyright (C) 2005-2012  H. Hawkeye King, Blake Hannaford, and the University of Washington BioRobotics Laboratory
+ * Copyright (C) 2005-2012  H. Hawkeye King, Blake Hannaford, and the University
+ *of Washington BioRobotics Laboratory
  *
  * This file is part of Raven 2 Control.
  *
@@ -39,66 +40,64 @@
 #define __DOF_type__
 
 #define MAX_WINDOW_SIZE 1000 /* ms */
-#define DAC_STORE_SIZE  10 /* s */
-#define HISTORY_SIZE    10
+#define DAC_STORE_SIZE 10    /* s */
+#define HISTORY_SIZE 10
 
 struct Window {
-	int length;
-	int isFull;
-	int first, last;
-	float data[MAX_WINDOW_SIZE];
-
+  int length;
+  int isFull;
+  int first, last;
+  float data[MAX_WINDOW_SIZE];
 };
 
 struct DOF_type {
-	// joint physical limit in degrees
-	float max_position;
+  // joint physical limit in degrees
+  float max_position;
 
-	// joint software limits in degrees
-	float max_limit;
-	float min_limit;
+  // joint software limits in degrees
+  float max_limit;
+  float min_limit;
 
-	// starting position in degrees
-	float home_position;
+  // starting position in degrees
+  float home_position;
 
-	// encoder counts per revolution
-	int enc_cnts;
+  // encoder counts per revolution
+  int enc_cnts;
 
-	int DAC_max;
+  int DAC_max;
 
-	//DOF current variables
-	float i_max;
-	float i_cont;
+  // DOF current variables
+  float i_max;
+  float i_cont;
 
-	//Motor Transmission Ratio
-	float TR;
+  // Motor Transmission Ratio
+  float TR;
 
-	//Torque per amp - motor dependent
-	float tau_per_amp;
+  // Torque per amp - motor dependent
+  float tau_per_amp;
 
-	//DAC counts per amp - different for high / low current amps.
-	float DAC_per_amp;
+  // DAC counts per amp - different for high / low current amps.
+  float DAC_per_amp;
 
-	float DAC_zero_offset;
+  float DAC_zero_offset;
 
-	//Controller Gains
-	float KP;
-	float KD;
-	float KI;
+  // Controller Gains
+  float KP;
+  float KD;
+  float KI;
 
-	//Old position data
-	int filterRdy;
-	float old_mpos[HISTORY_SIZE];
-	float old_filtered_mpos[HISTORY_SIZE];
-	float old_mpos_d[HISTORY_SIZE];
+  // Old position data
+  int filterRdy;
+  float old_mpos[HISTORY_SIZE];
+  float old_filtered_mpos[HISTORY_SIZE];
+  float old_mpos_d[HISTORY_SIZE];
 
-	//Old velocity data
-	float old_mvel[HISTORY_SIZE];
-	float old_mvel_d[HISTORY_SIZE];
+  // Old velocity data
+  float old_mvel[HISTORY_SIZE];
+  float old_mvel_d[HISTORY_SIZE];
 
-	//Length of time motor has been overdriven
-	int overdrive_time;
-
+  // Length of time motor has been overdriven
+  int overdrive_time;
 };
 
 #endif

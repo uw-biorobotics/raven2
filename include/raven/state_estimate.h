@@ -1,5 +1,6 @@
 /* Raven 2 Control - Control software for the Raven II robot
- * Copyright (C) 2005-2012  H. Hawkeye King, Blake Hannaford, and the University of Washington BioRobotics Laboratory
+ * Copyright (C) 2005-2012  H. Hawkeye King, Blake Hannaford, and the University
+ *of Washington BioRobotics Laboratory
  *
  * This file is part of Raven 2 Control.
  *
@@ -32,6 +33,5 @@
 #include "dof.h"
 
 void stateEstimate(robot_device *device0);
-void getStateLPF(DOF* joint, int tool_type);
-void resetFilter(DOF* _joint);
-
+void getStateLPF(DOF *joint, int tool_type);
+void resetFilter(DOF *_joint);

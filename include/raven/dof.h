@@ -1,5 +1,6 @@
 /* Raven 2 Control - Control software for the Raven II robot
- * Copyright (C) 2005-2012  H. Hawkeye King, Blake Hannaford, and the University of Washington BioRobotics Laboratory
+ * Copyright (C) 2005-2012  H. Hawkeye King, Blake Hannaford, and the University
+ *of Washington BioRobotics Laboratory
  *
  * This file is part of Raven 2 Control.
  *
@@ -22,26 +23,24 @@
  *
  */
 
-//Include Files
+// Include Files
 //#include <linux/kernel.h>
 //#include <linux/module.h>
 //#include <rtai.h>
 
-#include "struct.h" //DS0, DS1, DOF_type
+#include "struct.h"  //DS0, DS1, DOF_type
 #include "defines.h"
 
-//Motor related defines
+// Motor related defines
 #include "motor.h"
 
-#define MOTOR_ANGLE    0
-#define JOINT_ANGLE    1
+#define MOTOR_ANGLE 0
+#define JOINT_ANGLE 1
 
-
-//Function prototypes
+// Function prototypes
 int processEncVal(unsigned char buffer[], int channel);
 
 void encToJPos(DOF *joint);
 void encToMPos(DOF *joint);
 float encToMPos2(DOF *joint);
 int normalizeEncCnt(DOF *joint);
-

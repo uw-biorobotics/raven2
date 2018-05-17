@@ -1,5 +1,6 @@
 /* Raven 2 Control - Control software for the Raven II robot
- * Copyright (C) 2005-2012  H. Hawkeye King, Blake Hannaford, and the University of Washington BioRobotics Laboratory
+ * Copyright (C) 2005-2012  H. Hawkeye King, Blake Hannaford, and the University
+ *of Washington BioRobotics Laboratory
  *
  * This file is part of Raven 2 Control.
  *
@@ -30,17 +31,17 @@
 #ifndef PD_CONTROL_H
 #define PD_CONTROL_H
 
-//Local include files
+// Local include files
 #include "struct.h" /*Includes DS0, DS1, DOF_type*/
 #include "dof.h"
 
-//PD Controller type defines
-#define JOINT_PD_CTRL  1
-#define MOTOR_PD_CTRL  2
-#define MOTOR_VEL_CTRL  2
+// PD Controller type defines
+#define JOINT_PD_CTRL 1
+#define MOTOR_PD_CTRL 2
+#define MOTOR_VEL_CTRL 2
 
-//Function Prototypes
-void mpos_PD_control(DOF *joint, int reset_I=0);
-float jvel_PI_control(DOF*, int);
+// Function Prototypes
+void mpos_PD_control(DOF *joint, int reset_I = 0);
+float jvel_PI_control(DOF *, int);
 
-#endif // PD_CONTROL_H
+#endif  // PD_CONTROL_H

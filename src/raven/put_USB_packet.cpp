@@ -1,5 +1,6 @@
 /* Raven 2 Control - Control software for the Raven II robot
- * Copyright (C) 2005-2012  H. Hawkeye King, Blake Hannaford, and the University of Washington BioRobotics Laboratory
+ * Copyright (C) 2005-2012  H. Hawkeye King, Blake Hannaford, and the University
+ *of Washington BioRobotics Laboratory
  *
  * This file is part of Raven 2 Control.
  *
@@ -37,32 +38,24 @@ extern USBStruct USBBoards;
   \ingroup Network
  */
 
-void putUSBPackets(device *device0)
-{
-	int mech_index = 0;
+void putUSBPackets(device *device0) {
+  int mech_index = 0;
 
-	//Loop through all USB Boards
-	for (int i = 0; i < USBBoards.activeAtStart; i++)
-	{
-		//don't put anything on the joint encoder board
-		if (USBBoards.boards[i] != JOINT_ENC_SERIAL)
-		{
-			if (putUSBPacket(USBBoards.boards[i], &(device0->mech[mech_index]))
-					== -USB_WRITE_ERROR)
-			{
-				log_msg("Error writing to USB Board %d!\n", USBBoards.boards[i]);
-			}
+  // Loop through all USB Boards
+  for (int i = 0; i < USBBoards.activeAtStart; i++) {
+    // don't put anything on the joint encoder board
+    if (USBBoards.boards[i] != JOINT_ENC_SERIAL) {
+      if (putUSBPacket(USBBoards.boards[i], &(device0->mech[mech_index])) == -USB_WRITE_ERROR) {
+        log_msg("Error writing to USB Board %d!\n", USBBoards.boards[i]);
+      }
 
-			//only increment mechanisms if it was a mech board that was processed
-			mech_index++;
-		}
-		else if (putJointEncUSBPacket(USBBoards.boards[i]) == -USB_WRITE_ERROR)
-		{
-			log_msg("Error writing to joint enc USB Board %d!\n", USBBoards.boards[i]);
-		}
-	}
+      // only increment mechanisms if it was a mech board that was processed
+      mech_index++;
+    } else if (putJointEncUSBPacket(USBBoards.boards[i]) == -USB_WRITE_ERROR) {
+      log_msg("Error writing to joint enc USB Board %d!\n", USBBoards.boards[i]);
+    }
+  }
 }
-
 
 /**\fn int putUSBPacket(int id, mechanism *mech)
   \brief Takes data from mech  and uses it to fill a USB
@@ -74,41 +67,38 @@ void putUSBPackets(device *device0)
   \ingroup Network
  */
 
-int putUSBPacket(int id, mechanism *mech)
-{
-	//encoder boards don't have any output yet
-	if (id == JOINT_ENC_SERIAL){
-		return 0;
-	}
+int putUSBPacket(int id, mechanism *mech) {
+  // encoder boards don't have any output yet
+  if (id == JOINT_ENC_SERIAL) {
+    return 0;
+  }
 
-	int i = 0;
-	unsigned char buffer_out[MAX_OUT_LENGTH];
+  int i = 0;
+  unsigned char buffer_out[MAX_OUT_LENGTH];
 
-	buffer_out[0]= DAC;        //Type of USB packet
-	buffer_out[1]= MAX_DOF_PER_MECH; //Number of DAC channels
+  buffer_out[0] = DAC;               // Type of USB packet
+  buffer_out[1] = MAX_DOF_PER_MECH;  // Number of DAC channels
 
-	for (i = 0; i < MAX_DOF_PER_MECH; i++)
-	{
-		//Factor in offset since we are in midrange operation
-		mech->joint[i].current_cmd += DAC_OFFSET;
+  for (i = 0; i < MAX_DOF_PER_MECH; i++) {
+    // Factor in offset since we are in midrange operation
+    mech->joint[i].current_cmd += DAC_OFFSET;
 
-		buffer_out[2*i+2] = (char)(mech->joint[i].current_cmd);
-		buffer_out[2*i+3] = (char)(mech->joint[i].current_cmd >> 8);
+    buffer_out[2 * i + 2] = (char)(mech->joint[i].current_cmd);
+    buffer_out[2 * i + 3] = (char)(mech->joint[i].current_cmd >> 8);
 
-		//Remove offset
-		mech->joint[i].current_cmd -= DAC_OFFSET;
-	}
+    // Remove offset
+    mech->joint[i].current_cmd -= DAC_OFFSET;
+  }
 
-	// Set PortF outputs
-	buffer_out[OUT_LENGTH-1] = mech->outputs;
+  // Set PortF outputs
+  buffer_out[OUT_LENGTH - 1] = mech->outputs;
 
-	//Write the packet to the USB Driver
-	if (usb_write(id, &buffer_out, OUT_LENGTH )!= OUT_LENGTH)
-	{
-		return -USB_WRITE_ERROR;
-	}
+  // Write the packet to the USB Driver
+  if (usb_write(id, &buffer_out, OUT_LENGTH) != OUT_LENGTH) {
+    return -USB_WRITE_ERROR;
+  }
 
-	return 0;
+  return 0;
 }
 
 /**\fn int putJointEncUSBPacket(int id)
@@ -118,29 +108,25 @@ int putUSBPacket(int id, mechanism *mech)
   \return 		success of the operation
   \ingroup Network
  */
-int putJointEncUSBPacket(int id)
-{
-	unsigned char buffer_out[MAX_OUT_LENGTH];
+int putJointEncUSBPacket(int id) {
+  unsigned char buffer_out[MAX_OUT_LENGTH];
 
-	buffer_out[0]= DAC;        //Type of USB packet
-	buffer_out[1]= MAX_DOF_PER_MECH; //Number of DAC channels
+  buffer_out[0] = DAC;               // Type of USB packet
+  buffer_out[1] = MAX_DOF_PER_MECH;  // Number of DAC channels
 
-	for (int i = 0; i < MAX_DOF_PER_MECH; i++)
-	{
-		//send 0 values (at DAC_OFFSET)
-		buffer_out[2*i+2] = (char) DAC_OFFSET;
-		buffer_out[2*i+3] = (char) (DAC_OFFSET >> 8);
+  for (int i = 0; i < MAX_DOF_PER_MECH; i++) {
+    // send 0 values (at DAC_OFFSET)
+    buffer_out[2 * i + 2] = (char)DAC_OFFSET;
+    buffer_out[2 * i + 3] = (char)(DAC_OFFSET >> 8);
+  }
 
-	}
+  // Set PortF outputs to zero
+  buffer_out[OUT_LENGTH - 1] = (char)0;
 
-	// Set PortF outputs to zero
-	buffer_out[OUT_LENGTH-1] = (char)0;
+  // Write the packet to the USB Driver
+  if (usb_write(id, &buffer_out, OUT_LENGTH) != OUT_LENGTH) {
+    return -USB_WRITE_ERROR;
+  }
 
-	//Write the packet to the USB Driver
-	if (usb_write(id, &buffer_out, OUT_LENGTH )!= OUT_LENGTH)
-	{
-		return -USB_WRITE_ERROR;
-	}
-
-	return 0;
+  return 0;
 }

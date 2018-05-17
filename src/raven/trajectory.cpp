@@ -1,5 +1,6 @@
 /* Raven 2 Control - Control software for the Raven II robot
- * Copyright (C) 2005-2012  H. Hawkeye King, Blake Hannaford, and the University of Washington BioRobotics Laboratory
+ * Copyright (C) 2005-2012  H. Hawkeye King, Blake Hannaford, and the University
+ *of Washington BioRobotics Laboratory
  *
  * This file is part of Raven 2 Control.
  *
@@ -23,7 +24,8 @@
 *    \version 10/2011
 *    \ingroup Control
 *    Generate joint and cartesian trajectories.
-*    Internal data structures track trajectory state, and update DOFs as needed upon calling.
+*    Internal data structures track trajectory state, and update DOFs as needed
+* upon calling.
 */
 
 #include <ros/ros.h>
@@ -40,23 +42,21 @@ extern unsigned long int gTime;
  *
  *   \ingroup Control
  */
-struct _trajectory
-{
-   /*@{*/
-    ros::Time startTime;   /**<must be in ROS's ros::Time format             */
-    float end_pos;         /**<Final position (units are context dependent)  */
-    float magnitude;       /**<Amplitude of a sinusoidal trajectory          */
-    float period;          /**<Period of sinusoid (seconds)                  */
-    float startPos;        /**<Starting position                             */
-    float startVel;        /**<Initial velocity                              */
-   /*@{*/
-
+struct _trajectory {
+  /*@{*/
+  ros::Time startTime; /**<must be in ROS's ros::Time format             */
+  float end_pos;       /**<Final position (units are context dependent)  */
+  float magnitude;     /**<Amplitude of a sinusoidal trajectory          */
+  float period;        /**<Period of sinusoid (seconds)                  */
+  float startPos;      /**<Starting position                             */
+  float startVel;      /**<Initial velocity                              */
+                       /*@{*/
 };
-_trajectory trajectory[MAX_MECH*MAX_DOF_PER_MECH];
-
+_trajectory trajectory[MAX_MECH * MAX_DOF_PER_MECH];
 
 /**
-*    initialize trajectory parameters. Magnitude is set according to difference between _endPos and current joint position.
+*    initialize trajectory parameters. Magnitude is set according to difference
+*between _endPos and current joint position.
 *
 *   \ingroup Control
 *
@@ -64,60 +64,67 @@ _trajectory trajectory[MAX_MECH*MAX_DOF_PER_MECH];
 *   \param  _endPos   ending position
 *   \param _period    duration ( of one cycle)
 *
-*  The following types of trajectories can be generated (all using the global variable trajectory).  There are two ways to start all trajectories,
+*  The following types of trajectories can be generated (all using the global
+*variable trajectory).  There are two ways to start all trajectories,
 *
-*  - start_trajectory(), a trajectory relative to current position and velocity with specified ending position
-*  - start_trajectory_mag(),  a trajectory relative to current position and velocity with specified magnitude
+*  - start_trajectory(), a trajectory relative to current position and velocity
+*with specified ending position
+*  - start_trajectory_mag(),  a trajectory relative to current position and
+*velocity with specified magnitude
 *
 *
 *Then each trajectory is updated at each control cycle  in one of 5 ways;
-*   -# Sinusoidal Velocity    SHOULDER_GOLD only (update_sinusoid_velocity_trajectory())
-*   -# Sinusoidal Velocity    GOLD arm 1st three joints only (update_linear_sinusoid_velocity_trajectory())
+*   -# Sinusoidal Velocity    SHOULDER_GOLD only
+*(update_sinusoid_velocity_trajectory())
+*   -# Sinusoidal Velocity    GOLD arm 1st three joints only
+*(update_linear_sinusoid_velocity_trajectory())
 *   -# Sinusoidal Position    All joints (update_sinusoid_position_trajectory())
-*   -# Single 1/2 cycle           All joints (update_linear_sinusoid_position_trajectory())
+*   -# Single 1/2 cycle           All joints
+*(update_linear_sinusoid_position_trajectory())
 *   -# Single full cycle      All joints (update_position_trajectory())
 *
-* \todo The trajectory generator seems to have a lot of hacks and special cases.  Need more general refactoring.  Also consider polynomial trajectories.
+* \todo The trajectory generator seems to have a lot of hacks and special cases.
+*Need more general refactoring.  Also consider polynomial trajectories.
 *
 */
-int start_trajectory(DOF* _joint, float _endPos, float _period)
-{
-    trajectory[_joint->type].startTime = trajectory[_joint->type].startTime.now();
-    trajectory[_joint->type].startPos = _joint->jpos;
-    trajectory[_joint->type].startVel = _joint->jvel;
-    _joint->jpos_d = _joint->jpos;
-    _joint->jvel_d = _joint->jvel;
+int start_trajectory(DOF *_joint, float _endPos, float _period) {
+  trajectory[_joint->type].startTime = trajectory[_joint->type].startTime.now();
+  trajectory[_joint->type].startPos = _joint->jpos;
+  trajectory[_joint->type].startVel = _joint->jvel;
+  _joint->jpos_d = _joint->jpos;
+  _joint->jvel_d = _joint->jvel;
 
-    trajectory[_joint->type].magnitude = _endPos - _joint->jpos;
-    trajectory[_joint->type].period = _period;
-//    log_msg("starting trajectory on joint %d to magnitude: %0.3f (%0.3f - %0.3f), period:%0.3f",
-//        _joint->type,
-//        trajectory[_joint->type].magnitude,
-//        _endPos, _joint->jpos,
-//        trajectory[_joint->type].period);
-    return 0;
+  trajectory[_joint->type].magnitude = _endPos - _joint->jpos;
+  trajectory[_joint->type].period = _period;
+  //    log_msg("starting trajectory on joint %d to magnitude: %0.3f (%0.3f -
+  //    %0.3f), period:%0.3f",
+  //        _joint->type,
+  //        trajectory[_joint->type].magnitude,
+  //        _endPos, _joint->jpos,
+  //        trajectory[_joint->type].period);
+  return 0;
 }
 /**
 *  initialize trajectory parameters.
 *
 *  \ingroup Control
-*  Start of this trajectory will be the current state: i.e. the position and velocity at this time.
+*  Start of this trajectory will be the current state: i.e. the position and
+*velocity at this time.
 *
 *   \param  _joint    DOF struct for specific joint
 *   \param  _mag      how big a move
 *   \param _period    duration ( of one cycle)
 */
-int start_trajectory_mag(DOF* _joint, float _mag, float _period)
-{
-    trajectory[_joint->type].startTime = trajectory[_joint->type].startTime.now();
-    trajectory[_joint->type].startPos = _joint->jpos;
-    trajectory[_joint->type].startVel = _joint->jvel;
-    _joint->jpos_d = _joint->jpos;
-    _joint->jvel_d = _joint->jvel;
+int start_trajectory_mag(DOF *_joint, float _mag, float _period) {
+  trajectory[_joint->type].startTime = trajectory[_joint->type].startTime.now();
+  trajectory[_joint->type].startPos = _joint->jpos;
+  trajectory[_joint->type].startVel = _joint->jvel;
+  _joint->jpos_d = _joint->jpos;
+  _joint->jvel_d = _joint->jvel;
 
-    trajectory[_joint->type].magnitude = _mag;
-    trajectory[_joint->type].period = _period;
-    return 0;
+  trajectory[_joint->type].magnitude = _mag;
+  trajectory[_joint->type].period = _period;
+  return 0;
 }
 
 /**
@@ -129,17 +136,16 @@ int start_trajectory_mag(DOF* _joint, float _mag, float _period)
 *   \ingroup Control
 *
 */
-int stop_trajectory(DOF* _joint)
-{
-    trajectory[_joint->type].startTime = trajectory[_joint->type].startTime.now();
-    trajectory[_joint->type].startPos = _joint->jpos;
-    trajectory[_joint->type].startVel = 0;
-    _joint->jpos_d = _joint->jpos;
-    _joint->jvel_d = 0;
-    _joint->tau_d = 0;
-    _joint->current_cmd = 0;
+int stop_trajectory(DOF *_joint) {
+  trajectory[_joint->type].startTime = trajectory[_joint->type].startTime.now();
+  trajectory[_joint->type].startPos = _joint->jpos;
+  trajectory[_joint->type].startVel = 0;
+  _joint->jpos_d = _joint->jpos;
+  _joint->jvel_d = 0;
+  _joint->tau_d = 0;
+  _joint->current_cmd = 0;
 
-    return 0;
+  return 0;
 }
 
 /**
@@ -151,26 +157,25 @@ int stop_trajectory(DOF* _joint)
 *
 * \todo This seems to only work for a single joint of the GOLD arm???
 */
-int update_sinusoid_velocity_trajectory(DOF* _joint)
-{
-    const float maxspeed = 15 DEG2RAD;
-    const float f_period = 2000;         // 2 sec
+int update_sinusoid_velocity_trajectory(DOF *_joint) {
+  const float maxspeed = 15 DEG2RAD;
+  const float f_period = 2000;  // 2 sec
 
-    ros::Duration t = ros::Time::now() - trajectory[_joint->type].startTime;
+  ros::Duration t = ros::Time::now() - trajectory[_joint->type].startTime;
 
-   if (_joint->type      == SHOULDER_GOLD)
-        _joint->jvel_d = -1 * maxspeed * sin( 2*M_PI * (1/f_period) * t.toSec());
+  if (_joint->type == SHOULDER_GOLD)
+    _joint->jvel_d = -1 * maxspeed * sin(2 * M_PI * (1 / f_period) * t.toSec());
 
-//    else if (_joint->type == ELBOW_GOLD)
-//        _joint->jvel_d =  maxspeed * sin( 2*M_PI * (1/f_period) * t);
-//
-//    else if (_joint->type == Z_INS_GOLD)
-//        _joint->jvel_d =  0.2 * sin( 2*M_PI * (1/f_period) * t);
+  //    else if (_joint->type == ELBOW_GOLD)
+  //        _joint->jvel_d =  maxspeed * sin( 2*M_PI * (1/f_period) * t);
+  //
+  //    else if (_joint->type == Z_INS_GOLD)
+  //        _joint->jvel_d =  0.2 * sin( 2*M_PI * (1/f_period) * t);
 
-    else
-        _joint->jvel_d = 0;
+  else
+    _joint->jvel_d = 0;
 
-    return 0;
+  return 0;
 }
 
 /**
@@ -182,30 +187,28 @@ int update_sinusoid_velocity_trajectory(DOF* _joint)
 *
 * \todo Why is this specific to the GOLD arm 1st three joints only?
 */
-int update_linear_sinusoid_velocity_trajectory(DOF* _joint)
-{
-    const float maxspeed[8] = {-4 DEG2RAD, 4 DEG2RAD, 0.02, 15 DEG2RAD};
-    const float f_period = 2;         // 2 sec
+int update_linear_sinusoid_velocity_trajectory(DOF *_joint) {
+  const float maxspeed[8] = {-4 DEG2RAD, 4 DEG2RAD, 0.02, 15 DEG2RAD};
+  const float f_period = 2;  // 2 sec
 
-    ros::Duration t = ros::Time::now() - trajectory[_joint->type].startTime;
+  ros::Duration t = ros::Time::now() - trajectory[_joint->type].startTime;
 
-    // Sinusoid portion complete.  Return without changing velocity.
-    if (t.toSec() >= f_period/2)
-        return 1;
+  // Sinusoid portion complete.  Return without changing velocity.
+  if (t.toSec() >= f_period / 2) return 1;
 
-    if (_joint->type      == SHOULDER_GOLD)
-        _joint->jvel_d = maxspeed[0] * (1-cos( 2*M_PI * (1/f_period) * t.toSec()));
+  if (_joint->type == SHOULDER_GOLD)
+    _joint->jvel_d = maxspeed[0] * (1 - cos(2 * M_PI * (1 / f_period) * t.toSec()));
 
-    else if (_joint->type == ELBOW_GOLD)
-        _joint->jvel_d = maxspeed[1] * (1-cos( 2*M_PI * (1/f_period) * t.toSec()));
+  else if (_joint->type == ELBOW_GOLD)
+    _joint->jvel_d = maxspeed[1] * (1 - cos(2 * M_PI * (1 / f_period) * t.toSec()));
 
-    else if (_joint->type == Z_INS_GOLD)
-        _joint->jvel_d = maxspeed[2] * (1-cos( 2*M_PI * (1/f_period) * t.toSec()));
+  else if (_joint->type == Z_INS_GOLD)
+    _joint->jvel_d = maxspeed[2] * (1 - cos(2 * M_PI * (1 / f_period) * t.toSec()));
 
-    else
-        _joint->jvel_d = 0;
+  else
+    _joint->jvel_d = 0;
 
-    return 0;
+  return 0;
 }
 
 /**
@@ -216,21 +219,21 @@ int update_linear_sinusoid_velocity_trajectory(DOF* _joint)
 *
 *   /todo What is the underlying equation?  Why piecewise at f_period/4??
 */
-int update_sinusoid_position_trajectory(DOF* _joint)
-{
-    _trajectory* traj = &(trajectory[_joint->type]);
-    float f_magnitude = traj->magnitude;
-    float f_period    = traj->period;
+int update_sinusoid_position_trajectory(DOF *_joint) {
+  _trajectory *traj = &(trajectory[_joint->type]);
+  float f_magnitude = traj->magnitude;
+  float f_period = traj->period;
 
-    ros::Duration t = ros::Time::now() - traj->startTime;
+  ros::Duration t = ros::Time::now() - traj->startTime;
 
-    // Rising sinusoid
-    if ( t.toSec() < f_period/4 )
-        _joint->jpos_d = -f_magnitude * 0.5 * (1-cos( 4 * M_PI * t.toSec() / f_period )) + traj->startPos;
-    else
-        _joint->jpos_d = -f_magnitude * sin( 2*M_PI * t.toSec() / f_period) + traj->startPos;
+  // Rising sinusoid
+  if (t.toSec() < f_period / 4)
+    _joint->jpos_d =
+        -f_magnitude * 0.5 * (1 - cos(4 * M_PI * t.toSec() / f_period)) + traj->startPos;
+  else
+    _joint->jpos_d = -f_magnitude * sin(2 * M_PI * t.toSec() / f_period) + traj->startPos;
 
-    return 0;
+  return 0;
 }
 
 /**
@@ -239,23 +242,25 @@ int update_sinusoid_position_trajectory(DOF* _joint)
 *     Sinusoidal position trajectory
 *     \ingroup Control
 */
-int update_linear_sinusoid_position_trajectory(DOF* _joint)
-{
-//    const float f_magnitude[8] = {-10 DEG2RAD, 10 DEG2RAD, 0.01, 0, 60 DEG2RAD, 60 DEG2RAD, 60 DEG2RAD, 60 DEG2RAD};
-//    const float f_period[8] = {7000, 3200, 7000, 0000, 5000, 5000, 5000, 5000};
-    _trajectory* traj = &(trajectory[_joint->type]);
+int update_linear_sinusoid_position_trajectory(DOF *_joint) {
+  //    const float f_magnitude[8] = {-10 DEG2RAD, 10 DEG2RAD, 0.01, 0, 60
+  //    DEG2RAD, 60 DEG2RAD, 60 DEG2RAD, 60 DEG2RAD};
+  //    const float f_period[8] = {7000, 3200, 7000, 0000, 5000, 5000, 5000,
+  //    5000};
+  _trajectory *traj = &(trajectory[_joint->type]);
 
-    ros::Duration t = ros::Time::now() - traj->startTime;
+  ros::Duration t = ros::Time::now() - traj->startTime;
 
-    if ( t.toSec() < traj->period/2 )
-//        _joint->jpos_d += ONE_MS * f_magnitude[index] * (1-cos( 2*M_PI * (1/f_period[index]) * t.toSec()));
-        _joint->jpos_d += ONE_MS * traj->magnitude * (1-cos( 2*M_PI * (1/traj->period) * t.toSec()));
-    else
-        _joint->jpos_d += ONE_MS * traj->magnitude;
+  if (t.toSec() < traj->period / 2)
+    //        _joint->jpos_d += ONE_MS * f_magnitude[index] * (1-cos( 2*M_PI *
+    //        (1/f_period[index]) * t.toSec()));
+    _joint->jpos_d +=
+        ONE_MS * traj->magnitude * (1 - cos(2 * M_PI * (1 / traj->period) * t.toSec()));
+  else
+    _joint->jpos_d += ONE_MS * traj->magnitude;
 
-    return 0;
+  return 0;
 }
-
 
 /**
 *  update_sinusoid_position_trajectory()
@@ -263,20 +268,18 @@ int update_linear_sinusoid_position_trajectory(DOF* _joint)
 *     Sinusoidal position trajectory
 *     \ingroup Control
 */
-int update_position_trajectory(DOF* _joint)
-{
-    _trajectory* traj = &(trajectory[_joint->type]);
-    float magnitude = traj->magnitude;
-    float period  = traj->period;
+int update_position_trajectory(DOF *_joint) {
+  _trajectory *traj = &(trajectory[_joint->type]);
+  float magnitude = traj->magnitude;
+  float period = traj->period;
 
-    ros::Duration t = ros::Time::now()- traj->startTime;
+  ros::Duration t = ros::Time::now() - traj->startTime;
 
-    if ( t.toSec() < period ){
-        _joint->jpos_d = 0.5*magnitude * (1-cos( 2*M_PI * (1/(2*period)) * t.toSec())) + traj->startPos;
-        return 1;
-    }
+  if (t.toSec() < period) {
+    _joint->jpos_d =
+        0.5 * magnitude * (1 - cos(2 * M_PI * (1 / (2 * period)) * t.toSec())) + traj->startPos;
+    return 1;
+  }
 
-    return 0;
+  return 0;
 }
-
-

@@ -1,5 +1,6 @@
 /* Raven 2 Control - Control software for the Raven II robot
- * Copyright (C) 2005-2012  H. Hawkeye King, Blake Hannaford, and the University of Washington BioRobotics Laboratory
+ * Copyright (C) 2005-2012  H. Hawkeye King, Blake Hannaford, and the University
+ *of Washington BioRobotics Laboratory
  *
  * This file is part of Raven 2 Control.
  *
@@ -37,23 +38,23 @@
 #define NULL 0
 #endif
 
-//Short maximum and minimum
+// Short maximum and minimum
 #define SHORT_MAX 32767
 #define SHORT_MIN -32768
 
-//Return values
-#define SHORT_OVERFLOW    1
-#define SHORT_UNDERFLOW  -1
+// Return values
+#define SHORT_OVERFLOW 1
+#define SHORT_UNDERFLOW -1
 
-int loop_over_joints(robot_device*, mechanism*&, DOF*&, int&, int&);
-int loop_over_joints(mechanism* _mech, DOF*& _joint, int& jnum);
+int loop_over_joints(robot_device *, mechanism *&, DOF *&, int &, int &);
+int loop_over_joints(mechanism *_mech, DOF *&_joint, int &jnum);
 
 int toShort(int value, short int *target);
 
-int is_toolDOF(DOF*);
+int is_toolDOF(DOF *);
 int is_toolDOF(int);
 int tools_ready(mechanism *mech);
-int robot_ready(robot_device* device0);
+int robot_ready(robot_device *device0);
 
 /**
 *	\fn static inline void tsnorm(timespec *ts)
@@ -61,24 +62,22 @@ int robot_ready(robot_device* device0);
 *	\brief the struct timespec consists of nanoseconds
 * 		and seconds. This rolls over the ns to seconds.
 *
-*	\param ts 	timespec struct containing nanosec times to convert to sec
+*	\param ts 	timespec struct containing nanosec times to convert to
+*sec
 */
-#define NSEC_PER_SEC    1000000000          // nanoseconds per sec
-static inline void tsnorm(timespec *ts)
-{
-    while (ts->tv_nsec >= NSEC_PER_SEC)
-    {
-        ts->tv_nsec -= NSEC_PER_SEC;
-        ts->tv_sec++;
-    }
+#define NSEC_PER_SEC 1000000000  // nanoseconds per sec
+static inline void tsnorm(timespec *ts) {
+  while (ts->tv_nsec >= NSEC_PER_SEC) {
+    ts->tv_nsec -= NSEC_PER_SEC;
+    ts->tv_sec++;
+  }
 }
 
-timespec tsSubtract (timespec time1, timespec time2);
+timespec tsSubtract(timespec time1, timespec time2);
 
 // Reset posd so that it is coincident with pos.
-void set_posd_to_pos(robot_device* device0);
+void set_posd_to_pos(robot_device *device0);
 
-#define isbefore(a, b) ( (a.tv_sec < b.tv_sec) || (a.tv_sec == b.tv_sec && a.tv_nsec < b.tv_nsec ))
-
+#define isbefore(a, b) ((a.tv_sec < b.tv_sec) || (a.tv_sec == b.tv_sec && a.tv_nsec < b.tv_nsec))
 
 #endif
