@@ -10,3 +10,7 @@ CMakeLists.txt.user*
 # Eclipse specific
 .project
 .cproject
+
+#  Doxygen generated html files:
+/html   
+
