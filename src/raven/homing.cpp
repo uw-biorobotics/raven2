@@ -589,9 +589,9 @@ const int homing_max_dac[8] = {2100,  // shoulder
                                1600,  // 1900,  //z_ins
                                0,
                                1900,   // tool_rot  //rasised from 1400 alewis 3/4/14
-                               1900,   // wrist
-                               1900,   // grasp1 decreased from 1900
-                               1900};  // grasp2 decreased from 1900
+                               2100,   // wrist
+                               2250,   // grasp1 decreased from 1900
+                               2250};  // grasp2 decreased from 1900
 #endif
 #endif
 

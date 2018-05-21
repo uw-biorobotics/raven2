@@ -50,9 +50,9 @@
 // Two arm identification
 // Change this to match device ID in /dev/brl_usbXX
 #define GREEN_ARM_SERIAL 22
-#define GOLD_ARM_SERIAL 28
+#define GOLD_ARM_SERIAL 49
 
-#define JOINT_ENC_SERIAL 46  // 99 if no joint encoder board
+#define JOINT_ENC_SERIAL 99  // 99 if no joint encoder board
 
 // Our choice of the safety level and policy for RAVEN teleoperation
 #define SAFETY_POLICY SOFT_REGULATION  // User can change this! (this value is used in

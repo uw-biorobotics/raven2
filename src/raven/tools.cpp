@@ -85,8 +85,8 @@ void tool::set_limits() {
       rot_max_limit = 182 DEG2RAD;
       rot_min_limit = -182 DEG2RAD;
 
-      wrist_max_angle = 115 DEG2RAD;
-      wrist_min_angle = -115 DEG2RAD;
+      wrist_max_angle = 100 DEG2RAD;
+      wrist_min_angle = -100 DEG2RAD;
       wrist_max_limit = 70 DEG2RAD;
       wrist_min_limit = -70 DEG2RAD;
 
