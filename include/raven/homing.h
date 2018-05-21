@@ -43,3 +43,40 @@ void homing(DOF *, tool);
 /** prototype for check_homing_condition()
  */
 int check_homing_condition(DOF *);
+
+
+#ifdef RAVEN_II_SQUARE
+// RII_Square has higher limits on tool b/c there's more friction
+const int homing_max_dac[8] = {2500,  // shoulder
+                               2500,  // elbow
+                               1200,  // z-ins
+                               0,
+                               2800,   // tool_rot // was 1400, lowered to reduce
+                                       // calibration error //I think this is
+                                       // labeled improperly - AL
+                               2200,   // wrist
+                               2300,   // grasp1
+                               2300};  // grasp2
+#else
+#ifdef DV_ADAPTER
+const int homing_max_dac[8] = {2500,  // shoulder
+                               2500,  // elbow
+                               1400,  // z-ins
+                               0,
+                               2000,   // tool_rot // was 1400, lowered to reduce
+                                       // calibration error //I think this is
+                                       // labeled improperly - AL
+                               2400,   // wrist
+                               2000,   // grasp1
+                               2000};  // grasp2
+#else
+const int homing_max_dac[8] = {2100,  // shoulder
+                               2100,  // elbow
+                               1600,  // 1900,  //z_ins
+                               0,
+                               1900,   // tool_rot  //rasised from 1400 alewis 3/4/14
+                               2100,   // wrist
+                               2250,   // grasp1 decreased from 1900
+                               2250};  // grasp2 decreased from 1900
+#endif
+#endif
