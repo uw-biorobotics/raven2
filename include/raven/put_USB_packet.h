@@ -1,5 +1,6 @@
 /* Raven 2 Control - Control software for the Raven II robot
- * Copyright (C) 2005-2012  H. Hawkeye King, Blake Hannaford, and the University of Washington BioRobotics Laboratory
+ * Copyright (C) 2005-2012  H. Hawkeye King, Blake Hannaford, and the University
+ *of Washington BioRobotics Laboratory
  *
  * This file is part of Raven 2 Control.
  *
@@ -26,7 +27,7 @@
  *
  */
 
-//Include files
+// Include files
 //#include <rtai.h>
 
 #include "struct.h"
@@ -34,6 +35,7 @@
 #include "USB_init.h"
 #include "t_to_DAC_val.h"
 
-//Function prototypes
-void putUSBPackets(struct device *device0);
-int putUSBPacket(int id, struct mechanism *mech);
+// Function prototypes
+void putUSBPackets(device *device0);
+int putUSBPacket(int id, mechanism *mech);
+int putJointEncUSBPacket(int id);

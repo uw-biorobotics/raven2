@@ -1,5 +1,6 @@
 /* Raven 2 Control - Control software for the Raven II robot
- * Copyright (C) 2005-2012  H. Hawkeye King, Blake Hannaford, and the University of Washington BioRobotics Laboratory
+ * Copyright (C) 2005-2012  H. Hawkeye King, Blake Hannaford, and the University
+ *of Washington BioRobotics Laboratory
  *
  * This file is part of Raven 2 Control.
  *
@@ -27,10 +28,10 @@
 #include "defines.h"
 #include "utils.h"
 #include "log.h"
-#include <stdlib.h>
+#include <cstdlib>
 
-#define TIME_WINDOW  10000
+#define TIME_WINDOW 10000
 #define MAX_OVERDRIVE_TIME 50000
 
-//Function prototypes
-int overdriveDetect(struct device *device0,int runlevel);
+// Function prototypes
+int overdriveDetect(device *device0, int runlevel);

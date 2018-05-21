@@ -6,5 +6,4 @@
  *
  *********************************************/
 
- extern void* network_process(void* );
-
+extern void *network_process(void *);

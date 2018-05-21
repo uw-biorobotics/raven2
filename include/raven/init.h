@@ -1,5 +1,6 @@
 /* Raven 2 Control - Control software for the Raven II robot
- * Copyright (C) 2005-2012  H. Hawkeye King, Blake Hannaford, and the University of Washington BioRobotics Laboratory
+ * Copyright (C) 2005-2012  H. Hawkeye King, Blake Hannaford, and the University
+ *of Washington BioRobotics Laboratory
  *
  * This file is part of Raven 2 Control.
  *
@@ -25,7 +26,7 @@
  *
  */
 
-//Include files
+// Include files
 #include <ros/ros.h>
 
 #include "struct.h" /*Includes DS0, DS1, DOF_type*/
@@ -34,20 +35,19 @@
 #include "motor.h"
 #include "USB_init.h"
 
-#define JOINT_ENABLED    1
+#define JOINT_ENABLED 1
 
 //
-#define ENC_MAX_NOT_SET  -10000
-#define ENC_MIN_NOT_SET   10000
+#define ENC_MAX_NOT_SET -10000
+#define ENC_MIN_NOT_SET 10000
 
-void initRobotData(struct device *device0, int runlevel, struct param_pass *currParams);
+void initRobotData(device *device0, int runlevel, param_pass *currParams);
 
 /// Structure initialization
-void initDOFs(struct device *device0);
+void initDOFs(device *device0);
 
 /// Get ravengains from ROS parameter server.
-int init_ravengains(ros::NodeHandle n, struct device *device0);
+int init_ravengains(ros::NodeHandle n, device *device0);
 
 /// set the starting xyz coordinate (pos_d = pos)
-void setStartXYZ(struct device *device0);
-
+void setStartXYZ(device *device0);

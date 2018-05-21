@@ -1,5 +1,6 @@
 /* Raven 2 Control - Control software for the Raven II robot
- * Copyright (C) 2005-2012  H. Hawkeye King, Blake Hannaford, and the University of Washington BioRobotics Laboratory
+ * Copyright (C) 2005-2012  H. Hawkeye King, Blake Hannaford, and the University
+ *of Washington BioRobotics Laboratory
  *
  * This file is part of Raven 2 Control.
  *
@@ -32,26 +33,23 @@
 #include "struct.h"  // DS0, DS1, DOF_types defines
 #include "USB_init.h"
 
+// unsigned long int gTime = 0;
 
-//unsigned long int gTime = 0;
-
-struct DOF_type DOF_types[MAX_MECH*MAX_DOF_PER_MECH];
-//struct traj trajectory[MAX_MECH*MAX_DOF_PER_MECH];
+DOF_type DOF_types[MAX_MECH * MAX_DOF_PER_MECH];
 USBStruct USBBoards;
 
-//tool gold_arm_tool (bipolar_forceps, GOLD_ARM);
-tool gold_arm_tool(large_needle, GOLD_ARM);
-//tool gold_arm_tool(r_grasper, GOLD_ARM);
-//tool gold_arm_tool(micro_forceps, GOLD_ARM);
+// tool gold_arm_tool (bipolar_forceps, GOLD_ARM);
+// tool gold_arm_tool(large_needle, GOLD_ARM);
+tool gold_arm_tool(r_grasper, GOLD_ARM);
+// tool gold_arm_tool(micro_forceps, GOLD_ARM);
 
 //#ifdef SCISSOR_RIGHT
-//tool green_arm_tool(mopocu_scissor, GREEN_ARM);
+// tool green_arm_tool(mopocu_scissor, GREEN_ARM);
 //#else
-tool green_arm_tool(large_needle,  GREEN_ARM);
+// tool green_arm_tool(large_needle,  GREEN_ARM);
 //#endif
 
-//tool green_arm_tool(mopocu_scissor, GREEN_ARM);
-//tool green_arm_tool(potts_scissor, GREEN_ARM);
-//tool green_arm_tool(r_grasper, GREEN_ARM);
-//tool green_arm_tool(bipolar_forceps, GREEN_ARM);
-
+// tool green_arm_tool(mopocu_scissor, GREEN_ARM);
+// tool green_arm_tool(potts_scissor, GREEN_ARM);
+tool green_arm_tool(r_grasper, GREEN_ARM);
+// tool green_arm_tool(bipolar_forceps, GREEN_ARM);

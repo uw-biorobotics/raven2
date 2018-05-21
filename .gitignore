@@ -1,29 +1,16 @@
-# Compiled Object files
-*.slo
-*.lo
-*.o
-
-# Compiled Dynamic libraries
-*.so
-*.dylib
-
-# Compiled Static libraries
-*.lai
-*.la
-*.a
-
-# misc files from editor etc
+# Text editor backups
 *~
 
-#build files, cfg files, generated msg files
-cfg/**
-build/**
-msg_gen/**
+# Python byte code
+*.pyc
 
+# Qt Creator specific
+CMakeLists.txt.user*
+
+# Eclipse specific
 .project
 .cproject
-.project
 
-#raven 2 excludes:
 #  Doxygen generated html files:
 /html   
+

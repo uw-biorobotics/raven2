@@ -1,5 +1,6 @@
 /* Raven 2 Control - Control software for the Raven II robot
- * Copyright (C) 2005-2012  H. Hawkeye King, Blake Hannaford, and the University of Washington BioRobotics Laboratory
+ * Copyright (C) 2005-2012  H. Hawkeye King, Blake Hannaford, and the University
+ *of Washington BioRobotics Laboratory
  *
  * This file is part of Raven 2 Control.
  *
@@ -35,8 +36,8 @@
 
 #ifndef TELEOPERATION_H
 #define TELEOPERATION_H
-#define SURGEON_ENGAGED       1
-#define SURGEON_DISENGAGED    0
+#define SURGEON_ENGAGED 1
+#define SURGEON_DISENGAGED 0
 
 /*
 u_struct : structure passed from master to slave.
@@ -54,27 +55,28 @@ delpitch[2]
 delroll[2]
 buttonstate[2]
 grasp[2]        +32767 = 100% closing torque, -32768 = 100% opening
-surgeon_mode    SURGEON_ENGAGED or SURGEON_DISENGAGED  (formerly Pedal_Down or Pedal_UP)
+surgeon_mode    SURGEON_ENGAGED or SURGEON_DISENGAGED  (formerly Pedal_Down or
+Pedal_UP)
 checksum
 */
 
 struct u_struct {
-	unsigned int sequence;
-	unsigned int pactyp;
-	unsigned int version;
+  unsigned int sequence;
+  unsigned int pactyp;
+  unsigned int version;
 
-	int delx[2];
-	int dely[2];
-	int delz[2];
-    double Qx[2];
-    double Qy[2];
-    double Qz[2];
-    double Qw[2];
-	int buttonstate[2];
-	int grasp[2];
-	int surgeon_mode;
-	int checksum;
-}__attribute__((__packed__));
+  int delx[2];
+  int dely[2];
+  int delz[2];
+  double Qx[2];
+  double Qy[2];
+  double Qz[2];
+  double Qw[2];
+  int buttonstate[2];
+  int grasp[2];
+  int surgeon_mode;
+  int checksum;
+} __attribute__((__packed__));
 
 /*
 v_struct: Return DS from slave to master.
@@ -89,18 +91,16 @@ jointflags    bit flags for each joint limit (up to 16 joints).
 checksum
 */
 struct v_struct {
-	unsigned int sequence;
-	unsigned int last_sequence;
-	unsigned int pactyp;
-	unsigned int version;
-	int fx[2];
-	int fy[2];
-	int fz[2];
-	int runlevel;
-	unsigned int  jointflags;
-	int checksum;
-}__attribute__((__packed__));
+  unsigned int sequence;
+  unsigned int last_sequence;
+  unsigned int pactyp;
+  unsigned int version;
+  int fx[2];
+  int fy[2];
+  int fz[2];
+  int runlevel;
+  unsigned int jointflags;
+  int checksum;
+} __attribute__((__packed__));
 
-#endif //teleoperation_h
-
-
+#endif  // teleoperation_h

@@ -1,5 +1,6 @@
 /* Raven 2 Control - Control software for the Raven II robot
- * Copyright (C) 2005-2012  H. Hawkeye King, Blake Hannaford, and the University of Washington BioRobotics Laboratory
+ * Copyright (C) 2005-2012  H. Hawkeye King, Blake Hannaford, and the University
+ *of Washington BioRobotics Laboratory
  *
  * This file is part of Raven 2 Control.
  *
@@ -28,16 +29,15 @@
 #ifndef GRAV_COMP_H
 #define GRAV_COMP_H
 
-#include <math.h>
+#include <cmath>
 #include <tf/transform_datatypes.h>
 
 #include "struct.h"
 #include "defines.h"
 
-
 /*
  * Calculate gravity load on joints 1,2,3 on both arms
  */
-void getGravityTorque(struct device &d0, struct param_pass &params);
+void getGravityTorque(device &d0, param_pass &params);
 
 #endif

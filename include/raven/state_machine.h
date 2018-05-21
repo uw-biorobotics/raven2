@@ -1,5 +1,6 @@
 /* Raven 2 Control - Control software for the Raven II robot
- * Copyright (C) 2005-2012  H. Hawkeye King, Blake Hannaford, and the University of Washington BioRobotics Laboratory
+ * Copyright (C) 2005-2012  H. Hawkeye King, Blake Hannaford, and the University
+ *of Washington BioRobotics Laboratory
  *
  * This file is part of Raven 2 Control.
  *
@@ -26,12 +27,11 @@
  *
  */
 
-
-//Include Files
+// Include Files
 #include "struct.h"
 #include "defines.h"
 #include "overdrive_detect.h"
 #include "update_atmel_io.h"
 
-//Function prototypes
-void stateMachine(struct device *device0, struct param_pass *currParams, struct param_pass *rcvdParams);
+// Function prototypes
+void stateMachine(device *device0, param_pass *currParams, param_pass *rcvdParams);

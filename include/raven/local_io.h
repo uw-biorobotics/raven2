@@ -1,5 +1,6 @@
 /* Raven 2 Control - Control software for the Raven II robot
- * Copyright (C) 2005-2012  H. Hawkeye King, Blake Hannaford, and the University of Washington BioRobotics Laboratory
+ * Copyright (C) 2005-2012  H. Hawkeye King, Blake Hannaford, and the University
+ *of Washington BioRobotics Laboratory
  *
  * This file is part of Raven 2 Control.
  *
@@ -31,27 +32,27 @@
 
 #include "struct.h"
 #include "defines.h"
-#include "fifo.h"
 #include "USB_init.h"
+#include "itp_teleoperation.h"
 
-int initLocalioData(void);
+int initLocalioData();
 
 // update controller state w/ toolkit input
-void teleopIntoDS1(struct u_struct*);
+void teleopIntoDS1(u_struct *);
 
 // fifo handler to recv command data
-int recieveUserspace(void *u,int size);
+int receiveUserspace(void *u, int size);
 
 // Check: have any command updates happened?
-int checkLocalUpdates(void);
+int checkLocalUpdates();
 
 // Return current parameter-update set
-struct param_pass * getRcvdParams(struct param_pass*);
+param_pass *getRcvdParams(param_pass *);
 
-void updateMasterRelativeOrigin(struct device *device0);
+void updateMasterRelativeOrigin(device *device0);
 
 int init_ravenstate_publishing(ros::NodeHandle &n);
-void publish_ravenstate_ros(struct robot_device*, struct param_pass*);
+void publish_ravenstate_ros(robot_device *, param_pass *);
 void setSurgeonMode(int pedalstate);
 
 #endif

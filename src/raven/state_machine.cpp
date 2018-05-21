@@ -1,5 +1,6 @@
 /* Raven 2 Control - Control software for the Raven II robot
- * Copyright (C) 2005-2012  H. Hawkeye King, Blake Hannaford, and the University of Washington BioRobotics Laboratory
+ * Copyright (C) 2005-2012  H. Hawkeye King, Blake Hannaford, and the University
+ *of Washington BioRobotics Laboratory
  *
  * This file is part of Raven 2 Control.
  *
@@ -28,19 +29,19 @@
 #include "state_machine.h"
 #include "log.h"
 
-extern int initialized;//Defined in rt_process_preempt
-extern int NUM_MECH;//Defined in rt_process_preempt
-extern int soft_estopped; //Defined in rt_process_preempt
+extern int initialized;    // Defined in rt_process_preempt
+extern int NUM_MECH;       // Defined in rt_process_preempt
+extern int soft_estopped;  // Defined in rt_process_preempt
 extern int globalTime;
 #include <sys/times.h>
-struct tms dummy_times;
+tms dummy_times;
 
 /**
  * \brief This function puts data in a state machine
  * \param device0 robot_device struct defined in DS0.h
  * \param currParam param_pass struct defined in DS1.h
  * \param rcvdParams param_pass struct
- * 
+ *
  * In SOFTWARE_RUNLEVEL mode, get desired runlevel from the rcvdParams.
  * In PLC_RUNLEVELS mode, get desired runlevel from the PLC via atmel inputs.
  * If the two PLC's give different runlevels, select  the lowest of the two.
@@ -48,55 +49,47 @@ struct tms dummy_times;
  * \todo diagram of state machine and its effects on other functions
  *
  */
-void stateMachine(struct device *device0, struct param_pass *currParams, struct param_pass *rcvdParams)
-{
-    static int rlDelayCounter = 0; // This is a software workaround to a PLC switching transient.  Wait two cycles for the delay.
+void stateMachine(device *device0, param_pass *currParams, param_pass *rcvdParams) {
+  static int rlDelayCounter = 0;  // This is a software workaround to a PLC
+                                  // switching transient.  Wait two cycles for
+                                  // the delay.
 
-    u_08 rlDesired;
-    u_08 *rl = &(currParams->runlevel);
-    int i;
-    u_08 tmp;
-    rlDesired = 9; // arbitrary large number
+  u_08 rlDesired;
+  u_08 *rl = &(currParams->runlevel);
+  int i;
+  u_08 tmp;
+  rlDesired = 9;  // arbitrary large number
 
-    // Checks runlevel of all mechanisms. Lowest runlevel is chosen.
-    for (i=0;i<NUM_MECH;i++)
-    {
-        tmp = ( device0->mech[i].inputs & (PIN_PS0 | PIN_PS1)) >> 6;
-        if ( tmp < rlDesired )
-        {
-            rlDesired = tmp;
-        }
+  // Checks runlevel of all mechanisms. Lowest runlevel is chosen.
+  for (i = 0; i < NUM_MECH; i++) {
+    tmp = (device0->mech[i].inputs & (PIN_PS0 | PIN_PS1)) >> 6;
+    if (tmp < rlDesired) {
+      rlDesired = tmp;
+    }
+  }
+
+  // already in desired runlevel.  Exit.
+  if (*rl == rlDesired) {
+    return;
+  } else if (rlDelayCounter < 3) {
+    rlDelayCounter++;
+    return;
+  }
+
+  rlDelayCounter = 0;
+  *rl = rlDesired;          // Update Run Level
+  device0->runlevel = *rl;  // Log runlevels in DS0.
+  log_msg("Entered runlevel %d", *rl);
+
+  if (*rl == RL_E_STOP) {
+    if (soft_estopped) {
+      err_msg("Software e-stop.\n");
+      soft_estopped = FALSE;
     }
 
-    // already in desired runlevel.  Exit.
-    if ( *rl == rlDesired)
-    {
-        return;
-    }
-    else if (rlDelayCounter < 3)
-    {
-        rlDelayCounter++;
-        return;
-    }
+    err_msg("*** ENTERED E-STOP STATE ***\n");
 
-    rlDelayCounter = 0;
-    *rl = rlDesired;            // Update Run Level
-    device0->runlevel = *rl;    // Log runlevels in DS0.
-    log_msg("Entered runlevel %d", *rl);
-
-
-    if (*rl == RL_E_STOP)
-    {
-        if (soft_estopped)
-        {
-            err_msg("Software e-stop.\n");
-            soft_estopped = FALSE;
-        }
-
-        err_msg("*** ENTERED E-STOP STATE ***\n");
-
-        initialized = FALSE;
-        currParams->sublevel = 0;
-    }
-
+    initialized = FALSE;
+    currParams->sublevel = 0;
+  }
 }

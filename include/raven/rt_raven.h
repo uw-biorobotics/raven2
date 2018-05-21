@@ -1,5 +1,6 @@
 /* Raven 2 Control - Control software for the Raven II robot
- * Copyright (C) 2005-2012  H. Hawkeye King, Blake Hannaford, and the University of Washington BioRobotics Laboratory
+ * Copyright (C) 2005-2012  H. Hawkeye King, Blake Hannaford, and the University
+ *of Washington BioRobotics Laboratory
  *
  * This file is part of Raven 2 Control.
  *
@@ -22,10 +23,11 @@
 *
 *	\brief Runs all raven control functions.
 *
-*   \desc Code split out from rt_process_preempt.cpp, in order to provide more flexibility.
+*   \desc Code split out from rt_process_preempt.cpp, in order to provide more
+*flexibility.
 *
 * 	\author Hawkeye
-* 
+*
 *	\date 10/2011
 *
 *   \ingroup Control
@@ -36,4 +38,4 @@
 
 /** prototype for controlRaven()
  */
-int controlRaven(struct robot_device*, struct param_pass*);
+int controlRaven(robot_device *, param_pass *);
