@@ -1,9 +1,13 @@
-raven2
-======
+# Quick Guide to Raven-II  Surgical Robotics Research Platform Open Source Software Distribution:
 
-Raven II Surgical Robot
+## Links 
 
-To build and read the documentation, 
+1. Raven Github Wiki: [link](https://github.com/uw-biorobotics/raven2/tree/master)
+1. Raven YouTube tutorial series (step by step videos on how a new Raven user can get started with Raven): [link](https://www.youtube.com/playlist?list=PLxMsr-mRZng81BdDTaUX0sueXWeVOX0qd)
+1. Raven User guide - a work in progress: [link](https://docs.google.com/document/d/1_21dWhSnXXl0f1e8hjI8vc1neqhOySVY7MGV3GLBImw/edit)
+1. Raven Doxygen page: [link](http://astro.ee.washington.edu/raven2docs/annotated.html)  (this old server may go down in which case see below).
+ 
+## To build and read the documentation, 
 
 1. install doxygen and graphviz  
 (e.g. > sudo apt-get install doxygen)
@@ -18,7 +22,7 @@ To build and read the documentation,
 
 1. Navigate to raven2/html/index.html in the project.
 
-
+## Hardware
 For info about using, interfacing with, or purchasing a RAVEN, contact: info {at} applieddexterity {dot} com
 http://applieddexterity.com/
 
