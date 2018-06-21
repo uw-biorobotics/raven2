@@ -57,23 +57,24 @@ tool gold_arm_tool(large_needle, GOLD_ARM);
 
 // tool green_arm_tool(mopocu_scissor, GREEN_ARM);
 // tool green_arm_tool(potts_scissor, GREEN_ARM);
-// tool green_arm_tool(r_grasper, GREEN_ARM);
-tool green_arm_tool(bipolar_forceps, GREEN_ARM);
+tool green_arm_tool(r_grasper, GREEN_ARM);
+//tool green_arm_tool(bipolar_forceps, GREEN_ARM);
 
 
 
 /********** positioning joints Homing DAC ***********/
 const int gold_joints_homing_max_dac[4] = {
-                               2500,  // shoulder
-                               2500,  // elbow
-                               1200,  // z-ins
+                               2100,  // shoulder
+                               2100,  // elbow
+                               1800,  // z-ins
                                0};
 
 const int green_joints_homing_max_dac[4] = {
-                               2500,  // shoulder
-                               2500,  // elbow
-                               1200,  // z-ins
+                               2100,  // shoulder
+                               2100,  // elbow
+                               1800,  // z-ins
                                0};                               
+
 
 /**************** tool DOF Homing DAC ***************/
 const int dv_tool_homing_max_dac[4] = {
@@ -322,7 +323,7 @@ void initDOFs(device *device0) {
 
       // on R_II torque convention is opposite for green/gold arms
       float torque_sign = 1;
-#ifdef RAVEN_II
+
 
       // Positive torque -> positive joint angle change
       // Make sure encoders line up the same way.
@@ -332,7 +333,7 @@ void initDOFs(device *device0) {
         torque_sign = 1;
       else
         err_msg("Unknown mech type in init!");
-#endif
+
       // Set i-max and current-torque conversion constants
       if ((j == SHOULDER) || (j == ELBOW) || (j == Z_INS)) {
         _dof->tau_per_amp =
@@ -343,8 +344,8 @@ void initDOFs(device *device0) {
         if (device0->mech[i].type == GOLD_ARM){
           _joint->homing_dac = gold_joints_homing_max_dac[j];
         }
-        else if (device0->mech[i].type == GOLD_ARM){ 
-          _joint->homing_dac = gold_joints_homing_max_dac[j];
+        if (device0->mech[i].type == GREEN_ARM){ 
+          _joint->homing_dac = green_joints_homing_max_dac[j];
         }
       } else  // set tool stuff
       {

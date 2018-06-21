@@ -39,9 +39,13 @@
                           // 0 if no joint encoders
 
 //~~~~~~~~~ tool adapter definition ~~~~~~~~~~~~~~~~
-#define RICKS_TOOLS     //skips tool initialization
-//#define SCISSOR_RIGHT
-#define OPPOSE_GRIP
+//#define RICKS_TOOLS     //skips tool initialization
+//#define SCISSOR_RIGHT   //Can be used to set scissor to right and 
+                          //large needle to left. Also increases grasp
+                          //step size for scissor opening and closing.
+#define OPPOSE_GRIP       //Cable configuration on carriage that makes
+                          //cables pull in opposite directions
+                          //upon grasp
 
 //~~~~~~~~~ USB Board definition ~~~~~~~~~~~~~~~~~~~
 // Two arm identification
@@ -51,6 +55,8 @@
 
 #define JOINT_ENC_SERIAL 99  // 99 if no joint encoder board
 
+
+//~~~~~~~~~ safety policy selection ~~~~~~~~~~~~~~~~~~~
 // Our choice of the safety level and policy for RAVEN teleoperation
 #define SAFETY_POLICY SOFT_REGULATION  // User can change this! (this value is used in
                                        // overdrive_detect.cpp)

@@ -334,24 +334,17 @@ int set_joints_known_pos(mechanism *_mech, int tool_only) {
 
     if ((j == SHOULDER) || (j == ELBOW)) {  // if joint is shoulder or elbow
       cc = ROTARY_JOINT_ENC_PER_REV / (2 * PI);
-      // log_msg("joint		%d", j);
-      // log_msg("cc value			= %f", cc);
+
     } else if (j == Z_INS) {
       cc = LINEAR_JOINT_ENC_PER_M;
-      // log_msg("joint		%d", j);
-      // log_msg("cc value			= %f", cc);
+
     }
 
     if (!is_toolDOF(_joint->type)) {
-      // log_msg("j_enc value			= %f", j_enc_val);
-      // log_msg("j_pos_d				= %f", _joint->jpos_d);
-      // log_msg("j_pos_d*cc				= %f", _joint->jpos_d *
-      // cc);
 
       _joint->joint_enc_offset = j_enc_val - (_joint->jpos_d * cc);
     }
 
-    //getStateLPF(_joint, _mech->tool_type);
     getStateLPF(_joint, _mech->mech_tool.adapter_style);
   }
 
