@@ -33,5 +33,5 @@
 #include "dof.h"
 
 void stateEstimate(robot_device *device0);
-void getStateLPF(DOF *joint, int tool_type);
+void getStateLPF(DOF *joint, adapter adapter_style);
 void resetFilter(DOF *_joint);

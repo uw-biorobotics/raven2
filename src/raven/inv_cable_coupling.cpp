@@ -195,7 +195,7 @@ void invMechCableCoupling(mechanism *mech, int no_use_actual) {
   if (no_use_actual) m4_actual = m4;
 
   int sgn = 0;
-  switch (mech->mech_tool.t_style) {
+  switch (mech->mech_tool.adapter_style) {
     case raven:
       sgn = (mech->type == GOLD_ARM) ? 1 : -1;
       break;

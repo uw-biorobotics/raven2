@@ -102,6 +102,7 @@ struct DOF {
   s_24 enc_val;        // encoder value
   s_24 joint_enc_val;  // Joint encoder value
   s_16 current_cmd;    // DAC command to achieve tau at actuator
+  int homing_dac;  // DAC value that indicates joint hard stop
   float jpos;          // actual DOF coordinate (rad)
   float j_enc_pos;     // actual DOF coordinate of Joint encoder (rad)
   float mpos;
@@ -123,21 +124,6 @@ struct DOF {
   float perror_int;      // integrated position error for joint space position control
 };
 
-/** Tool type enumerator used in old init method
- *
- *  \todo deprecate this structure in favor of new tool class
- *
- */
-
-typedef enum {
-  TOOL_NONE,
-  TOOL_GRASPER_10MM,
-  TOOL_GRASPER_8MM,
-  RII_square_type,
-  davinci_square_type,
-  ricks_tools_type,
-  dv_adapter
-} e_tool_type;
 
 /********************************************************
  *
@@ -146,7 +132,6 @@ typedef enum {
  */
 struct mechanism {
   u_16 type;
-  e_tool_type tool_type;
   tool mech_tool;
   position pos;
   position pos_d;

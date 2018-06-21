@@ -94,16 +94,7 @@ int fwdJointEncoders(device *device0) {
       }
 
       _joint->j_enc_pos = (float)(enc_val - enc_off) / (float)((enc_count_per_unit));
-      /*
-      if (gTime % 3000 == 0){
-              log_msg("joint		%d", j);
-              log_msg("enc value			= %d", encoder_val);
-              log_msg("enc offset			= %d", encoder_off);
-              log_msg("enc count per rev 	= %d", enc_count_per_rev);
-              log_msg("");
-              twice++;
-      }
-      */
+
     }
   }
 
@@ -167,10 +158,6 @@ void fwdMechCableCoupling(mechanism *mech) {
   //   Updated from UCSC code.  Code simplified by HK 8/11
   th1 = (1.0 / tr1) * m1;
 
-  // DELETEME
-  //	th2 = (1.0/tr2) * m2; // additional CC terms added 3/13
-  //	d4  = (1.0/tr4) * m4;
-
   th2 = (1.0 / tr2) * m2 - CABLE_COUPLING_01 * th1;
   d4 = (1.0 / tr4) * m4 - CABLE_COUPLING_02 * th1 - CABLE_COUPLING_12 * th2;
 
@@ -181,7 +168,7 @@ void fwdMechCableCoupling(mechanism *mech) {
 
   // Tool degrees of freedom ===========================================
   int sgn = 0;
-  switch (mech->mech_tool.t_style) {
+  switch (mech->mech_tool.adapter_style) {
     case raven:
       sgn = (mech->type == GOLD_ARM) ? 1 : -1;
       break;
@@ -295,10 +282,6 @@ void fwdMechTorqueCoupling(mechanism *mech) {
   //   Updated from UCSC code.  Code simplified by HK 8/11
   th1 = (1.0 / tr1) * m1;
 
-  // DELETEME
-  //	th2 = (1.0/tr2) * m2; // additional CC terms added 3/13
-  //	d4  = (1.0/tr4) * m4;
-
   th2 = (1.0 / tr2) * m2 - CABLE_COUPLING_01 * th1;
   d4 = (1.0 / tr4) * m4 - CABLE_COUPLING_02 * th1 - CABLE_COUPLING_12 * th2;
 
@@ -307,10 +290,6 @@ void fwdMechTorqueCoupling(mechanism *mech) {
   th2_dot = (1.0 / tr2) * m2_dot;
   d4_dot = (1.0 / tr4) * m4_dot;
 
-  // TODO:: why is only the RAVEN tool referenced in this?
-  // Tool degrees of freedom ===========================================
-  //	if (mech->tool_type == TOOL_GRASPER_10MM)
-  //	{
   int sgn = (mech->type == GOLD_ARM) ? 1 : -1;
   int sgn_6 = sgn;
 #ifdef OPPOSE_GRIP
@@ -320,7 +299,7 @@ void fwdMechTorqueCoupling(mechanism *mech) {
   th5 = (1.0 / tr5) * (m5 - sgn * m4 / GB_RATIO);
   th6 = (1.0 / tr6) * (m6 - sgn_6 * m4 / GB_RATIO);
   th7 = (1.0 / tr7) * (m7 - sgn * m4 / GB_RATIO);
-  //	}
+
 
   // Now have solved for th1, th2, d3, th4, th5, th6
   mech->joint[SHOULDER].jpos = th1;  // - mech->joint[SHOULDER].jpos_off;

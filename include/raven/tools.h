@@ -35,7 +35,7 @@
  *
  */
 
-enum style {
+enum adapter {
   dv,          /**< Da Vinci interface value 1 */
   raven,       /**< RAVEN interface value 2 */
   square_raven /**< Bionics lab square style interface value 3 */
@@ -64,7 +64,7 @@ class tool {
  public:
   end_effector_type t_end; /**< enumerated end effector name */
 
-  style t_style; /**< enumerated robot interface style */
+  adapter adapter_style; /**< enumerated robot interface style */
 
   int mech_type; /**< arm type that the tool is mounted to */
 

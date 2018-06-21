@@ -42,23 +42,52 @@
 #include "USB_init.h"
 #include "local_io.h"
 
-#ifdef DV_ADAPTER
-const e_tool_type use_tool = dv_adapter;
-#else
 
-#ifdef RAVEN_TOOLS
-const e_tool_type use_tool = TOOL_GRASPER_10MM;  //
-#else
+/**************** tool selection ********************/
+// tool gold_arm_tool (bipolar_forceps, GOLD_ARM);
+tool gold_arm_tool(large_needle, GOLD_ARM);
+// tool gold_arm_tool(r_grasper, GOLD_ARM);
+// tool gold_arm_tool(micro_forceps, GOLD_ARM);
 
-#ifdef KIST
-const e_tool_type use_tool = ricks_tools_type;
+//#ifdef SCISSOR_RIGHT
+// tool green_arm_tool(mopocu_scissor, GREEN_ARM);
+//#else
+// tool green_arm_tool(large_needle,  GREEN_ARM);
+//#endif
 
-#endif
-#endif
-#endif
+// tool green_arm_tool(mopocu_scissor, GREEN_ARM);
+// tool green_arm_tool(potts_scissor, GREEN_ARM);
+// tool green_arm_tool(r_grasper, GREEN_ARM);
+tool green_arm_tool(bipolar_forceps, GREEN_ARM);
 
-extern tool gold_arm_tool;
-extern tool green_arm_tool;
+
+
+/********** positioning joints Homing DAC ***********/
+const int gold_joints_homing_max_dac[4] = {
+                               2500,  // shoulder
+                               2500,  // elbow
+                               1200,  // z-ins
+                               0};
+
+const int green_joints_homing_max_dac[4] = {
+                               2500,  // shoulder
+                               2500,  // elbow
+                               1200,  // z-ins
+                               0};                               
+
+/**************** tool DOF Homing DAC ***************/
+const int dv_tool_homing_max_dac[4] = {
+                               2000,   // tool_rot 
+                               2400,   // wrist
+                               2000,   // grasp1
+                               2000};  // grasp2
+
+const int raven_tool_homing_max_dac[4] = {
+                               1900,   // tool_rot
+                               2100,   // wrist
+                               2250,   // grasp1 decreased from 1900
+                               2250};  // grasp2 decreased from 1900
+
 
 extern int initialized;
 
@@ -201,15 +230,7 @@ void initDOFs(device *device0) {
     DOF_types[Z_INS_GREEN].DAC_max = ADVANCED_Z_INS_MAX_DAC;
   }
 
-  /*
-  //This is the original code
-  DOF_types[SHOULDER_GOLD].DAC_max  = SHOULDER_MAX_DAC;
-  DOF_types[SHOULDER_GREEN].DAC_max = SHOULDER_MAX_DAC;
-  DOF_types[ELBOW_GOLD].DAC_max     = ELBOW_MAX_DAC;
-  DOF_types[ELBOW_GREEN].DAC_max    = ELBOW_MAX_DAC;
-  DOF_types[Z_INS_GOLD].DAC_max     = Z_INS_MAX_DAC;
-  DOF_types[Z_INS_GREEN].DAC_max    = Z_INS_MAX_DAC;
-  */
+
   DOF_types[TOOL_ROT_GOLD].DAC_max = TOOL_ROT_MAX_DAC;
   DOF_types[TOOL_ROT_GREEN].DAC_max = TOOL_ROT_MAX_DAC;
   DOF_types[WRIST_GOLD].DAC_max = WRIST_MAX_DAC;
@@ -240,7 +261,7 @@ void initDOFs(device *device0) {
 
   /// Initialize values of joint and DOF structures
   for (int i = 0; i < NUM_MECH; i++) {
-    device0->mech[i].tool_type = use_tool;
+    
 
     /// Initialize joint types
     if (device0->mech[i].type == GOLD_ARM) {
@@ -319,56 +340,35 @@ void initDOFs(device *device0) {
         _dof->DAC_per_amp = (float)(K_DAC_PER_AMP_HIGH_CURRENT);  // DAC counts to AMPS
         _dof->i_max = (float)(I_MAX_BIG_MOTOR);
         _dof->i_cont = (float)(I_CONT_BIG_MOTOR);
+        if (device0->mech[i].type == GOLD_ARM){
+          _joint->homing_dac = gold_joints_homing_max_dac[j];
+        }
+        else if (device0->mech[i].type == GOLD_ARM){ 
+          _joint->homing_dac = gold_joints_homing_max_dac[j];
+        }
       } else  // set tool stuff
       {
         _dof->DAC_per_amp = (float)(K_DAC_PER_AMP_LOW_CURRENT);  // DAC counts to AMPS
         _dof->i_max = (float)(I_MAX_SMALL_MOTOR);
         _dof->i_cont = (float)(I_CONT_SMALL_MOTOR);
 
-        //#ifdef RAVEN_II_SQUARE
-        //                _dof->tau_per_amp = torque_sign *
-        //                (float)(T_PER_AMP_SMALL_MOTOR *
-        //                GEAR_BOX_TR_SMALL_MOTOR); // Amps to torque \todo why
-        //                is this line not used?
-        //#else
-        //                _dof->tau_per_amp = -1 * (float)(T_PER_AMP_SMALL_MOTOR
-        //                * GEAR_BOX_TR_SMALL_MOTOR); // Amps to torque
-        //#endif
+      
 
-        // set tau_per_amp based on tool type
-        //                switch (device0->mech[i].tool_type){
-        //					case dv_adapter:
-        //						_dof->tau_per_amp = 1 *
-        //(float)(T_PER_AMP_SMALL_MOTOR  * GEAR_BOX_TR_SMALL_MOTOR);  // Amps to
-        // torque
-        //						break;
-        //					case RII_square_type:
-        //						_dof->tau_per_amp = torque_sign *
-        //(float)(T_PER_AMP_SMALL_MOTOR  * GEAR_BOX_TR_SMALL_MOTOR);  // Amps to
-        // torque \todo why is this line not used?
-        //						break;
-        //					default:
-        //						_dof->tau_per_amp = -1 *
-        //(float)(T_PER_AMP_SMALL_MOTOR  * GEAR_BOX_TR_SMALL_MOTOR);  // Amps to
-        // torque
-        //						break;
-        //                }
-
-        switch (device0->mech[i].mech_tool.t_style) {
+        switch (device0->mech[i].mech_tool.adapter_style) {
           case dv:
             _dof->tau_per_amp =
                 1 * (float)(T_PER_AMP_SMALL_MOTOR * GEAR_BOX_TR_SMALL_MOTOR);  // Amps to torque
+            _joint->homing_dac = dv_tool_homing_max_dac[j-4];    
             break;
           case square_raven:
             _dof->tau_per_amp = torque_sign * (float)(T_PER_AMP_SMALL_MOTOR *
-                                                      GEAR_BOX_TR_SMALL_MOTOR);  // Amps to torque
-                                                                                 // \todo why is
-                                                                                 // this line not
-                                                                                 // used?
+                                                      GEAR_BOX_TR_SMALL_MOTOR);  
+            _joint->homing_dac = raven_sq_tool_homing_max_dac[j-4];
             break;
-          default:
+          default: //raven
             _dof->tau_per_amp =
                 -1 * (float)(T_PER_AMP_SMALL_MOTOR * GEAR_BOX_TR_SMALL_MOTOR);  // Amps to torque
+            _joint->homing_dac = raven_tool_homing_max_dac[j-4];       
             break;
         }
 
@@ -616,82 +616,3 @@ void setStartXYZ(device *device0) {
   // Update the origin, to which master-side deltas are added.
   updateMasterRelativeOrigin(device0);
 }
-
-/** \todo what is the function of the following commented code; shall we get rid
- * of them??
- * 			(AL - This code automatically bumps the encoders, so that the
- * user doesn't need to.
- * 				I don't think it worked...)
- */
-
-/*
-
-    int i=0, j=0;
-    mechanism* _mech=NULL;
-    DOF* _joint=NULL;
-    float amps_on_wait = 0.9; // 900ms
-    float bump_encoder_wait = amps_on_wait + 0.05; // 50ms
-    static int startflag=0;
-
-    static ros::Time t1 = t1.now();
-    static ros::Time t2 = t2.now();
-    static ros::Duration d;
-
-   case 0:     // Automatically "bump" encoders
-    {
-        // run once to initialize initialization *sigh*
-        if (!startflag)
-        {
-            log_msg("  Starting Initialization");
-            startflag=1;
-            t1=t1.now();
-        }
-
-        t2 = t2.now();
-        d = t2-t1;
-
-        // wait for motor amplifiers to turn on
-        if (d.toSec() < amps_on_wait)
-        {
-            _mech=NULL;
-            _joint=NULL;
-            while(loop_over_joints(device0, _mech, _joint, i, j))
-                _joint->current_cmd = 0;
-        }
-
-        // apply displacement current for short time
-        else if (d.toSec() < bump_encoder_wait)
-        {
-            log_msg("bump");
-            // apply first one direction, then the other.
-            int sign = d.toSec() < ((bump_encoder_wait - amps_on_wait)/2) ?
-   1:-1;
-
-            _mech=NULL;
-            _joint=NULL;
-            while(loop_over_joints(device0, _mech, _joint, i, j))
-            {
-                if (is_toolDOF(_joint->type))
-                    _joint->current_cmd = sign * TOOL_ROT_MAX_DAC;
-                else
-                    _joint->current_cmd = sign * -1499;
-            }
-        }
-        // finished bumping encoders.  Continue initialization
-        else
-        {
-            log_msg("    Encoders bumped.");
-            _mech=NULL;
-            _joint=NULL;
-            while(loop_over_joints(device0, _mech, _joint, i, j))
-                _joint->current_cmd = 0;
-
-            usb_reset_encoders(GOLD_ARM_SERIAL);
-            usb_reset_encoders(GREEN_ARM_SERIAL);
-            init_wait_loop=0;
-            currParams->sublevel = 1;
-            startflag=0;
-        }
-        break;
-    }
- */

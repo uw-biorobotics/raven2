@@ -49,11 +49,7 @@ void stateEstimate(robot_device *device0) {
     for (j = 0; j < MAX_DOF_PER_MECH; j++) {
       _joint = &(device0->mech[i].joint[j]);
 
-      //            if (_joint->type == TOOL_ROT_GOLD || _joint->type ==
-      //            TOOL_ROT_GOLD)
-      //                encToMPos(_joint);
-      //            else
-      getStateLPF(_joint, device0->mech[i].tool_type);
+      getStateLPF(_joint, device0->mech[i].mech_tool.adapter_style);
     }
   }
 }
@@ -66,7 +62,7 @@ void stateEstimate(robot_device *device0) {
  * will drive the cable transmission unstable.
  *
  */
-void getStateLPF(DOF *joint, int tool_type) {
+void getStateLPF(DOF *joint, adapter adapter_style) {
   // 50 HZ 3rd order butterworth
   //    float B[] = {0.0029,  0.0087,  0.0087,  0.0029};
   //    float A[] = {1.0000,  2.3741, -1.9294,  0.5321};
@@ -87,29 +83,9 @@ void getStateLPF(DOF *joint, int tool_type) {
   float filtPos = 0;
   float f_enc_val = joint->enc_val;
 
-//#ifdef RAVEN_II
-//    if ( (joint->type == SHOULDER_GOLD) ||
-//         (joint->type == ELBOW_GOLD) ||
-//         (joint->type == Z_INS_GOLD)
-//         ||
-//#ifndef RAVEN_II_SQUARE
-//         (joint->type == TOOL_ROT_GOLD) ||
-//         (joint->type == WRIST_GOLD) ||
-//         (joint->type == GRASP1_GOLD) ||
-//         (joint->type == GRASP2_GOLD)
-//#endif
-//         ||
-//         (joint->type == TOOL_ROT_GREEN) ||
-//         (joint->type == WRIST_GREEN) ||
-//         (joint->type == GRASP1_GREEN) ||
-//         (joint->type == GRASP2_GREEN)
-//         )
-//         f_enc_val *= -1;
-//#endif
 
-#ifdef RAVEN_II
-  switch (tool_type) {
-    case RII_square_type:
+  switch (adapter_style) {
+    case square_raven:
       if ((joint->type == SHOULDER_GOLD) || (joint->type == ELBOW_GOLD) ||
           (joint->type == Z_INS_GOLD) || (joint->type == TOOL_ROT_GREEN) ||
           (joint->type == WRIST_GREEN) || (joint->type == GRASP1_GREEN) ||
@@ -117,13 +93,13 @@ void getStateLPF(DOF *joint, int tool_type) {
         f_enc_val *= -1;
       break;
 
-    case dv_adapter:
+    case dv:
       if ((joint->type == SHOULDER_GOLD) || (joint->type == ELBOW_GOLD) ||
           (joint->type == Z_INS_GOLD))
         f_enc_val *= -1;
       break;
 
-    default:
+    default: //raven
       if ((joint->type == SHOULDER_GOLD) || (joint->type == ELBOW_GOLD) ||
           (joint->type == Z_INS_GOLD) || (joint->type == TOOL_ROT_GOLD) ||
           (joint->type == WRIST_GOLD) || (joint->type == GRASP1_GOLD) ||
@@ -136,23 +112,6 @@ void getStateLPF(DOF *joint, int tool_type) {
 
 #ifdef OPPOSE_GRIP
   if ((joint->type == GRASP1_GOLD) || (joint->type == GRASP1_GREEN)) f_enc_val *= -1;
-#endif
-
-//    static int i = 0;
-//    static int j = 0;
-//    j++;
-//    if (j % 100){
-//
-//
-//    i++;
-//    if (i % (17) == 0){
-//        log_msg("joint %i enc_val :  %f    f_enc :  %f", joint->type,
-//        joint->enc_val, f_enc_val);
-//        log_msg("tool type in state estimate -->  %i", tool_type);
-//        //i = 0;
-//    }
-//    j=0;
-//    }
 #endif
 
   // Calculate motor angle from encoder value
@@ -205,128 +164,10 @@ void getStateLPF(DOF *joint, int tool_type) {
   return;
 }
 
-void getStateLPF(DOF *joint, style t_style) {
-  // 50 HZ 3rd order butterworth
-  //    float B[] = {0.0029,  0.0087,  0.0087,  0.0029};
-  //    float A[] = {1.0000,  2.3741, -1.9294,  0.5321};
-  // 75 Hz 3rd order butterworth
-  //    float B[] = {0.00859,  0.0258,  0.0258,  0.00859};
-  //    float A[] = {1.0000,   2.0651, -1.52,  0.3861};
-  //  20 Hz 3rd order butterworth
-  //    float B[] = {0.0002196,  0.0006588,  0.0006588,  0.0002196};
-  //    float A[] = {1.0000,   2.7488, -2.5282,  0.7776};
-  //  120 Hz 3rd order butterworth
-  float B[] = {0.02864, 0.08591, 0.08591, 0.02864};
-  float A[] = {1.0000, 1.5189, -0.9600, 0.2120};
-  //    float B[] = {1.0, 0,0,0};
-  //    float A[] = {0,0,0,0};
 
-  float *oldPos = DOF_types[joint->type].old_mpos;
-  float *oldFiltPos = DOF_types[joint->type].old_filtered_mpos;
-  float filtPos = 0;
-  float f_enc_val = joint->enc_val;
-
-//#ifdef RAVEN_II
-//    if ( (joint->type == SHOULDER_GOLD) ||
-//         (joint->type == ELBOW_GOLD) ||
-//         (joint->type == Z_INS_GOLD)
-//         ||
-//#ifndef RAVEN_II_SQUARE
-//         (joint->type == TOOL_ROT_GOLD) ||
-//         (joint->type == WRIST_GOLD) ||
-//         (joint->type == GRASP1_GOLD) ||
-//         (joint->type == GRASP2_GOLD)
-//#endif
-//         ||
-//         (joint->type == TOOL_ROT_GREEN) ||
-//         (joint->type == WRIST_GREEN) ||
-//         (joint->type == GRASP1_GREEN) ||
-//         (joint->type == GRASP2_GREEN)
-//         )
-//         f_enc_val *= -1;
-//#endif
-
-#ifdef RAVEN_II
-  switch (t_style) {
-    case square_raven:
-      if ((joint->type == SHOULDER_GOLD) || (joint->type == ELBOW_GOLD) ||
-          (joint->type == Z_INS_GOLD) || (joint->type == TOOL_ROT_GREEN) ||
-          (joint->type == WRIST_GREEN) || (joint->type == GRASP1_GREEN) ||
-          (joint->type == GRASP2_GREEN))
-        f_enc_val *= -1;
-      break;
-
-    case dv:
-      if ((joint->type == SHOULDER_GOLD) || (joint->type == ELBOW_GOLD) ||
-          (joint->type == Z_INS_GOLD))
-        f_enc_val *= -1;
-      break;
-
-    default:
-      if ((joint->type == SHOULDER_GOLD) || (joint->type == ELBOW_GOLD) ||
-          (joint->type == Z_INS_GOLD) || (joint->type == TOOL_ROT_GOLD) ||
-          (joint->type == WRIST_GOLD) || (joint->type == GRASP1_GOLD) ||
-          (joint->type == GRASP2_GOLD) || (joint->type == TOOL_ROT_GREEN) ||
-          (joint->type == WRIST_GREEN) || (joint->type == GRASP1_GREEN) ||
-          (joint->type == GRASP2_GREEN))
-        f_enc_val *= -1;
-      break;
-  }
-
-#ifdef OPPOSE_GRIP
-  if ((joint->type == GRASP1_GOLD) || (joint->type == GRASP1_GREEN)) f_enc_val *= -1;
-#endif
-
-  static int i = 0;
-  static int j = 0;
-  j++;
-  if (j % 100) {
-    i++;
-    if (i % (17) == 0) {
-      //        log_msg("joint %i enc_val :  %f    f_enc :  %f", joint->type,
-      //        joint->enc_val, f_enc_val);
-      log_msg("tool type in state estimate -->  %i", t_style);
-      // i = 0;
-    }
-    j = 0;
-  }
-#endif
-
-  // Calculate motor angle from encoder value
-  float motorPos =
-      (2.0 * PI) * (1.0 / ((float)ENC_CNTS_PER_REV)) * (f_enc_val - (float)joint->enc_offset);
-
-  // Initialize filter to steady state
-  if (!DOF_types[joint->type].filterRdy) {
-    oldPos[2] = motorPos;
-    oldPos[1] = motorPos;
-    oldPos[0] = motorPos;
-    oldFiltPos[2] = motorPos;
-    oldFiltPos[1] = motorPos;
-    oldFiltPos[0] = motorPos;
-    //    rt_printk("FILTER BEING READIED %d\n", gTime);
-    DOF_types[joint->type].filterRdy = TRUE;
-  }
-
-  // Compute filtered motor angle
-  filtPos = B[0] * motorPos + B[1] * oldPos[0] + B[2] * oldPos[1] + B[3] * oldPos[2] +
-            A[1] * oldFiltPos[0] + A[2] * oldFiltPos[1] + A[3] * oldFiltPos[2];
-
-  // Compute velocity from first difference
-  // This is safe b/c noise is removed by LPF
-  joint->mvel = (filtPos - oldFiltPos[0]) / STEP_PERIOD;
-  joint->mpos = filtPos;
-
-  // Update old values for filter
-  oldPos[2] = oldPos[1];
-  oldPos[1] = oldPos[0];
-  oldPos[0] = motorPos;
-  oldFiltPos[2] = oldFiltPos[1];
-  oldFiltPos[1] = oldFiltPos[0];
-  oldFiltPos[0] = filtPos;
-
-  return;
-}
+/** resets the state estimation filter on the given joint
+*
+*/
 
 void resetFilter(DOF *_joint) {
   // reset filter
@@ -335,19 +176,3 @@ void resetFilter(DOF *_joint) {
     DOF_types[_joint->type].old_filtered_mpos[i] = _joint->mpos_d;
   }
 }
-
-/*
-  if (joint->type == SHOULDER_B) {
-    if (gTime % 100 == 0)
-      printk("Filter state(%d):%d\t\t%d\t%d\t%d\t%d \t\t %d\t%d\t%d\n",
-             jiffies,
-             (int)(filtPos*100),
-             (int)(motorPos*100),
-             (int)(oldPos[0]*100) ,
-             (int)(oldPos[1]*100) ,
-             (int)(oldPos[2]*100) ,
-             (int)(oldFiltPos[0]*100) ,
-             (int)(oldFiltPos[1]*100) ,
-             (int)(oldFiltPos[2]*100));
-             }
-*/

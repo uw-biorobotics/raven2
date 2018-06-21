@@ -291,7 +291,7 @@ int set_joints_known_pos(mechanism *_mech, int tool_only) {
     int j_flip = 1;
 
     // Encoder values on Gold arm are reversed.  See also state_machine.cpp
-    switch (_mech->mech_tool.t_style) {
+    switch (_mech->mech_tool.adapter_style) {
       case dv:
         if (_mech->type == GOLD_ARM && !is_toolDOF(_joint)) {
           f_enc_val *= -1.0;
@@ -351,8 +351,8 @@ int set_joints_known_pos(mechanism *_mech, int tool_only) {
       _joint->joint_enc_offset = j_enc_val - (_joint->jpos_d * cc);
     }
 
-    getStateLPF(_joint, _mech->tool_type);
-    // getStateLPF(_joint, _mech->mech_tool.t_style);
+    //getStateLPF(_joint, _mech->tool_type);
+    getStateLPF(_joint, _mech->mech_tool.adapter_style);
   }
 
   fwdMechCableCoupling(_mech);
@@ -458,42 +458,6 @@ void homing(DOF *_joint, tool a_tool) {
   // duration for homing of each joint
   const float f_period[MAX_MECH * MAX_DOF_PER_MECH] = {1, 1, 1, 9999999, 1, 1, 1, 1,
                                                        1, 1, 1, 9999999, 1, 1, 1, 1};
-  //    // degrees for homing of each joint
-  //#ifdef RAVEN_II_SQUARE
-  //    //roll is backwards because of the 'click' in the mechanism
-  //    const float f_magnitude[MAX_MECH*MAX_DOF_PER_MECH] = {-10 DEG2RAD, 10
-  //    DEG2RAD, 0.02, 9999999, -80 DEG2RAD, 40 DEG2RAD, 40 DEG2RAD, 40 DEG2RAD,
-  //                                                          -10 DEG2RAD, 10
-  //                                                          DEG2RAD, 0.02,
-  //                                                          9999999, -80
-  //                                                          DEG2RAD, 40
-  //                                                          DEG2RAD, 40
-  //                                                          DEG2RAD, 40
-  //                                                          DEG2RAD};
-  //#else
-  //#ifdef DV_ADAPTER
-  //    const float f_magnitude[MAX_MECH*MAX_DOF_PER_MECH] = {-10 DEG2RAD, 10
-  //    DEG2RAD, 0.02, 9999999, 80 DEG2RAD, 40 DEG2RAD, 40 DEG2RAD, 40 DEG2RAD,
-  //                                                          -10 DEG2RAD, 10
-  //                                                          DEG2RAD, 0.02,
-  //                                                          9999999, 80
-  //                                                          DEG2RAD, 40
-  //                                                          DEG2RAD, 40
-  //                                                          DEG2RAD, 40
-  //                                                          DEG2RAD};
-  //#else //default
-  //    const float f_magnitude[MAX_MECH*MAX_DOF_PER_MECH] = {-10 DEG2RAD, 10
-  //    DEG2RAD, 0.02, 9999999, 80 DEG2RAD, 40 DEG2RAD, 40 DEG2RAD, 40 DEG2RAD,
-  //                                                          -10 DEG2RAD, 10
-  //                                                          DEG2RAD, 0.02,
-  //                                                          9999999, 80
-  //                                                          DEG2RAD, 40
-  //                                                          DEG2RAD, 40
-  //                                                          DEG2RAD, 40
-  //                                                          DEG2RAD};
-  //#endif
-  //#endif
-
   // check if scissors
   int scissor = ((a_tool.t_end == mopocu_scissor) || (a_tool.t_end == potts_scissor)) ? 1 : 0;
 
@@ -501,7 +465,7 @@ void homing(DOF *_joint, tool a_tool) {
       -10 DEG2RAD, 10 DEG2RAD, 0.02, 9999999, 80 DEG2RAD, 40 DEG2RAD, 40 DEG2RAD, 40 DEG2RAD,
       -10 DEG2RAD, 10 DEG2RAD, 0.02, 9999999, 80 DEG2RAD, 40 DEG2RAD, 40 DEG2RAD, 40 DEG2RAD};
 
-  if (a_tool.t_style == square_raven) {
+  if (a_tool.adapter_style == square_raven) {
     if (a_tool.mech_type == GOLD_ARM)
       f_magnitude[TOOL_ROT_GOLD] = -80 DEG2RAD;
     else if (a_tool.mech_type == GREEN_ARM)
@@ -584,7 +548,7 @@ int check_homing_condition(DOF *_joint) {
 
   // check if the DAC output is greater than the maximum allowable.
   // Note, current_cmd is an integer, so using abs (not fabs) is okay.
-  if (abs(_joint->current_cmd) >= homing_max_dac[_joint->type % 8]) {
+  if (abs(_joint->current_cmd) >= _joint->homing_dac) {
     return 1;
   }
 

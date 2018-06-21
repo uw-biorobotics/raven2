@@ -56,11 +56,11 @@ void tool::set_tool(end_effector_type t_end_new, int a_mech) {
   t_end = t_end_new;
   mech_type = a_mech;
   if (t_end == r_grasper)
-    t_style = raven;
+    adapter_style = raven;
   else if (t_end == r_sq_grasper)
-    t_style = square_raven;
+    adapter_style = square_raven;
   else
-    t_style = dv;
+    adapter_style = dv;
 }
 
 /** assigns tool attribute values by calling other functions

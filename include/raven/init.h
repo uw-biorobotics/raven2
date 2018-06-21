@@ -51,3 +51,10 @@ int init_ravengains(ros::NodeHandle n, device *device0);
 
 /// set the starting xyz coordinate (pos_d = pos)
 void setStartXYZ(device *device0);
+
+
+const int raven_sq_tool_homing_max_dac[4] = {
+                               2800,   // tool_rot
+                               2200,   // wrist
+                               2300,   // grasp1
+                               2300};  // grasp2
