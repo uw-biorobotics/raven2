@@ -67,6 +67,8 @@
 
 #include <iostream>
 
+#define HOMING_PERIOD 3.
+
 int set_joints_known_pos(mechanism *_mech, int tool_only);
 
 extern unsigned long int gTime;
@@ -119,6 +121,16 @@ int raven_homing(device *device0, param_pass *currParams, int begin_homing) {
   }
 #endif
 
+
+  _mech = NULL;
+  _joint = NULL;
+  //check if any of the tools are camera tools and skip non-roll tool joints
+  while (loop_over_joints(device0, _mech, _joint, i, j)) {
+
+  }  
+
+
+
   // Only run in init mode
   if (!(currParams->runlevel == RL_INIT && currParams->sublevel == SL_AUTO_INIT)) {
     homing_inited = 0;
@@ -145,6 +157,16 @@ int raven_homing(device *device0, param_pass *currParams, int begin_homing) {
       _joint->state = jstate_not_ready;
 
       if (is_toolDOF(_joint)) jvel_PI_control(_joint, 1);  // reset PI control integral term
+      
+      if (is_toolDOF(_joint)) {
+        if ((_mech->mech_tool.t_end == qut_camera) && 
+            (_joint->type != TOOL_ROT_GOLD) && (_joint->type != TOOL_ROT_GREEN))
+        {
+          _joint->state = jstate_hard_stop;
+          log_msg("non-camera roll set to hard stop %i", j);
+        }
+      }
+
       homing_inited = 1;
     }
     log_msg("Homing sequence initialized");
@@ -182,6 +204,7 @@ int raven_homing(device *device0, param_pass *currParams, int begin_homing) {
   while (loop_over_joints(device0, _mech, _joint, i, j)) {
     DOF *_joint = &(_mech->joint[j]);  ///\todo is this line necessary?
 
+    //int camera = (_mech->mech_tool.t_end == qut_camera) ? 1 : 0;
     // Check to see if we've reached the joint limit.
     if (check_homing_condition(_joint)) {
       log_msg("Found limit on joint %d cmd: %d \t", _joint->type, _joint->current_cmd,
@@ -195,13 +218,17 @@ int raven_homing(device *device0, param_pass *currParams, int begin_homing) {
     // For each mechanism, check to see if the mech is finished homing.
     if (j == (MAX_DOF_PER_MECH - 1)) {
       /// if we're homing tools, wait for tools to be finished
-      if ((!tools_ready(_mech) && _mech->joint[TOOL_ROT].state == jstate_hard_stop &&
+      if ((!tools_ready(_mech) && 
+           _mech->joint[TOOL_ROT].state == jstate_hard_stop &&
            _mech->joint[WRIST].state == jstate_hard_stop &&
-           _mech->joint[GRASP1].state == jstate_hard_stop)  // \TODO check for grasp2 - bug?
+           _mech->joint[GRASP1].state == jstate_hard_stop &&
+           _mech->joint[GRASP2].state == jstate_hard_stop)  // \TODO check for grasp2 - bug?
           ||
-          (tools_ready(_mech) && _mech->joint[SHOULDER].state == jstate_hard_stop &&
+          (tools_ready(_mech) && 
+           _mech->joint[SHOULDER].state == jstate_hard_stop &&
            _mech->joint[ELBOW].state == jstate_hard_stop &&
-           _mech->joint[Z_INS].state == jstate_hard_stop)) {
+           _mech->joint[Z_INS].state == jstate_hard_stop)) 
+        {
         if (delay2 == 0) delay2 = gTime;
 
         if (gTime > delay2 + 200)  // wait 200 ticks for cables to settle down
@@ -243,6 +270,7 @@ int set_joints_known_pos(mechanism *_mech, int tool_only) {
   int scissor =
       ((_mech->mech_tool.t_end == mopocu_scissor) || (_mech->mech_tool.t_end == potts_scissor)) ? 1
                                                                                                 : 0;
+  int camera = (_mech->mech_tool.t_end == qut_camera) ? 1 : 0;                                                                                                                                                                      
 
   log_msg("setting joints known");
 
@@ -268,7 +296,15 @@ int set_joints_known_pos(mechanism *_mech, int tool_only) {
         _joint->jpos_d = _mech->mech_tool.grasp2_min_angle;
         log_msg("setting grasp 2 to     arm %d,     joint %d to    value %f",
                 _mech->mech_tool.mech_type, _joint->type, _joint->jpos_d);
-      } else
+      } 
+      else if (is_toolDOF(_joint) &&  camera && 
+               (_joint->type != TOOL_ROT_GOLD) &&
+               (_joint->type != TOOL_ROT_GREEN))
+      {
+        _joint->jpos_d = _joint->jpos; //don't move non-roll DOFs for camera tool
+        log_msg("non-camera set to jpos %i", j);
+      }
+      else
         _joint->jpos_d = DOF_types[_joint->type].max_position;
 
       // Initialize a trajectory to operating angle
@@ -407,12 +443,11 @@ void homing(DOF *_joint) {
 
     case jstate_hard_stop:
       // Wait for all joints. No trajectory here.
-
       break;
 
     case jstate_homing1:
-      start_trajectory(_joint, DOF_types[_joint->type].home_position, 2.5);
-      _joint->state = jstate_homing2;
+        start_trajectory(_joint, DOF_types[_joint->type].home_position, HOMING_PERIOD);
+        _joint->state = jstate_homing2;
       break;
 
     case jstate_homing2:
@@ -451,8 +486,9 @@ void homing(DOF *_joint, tool a_tool) {
   // duration for homing of each joint
   const float f_period[MAX_MECH * MAX_DOF_PER_MECH] = {1, 1, 1, 9999999, 1, 1, 1, 1,
                                                        1, 1, 1, 9999999, 1, 1, 1, 1};
-  // check if scissors
+  // check if scissors or camera
   int scissor = ((a_tool.t_end == mopocu_scissor) || (a_tool.t_end == potts_scissor)) ? 1 : 0;
+  int camera = (a_tool.t_end == qut_camera) ? 1 : 0;
 
   float f_magnitude[MAX_MECH * MAX_DOF_PER_MECH] = {
       -10 DEG2RAD, 10 DEG2RAD, 0.02, 9999999, 80 DEG2RAD, 40 DEG2RAD, 40 DEG2RAD, 40 DEG2RAD,
@@ -464,6 +500,7 @@ void homing(DOF *_joint, tool a_tool) {
     else if (a_tool.mech_type == GREEN_ARM)
       f_magnitude[TOOL_ROT_GREEN] = -80 DEG2RAD;
   }
+
   if (scissor) {
     if (a_tool.mech_type == GOLD_ARM)
       f_magnitude[GRASP2_GOLD] = -40 DEG2RAD;
@@ -471,13 +508,14 @@ void homing(DOF *_joint, tool a_tool) {
       f_magnitude[GRASP2_GREEN] = -40 DEG2RAD;
   }
 
+
+
   switch (_joint->state) {
     case jstate_wait:
       break;
 
     case jstate_not_ready:
       // Initialize velocity trajectory
-      // log_msg("Starting homing on joint %d", _joint->type);
       _joint->state = jstate_pos_unknown;
       start_trajectory_mag(_joint, f_magnitude[_joint->type], f_period[_joint->type]);
       break;
@@ -489,12 +527,24 @@ void homing(DOF *_joint, tool a_tool) {
 
     case jstate_hard_stop:
       // Wait for all joints. No trajectory here.
-
       break;
 
     case jstate_homing1:
-      start_trajectory(_joint, DOF_types[_joint->type].home_position, 2.5);
-      _joint->state = jstate_homing2;
+      // Camera only homes roll
+      if ((camera && 
+        is_toolDOF(_joint)) && 
+        ((_joint->type != TOOL_ROT_GOLD) && (_joint->type != TOOL_ROT_GREEN))
+        ){
+        //_joint->state = jstate_ready;
+        _joint->state = jstate_homing2;
+        start_trajectory(_joint, _joint->jpos, HOMING_PERIOD);
+        log_msg("leaving joint %i where it is, setting to ready", _joint->type);
+      } 
+      else
+      {
+          start_trajectory(_joint, DOF_types[_joint->type].home_position, HOMING_PERIOD);
+        _joint->state = jstate_homing2;
+      }
       break;
 
     case jstate_homing2:

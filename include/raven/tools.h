@@ -53,7 +53,8 @@ enum end_effector_type {
   cardiere_forceps, /**< dV cardiere forceps value 6 */
   mopocu_scissor,   /**< dV monopolar curved scissors value 7 */
   potts_scissor,    /**< dV potts scissor value 8 */
-  monopolar_cautery /**< dV monopolar cuatery tool value 9 */
+  monopolar_cautery, /**< dV monopolar cuatery tool value 9 */
+  qut_camera        /**< Laparoscope adapter commisioned by QUT */
 };
 
 /** a tool that can be used on either RAVEN arm

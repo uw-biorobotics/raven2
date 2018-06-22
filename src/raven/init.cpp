@@ -49,6 +49,7 @@ tool gold_arm_tool(large_needle, GOLD_ARM);
 // tool gold_arm_tool(r_grasper, GOLD_ARM);
 // tool gold_arm_tool(micro_forceps, GOLD_ARM);
 
+
 //#ifdef SCISSOR_RIGHT
 // tool green_arm_tool(mopocu_scissor, GREEN_ARM);
 //#else
@@ -57,8 +58,9 @@ tool gold_arm_tool(large_needle, GOLD_ARM);
 
 // tool green_arm_tool(mopocu_scissor, GREEN_ARM);
 // tool green_arm_tool(potts_scissor, GREEN_ARM);
-tool green_arm_tool(r_grasper, GREEN_ARM);
+//tool green_arm_tool(r_grasper, GREEN_ARM);
 //tool green_arm_tool(bipolar_forceps, GREEN_ARM);
+tool green_arm_tool(qut_camera, GREEN_ARM);
 
 
 
@@ -277,6 +279,7 @@ void initDOFs(device *device0) {
       device0->mech[i].joint[NO_CONNECTION].type = NO_CONNECTION_GOLD;
 
       device0->mech[i].mech_tool = gold_arm_tool;
+      
     } else if (device0->mech[i].type == GREEN_ARM) {
       device0->mech[i].joint[SHOULDER].type = SHOULDER_GREEN;
       device0->mech[i].joint[ELBOW].type = ELBOW_GREEN;
