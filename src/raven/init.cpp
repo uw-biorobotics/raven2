@@ -45,10 +45,10 @@
 
 /**************** tool selection ********************/
 // tool gold_arm_tool (bipolar_forceps, GOLD_ARM);
-tool gold_arm_tool(large_needle, GOLD_ARM);
+//tool gold_arm_tool(large_needle, GOLD_ARM);
 // tool gold_arm_tool(r_grasper, GOLD_ARM);
 // tool gold_arm_tool(micro_forceps, GOLD_ARM);
-
+tool gold_arm_tool(ricks_tool, GOLD_ARM);
 
 //#ifdef SCISSOR_RIGHT
 // tool green_arm_tool(mopocu_scissor, GREEN_ARM);

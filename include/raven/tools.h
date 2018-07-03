@@ -54,7 +54,8 @@ enum end_effector_type {
   mopocu_scissor,   /**< dV monopolar curved scissors value 7 */
   potts_scissor,    /**< dV potts scissor value 8 */
   monopolar_cautery, /**< dV monopolar cuatery tool value 9 */
-  qut_camera        /**< Laparoscope adapter commisioned by QUT */
+  qut_camera,        /**< Laparoscope adapter commisioned by QUT */
+  ricks_tool        /**< skips homing, but still acts as a RAVEN tool */
 };
 
 /** a tool that can be used on either RAVEN arm

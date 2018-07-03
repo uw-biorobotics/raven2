@@ -55,7 +55,7 @@ tool::tool(end_effector_type t_end_new, int a_mech) {
 void tool::set_tool(end_effector_type t_end_new, int a_mech) {
   t_end = t_end_new;
   mech_type = a_mech;
-  if ((t_end == r_grasper) || (t_end == qut_camera))
+  if ((t_end == r_grasper) || (t_end == qut_camera) || (t_end == ricks_tool))
     adapter_style = raven;
   else if (t_end == r_sq_grasper)
     adapter_style = square_raven;
@@ -280,6 +280,28 @@ void tool::set_limits() {
       grasp2_min_limit = -105 DEG2RAD;
       break;
 
+      case ricks_tool:
+      rot_max_angle = 330 DEG2RAD;
+      rot_min_angle = -330 DEG2RAD;  // might not be correct
+      rot_max_limit = 182 DEG2RAD;
+      rot_min_limit = -182 DEG2RAD;
+
+      wrist_max_angle = 100 DEG2RAD;
+      wrist_min_angle = -100 DEG2RAD;
+      wrist_max_limit = 70 DEG2RAD;
+      wrist_min_limit = -70 DEG2RAD;
+
+      grasp1_max_angle = 120 DEG2RAD;
+      grasp1_min_angle = -120 DEG2RAD;
+      grasp1_max_limit = 105 DEG2RAD;
+      grasp1_min_limit = -105 DEG2RAD;
+
+      grasp2_max_angle = 120 DEG2RAD;
+      grasp2_min_angle = -120 DEG2RAD;
+      grasp2_max_limit = 105 DEG2RAD;
+      grasp2_min_limit = -105 DEG2RAD;
+      break;
+
     default:
       break;
   }
@@ -356,6 +378,13 @@ void tool::set_home_angles() {
       grasp2_home_angle = 45 DEG2RAD;
       break;
 
+    case ricks_tool:
+      rot_home_angle = 0;
+      wrist_home_angle = 0;
+      grasp1_home_angle = 45 DEG2RAD;
+      grasp2_home_angle = 45 DEG2RAD;
+      break;      
+
     default:
       break;
   }
@@ -399,6 +428,10 @@ void tool::set_wrist_coupling() {
       break;
 
     case monopolar_cautery:
+      break;
+
+    case ricks_tool:
+      wrist_coupling = 0;
       break;
 
     default:
@@ -460,6 +493,12 @@ void tool::set_DH_params() {
       wrist_length = 0.009;
       break;
 
+    case ricks_tool:
+      shaft_length = 0.482;
+      wrist_length = 0.013;
+      break;
+
+
     default:
       shaft_length = 0.5;
       wrist_length = 0.009;
@@ -505,6 +544,10 @@ void tool::set_max_opening_angle() {
       break;
 
     case monopolar_cautery:
+      break;
+
+    case ricks_tool:
+      max_opening_angle = 120 DEG2RAD;
       break;
 
     default:

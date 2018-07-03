@@ -121,14 +121,18 @@ int raven_homing(device *device0, param_pass *currParams, int begin_homing) {
   }
 #endif
 
-
+  //if the tool is a ricks tool, skip intialization of tool joints
+  //by setting all tool joints to ready
   _mech = NULL;
   _joint = NULL;
-  //check if any of the tools are camera tools and skip non-roll tool joints
+
   while (loop_over_joints(device0, _mech, _joint, i, j)) {
-
-  }  
-
+    if(_mech->mech_tool.t_end == ricks_tool){
+      if (is_toolDOF(_joint)) {
+        _joint->state = jstate_ready;
+      }
+    }
+  }
 
 
   // Only run in init mode
