@@ -35,7 +35,7 @@
 #include "USB_init.h"
 #include "itp_teleoperation.h"
 
-int initLocalioData();
+int initLocalioData(device *device0);
 
 // update controller state w/ toolkit input
 void teleopIntoDS1(u_struct *);

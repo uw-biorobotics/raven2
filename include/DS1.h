@@ -57,6 +57,7 @@ struct param_pass {
   int surgeon_mode;
   int robotControlMode;
   int last_sequence;
+  end_effector_type param_tool_type[MAX_MECH_PER_DEV];        //current tool types for each mechanism
 };
 
 #endif

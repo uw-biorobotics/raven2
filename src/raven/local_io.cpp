@@ -82,7 +82,7 @@ extern offsets offsets_r;
  * \ingroup DataStructures
  */
 
-int initLocalioData() {
+int initLocalioData(device *device0) {
   int i;
   pthread_mutexattr_init(&data1MutexAttr);
   pthread_mutexattr_setprotocol(&data1MutexAttr, PTHREAD_PRIO_INHERIT);
@@ -98,9 +98,12 @@ int initLocalioData() {
     data1.rd[i].roll = 0;
     data1.rd[i].grasp = 0;
     Q_ori[i] = Q_ori[i].getIdentity();
+
+    data1.param_tool_type[i] = device0->mech[i].mech_tool.t_end;
   }
   data1.surgeon_mode = 0;
   data1.last_sequence = 111;
+
   pthread_mutex_unlock(&data1Mutex);
   return 0;
 }
@@ -141,6 +144,11 @@ void teleopIntoDS1(u_struct *us_t) {
   pthread_mutex_lock(&data1Mutex);
   tf::Quaternion q_temp;
   tf::Matrix3x3 rot_mx_temp;
+  tfScalar roll_temp, pitch_temp, yaw_temp;
+  tf::Vector3 x_axis(1, 0, 0);
+
+
+
 
   // TODO:: APPLY TRANSFORM TO INCOMING DATA
 
@@ -164,11 +172,24 @@ void teleopIntoDS1(u_struct *us_t) {
     p.y = us_t->dely[armidx];
     p.z = us_t->delz[armidx];
 
+    
     // set local quaternion from teleop quaternion data
     q_temp.setX(us_t->Qx[armidx]);
     q_temp.setY(us_t->Qy[armidx]);
     q_temp.setZ(us_t->Qz[armidx]);
     q_temp.setW(us_t->Qw[armidx]);
+
+
+    //tool is a camera tool, only take z comp
+    if(data1.param_tool_type[armidx] == qut_camera){ 
+      //represent as rotation matrix, then get YPR to extract z-component
+      rot_mx_temp.setRotation(q_temp); 
+      rot_mx_temp.getEulerYPR(yaw_temp, pitch_temp, roll_temp);
+      //use yaw as x-comp of quaternion
+      q_temp.setRotation(x_axis, yaw_temp);
+
+    }
+
 
     fromITP(&p, q_temp, armserial);
 

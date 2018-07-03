@@ -409,6 +409,14 @@ int r2_inv_kin(device *d0, int runlevel) {
     d0->mech[m].joint[GRASP1].jpos_d = -Js[5] + gangle / 2;
     d0->mech[m].joint[GRASP2].jpos_d = Js[5] + gangle / 2;
 
+    //if it's a camera tool, keep the non-roll joints where they are
+    if(d0->mech[m].mech_tool.t_end == qut_camera){
+      d0->mech[m].joint[WRIST].jpos_d = d0->mech[m].mech_tool.wrist_home_angle;
+      d0->mech[m].joint[GRASP1].jpos_d = d0->mech[m].mech_tool.grasp1_home_angle;
+      d0->mech[m].joint[GRASP2].jpos_d = d0->mech[m].mech_tool.grasp2_home_angle;
+    }
+
+
     if (printIK != 0)  // && d0->mech[m].type == GREEN_ARM_SERIAL )
     {
       log_msg("All IK solutions for mechanism %d.  Chosen solution:%d:", m, sol_idx);

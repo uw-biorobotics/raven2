@@ -295,7 +295,7 @@ int init_module() {
 
   // Initialize Local_io datastructs.
   log_msg("Initializing Local I/O...");
-  initLocalioData();
+  initLocalioData(&device0);
 
   return 0;
 }
