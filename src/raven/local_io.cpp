@@ -369,7 +369,8 @@ int init_ravenstate_publishing(ros::NodeHandle &n) {
   joint_publisher = n.advertise<sensor_msgs::JointState>("joint_states", 1);
 
   sub_automove = n.subscribe<raven_automove>("raven_automove", 1, autoincrCallback,
-                                             ros::TransportHints().unreliable());
+                                             ros::TransportHints().unreliable()
+                                                                  .reliable());
 
   return 0;
 }
