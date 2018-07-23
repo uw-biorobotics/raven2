@@ -44,6 +44,7 @@ struct param_pass {
   u_08 sublevel;                                         // device runlevel
   int enc_d[MAX_MECH_PER_DEV * MAX_DOF_PER_MECH];        // desired encoder position
   int dac_d[MAX_MECH_PER_DEV * MAX_DOF_PER_MECH];        // desired dac level
+  float jpos[MAX_MECH_PER_DEV * MAX_DOF_PER_MECH];       // current joint coordinates
   float jpos_d[MAX_MECH_PER_DEV * MAX_DOF_PER_MECH];     // desired joint coordinates
   float jvel_d[MAX_MECH_PER_DEV * MAX_DOF_PER_MECH];     // desired joint velocity
   float kp[MAX_MECH_PER_DEV * MAX_DOF_PER_MECH];         // position gain
@@ -57,7 +58,8 @@ struct param_pass {
   int surgeon_mode;
   int robotControlMode;
   int last_sequence;
-  end_effector_type param_tool_type[MAX_MECH_PER_DEV];        //current tool types for each mechanism
+  end_effector_type param_tool_type[MAX_MECH_PER_DEV];   //current tool types for each mechanism
+  float teleop_tf_quat[4 * MAX_MECH_PER_DEV];            //quaternion rotation between 0 and output frame for each mechanism
 };
 
 #endif

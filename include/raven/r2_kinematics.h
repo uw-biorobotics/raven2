@@ -32,7 +32,11 @@
 #include "DS0.h"
 #include "defines.h"
 
-enum l_r { dh_left = 0, dh_right = 1, dh_l_r_last = 2 };
+enum l_r {
+  dh_left = 0, 
+  dh_right = 1, 
+  dh_l_r_last = 2
+};
 enum ik_valid_sol {
   ik_valid = 0,
   ik_invalid = 1,
@@ -71,11 +75,14 @@ const double GM1 = sin(La12), GM2 = cos(La12), GM3 = sin(La23), GM4 = cos(La23);
 void print_tf(tf::Transform);
 void print_btVector(tf::Vector3 vv);
 tf::Transform getFKTransform(int a, int b);
+tf::Transform getFKTransform(int a, int b, l_r arm);
+int setTeleTransform(mechanism &in_mch, int a, int b);
 
 void showInverseKinematicsSolutions(device *d0, int runlevel);
 
 int r2_fwd_kin(device *d0, int runlevel);
 int getATransform(mechanism &in_mch, tf::Transform &out_xform, int frameA, int frameB);
+int getATransform(int mech_serial, float j_pos[MAX_DOF_PER_MECH], tf::Transform &out_xform, int frameA, int frameB); 
 
 /** fwd_kin()
  *   Runs the Raven II forward kinematics to determine end effector position.

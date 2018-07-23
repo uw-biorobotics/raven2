@@ -66,7 +66,8 @@
 //~~~~~~~~ Other settings, experts only ~~~~~~~~~~~~
 #define NO_LPF  // This setting short circuits the Low Pass Filter in
                 // state_estimate.cpp
-                //#define OMNI_GAIN  2  // Get a little more oomph out of the omni grasping
+#define GRASP_GAIN  1  // 2 will get a little more oomph out of the omni grasping
+                       // 0 or 1 for normal operation
 // button - sets a gain in local__io.cpp
 //#define ORIENTATION_V
 //#define DAC_TEST  				// treat the desired torque as the

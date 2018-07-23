@@ -135,14 +135,15 @@ struct mechanism {
   tool mech_tool;
   position pos;
   position pos_d;
-  position base_pos;  // base position in world frame
+  position base_pos;          // base position in world frame
   orientation ori;
   orientation ori_d;
-  orientation base_ori;  // base orientation in world frame
+  orientation base_ori;       // base orientation in world frame
   DOF joint[MAX_DOF_PER_MECH];
-  u_08 inputs;         // input pins
-  u_08 outputs;        // output pins
-  r2_jacobian r2_jac;  // class needed to avoid build error about forward declarations
+  u_08 inputs;                // input pins
+  u_08 outputs;               // output pins
+  r2_jacobian r2_jac;         // class needed to avoid build error about forward declarations
+  float teleop_transform[4];  // quaternion rotation between 0 and desired output frame
 };
 
 /********************************************************

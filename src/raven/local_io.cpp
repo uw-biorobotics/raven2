@@ -63,7 +63,8 @@ const static double d2r = M_PI / 180;  // degrees to radians
 const static double r2d = 180 / M_PI;  // radians to degrees
 
 static param_pass data1;  // local data structure that needs mutex protection
-tf::Quaternion Q_ori[2];
+tf::Quaternion Q_ori[2];  //local representation of robot orientation, sync'd 
+                          //with update master function to avoid divergence
 pthread_mutexattr_t data1MutexAttr;
 pthread_mutex_t data1Mutex;
 
@@ -98,8 +99,6 @@ int initLocalioData(device *device0) {
     data1.rd[i].roll = 0;
     data1.rd[i].grasp = 0;
     Q_ori[i] = Q_ori[i].getIdentity();
-
-    data1.param_tool_type[i] = device0->mech[i].mech_tool.t_end;
   }
   data1.surgeon_mode = 0;
   data1.last_sequence = 111;
@@ -139,16 +138,14 @@ int receiveUserspace(void *u, int size) {
  *  \ingroup DataStructures
  */
 void teleopIntoDS1(u_struct *us_t) {
-  position p;
+  position p, p_temp;
   int i, armidx, armserial, loops;
   pthread_mutex_lock(&data1Mutex);
   tf::Quaternion q_temp;
   tf::Matrix3x3 rot_mx_temp;
   tfScalar roll_temp, pitch_temp, yaw_temp;
-  tf::Vector3 x_axis(1, 0, 0);
 
-
-
+  int debug_camera = 0;
 
   // TODO:: APPLY TRANSFORM TO INCOMING DATA
 
@@ -179,19 +176,87 @@ void teleopIntoDS1(u_struct *us_t) {
     q_temp.setZ(us_t->Qz[armidx]);
     q_temp.setW(us_t->Qw[armidx]);
 
+    
 
     //tool is a camera tool, only take z comp
+    //TODO make this a separate function
     if(data1.param_tool_type[armidx] == qut_camera){ 
-      //represent as rotation matrix, then get YPR to extract z-component
-      rot_mx_temp.setRotation(q_temp); 
-      rot_mx_temp.getEulerYPR(yaw_temp, pitch_temp, roll_temp);
-      //use yaw as x-comp of quaternion
-      q_temp.setRotation(x_axis, yaw_temp);
+      // tf_0_4 --> roll frame represented in frame 0 (at RCM)
+      tf::Transform tf_0_4, tf_4_cz, tf_m_c, tf_0_m;
+      tf::Quaternion q_master;
+      tf::Vector3 k_c, k_cz, k_0, k_m; // equivalent angle axis
+      tf::Vector3 v_m, v_0, v_rot_axis; // master position incr and ouput incr 
+      tfScalar out_angle, mech_tool_frame[4];
 
-    }
+      // *** 0 set known transforms *** 
+      tf_4_cz.setIdentity(); // this transformation can be used to 
+                             // compensate for camera angle offsets
+
+      // camera frame represented in master frame
+      tf_m_c = tf::Transform(tf::Matrix3x3(0,  0,  1,
+                                           0,  1,  0,
+                                           1,  0,  0)); 
+
+      // *** 1 represent master input in tf datatypes *** 
+      q_master = q_temp;
+      // equiv angle axis of master rot incr
+      k_m = q_master.getAngle() * q_master.getAxis(); 
+      // vector type of master position incr
+      v_m.setValue(p.x, p.y, p.z); 
 
 
+
+      // *** 2 get the transform 0_4 passed from kinematics to data1 *** 
+      for(int i = 0; i < 4; i++){
+        mech_tool_frame[i] = data1.teleop_tf_quat[armidx * 4 + i];
+      }
+      tf_0_4.setRotation(tf::Quaternion(mech_tool_frame[0], mech_tool_frame[1], 
+        mech_tool_frame[2], mech_tool_frame[3]));
+
+
+      // *** 3 project master rotation onto z axis *** 
+      // camera only allows roll about insertion axis
+      k_c = tf_m_c.getBasis().inverse() * k_m;
+      k_cz = k_c * tf::Vector3(0,0,1);
+
+      // *** 4 kind k_0 and v_0
+      // k_0 = tf_0_4 * t_4_cz * k_cz;
+      // v_0 = tf_0_4 * t_4_cz * tf_m_c.inverse() * v_m;
+      k_0 = tf_0_4.getBasis() * k_cz;
+      v_0 = tf_0_4.getBasis() * tf_m_c.getBasis().inverse() * v_m;
+
+
+
+      // *** 5 translate data back to traditional forms ***
+      v_rot_axis = k_0.normalized();
+      out_angle = k_0.length();
+      char zero_flag = 0;
+      if(out_angle == 0.0){
+        zero_flag = 1;
+        q_temp.setRPY(0,0,0);
+      }else
+        q_temp.setRotation(v_rot_axis, out_angle);
+      p.x = v_0.getX(); p.y = v_0.getY(); p.z = v_0.getZ();
+
+      static int check = 0;
+      check++;
+      if((check % 1000 == 0) && debug_camera){
+        tf::Transform(q_master).getBasis().getEulerYPR(yaw_temp, pitch_temp, roll_temp);
+        log_msg("q_master   r p y   %f \t %f \t %f", roll_temp, pitch_temp, yaw_temp);
+        log_msg("K_c                %f \t %f \t %f", k_c.getX(), k_c.getY(), k_c.getZ());        
+        log_msg("K_c proj           %f \t %f \t %f", k_cz.getX(), k_cz.getY(), k_cz.getZ());
+        log_msg("K_0                %f \t %f \t %f", k_0.getX(), k_0.getY(), k_0.getZ());
+        log_msg("V_0                %f \t %f \t %f", v_0.getX(), v_0.getY(), v_0.getZ());
+        log_msg("rot_axis           %f \t %f \t %f", v_rot_axis.getX(), v_rot_axis.getY(), v_rot_axis.getZ());
+        log_msg("out_angle                %f", out_angle);
+        if(zero_flag) log_msg("Zero!");
+        else log_msg("");        
+        log_msg("---");  
+      }
+
+    }else
     fromITP(&p, q_temp, armserial);
+
 
     data1.xd[armidx].x += p.x;
     data1.xd[armidx].y += p.y;
@@ -205,28 +270,37 @@ void teleopIntoDS1(u_struct *us_t) {
     for (int j = 0; j < 3; j++)
       for (int k = 0; k < 3; k++) data1.rd[armidx].R[j][k] = rot_mx_temp[j][k];
 
-#ifdef OMNI_GAIN
-    const int grasp_gain = OMNI_GAIN;
-#else
-    const int grasp_gain = 1;
-#endif
 
-#ifdef SCISSOR_RIGHT
-    if (armserial == GREEN_ARM_SERIAL) grasp_gain *= 4;
-
-#endif
-
+    // set grasp command
     const int graspmax = (M_PI / 2 * 1000);
     int graspmin = (-10.0 * 1000.0 DEG2RAD);
+    int grasp_gain = 1;
 
-#ifdef SCISSOR_RIGHT
-    if (armserial == GREEN_ARM_SERIAL) graspmin = (-40.0 * 1000.0 DEG2RAD);
-#endif
-    data1.rd[armidx].grasp -= grasp_gain * us_t->grasp[armidx];
+    // start with determining the gain on the grasping input
+    // e.g. the omni only sends {-1, 0, 1}, so an int gain of >2 
+    // increases grasping speed and makes it more user-friendly
+    // scissors can be helped with a bit of oomph   
+    if(GRASP_GAIN) grasp_gain = GRASP_GAIN;
+
+
+    if(isScissor(data1.param_tool_type[armidx])){
+      grasp_gain *= 4;
+      graspmin = (-40.0 * 1000.0 DEG2RAD);
+    } 
+
+    //add grasp value to data1
+    // if(isCamera(data1.param_tool_type[armidx])) 
+    if(data1.param_tool_type[armidx] == r_grasper) 
+      data1.rd[armidx].grasp += 0; 
+    else  
+      data1.rd[armidx].grasp -= grasp_gain * us_t->grasp[armidx];
+
+    //limit grasping to safe max and min limits  
     if (data1.rd[armidx].grasp > graspmax)
       data1.rd[armidx].grasp = graspmax;
     else if (data1.rd[armidx].grasp < graspmin)
       data1.rd[armidx].grasp = graspmin;
+
   }
 
   /// \question HK: why is this a hack?
@@ -235,11 +309,6 @@ void teleopIntoDS1(u_struct *us_t) {
   // HACK HACK HACK
   // HACK HACK HACK
   data1.last_sequence = us_t->sequence;
-
-  // commented debug output
-  //    log_msg("updated d1.xd to: (%d,%d,%d)/(%d,%d,%d)",
-  //           data1.xd[0].x, data1.xd[0].y, data1.xd[0].z,
-  //           data1.xd[1].x, data1.xd[1].y, data1.xd[1].z);
 
   data1.surgeon_mode = us_t->surgeon_mode;
   pthread_mutex_unlock(&data1Mutex);
@@ -290,14 +359,28 @@ int checkLocalUpdates() {
  */
 param_pass *getRcvdParams(param_pass *d1) {
   // \TODO Check performance of trylock / default priority inversion scheme
-  if (pthread_mutex_trylock(&data1Mutex) !=
-      0)  // Use trylock since this function is called form rt-thread. return
+  if (pthread_mutex_trylock(&data1Mutex) != 0)  // Use trylock since this 
+          // function is called form rt-thread. return
           // immediately with old values if unable to lock
     return d1;
   // pthread_mutex_lock(&data1Mutex); //Priority inversion enabled. Should force
   // completion of other parts and enter into this section.
+  
+  //pass current position into data 1 before copying data 1 into rcvd params
+  //not really necessary now that we pass the teleop transform
+  for(int i =0; i < NUM_MECH * MAX_DOF_PER_MECH; i++){
+    data1.jpos[i] = d1->jpos[i];
+  }
+
+  //also pass teleop transform 
+  for(int i = 0; i < NUM_MECH; i++){
+    for(int j = 0; j < 4; j++){
+      data1.teleop_tf_quat[i*4 + j] = d1->teleop_tf_quat[i*4 + j];
+    }
+  }
   memcpy(d1, &data1, sizeof(param_pass));
   isUpdated = 0;
+
   pthread_mutex_unlock(&data1Mutex);
   return d1;
 }
@@ -341,6 +424,9 @@ void updateMasterRelativeOrigin(device *device0) {
     tmpmx.setValue(_ori->R[0][0], _ori->R[0][1], _ori->R[0][2], _ori->R[1][0], _ori->R[1][1],
                    _ori->R[1][2], _ori->R[2][0], _ori->R[2][1], _ori->R[2][2]);
     tmpmx.getRotation(Q_ori[armidx]);
+
+
+    data1.param_tool_type[i] = device0->mech[i].mech_tool.t_end;
   }
   pthread_mutex_unlock(&data1Mutex);
   isUpdated = TRUE;
@@ -389,8 +475,9 @@ int init_ravenstate_publishing(ros::NodeHandle &n) {
       "ravenstate", 1);  //, ros::TransportHints().unreliable().tcpNoDelay() );
   joint_publisher = n.advertise<sensor_msgs::JointState>("joint_states", 1);
 
-  sub_automove = n.subscribe<raven_automove>("raven_automove", 1, autoincrCallback,
-                                             ros::TransportHints().unreliable());
+  sub_automove = n.subscribe<raven_automove>("raven_automove", 1, autoincrCallback
+                                             ,ros::TransportHints().unreliable()
+                                                                   .reliable());
 
   return 0;
 }

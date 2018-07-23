@@ -89,10 +89,14 @@ tf::Transform getFKTransform(int a, int b) {
     ROS_ERROR("Invalid start/end indices.");
   }
 
-  double xx = cos(dh_theta[a]), xy = -sin(dh_theta[a]), xz = 0;
-  double yx = sin(dh_theta[a]) * cos(dh_alpha[a]), yy = cos(dh_theta[a]) * cos(dh_alpha[a]),
+  double xx = cos(dh_theta[a]), 
+         xy = -sin(dh_theta[a]),
+         xz = 0;
+  double yx = sin(dh_theta[a]) * cos(dh_alpha[a]), 
+         yy = cos(dh_theta[a]) * cos(dh_alpha[a]),
          yz = -sin(dh_alpha[a]);
-  double zx = sin(dh_theta[a]) * sin(dh_alpha[a]), zy = cos(dh_theta[a]) * sin(dh_alpha[a]),
+  double zx = sin(dh_theta[a]) * sin(dh_alpha[a]), 
+         zy = cos(dh_theta[a]) * sin(dh_alpha[a]),
          zz = cos(dh_alpha[a]);
 
   double px = dh_a[a];
@@ -106,6 +110,89 @@ tf::Transform getFKTransform(int a, int b) {
   if (b > a + 1) xf *= getFKTransform(a + 1, b);
 
   return xf;
+}
+
+/**\fn tf::Transform getFKTransform (int a, int b, l_r arm)
+ * \brief Retrieve the forward kinematics transform from a to b, i.e., ^a_bT for a given arm
+ * \param a - an integer value, starting link frame id
+ * \param b - an integer value, ending link frame id
+ * \param arm - the arm for calculating kinematics
+ * \return a tf::Transform object transforms link a to link b
+ *  \ingroup Kinematics
+ */
+tf::Transform getFKTransform(int a, int b, l_r arm) {
+  tf::Transform xf;
+  if ((b <= a) || b == 0) {
+    ROS_ERROR("Invalid start/end indices.");
+  }
+
+  double xx = cos(robot_thetas[arm][a]), 
+         xy = -sin(robot_thetas[arm][a]),
+         xz = 0;
+  double yx = sin(robot_thetas[arm][a]) * cos(alphas[arm][a]), 
+         yy = cos(robot_thetas[arm][a]) * cos(alphas[arm][a]),
+         yz = -sin(alphas[arm][a]);
+  double zx = sin(robot_thetas[arm][a]) * sin(alphas[arm][a]), 
+         zy = cos(robot_thetas[arm][a]) * sin(alphas[arm][a]),
+         zz = cos(alphas[arm][a]);
+
+  double px = aas[arm][a];
+  double py = -sin(alphas[arm][a]) * ds[arm][a];
+  double pz = cos(alphas[arm][a]) * ds[arm][a];
+
+  xf.setBasis(tf::Matrix3x3(xx, xy, xz, yx, yy, yz, zx, zy, zz));
+  xf.setOrigin(tf::Vector3(px, py, pz));
+
+  // recursively find transforms for following links
+  if (b > a + 1) xf *= getFKTransform(a + 1, b, arm);
+
+  return xf;
+}
+
+//--------------------------------------------------------------------------------
+//  Calculate a transform between two links
+//--------------------------------------------------------------------------------
+
+/**\fn tf::Transform getFKTransform (int a, int b, l_r arm)
+ * \brief Retrieve the forward kinematics transform from a to b, i.e., ^a_bT
+ * \param a - an integer value, starting link frame id
+ * \param b - an integer value, ending link frame id
+ * \param arm - the arm to calculate
+ * \return a tf::Transform object transforms link a to link b
+ *  \ingroup Kinematics
+ */
+int setTeleTransform(mechanism &in_mch, int a, int b) {
+  l_r arm;
+  tf::Transform out_xform;
+  tf::Quaternion q_temp;
+
+  /// get arm type and wrist actuation angle
+  if (in_mch.type == GOLD_ARM_SERIAL)
+    arm = dh_left;
+  else
+    arm = dh_right;
+
+  double wrist2 = (in_mch.joint[GRASP2].jpos - in_mch.joint[GRASP1].jpos) / 2.0;
+
+  double joints[6] = {in_mch.joint[SHOULDER].jpos, in_mch.joint[ELBOW].jpos,
+                      in_mch.joint[Z_INS].jpos,    in_mch.joint[TOOL_ROT].jpos,
+                      in_mch.joint[WRIST].jpos,    wrist2};
+
+  // convert from joint angle representation to DH theta convention
+  double lo_thetas[6];
+  joint2theta(lo_thetas, joints, arm);
+
+  out_xform = getFKTransform(a, b, arm);
+  q_temp = out_xform.getRotation();
+
+
+  in_mch.teleop_transform[0] = q_temp.getX();
+  in_mch.teleop_transform[1] = q_temp.getY();
+  in_mch.teleop_transform[2] = q_temp.getZ();
+  in_mch.teleop_transform[3] = q_temp.getW();
+  
+
+  return 0;
 }
 
 //--------------------------------------------------------------------------------
@@ -297,6 +384,8 @@ int getATransform(mechanism &in_mch, tf::Transform &out_xform, int frameA, int f
   return 0;
 }
 
+
+
 //-------------------------------------------------------------------------------
 //  Inverse kinematics
 //-------------------------------------------------------------------------------
@@ -335,24 +424,7 @@ int r2_inv_kin(device *d0, int runlevel) {
                               ori_d->R[2][2]));
     xf.setOrigin(tf::Vector3(pos_d->x / (1000.0 * 1000.0), pos_d->y / (1000.0 * 1000.0),
                              pos_d->z / (1000.0 * 1000.0)));
-    /*
-                    const static tf::Transform zrot_l( tf::Matrix3x3
-       (cos(25*d2r),-sin(25*d2r),0,  sin(25*d2r),cos(25*d2r),0,  0,0,1),
-       tf::Vector3 (0,0,0) );
-                    const static tf::Transform zrot_r( tf::Matrix3x3
-       (cos(-25*d2r),-sin(-25*d2r),0,  sin(-25*d2r),cos(-25*d2r),0,  0,0,1),
-       tf::Vector3 (0,0,0) );
 
-
-                    if (arm == dh_left)
-                    {
-                            xf = zrot_l.inverse() * xf;
-                    }
-                    else
-                    {
-                            xf = zrot_r.inverse() * xf;
-                    }
-    */
     //		DO IK
     ik_solution iksol[8] = {{}, {}, {}, {}, {}, {}, {}, {}};
     int ret = inv_kin(xf, arm, iksol);
@@ -360,7 +432,7 @@ int r2_inv_kin(device *d0, int runlevel) {
 
     // Check solutions - compare IK solutions to current joint angles...
     double wrist2 =
-        (d0->mech[m].joint[GRASP2].jpos - d0->mech[m].joint[GRASP1].jpos) / 2.0;  // grep "
+        (d0->mech[m].joint[GRASP2].jpos - d0->mech[m].joint[GRASP1].jpos) / 2.0;
     double joints[6] = {d0->mech[m].joint[SHOULDER].jpos, d0->mech[m].joint[ELBOW].jpos,
                         d0->mech[m].joint[Z_INS].jpos,    d0->mech[m].joint[TOOL_ROT].jpos,
                         d0->mech[m].joint[WRIST].jpos,    wrist2};
@@ -410,12 +482,12 @@ int r2_inv_kin(device *d0, int runlevel) {
     d0->mech[m].joint[GRASP2].jpos_d = Js[5] + gangle / 2;
 
     //if it's a camera tool, keep the non-roll joints where they are
-    if(d0->mech[m].mech_tool.t_end == qut_camera){
-      d0->mech[m].joint[WRIST].jpos_d = d0->mech[m].mech_tool.wrist_home_angle;
-      d0->mech[m].joint[GRASP1].jpos_d = d0->mech[m].mech_tool.grasp1_home_angle;
-      d0->mech[m].joint[GRASP2].jpos_d = d0->mech[m].mech_tool.grasp2_home_angle;
-    }
-
+    // if(d0->mech[m].mech_tool.t_end == qut_camera){
+    //   d0->mech[m].joint[WRIST].jpos_d = d0->mech[m].mech_tool.wrist_home_angle;
+    //   d0->mech[m].joint[GRASP1].jpos_d = d0->mech[m].mech_tool.grasp1_home_angle;
+    //   d0->mech[m].joint[GRASP2].jpos_d = d0->mech[m].mech_tool.grasp2_home_angle;
+    // }
+    
 
     if (printIK != 0)  // && d0->mech[m].type == GREEN_ARM_SERIAL )
     {
@@ -755,6 +827,7 @@ int check_solutions(double *in_thetas, ik_solution *iksol, int &out_idx, double 
       continue;
     }
 
+
     // check for rollover on tool roll
     if (fabs(in_thetas[3] - iksol[i].th4) > 300 * d2r) {
       rollover = 1;
@@ -780,22 +853,31 @@ int check_solutions(double *in_thetas, ik_solution *iksol, int &out_idx, double 
   if (minerr > eps) {
     minidx = 9;
     minerr = 0;
-    if (gTime % 100 == 0 && iksol[minidx].arm == dh_left) {
-      cout << "failed (err>eps) on j=\t\t(" << in_thetas[0] * r2d << ",\t" << in_thetas[1] * r2d
-           << ",\t" << in_thetas[2] << ",\t" << in_thetas[3] * r2d << ",\t" << in_thetas[4] * r2d
-           << ",\t" << in_thetas[5] * r2d << ")" << endl;
+    static int l_fails = 0, r_fails = 0;
+    if (iksol[minidx].arm == dh_left) l_fails++;
+    else r_fails++;
+    if ((gTime % 100 == 0 ) || (gTime % 101 == 0 ) || (gTime % 102 == 0 ) || (gTime % 103 == 0 )){
+      if(iksol[minidx].arm == dh_left)
+          cout << "failed GOLD (err>eps) on j=\t\t(" << in_thetas[0] * r2d << ",\t" << in_thetas[1] * r2d
+            << ",\t" << in_thetas[2] << ",\t" << in_thetas[3] * r2d << ",\t" << in_thetas[4] * r2d
+            << ",\t" << in_thetas[5] * r2d << ")" << "left fails --> " << l_fails << ",\t" << "right fails --> " << r_fails << endl;
+      else
+          cout << "failed GREEN (err>eps) on j=\t\t(" << in_thetas[0] * r2d << ",\t" << in_thetas[1] * r2d
+            << ",\t" << in_thetas[2] << ",\t" << in_thetas[3] * r2d << ",\t" << in_thetas[4] * r2d
+            << ",\t" << in_thetas[5] * r2d << ")" << endl;
       for (int idx = 0; idx < 8; idx++) {
         double s2err = 0;
-        s2err += pow(in_thetas[0] - iksol[idx].th1 * r2d, 2);
-        s2err += pow(in_thetas[1] - iksol[idx].th2 * r2d, 2);
-        s2err += pow(in_thetas[2] - iksol[idx].d3, 2);
-        s2err += pow(in_thetas[3] - iksol[idx].th4 * r2d, 2);
-        s2err += pow(in_thetas[4] - iksol[idx].th5 * r2d, 2);
-        s2err += pow(in_thetas[5] - iksol[idx].th6 * r2d, 2);
-        //				cout << "sol[" << idx<<"]: err:"<<   s2err <<
-        //"\t\t" << iksol[idx].th1*r2d << ",\t" << iksol[idx].th2*r2d << ",\t"
-        //<<iksol[idx].d3 << ",\t" <<iksol[idx].th4*r2d << ",\t"
-        //<<iksol[idx].th5*r2d << ",\t" <<iksol[idx].th6*r2d << ",\n";
+        s2err += pow((in_thetas[0] - iksol[idx].th1), 2);
+        s2err += pow((in_thetas[1] - iksol[idx].th2), 2);
+        s2err += pow((in_thetas[2] - iksol[idx].d3) * 100, 2);
+        s2err += pow((in_thetas[3] - iksol[idx].th4), 2);
+        s2err += pow((in_thetas[4] - iksol[idx].th5), 2);
+        s2err += pow((in_thetas[5] - iksol[idx].th6), 2);
+       
+       	cout << "sol[" << idx<<"]: err:"<<   s2err <<
+          "\t\t" << (in_thetas[0] - iksol[idx].th1) * r2d << ",\t" << (in_thetas[1] - iksol[idx].th2) * r2d << ",\t"
+          << (in_thetas[2] - iksol[idx].d3) * 100 << ",\t" << (in_thetas[3] - iksol[idx].th4)*r2d << ",\t"
+          << (in_thetas[4] - iksol[idx].th5)*r2d << ",\t" << (in_thetas[5] - iksol[idx].th6)*r2d << ",\n";
       }
     }
     return -1;

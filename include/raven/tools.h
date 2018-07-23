@@ -126,7 +126,9 @@ class tool {
 
   // methods
 
+
   tool(){};
+
   tool(end_effector_type, int);
 
   ~tool(){};
@@ -144,6 +146,20 @@ class tool {
   void set_DH_params();
 
   void set_max_opening_angle();
+
+
+  int is_scissor();
+
+  int is_camera();
+
+
+
+
+
 };
+
+int isScissor(end_effector_type);
+
+int isCamera(end_effector_type);
 
 #endif /* TOOLS_H_ */

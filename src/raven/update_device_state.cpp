@@ -66,8 +66,24 @@ int updateDeviceState(param_pass *currParams, param_pass *rcvdParams, device *de
       device0->mech[i].pos_d.z = rcvdParams->xd[i].z;
       device0->mech[i].ori_d.grasp = rcvdParams->rd[i].grasp;
 
+
+
       for (int j = 0; j < 3; j++)
         for (int k = 0; k < 3; k++) device0->mech[i].ori_d.R[j][k] = rcvdParams->rd[i].R[j][k];
+    }
+  }
+
+  //copy current joint positions to rcvd params so they can be passed to data1 for local_io kin calcs
+  for (int i = 0; i < NUM_MECH; i++) {
+    for(int j = 0; j < MAX_DOF_PER_MECH; j++)
+      rcvdParams->jpos[i*MAX_DOF_PER_MECH + j] = device0->mech[i].joint[j].jpos;
+  }
+
+
+  //also pass teleop transform so they can be passed to data1 for local_io transforming
+  for(int i = 0; i < NUM_MECH; i++){
+    for(int j = 0; j < 4; j++){
+       rcvdParams->teleop_tf_quat[i*4 + j] = device0->mech[i].teleop_transform[j];
     }
   }
 

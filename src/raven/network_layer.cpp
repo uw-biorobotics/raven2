@@ -240,7 +240,7 @@ void *network_process(void *param1) {
         continue;
       }
 
-      if (k++ % 2000 == 0) log_msg(".");
+      if (k++ % 20000 == 0) log_msg(".");
 
       //
       //            if (u.checksum != UDPChecksum(&u))   // Check checksum

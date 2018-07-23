@@ -178,14 +178,10 @@ void getGravityTorque(device &d0, param_pass &params) {
     // Get COM3
     tf::Vector3 COM3_2 = T23 * COM3_3;
     tf::Vector3 COM3_1 = T12 * COM3_2;
-    // tf::Vector3 COM3_0 = T01 * COM3_1; //unused?
 
     // Get COM2
     tf::Vector3 COM2_1 = T12 * COM2_2;
-    // tf::Vector3 COM2_0 = T01 * COM2_1; //unused?
 
-    // Get COM1
-    // tf::Vector3 COM1_0 = T01 * COM1_1; //unused?
 
     ///// Get gravity vector in each link frame
     // Map G into Frame1

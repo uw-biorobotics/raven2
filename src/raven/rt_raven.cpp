@@ -241,6 +241,13 @@ int raven_cartesian_space_command(device *device0, param_pass *currParams) {
   // Inverse Cable Coupling
   invCableCoupling(device0, currParams->runlevel);
 
+  //update the 0-4 transform for mechs with cameras
+  for(int i; i < MAX_MECH_PER_DEV; i++){
+    if(device0->mech[i].mech_tool.is_camera()){
+      setTeleTransform(device0->mech[i], 0, 4);
+    }
+  }
+
   // Set all joints to zero torque
   _mech = NULL;
   _joint = NULL;

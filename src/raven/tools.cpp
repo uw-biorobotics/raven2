@@ -47,6 +47,22 @@ tool::tool(end_effector_type t_end_new, int a_mech) {
   set_tool_data();
 }
 
+int tool::is_scissor(){
+  return ((t_end == mopocu_scissor) || (t_end == potts_scissor));
+}
+
+int isScissor(end_effector_type end){
+  return ((end == mopocu_scissor) || (end == potts_scissor));
+}
+
+int tool::is_camera(){
+  return ((t_end == qut_camera));
+}
+
+int isCamera(end_effector_type end){
+  return ((end == qut_camera));
+}
+
 /** creates new tool and sets style according to end effector type
  *  \param t_end_new   type of end effector
  *  \param a_mech      which arm is the tool mounted on
