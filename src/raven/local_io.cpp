@@ -194,7 +194,7 @@ void teleopIntoDS1(u_struct *us_t) {
 
       // camera frame represented in master frame
       tf_m_c = tf::Transform(tf::Matrix3x3(0,  0,  1,
-                                           0,  1,  0,
+                                           0,  -1, 0,
                                            1,  0,  0)); 
 
       // *** 1 represent master input in tf datatypes *** 
