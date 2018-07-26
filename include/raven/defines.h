@@ -51,7 +51,7 @@
 // Two arm identification
 // Change this to match device ID in /dev/brl_usbXX
 #define GREEN_ARM_SERIAL 21
-#define GOLD_ARM_SERIAL 37
+#define GOLD_ARM_SERIAL 37//37 //24
 
 #define JOINT_ENC_SERIAL 99  // 99 if no joint encoder board
 

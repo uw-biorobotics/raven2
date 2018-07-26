@@ -55,6 +55,8 @@
 #include "reconfigure.h"
 #include "r2_jacobian.h"
 
+
+
 extern int NUM_MECH;
 extern USBStruct USBBoards;
 extern unsigned long int gTime;
@@ -74,6 +76,8 @@ volatile int isUpdated;  // TODO: HK volatile int instead of atomic_t ///Should 
 
 extern offsets offsets_l;
 extern offsets offsets_r;
+
+int cameraTransform(tf::Quaternion &q_temp, position &p, int armidx);
 
 /**
  * \brief Initialize data arrays to zero and create mutex
@@ -143,9 +147,9 @@ void teleopIntoDS1(u_struct *us_t) {
   pthread_mutex_lock(&data1Mutex);
   tf::Quaternion q_temp;
   tf::Matrix3x3 rot_mx_temp;
-  tfScalar roll_temp, pitch_temp, yaw_temp;
+  
 
-  int debug_camera = 0;
+
 
   // TODO:: APPLY TRANSFORM TO INCOMING DATA
 
@@ -181,81 +185,9 @@ void teleopIntoDS1(u_struct *us_t) {
     //tool is a camera tool, only take z comp
     //TODO make this a separate function
     if(data1.param_tool_type[armidx] == qut_camera){ 
-      // tf_0_4 --> roll frame represented in frame 0 (at RCM)
-      tf::Transform tf_0_4, tf_4_cz, tf_m_c, tf_0_m;
-      tf::Quaternion q_master;
-      tf::Vector3 k_c, k_cz, k_0, k_m; // equivalent angle axis
-      tf::Vector3 v_m, v_0, v_rot_axis; // master position incr and ouput incr 
-      tfScalar out_angle, mech_tool_frame[4];
-
-      // *** 0 set known transforms *** 
-      tf_4_cz.setIdentity(); // this transformation can be used to 
-                             // compensate for camera angle offsets
-
-      // camera frame represented in master frame
-      tf_m_c = tf::Transform(tf::Matrix3x3(0,  0,  1,
-                                           0,  -1, 0,
-                                           1,  0,  0)); 
-
-      // *** 1 represent master input in tf datatypes *** 
-      q_master = q_temp;
-      // equiv angle axis of master rot incr
-      k_m = q_master.getAngle() * q_master.getAxis(); 
-      // vector type of master position incr
-      v_m.setValue(p.x, p.y, p.z); 
-
-
-
-      // *** 2 get the transform 0_4 passed from kinematics to data1 *** 
-      for(int i = 0; i < 4; i++){
-        mech_tool_frame[i] = data1.teleop_tf_quat[armidx * 4 + i];
-      }
-      tf_0_4.setRotation(tf::Quaternion(mech_tool_frame[0], mech_tool_frame[1], 
-        mech_tool_frame[2], mech_tool_frame[3]));
-
-
-      // *** 3 project master rotation onto z axis *** 
-      // camera only allows roll about insertion axis
-      k_c = tf_m_c.getBasis().inverse() * k_m;
-      k_cz = k_c * tf::Vector3(0,0,1);
-
-      // *** 4 kind k_0 and v_0
-      // k_0 = tf_0_4 * t_4_cz * k_cz;
-      // v_0 = tf_0_4 * t_4_cz * tf_m_c.inverse() * v_m;
-      k_0 = tf_0_4.getBasis() * k_cz;
-      v_0 = tf_0_4.getBasis() * tf_m_c.getBasis().inverse() * v_m;
-
-
-
-      // *** 5 translate data back to traditional forms ***
-      v_rot_axis = k_0.normalized();
-      out_angle = k_0.length();
-      char zero_flag = 0;
-      if(out_angle == 0.0){
-        zero_flag = 1;
-        q_temp.setRPY(0,0,0);
-      }else
-        q_temp.setRotation(v_rot_axis, out_angle);
-      p.x = v_0.getX(); p.y = v_0.getY(); p.z = v_0.getZ();
-
-      static int check = 0;
-      check++;
-      if((check % 1000 == 0) && debug_camera){
-        tf::Transform(q_master).getBasis().getEulerYPR(yaw_temp, pitch_temp, roll_temp);
-        log_msg("q_master   r p y   %f \t %f \t %f", roll_temp, pitch_temp, yaw_temp);
-        log_msg("K_c                %f \t %f \t %f", k_c.getX(), k_c.getY(), k_c.getZ());        
-        log_msg("K_c proj           %f \t %f \t %f", k_cz.getX(), k_cz.getY(), k_cz.getZ());
-        log_msg("K_0                %f \t %f \t %f", k_0.getX(), k_0.getY(), k_0.getZ());
-        log_msg("V_0                %f \t %f \t %f", v_0.getX(), v_0.getY(), v_0.getZ());
-        log_msg("rot_axis           %f \t %f \t %f", v_rot_axis.getX(), v_rot_axis.getY(), v_rot_axis.getZ());
-        log_msg("out_angle                %f", out_angle);
-        if(zero_flag) log_msg("Zero!");
-        else log_msg("");        
-        log_msg("---");  
-      }
-
+      cameraTransform(q_temp, p, armidx);
     }else
-    fromITP(&p, q_temp, armserial);
+      fromITP(&p, q_temp, armserial);
 
 
     data1.xd[armidx].x += p.x;
@@ -312,6 +244,95 @@ void teleopIntoDS1(u_struct *us_t) {
 
   data1.surgeon_mode = us_t->surgeon_mode;
   pthread_mutex_unlock(&data1Mutex);
+}
+
+
+/**
+* \brief Calculates camera-centric commands in 0-frame from teleop
+*
+* 
+*
+* \return 0 if success
+*/
+int cameraTransform(tf::Quaternion& q_temp, position& p, int armidx){
+  int success = 0;
+
+  // tf_0_4 --> roll frame represented in frame 0 (at RCM)
+  tf::Transform tf_0_4, tf_4_cz, tf_m_c, tf_0_m;
+  tf::Quaternion q_master;
+  tf::Vector3 k_c, k_cz, k_0, k_m; // equivalent angle axis
+  tf::Vector3 v_m, v_0, v_rot_axis; // master position incr and ouput incr 
+  tfScalar out_angle, mech_tool_frame[4];
+  tfScalar roll_temp, pitch_temp, yaw_temp;
+
+  int debug_camera = 0;
+
+  // *** 0 set known transforms *** 
+  tf_4_cz.setIdentity(); // this transformation can be used to 
+                         // compensate for camera angle offsets
+
+  // camera frame represented in master frame
+  tf_m_c = tf::Transform(tf::Matrix3x3(0,  0,  1,
+                                       0,  -1, 0,
+                                       1,  0,  0)); 
+
+  // *** 1 represent master input in tf datatypes *** 
+  q_master = q_temp;
+  // equiv angle axis of master rot incr
+  k_m = q_master.getAngle() * q_master.getAxis(); 
+  // vector type of master position incr
+  v_m.setValue(p.x, p.y, p.z); 
+
+
+
+  // *** 2 get the transform 0_4 passed from kinematics to data1 *** 
+  for(int i = 0; i < 4; i++){
+    mech_tool_frame[i] = data1.teleop_tf_quat[armidx * 4 + i];
+  }
+  tf_0_4.setRotation(tf::Quaternion(mech_tool_frame[0], mech_tool_frame[1], 
+    mech_tool_frame[2], mech_tool_frame[3]));
+
+
+  // *** 3 project master rotation onto z axis *** 
+  // camera only allows roll about insertion axis
+  k_c = tf_m_c.getBasis().inverse() * k_m;
+  k_cz = k_c * tf::Vector3(0,0,1);
+
+  // *** 4 kind k_0 and v_0
+  // k_0 = tf_0_4 * t_4_cz * k_cz;
+  // v_0 = tf_0_4 * t_4_cz * tf_m_c.inverse() * v_m;
+  k_0 = tf_0_4.getBasis() * k_cz;
+  v_0 = tf_0_4.getBasis() * tf_m_c.getBasis().inverse() * v_m;
+
+
+
+  // *** 5 translate data back to traditional forms ***
+  v_rot_axis = k_0.normalized();
+  out_angle = k_0.length();
+  char zero_flag = 0;
+  if(out_angle == 0.0){
+    zero_flag = 1;
+    q_temp.setRPY(0,0,0);
+  }else
+    q_temp.setRotation(v_rot_axis, out_angle);
+  p.x = v_0.getX(); p.y = v_0.getY(); p.z = v_0.getZ();
+
+  static int check = 0;
+  check++;
+  if((check % 1000 == 0) && debug_camera){
+    tf::Transform(q_master).getBasis().getEulerYPR(yaw_temp, pitch_temp, roll_temp);
+    log_msg("q_master   r p y   %f \t %f \t %f", roll_temp, pitch_temp, yaw_temp);
+    log_msg("K_c                %f \t %f \t %f", k_c.getX(), k_c.getY(), k_c.getZ());        
+    log_msg("K_c proj           %f \t %f \t %f", k_cz.getX(), k_cz.getY(), k_cz.getZ());
+    log_msg("K_0                %f \t %f \t %f", k_0.getX(), k_0.getY(), k_0.getZ());
+    log_msg("V_0                %f \t %f \t %f", v_0.getX(), v_0.getY(), v_0.getZ());
+    log_msg("rot_axis           %f \t %f \t %f", v_rot_axis.getX(), v_rot_axis.getY(), v_rot_axis.getZ());
+    log_msg("out_angle                %f", out_angle);
+    if(zero_flag) log_msg("Zero!");
+    else log_msg("");        
+    log_msg("---");  
+  }
+  return success;    
 }
 
 /**
