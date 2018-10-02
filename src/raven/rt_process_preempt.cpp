@@ -92,7 +92,7 @@ pthread_t console_thread;
 pthread_t reconfigure_thread;
 
 // Global Variables from globals.c
-extern DOF_type DOF_types[];
+// extern DOF_type DOF_types[];
 
 // flag to kill loops and stuff
 int r2_kill = 0;

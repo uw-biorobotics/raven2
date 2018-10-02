@@ -388,14 +388,14 @@ int applyTorque(device *device0, param_pass *currParams) {
   if (!(currParams->runlevel == RL_INIT && currParams->sublevel == SL_AUTO_INIT)) return 0;
 
   for (int i = 0; i < NUM_MECH; i++) {
-    for (int j = 0; j < MAX_DOF_PER_MECH; j++) {
-      if (device0->mech[i].type == GOLD_ARM) {
+    for (int j = 0; j < MAX_DOF_PER_MECH; j++){
+      // if (device0->mech[i].name == gold) {
+      //   device0->mech[i].joint[j].tau_d =
+      //       (1.0 / 1000.0) * (float)(currParams->torque_vals[j]);  // convert from mNm to Nm
+      // } else {
         device0->mech[i].joint[j].tau_d =
-            (1.0 / 1000.0) * (float)(currParams->torque_vals[j]);  // convert from mNm to Nm
-      } else {
-        device0->mech[i].joint[j].tau_d =
-            (1.0 / 1000.0) * (float)(currParams->torque_vals[MAX_DOF_PER_MECH + j]);
-      }
+            (1.0 / 1000.0) * (float)(currParams->torque_vals[i*MAX_DOF_PER_MECH + j]);
+      // }
     }
   }
   // gravComp(device0);
@@ -524,7 +524,7 @@ int raven_joint_velocity_control(device *device0, param_pass *currParams) {
       for (int j = 0; j < MAX_DOF_PER_MECH; j++) {
         DOF *_joint = &(device0->mech[i].joint[j]);
 
-        if (device0->mech[i].type == GOLD_ARM)  /// why only gold arm??
+        if (device0->mech[i].name == gold)  /// why only gold arm??
         {
           // initialize velocity trajectory
           if (!controlStart) start_trajectory(_joint);

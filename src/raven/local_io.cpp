@@ -107,6 +107,8 @@ int initLocalioData(device *device0) {
   data1.surgeon_mode = 0;
   data1.last_sequence = 111;
 
+  log_msg("NUM_MECH -->  %i", NUM_MECH);
+
   pthread_mutex_unlock(&data1Mutex);
   return 0;
 }
@@ -142,8 +144,8 @@ int receiveUserspace(void *u, int size) {
  *  \ingroup DataStructures
  */
 void teleopIntoDS1(u_struct *us_t) {
-  position p, p_temp;
-  int i, armidx, armserial, loops;
+  position p;
+  int i, armidx, armtype, loops;
   pthread_mutex_lock(&data1Mutex);
   tf::Quaternion q_temp;
   tf::Matrix3x3 rot_mx_temp;
@@ -159,13 +161,17 @@ void teleopIntoDS1(u_struct *us_t) {
 
   for (i = 0; i < loops; i++) {
     if (USBBoards.boards[i] == GOLD_ARM_SERIAL) {
-      armserial = GOLD_ARM_SERIAL;
+      armtype = GOLD_ARM;
       armidx = 0;
     } else if (USBBoards.boards[i] == GREEN_ARM_SERIAL) {
-      armserial = GREEN_ARM_SERIAL;
+      armtype = GREEN_ARM;
       armidx = 1;
-    } else if (USBBoards.boards[i] == JOINT_ENC_SERIAL) {
-      continue;  // don't do any teleop data for joint encoders
+    } else if ((USBBoards.boards[i] == JOINT_ENC_SERIAL) 
+              || (USBBoards.boards[i] == BLUE_ARM_SERIAL)
+              || (USBBoards.boards[i] == ORANGE_ARM_SERIAL)
+              || (USBBoards.boards[i] == JOINT_ENC_SERIAL_2)) {
+      continue;  // don't do any teleop data for joint encoders 
+                 // or extra arms, yet
     }
 
     // apply mapping to teleop data
@@ -187,7 +193,7 @@ void teleopIntoDS1(u_struct *us_t) {
     if(data1.param_tool_type[armidx] == qut_camera){ 
       cameraTransform(q_temp, p, armidx);
     }else
-      fromITP(&p, q_temp, armserial);
+      fromITP(&p, q_temp, armtype);
 
 
     data1.xd[armidx].x += p.x;
@@ -441,7 +447,11 @@ void updateMasterRelativeOrigin(device *device0) {
       for (int k = 0; k < 3; k++) data1.rd[i].R[j][k] = _ori->R[j][k];
 
     // Set the local quaternion orientation rep.
-    armidx = device0->mech[i].type == GREEN_ARM_SERIAL ? 1 : 0;
+    if (device0->mech[i].name == green) 
+      armidx = 1;
+    else if (device0->mech[i].name == gold)
+      armidx = 0;
+    else continue; //don't do anything for joint encoders or extra arms yet 
     tmpmx.setValue(_ori->R[0][0], _ori->R[0][1], _ori->R[0][2], _ori->R[1][0], _ori->R[1][1],
                    _ori->R[1][2], _ori->R[2][0], _ori->R[2][1], _ori->R[2][2]);
     tmpmx.getRotation(Q_ori[armidx]);
@@ -532,8 +542,12 @@ void autoincrCallback(raven_2::raven_automove msg) {
       armidx = 0;
     } else if (USBBoards.boards[i] == GREEN_ARM_SERIAL) {
       armidx = 1;
-    } else if (USBBoards.boards[i] == JOINT_ENC_SERIAL) {
+    } else if ((USBBoards.boards[i] == JOINT_ENC_SERIAL) 
+              || (USBBoards.boards[i] == BLUE_ARM_SERIAL)
+              || (USBBoards.boards[i] == ORANGE_ARM_SERIAL)
+              || (USBBoards.boards[i] == JOINT_ENC_SERIAL_2)) {
       continue;  // don't do any teleop data for joint encoders
+                 // or extra arms yet
     }
 
     // add position increment
@@ -626,7 +640,12 @@ void publish_ravenstate_ros(robot_device *dev, param_pass *currParams) {
     // grab jacobian velocities and forces
     float vel[6];
     float f[6];
-    j = dev->mech[i].type == GREEN_ARM ? 1 : 0;
+    if (dev->mech[i].name == green) 
+      j = 1;
+    else if (dev->mech[i].name == gold)
+      j = 0;
+    else continue; //don't do anything for joint encoders or extra arms yet 
+    // j = dev->mech[i].name == greem ? 1 : 0;
     dev->mech[j].r2_jac.get_vel(vel);
     dev->mech[j].r2_jac.get_vel(f);
     for (int k = 0; k < 6; k++) {
@@ -675,7 +694,7 @@ void publish_joints(robot_device *device0) {
   //    joint_state.name.resize(14);
   //    joint_state.position.resize(14);
   int left, right;
-  if (device0->mech[0].type == GOLD_ARM) {
+  if (device0->mech[0].name == gold) {
     left = 0;
     right = 1;
   } else {

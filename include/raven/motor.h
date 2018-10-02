@@ -83,6 +83,27 @@
 #define DAC_ZERO_1_6 0.
 #define DAC_ZERO_1_7 0.
 
+// BLUE AMP offsets in DAC units -- robot and box specific
+#define DAC_ZERO_2_0 0.
+#define DAC_ZERO_2_1 0.
+#define DAC_ZERO_2_2 0.
+#define DAC_ZERO_2_3 0.
+#define DAC_ZERO_2_4 0.
+#define DAC_ZERO_2_5 0.
+#define DAC_ZERO_2_6 0.
+#define DAC_ZERO_2_7 0.
+
+// ORANGE AMP offsets in DAC units -- robot and box specific
+#define DAC_ZERO_3_0 0.
+#define DAC_ZERO_3_1 0.
+#define DAC_ZERO_3_2 0.
+#define DAC_ZERO_3_3 0.
+#define DAC_ZERO_3_4 0.
+#define DAC_ZERO_3_5 0.
+#define DAC_ZERO_3_6 0.
+#define DAC_ZERO_3_7 0.
+
+
 // void getMotorIMax(int joint, float *iMax);
 // void getMotorTR(int joint, float *tr);
 // int getMotorType(int joint);

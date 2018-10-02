@@ -153,10 +153,10 @@ int raven_homing(device *device0, param_pass *currParams, int begin_homing) {
 
       if (is_toolDOF(_joint)) jvel_PI_control(_joint, 1);  // reset PI control integral term
       
-      if (is_toolDOF(_joint)) {
-        if ((_mech->mech_tool.t_end == qut_camera) && 
-            (_joint->type != TOOL_ROT_GOLD) && (_joint->type != TOOL_ROT_GREEN)
-            || _mech->mech_tool.t_end == ricks_tool)
+      if (is_toolDOF(_joint)) { 
+        //if it's a camera tool, skip everything by roll, if it's a ricks tool skip all
+        if (((_mech->mech_tool.t_end == qut_camera) &&  !isJointType(_joint, TOOL_ROT)) 
+            || (_mech->mech_tool.t_end == ricks_tool))
         {
           _joint->state = jstate_hard_stop;
           log_msg("joint set to hard stop %i", j);
@@ -202,8 +202,8 @@ int raven_homing(device *device0, param_pass *currParams, int begin_homing) {
 
     // Check to see if we've reached the joint limit.
     if (check_homing_condition(_joint)) {
-      log_msg("Found limit on joint %d cmd: %d \t", _joint->type, _joint->current_cmd,
-              DOF_types[_joint->type].DAC_max);
+      log_msg("Found limit on joint %d cmd: %d lim: %i \t", _joint->type, _joint->current_cmd,
+              _joint->homing_dac);
       _joint->state = jstate_hard_stop;
       _joint->current_cmd = 0;
       stop_trajectory(_joint);
@@ -291,16 +291,14 @@ int set_joints_known_pos(mechanism *_mech, int tool_only) {
       if (scissor && ((_joint->type == GRASP2_GREEN) || (_joint->type == GRASP2_GOLD))) {
         _joint->jpos_d = _mech->mech_tool.grasp2_min_angle;
         log_msg("setting grasp 2 to     arm %d,     joint %d to    value %f",
-                _mech->mech_tool.mech_type, _joint->type, _joint->jpos_d);
+                _mech->mech_tool.mech_name, _joint->type, _joint->jpos_d);
       } 
-      else if (is_toolDOF(_joint) &&  camera && 
-               (_joint->type != TOOL_ROT_GOLD) &&
-               (_joint->type != TOOL_ROT_GREEN))
+      else if (is_toolDOF(_joint) && camera && !isJointType(_joint, TOOL_ROT))
       {
-        _joint->jpos_d = DOF_types[_joint->type].home_position;//_joint->jpos; //don't move non-roll DOFs for camera tool
+        _joint->jpos_d = DOF_types[_joint->type].home_position; // don't move non-roll DOFs for camera tool
         log_msg("non-camera %i set to home_position", j);
       } else if (is_toolDOF(_joint) && ricks){
-        _joint->jpos_d = DOF_types[_joint->type].home_position;//_joint->jpos; //don't move non-roll DOFs for camera tool
+        _joint->jpos_d = DOF_types[_joint->type].home_position; // don't move non-roll DOFs for camera tool
         log_msg("ricks %i set to home_position", j);
       }
       else
@@ -351,12 +349,12 @@ int set_joints_known_pos(mechanism *_mech, int tool_only) {
         break;
     }
 #ifdef OPPOSE_GRIP
-    if (j == GRASP1) {
+    if (isJointType(_joint, GRASP1)) {
       f_enc_val *= -1;  // switch encoder value for opposed grasp
     }
 #endif
 
-    if (j == Z_INS) {
+    if (isJointType(_joint, Z_INS)) {
       j_flip *= -1;
     }
 
@@ -494,16 +492,16 @@ void homing(DOF *_joint, tool a_tool) {
       -10 DEG2RAD, 10 DEG2RAD, 0.02, 9999999, 80 DEG2RAD, 40 DEG2RAD, 40 DEG2RAD, 40 DEG2RAD};
 
   if (a_tool.adapter_style == square_raven) {
-    if (a_tool.mech_type == GOLD_ARM)
+    if ((a_tool.mech_name == gold) || (a_tool.mech_name == blue))
       f_magnitude[TOOL_ROT_GOLD] = -80 DEG2RAD;
-    else if (a_tool.mech_type == GREEN_ARM)
+    else if ((a_tool.mech_name == green) || (a_tool.mech_name == orange))
       f_magnitude[TOOL_ROT_GREEN] = -80 DEG2RAD;
   }
 
   if (scissor) {
-    if (a_tool.mech_type == GOLD_ARM)
+    if ((a_tool.mech_name == gold) || (a_tool.mech_name == blue))
       f_magnitude[GRASP2_GOLD] = -40 DEG2RAD;
-    else if (a_tool.mech_type == GREEN_ARM)
+    else if ((a_tool.mech_name == green) || (a_tool.mech_name == orange))
       f_magnitude[GRASP2_GREEN] = -40 DEG2RAD;
   }
 

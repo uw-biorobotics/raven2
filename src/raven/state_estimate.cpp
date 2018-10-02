@@ -78,7 +78,7 @@ void getStateLPF(DOF *joint, adapter adapter_style) {
   //    float B[] = {1.0, 0,0,0};
   //    float A[] = {0,0,0,0};
 
-  float *oldPos = DOF_types[joint->type].old_mpos;
+  float *oldPos = DOF_types[joint->type].old_mpos; //why is motor position held in DOF_types?
   float *oldFiltPos = DOF_types[joint->type].old_filtered_mpos;
   float filtPos = 0;
   float f_enc_val = joint->enc_val;

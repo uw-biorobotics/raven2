@@ -44,3 +44,4 @@ void encToJPos(DOF *joint);
 void encToMPos(DOF *joint);
 float encToMPos2(DOF *joint);
 int normalizeEncCnt(DOF *joint);
+bool isJointType(DOF *joint, int jType);

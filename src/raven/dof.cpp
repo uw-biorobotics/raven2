@@ -53,7 +53,9 @@
 
 #include "dof.h"
 
-extern DOF_type DOF_types[];
+#include <iostream>
+
+// extern DOF_type DOF_types[];
 
 /**
  * processEncVal - reads an encoder value from a USB packet buffer
@@ -125,3 +127,28 @@ float encToMPos2(DOF *joint) {
  * \return normalized encoder value
  */
 int normalizeEncCnt(DOF *joint) { return (joint->enc_val - joint->enc_offset); }
+
+/** determines if given joint is the type specified
+*
+* \param joint  the joint in question
+* \param type   the type to match, not arm specific (0-7)
+*
+* \return     whether the joint matches the current type
+*/
+bool isJointType(DOF *joint, int jType){
+  int inType = joint->type;
+
+  //enforce input to be non-arm-specific (e.g. not GREEN Elbow)
+  if(jType >= MAX_DOF_PER_MECH){
+    // if you're checking for a specific joint, use (joint->type == ELBOW_GREEN)
+    std::cout << "improper use of isJointType, should be used to check generic joint type (0-7)";
+    return false;
+  }
+  
+  //module by max dof per mech returns non-arm-specific type (0-7)
+  if(inType % MAX_DOF_PER_MECH == jType)
+    return true;
+  else
+    return false;
+
+} 

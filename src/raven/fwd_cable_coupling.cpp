@@ -72,7 +72,6 @@ int fwdJointEncoders(device *device0) {
   int i = 0, j = 0;
   int enc_count_per_unit;
   int enc_val, enc_off;
-  static int twice = 0;
 
   // loop over joints, calculate only major axes with joint encoders
   while (loop_over_joints(device0, _mech, _joint, i, j)) {
@@ -131,7 +130,7 @@ void fwdMechCableCoupling(mechanism *mech) {
   m4_dot = mech->joint[Z_INS].mvel;
 
   // get transfer ratios for each arm
-  if (mech->type == GOLD_ARM) {
+  if (mech->name == gold) {
     tr1 = DOF_types[SHOULDER_GOLD].TR;
     tr2 = DOF_types[ELBOW_GOLD].TR;
     tr3 = DOF_types[TOOL_ROT_GOLD].TR;
@@ -140,7 +139,7 @@ void fwdMechCableCoupling(mechanism *mech) {
     tr6 = DOF_types[GRASP1_GOLD].TR;
     tr7 = DOF_types[GRASP2_GOLD].TR;
 
-  } else if (mech->type == GREEN_ARM) {
+  } else if (mech->name == green) {
     tr1 = DOF_types[SHOULDER_GREEN].TR;
     tr2 = DOF_types[ELBOW_GREEN].TR;
     tr3 = DOF_types[TOOL_ROT_GREEN].TR;
@@ -148,6 +147,24 @@ void fwdMechCableCoupling(mechanism *mech) {
     tr5 = DOF_types[WRIST_GREEN].TR;
     tr6 = DOF_types[GRASP1_GREEN].TR;
     tr7 = DOF_types[GRASP2_GREEN].TR;
+      
+  } else if (mech->name == blue) {
+    tr1 = DOF_types[SHOULDER_BLUE].TR;
+    tr2 = DOF_types[ELBOW_BLUE].TR;
+    tr3 = DOF_types[TOOL_ROT_BLUE].TR;
+    tr4 = DOF_types[Z_INS_BLUE].TR;
+    tr5 = DOF_types[WRIST_BLUE].TR;
+    tr6 = DOF_types[GRASP1_BLUE].TR;
+    tr7 = DOF_types[GRASP2_BLUE].TR;
+      
+  } else if (mech->name == orange) {
+    tr1 = DOF_types[SHOULDER_ORANGE].TR;
+    tr2 = DOF_types[ELBOW_ORANGE].TR;
+    tr3 = DOF_types[TOOL_ROT_ORANGE].TR;
+    tr4 = DOF_types[Z_INS_ORANGE].TR;
+    tr5 = DOF_types[WRIST_ORANGE].TR;
+    tr6 = DOF_types[GRASP1_ORANGE].TR;
+    tr7 = DOF_types[GRASP2_ORANGE].TR;
   } else {
     log_msg("ERROR: incorrect device type in fwdMechCableCoupling");
     return;
@@ -255,7 +272,8 @@ void fwdMechTorqueCoupling(mechanism *mech) {
   m2_dot = mech->joint[ELBOW].mvel;
   m4_dot = mech->joint[Z_INS].mvel;
 
-  if (mech->type == GOLD_ARM) {
+
+  if (mech->name == gold) {
     tr1 = DOF_types[SHOULDER_GOLD].TR;
     tr2 = DOF_types[ELBOW_GOLD].TR;
     tr3 = DOF_types[TOOL_ROT_GOLD].TR;
@@ -264,7 +282,7 @@ void fwdMechTorqueCoupling(mechanism *mech) {
     tr6 = DOF_types[GRASP1_GOLD].TR;
     tr7 = DOF_types[GRASP2_GOLD].TR;
 
-  } else if (mech->type == GREEN_ARM) {
+  } else if (mech->name == green) {
     tr1 = DOF_types[SHOULDER_GREEN].TR;
     tr2 = DOF_types[ELBOW_GREEN].TR;
     tr3 = DOF_types[TOOL_ROT_GREEN].TR;
@@ -272,6 +290,24 @@ void fwdMechTorqueCoupling(mechanism *mech) {
     tr5 = DOF_types[WRIST_GREEN].TR;
     tr6 = DOF_types[GRASP1_GREEN].TR;
     tr7 = DOF_types[GRASP2_GREEN].TR;
+      
+  } else if (mech->name == blue) {
+    tr1 = DOF_types[SHOULDER_BLUE].TR;
+    tr2 = DOF_types[ELBOW_BLUE].TR;
+    tr3 = DOF_types[TOOL_ROT_BLUE].TR;
+    tr4 = DOF_types[Z_INS_BLUE].TR;
+    tr5 = DOF_types[WRIST_BLUE].TR;
+    tr6 = DOF_types[GRASP1_BLUE].TR;
+    tr7 = DOF_types[GRASP2_BLUE].TR;
+      
+  } else if (mech->name == orange) {
+    tr1 = DOF_types[SHOULDER_ORANGE].TR;
+    tr2 = DOF_types[ELBOW_ORANGE].TR;
+    tr3 = DOF_types[TOOL_ROT_ORANGE].TR;
+    tr4 = DOF_types[Z_INS_ORANGE].TR;
+    tr5 = DOF_types[WRIST_ORANGE].TR;
+    tr6 = DOF_types[GRASP1_ORANGE].TR;
+    tr7 = DOF_types[GRASP2_ORANGE].TR;
   } else {
     log_msg("ERROR: incorrect device type in fwdMechCableCoupling");
     return;

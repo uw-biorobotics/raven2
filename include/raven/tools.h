@@ -31,6 +31,7 @@
 #ifndef TOOLS_H_
 #define TOOLS_H_
 
+
 /** Style of tool interface to robot, enumerated
  *
  */
@@ -68,7 +69,7 @@ class tool {
 
   adapter adapter_style; /**< enumerated robot interface style */
 
-  int mech_type; /**< arm type that the tool is mounted to */
+  int mech_name; /**< arm type that the tool is mounted to */
 
   float wrist_coupling; /**< coupling coefficient between wrist and graspers */
 

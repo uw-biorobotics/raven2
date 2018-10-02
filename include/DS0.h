@@ -39,9 +39,9 @@
 #ifndef DS0_H
 #define DS0_H
 //#define NUM_MECH 2
-#define MAX_MECH 2
+#define MAX_MECH 4
 #define MAX_DOF_PER_MECH 8
-#define MAX_MECH_PER_DEV 2
+#define MAX_MECH_PER_DEV 4
 
 #define STATE_OFF 0
 #define STATE_UNINIT 1
@@ -90,6 +90,14 @@ enum jointState {
   jstate_last_type
 };
 
+
+enum mechName {
+  gold,
+  green,
+  blue,
+  orange
+};
+
 /*************************************************************************
  *
  *  Degree of Freedom Struct
@@ -132,6 +140,8 @@ struct DOF {
  */
 struct mechanism {
   u_16 type;
+  u_08 name;
+  u_16 serial;
   tool mech_tool;
   position pos;
   position pos_d;
@@ -160,6 +170,7 @@ struct robot_device {
   mechanism mech[MAX_MECH_PER_DEV];
   float grav_mag;     // gravity magnitude
   position grav_dir;  // gravity direction
+  u_08 num_mechs;
 };
 
 typedef robot_device device;

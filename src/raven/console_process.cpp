@@ -100,7 +100,7 @@ void *console_process(void *) {
       log_msg("[[\t'T'    : specify joint torque    ]]");
       log_msg("[[\t'M'    : set control mode        ]]");
       log_msg("[[\t'U/D'  : Pedal Up/Down           ]]");
-      log_msg("[[\t'^C'   : Quit                      ]]");
+      log_msg("[[\t'^C'   : Quit                    ]]");
       print_msg = 0;
     }
     // Get UI command
@@ -262,15 +262,29 @@ int getkey() {
  */
 void outputRobotState() {
   cout << "Runlevel: " << static_cast<unsigned short int>(device0.runlevel) << "\n";
-  for (int j = 0; j < 2; j++) {
-    if (device0.mech[j].type == GOLD_ARM)
+  int offset;
+
+  for (int j = 0; j < device0.num_mechs; j++) {
+    if (device0.mech[j].name == gold){
       cout << "Gold arm:\t";
-    else if (device0.mech[j].type == GREEN_ARM)
+      offset = 0;
+    }
+    else if (device0.mech[j].name == green){
       cout << "Green arm:\t";
+      offset = 1 * MAX_DOF_PER_MECH;
+    }
+    else if (device0.mech[j].name == blue){
+      cout << "Blue arm:\t";
+      offset = 2 * MAX_DOF_PER_MECH;
+    }
+    else if (device0.mech[j].name == orange){
+      cout << "Orange arm:\t";
+      offset = 3 * MAX_DOF_PER_MECH;
+    }
     else
       cout << "Unknown arm:\t";
 
-    cout << "Board " << j << ", type " << device0.mech[j].type << ":\n";
+    cout << "Board " << j << ", serial " << device0.mech[j].serial << ":\n";
     cout << "P: (x,y,z) : (" << device0.mech[j].pos.x / (1000.0 * 1000.0) << "\t"
          << device0.mech[j].pos.y / (1000.0 * 1000.0);
     cout << "\t" << device0.mech[j].pos.z / (1000.0 * 1000.0);
@@ -366,27 +380,27 @@ void outputRobotState() {
       cout << fixed << setprecision(3) << device0.mech[j].joint[i].tau << "\t";
     cout << "\n";
 
-    cout << "tau_g:\t\t";
-    for (int i = 0; i < MAX_DOF_PER_MECH; i++)
-      cout << fixed << setprecision(3) << device0.mech[j].joint[i].tau_g << "\t";
-    cout << "\n";
+    // cout << "tau_g:\t\t";
+    // for (int i = 0; i < MAX_DOF_PER_MECH; i++)
+    //   cout << fixed << setprecision(3) << device0.mech[j].joint[i].tau_g << "\t";
+    // cout << "\n";
 
     cout << "DAC:\t\t";
     for (int i = 0; i < MAX_DOF_PER_MECH; i++)
       cout << fixed << setprecision(3) << (device0.mech[j].joint[i].current_cmd -
-                                           DOF_types[j * MAX_DOF_PER_MECH + i].DAC_zero_offset)
+                                           DOF_types[offset + i].DAC_zero_offset)
            << "\t";
     cout << "\n";
 
-    cout << "KP gains:\t";
-    for (int i = 0; i < MAX_DOF_PER_MECH; i++)
-      cout << fixed << setprecision(3) << DOF_types[j * MAX_DOF_PER_MECH + i].KP << "\t";
-    cout << "\n";
+    // cout << "KP gains:\t";
+    // for (int i = 0; i < MAX_DOF_PER_MECH; i++)
+    //   cout << fixed << setprecision(3) << DOF_types[offset + i].KP << "\t";
+    // cout << "\n";
 
-    cout << "KD gains:\t";
-    for (int i = 0; i < MAX_DOF_PER_MECH; i++)
-      cout << fixed << setprecision(3) << DOF_types[j * MAX_DOF_PER_MECH + i].KD << "\t";
-    cout << "\n";
+    // cout << "KD gains:\t";
+    // for (int i = 0; i < MAX_DOF_PER_MECH; i++)
+    //   cout << fixed << setprecision(3) << DOF_types[offset + i].KD << "\t";
+    // cout << "\n";
     /*
 cout<<"jac force:\t";
 float forces[6];
@@ -403,20 +417,22 @@ cout<<fixed<<"\t"<<setprecision(3)<<velocity[i];
 cout<<"\n";
      */
 
-    cout << "j_enc_val:\t";
-    for (int i = 0; i < MAX_DOF_PER_MECH / 2; i++)
-      cout << device0.mech[j].joint[i].joint_enc_val << "\t";
-    cout << "\n";
+    if(JOINT_ENCODERS){
+      cout << "j_enc_val:\t";
+      for (int i = 0; i < MAX_DOF_PER_MECH / 2; i++)
+        cout << device0.mech[j].joint[i].joint_enc_val << "\t";
+      cout << "\n";
 
-    cout << "j_enc_off:\t";
-    for (int i = 0; i < MAX_DOF_PER_MECH / 2; i++)
-      cout << device0.mech[j].joint[i].joint_enc_offset << "\t";
-    cout << "\n";
+      cout << "j_enc_off:\t";
+      for (int i = 0; i < MAX_DOF_PER_MECH / 2; i++)
+        cout << device0.mech[j].joint[i].joint_enc_offset << "\t";
+      cout << "\n";
 
-    cout << "j_enc_pos:\t";
-    for (int i = 0; i < MAX_DOF_PER_MECH / 2; i++)
-      cout << device0.mech[j].joint[i].j_enc_pos << "\t";
-    cout << "\n";
+      cout << "j_enc_pos:\t";
+      for (int i = 0; i < MAX_DOF_PER_MECH / 2; i++)
+        cout << device0.mech[j].joint[i].j_enc_pos << "\t";
+      cout << "\n";
+    }
 
     //
     //        cout<<"enc_offset:\t";
