@@ -61,9 +61,9 @@ tool gold_arm_tool(ricks_tool, GOLD_ARM);
 // tool green_arm_tool(potts_scissor, GREEN_ARM);
 //tool green_arm_tool(r_grasper, GREEN_ARM);
 //tool green_arm_tool(bipolar_forceps, GREEN_ARM);
-tool green_arm_tool(qut_camera, GREEN_ARM);
+//tool green_arm_tool(qut_camera, GREEN_ARM);
 // tool green_arm_tool(r_grasper, GREEN_ARM);
-//tool green_arm_tool(ricks_tool, GREEN_ARM);
+tool green_arm_tool(ricks_tool, GREEN_ARM);
 
 
 /********** positioning joints Homing DAC ***********/
