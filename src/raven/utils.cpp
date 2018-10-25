@@ -130,6 +130,40 @@ int loop_over_joints(robot_device *device0, mechanism *&_mech, DOF *&_joint, int
   return 1;
 }
 
+int loop_over_7_joints(robot_device *device0, mechanism *&_mech, DOF *&_joint, int &mechnum,
+                     int &jnum) {
+
+  // Initialize iterators
+  if (_mech == NULL || _joint == NULL) {
+    mechnum = 0;
+    jnum = 0;
+  }
+  // Terminating condition
+  else if (mechnum >= (NUM_MECH - 1) && jnum >= (MAX_DOF_PER_MECH - 2))
+    return 0;
+
+  // Joint rollover
+  else if (jnum >= (MAX_DOF_PER_MECH - 2)) {
+    mechnum++;
+    jnum = 0;
+  }
+
+  // Joint increment
+  else {
+    jnum++;
+    // if (jnum == NO_CONNECTION) jnum++;
+  }
+
+  // Set return structs
+  _mech = &(device0->mech[mechnum]);
+  if(jnum >= 3)
+    _joint = &(device0->mech[mechnum].joint[jnum+1]);
+  else
+    _joint = &(device0->mech[mechnum].joint[jnum]);
+  return 1;
+}
+
+
 /**
 *	\fn loop_over_joints(mechanism* _mech, DOF*& _joint, int& jnum)
 *
@@ -246,9 +280,29 @@ int robot_ready(robot_device *device0) {
   DOF *_joint = NULL;
   int i, j;
 
-  while (loop_over_joints(device0, _mech, _joint, i, j)) {
-    if (_joint->state != jstate_ready) return 0;
+  if (device0->crtk_state.get_unhome_trigger() == 1){
+    unhome_robot(device0);
+    return 0;
   }
+    
+  while (loop_over_joints(device0, _mech, _joint, i, j)) {
+    if (_joint->state != jstate_ready) 
+      return 0;
+  }
+  return 1;
+}
+
+// CRTK stuff!
+int unhome_robot(robot_device *device0) {
+  mechanism *_mech = NULL;
+  DOF *_joint = NULL;
+  int i, j;
+    
+  while (loop_over_joints(device0, _mech, _joint, i, j)) {
+    _joint->state = jstate_not_ready;
+  }
+  
+  device0->crtk_state.reset_unhome_trigger();
   return 1;
 }
 

@@ -173,6 +173,7 @@ int controlRaven(device *device0, param_pass *currParams) {
       updateMasterRelativeOrigin(device0);
 
       if (robot_ready(device0)) {
+        device0->robot_homed = 1;
         currParams->robotControlMode = cartesian_space_control;
         newRobotControlMode = cartesian_space_control;
         log_msg("*** Ready to teleoperate ***");

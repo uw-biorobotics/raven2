@@ -51,8 +51,16 @@ param_pass *getRcvdParams(param_pass *);
 
 void updateMasterRelativeOrigin(device *device0);
 
-int init_ravenstate_publishing(ros::NodeHandle &n);
+int init_ravenstate_publishing(robot_device *, ros::NodeHandle &n);
 void publish_ravenstate_ros(robot_device *, param_pass *);
 void setSurgeonMode(int pedalstate);
+
+void publish_crtk_state(robot_device *);
+void publish_crtk_measured_js(robot_device *dev);
+void publish_crtk_measured_cp(robot_device *dev);
+void publish_crtk_measured_cv(robot_device *dev);
+void publish_crtk_setpoint_js(robot_device *dev);
+void publish_crtk_setpoint_cp(robot_device *dev);
+void publish_crtk_setpoint_cv(robot_device *dev);
 
 #endif

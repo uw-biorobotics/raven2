@@ -24,15 +24,18 @@
  * \brief Class file for CRTK state object, which holds all of the state
  *  flags for the "Robot Operating State" aspect of the CRTK API
  *
- *  \date Oct 17, 2014
+ *  \date Oct 17, 2018
  *  \author Andrew Lewis, Yun-Hsuan Su
 
  */
+#include <ros/ros.h>
+#include <crtk_msgs/robot_command.h>
 
 #ifndef CRTK_STATE_H_
 #define CRTK_STATE_H_
 
-
+enum CRTK_robot_command {CRTK_ENABLE, CRTK_DISABLE, CRTK_PAUSE, CRTK_RESUME, CRTK_UNHOME, CRTK_HOME};
+enum CRTK_estop_level {CRTK_NOT_ESTOP, CRTK_ESTOP_PAUSE, CRTK_ESTOP_DISABLE};
 /** a tool that can be used on either RAVEN arm
  *
  */
@@ -60,10 +63,23 @@ class CRTK_state
   char get_moving();
   char get_ready();
   char get_homed();
+  char get_estop_trigger();
+  char get_pedal_trigger();
+  char get_unhome_trigger();
+  char get_home_trigger();
+  char reset_estop_trigger();
+  char reset_pedal_trigger();
+  char reset_unhome_trigger();
 
-  char state_machine_update(char robot_state, char robot_homed, char robot_fault, int surgeon_mode);
+  char state_machine_update(char, char, char, int, char);
+  void crtk_cmd_cb(crtk_msgs::robot_command);
 
 private:
+  char pedal_trigger;   // 0: neutral, 1: set pedal up, -1: set pedal dn
+  char estop_trigger;   // 0: neutral, >0: set e-stop (1: in CRTK pause state, >1: in disabled state)
+  char unhome_trigger;  // 0: neutral, 1: make unhome
+  char home_trigger;
+
   char is_disabled;
   char is_enabled;
   char is_paused;
@@ -72,11 +88,28 @@ private:
   char is_moving;
   char is_ready;
   char is_homed;
+  std::string command;
+  char raven_runlevel;
+  char transition_err;
 
   char set_disabled_state();
   char set_enabled_state();
   char set_paused_state();
   char set_fault_state();
+
+  char set_estop_trigger(int);
+  char set_pd_up_trigger();
+  char set_pd_dn_trigger();
+  char set_unhome_trigger();
+  char set_home_trigger();
+  char reset_home_trigger();
+
+  char enable();
+  char disable();
+  char pause();
+  char resume();
+  char unhome();
+  char home();
 
 };
 

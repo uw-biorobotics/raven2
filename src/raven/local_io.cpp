@@ -332,16 +332,17 @@ int checkLocalUpdates() {
 
   if (isUpdated || lastUpdated == 0) {
     lastUpdated = gTime;
-  } else if (((gTime - lastUpdated) > MASTER_CONN_TIMEOUT) && (data1.surgeon_mode)) {
-    // if timeout period is expired, set surgeon_mode "DISENGAGED" if currently
-    // "ENGAGED"
-    log_msg("Master connection timeout.  surgeon_mode -> up.\n");
-    data1.surgeon_mode = SURGEON_DISENGAGED;
-    //       data1.surgeon_mode = 1;
+  } 
+  // else if (((gTime - lastUpdated) > MASTER_CONN_TIMEOUT) && (data1.surgeon_mode)) {
+  //   // if timeout period is expired, set surgeon_mode "DISENGAGED" if currently
+  //   // "ENGAGED"
+  //   log_msg("Master connection timeout.  surgeon_mode -> up.\n");
+  //   data1.surgeon_mode = SURGEON_DISENGAGED;
+  //   //       data1.surgeon_mode = 1;
 
-    lastUpdated = gTime;
-    isUpdated = TRUE;
-  }
+  //   lastUpdated = gTime;
+  //   isUpdated = TRUE;
+  // }
 
   return isUpdated;
 }
@@ -448,16 +449,40 @@ void setSurgeonMode(int pedalstate) {
 #include <tf/transform_datatypes.h>
 #include <raven_2/raven_state.h>
 #include <raven_2/raven_automove.h>
+#include <raven_2/robot_status.h>
+#include <crtk_msgs/robot_state.h>
+#include <geometry_msgs/TransformStamped.h>
+#include <geometry_msgs/TwistStamped.h>
 #include <sensor_msgs/JointState.h>
 
 void publish_joints(robot_device *);
 void autoincrCallback(raven_2::raven_automove);
 
+
 using namespace raven_2;
-// Global publisher for raven data
+// Global publisher and subscribers for raven data
 ros::Publisher pub_ravenstate;
 ros::Subscriber sub_automove;
+ros::Subscriber sub_crtkCommand;
 ros::Publisher joint_publisher;
+
+//CRTK publishers and subscribers
+ros::Publisher pub_crtk_state;
+
+ros::Publisher pub_crtk_measured_js_gold;
+ros::Publisher pub_crtk_measured_js_green;
+ros::Publisher pub_crtk_measured_cp_gold;
+ros::Publisher pub_crtk_measured_cp_green;
+ros::Publisher pub_crtk_measured_cv_gold;
+ros::Publisher pub_crtk_measured_cv_green;
+
+ros::Publisher pub_crtk_setpoint_js_gold;
+ros::Publisher pub_crtk_setpoint_js_green;
+ros::Publisher pub_crtk_setpoint_cp_gold;
+ros::Publisher pub_crtk_setpoint_cp_green;
+ros::Publisher pub_crtk_setpoint_cv_gold;
+ros::Publisher pub_crtk_setpoint_cv_green;
+
 
 /**
  *  \brief Initiates all ROS publishers and subscribers
@@ -470,7 +495,8 @@ ros::Publisher joint_publisher;
  *  \todo rename this functionto reflect it's current use as a general ROS topic
  *initializer
  */
-int init_ravenstate_publishing(ros::NodeHandle &n) {
+int init_ravenstate_publishing(robot_device *dev, ros::NodeHandle &n) {
+  // Global publisher and subscribers for raven data
   pub_ravenstate = n.advertise<raven_state>(
       "ravenstate", 1);  //, ros::TransportHints().unreliable().tcpNoDelay() );
   joint_publisher = n.advertise<sensor_msgs::JointState>("joint_states", 1);
@@ -479,8 +505,29 @@ int init_ravenstate_publishing(ros::NodeHandle &n) {
                                              ,ros::TransportHints().unreliable()
                                                                    .reliable());
 
+  //CRTK publishers and subscribers
+  sub_crtkCommand = n.subscribe<crtk_msgs::robot_command>("crtk_command", 1, &CRTK_state::crtk_cmd_cb
+                                             ,&dev->crtk_state);
+
+  pub_crtk_state              = n.advertise<crtk_msgs::robot_state>("crtk_state", 1);
+
+  pub_crtk_measured_js_gold   = n.advertise<sensor_msgs::JointState>("arm1/measured_js", 1);
+  pub_crtk_measured_js_green  = n.advertise<sensor_msgs::JointState>("arm2/measured_js", 1);
+  pub_crtk_measured_cp_gold   = n.advertise<geometry_msgs::TransformStamped>("arm1/measured_cp", 1);
+  pub_crtk_measured_cp_green  = n.advertise<geometry_msgs::TransformStamped>("arm2/measured_cp", 1);
+  pub_crtk_measured_cv_gold   = n.advertise<geometry_msgs::TwistStamped>("arm1/measured_cv", 1);
+  pub_crtk_measured_cv_green  = n.advertise<geometry_msgs::TwistStamped>("arm2/measured_cv", 1);
+
+  pub_crtk_setpoint_js_gold   = n.advertise<sensor_msgs::JointState>("arm1/setpoint_js", 1);
+  pub_crtk_setpoint_js_green  = n.advertise<sensor_msgs::JointState>("arm2/setpoint_js", 1);
+  pub_crtk_setpoint_cp_gold   = n.advertise<geometry_msgs::TransformStamped>("arm1/setpoint_cp", 1);
+  pub_crtk_setpoint_cp_green  = n.advertise<geometry_msgs::TransformStamped>("arm2/setpoint_cp", 1);
+  pub_crtk_setpoint_cv_gold   = n.advertise<geometry_msgs::TwistStamped>("arm1/setpoint_cv", 1);
+  pub_crtk_setpoint_cv_green  = n.advertise<geometry_msgs::TwistStamped>("arm2/setpoint_cv", 1);
+
   return 0;
 }
+
 
 /**
  *\brief Callback for the automove topic - Updates the data1 structure
@@ -615,11 +662,166 @@ void publish_ravenstate_ros(robot_device *dev, param_pass *currParams) {
   }
   //    msg_ravenstate.f_secs = d.toSec();
   msg_ravenstate.hdr.stamp = msg_ravenstate.hdr.stamp.now();
+
   msg_ravenstate.runlevel = currParams->runlevel;
-  msg_ravenstate.sublevel = currParams->sublevel;
+  msg_ravenstate.sublevel = robot_ready(dev); // homed
 
   // Publish the raven data to ROS
   pub_ravenstate.publish(msg_ravenstate);
+}
+
+/**
+ * \brief Publishes the CRTK state message from the robot
+ *
+ *  The robot is in the CRTK disabled state if it is (e-stopped & not homed &
+*    no fault). This is the initial state of the robot.
+ * 
+ *   \param dev robot device structure with the current state of the robot
+ *   \param currParams the parameters being passed from the interfaces
+ *  \ingroup ROS
+ *  \ingroup CRTK
+ */
+void publish_crtk_state(robot_device *dev) {
+  static crtk_msgs::robot_state msg_state;
+
+  msg_state.is_disabled = dev->crtk_state.get_disabled();
+  msg_state.is_enabled = dev->crtk_state.get_enabled();
+  msg_state.is_paused = dev->crtk_state.get_paused();
+  msg_state.is_fault = dev->crtk_state.get_fault();
+
+  msg_state.is_homed = dev->crtk_state.get_homed();
+  msg_state.is_ready = dev->crtk_state.get_ready();
+  msg_state.is_moving = dev->crtk_state.get_moving();
+  msg_state.is_homing = dev->crtk_state.get_homing();
+
+  msg_state.hdr.stamp = msg_state.hdr.stamp.now();
+
+  pub_crtk_state.publish(msg_state);
+}
+
+
+void publish_crtk_measured_js(robot_device *dev) {
+  sensor_msgs::JointState msg1, msg2;
+// Header header
+// string[] name
+// float64[] position
+// float64[] velocity
+// float64[] effort
+  msg1.header.stamp = msg1.header.stamp.now();
+  msg2.header.stamp = msg2.header.stamp.now();
+
+  std::string gold_names[7] = {"gold_shoulder","gold_elbow","gold_ins","gold_roll","gold_wrist","gold_jaw1","gold_jaw2"};
+  std::string green_names[7] = {"green_shoulder","green_elbow","green_ins","green_roll","green_wrist","green_jaw1","green_jaw2"};
+
+  mechanism *_mech = NULL;
+  DOF *_joint = NULL;
+  int i, j;
+  while (loop_over_7_joints(dev, _mech, _joint, i, j)) {
+    if (_mech->type == GOLD_ARM_SERIAL) {
+
+        msg1.position.push_back(_joint->jpos);
+        msg1.velocity.push_back(_joint->jvel);
+        msg1.effort.push_back(_joint->tau);
+        msg1.name.push_back(gold_names[j]);
+
+    }
+    else if (_mech->type == GREEN_ARM_SERIAL) {
+
+        msg2.position.push_back(_joint->jpos);
+        msg2.velocity.push_back(_joint->jvel);
+        msg2.effort.push_back(_joint->tau);
+        msg2.name.push_back(green_names[j]);
+
+    }
+  }
+  pub_crtk_measured_js_gold.publish(msg1);
+  pub_crtk_measured_js_green.publish(msg2);
+}
+
+void publish_crtk_measured_cp(robot_device *dev) {
+  static geometry_msgs::TransformStamped msg1, msg2;
+// Header header
+// string child_frame_id # the frame id of the child frame
+// Transform transform
+  msg1.header.stamp = msg1.header.stamp.now();
+  msg2.header.stamp = msg2.header.stamp.now();
+
+  pub_crtk_measured_cp_gold.publish(msg1);
+  pub_crtk_measured_cp_green.publish(msg2);
+}
+
+void publish_crtk_measured_cv(robot_device *dev) {
+  static geometry_msgs::TwistStamped msg1, msg2;
+// Header header
+// Twist twist
+  msg1.header.stamp = msg1.header.stamp.now();
+  msg2.header.stamp = msg2.header.stamp.now();
+  
+  pub_crtk_measured_cv_gold.publish(msg1);
+  pub_crtk_measured_cv_green.publish(msg2);
+}
+
+void publish_crtk_setpoint_js(robot_device *dev) {
+  sensor_msgs::JointState msg1, msg2;
+// Header header
+
+// string[] name
+// float64[] position
+// float64[] velocity
+// float64[] effort
+  msg1.header.stamp = msg1.header.stamp.now();
+  msg2.header.stamp = msg2.header.stamp.now();
+
+  std::string gold_names[7] = {"gold_shoulder","gold_elbow","gold_ins","gold_roll","gold_wrist","gold_jaw1","gold_jaw2"};
+  std::string green_names[7] = {"green_shoulder","green_elbow","green_ins","green_roll","green_wrist","green_jaw1","green_jaw2"};
+
+  mechanism *_mech = NULL;
+  DOF *_joint = NULL;
+  int i, j;
+  while (loop_over_7_joints(dev, _mech, _joint, i, j)) {
+    if (_mech->type == GOLD_ARM_SERIAL) {
+
+        msg1.position.push_back(_joint->jpos_d);
+        msg1.velocity.push_back(_joint->jvel_d);
+        msg1.effort.push_back(_joint->tau_d);
+        msg1.name.push_back(gold_names[j]);
+
+    }
+    else if (_mech->type == GREEN_ARM_SERIAL) {
+
+        msg2.position.push_back(_joint->jpos_d);
+        msg2.velocity.push_back(_joint->jvel_d);
+        msg2.effort.push_back(_joint->tau_d);
+        msg2.name.push_back(green_names[j]);
+
+    }
+  }
+
+  pub_crtk_setpoint_js_gold.publish(msg1);
+  pub_crtk_setpoint_js_green.publish(msg2);
+}
+
+void publish_crtk_setpoint_cp(robot_device *dev) {
+  static geometry_msgs::TransformStamped msg1, msg2;
+// Header header
+// string child_frame_id # the frame id of the child frame
+// Transform transform
+  msg1.header.stamp = msg1.header.stamp.now();
+  msg2.header.stamp = msg2.header.stamp.now();
+  
+  pub_crtk_setpoint_cp_gold.publish(msg1);
+  pub_crtk_setpoint_cp_green.publish(msg2);
+}
+
+void publish_crtk_setpoint_cv(robot_device *dev) {
+  static geometry_msgs::TwistStamped msg1, msg2;
+// Header header
+// Twist twist
+  msg1.header.stamp = msg1.header.stamp.now();
+  msg2.header.stamp = msg2.header.stamp.now();
+
+  pub_crtk_setpoint_cv_gold.publish(msg1);
+  pub_crtk_setpoint_cv_green.publish(msg2);
 }
 
 /**

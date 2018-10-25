@@ -12,13 +12,14 @@ find_package(catkin REQUIRED COMPONENTS
   sensor_msgs
   geometry_msgs
   tf
+  crtk_msgs
 )
 
 find_package(Eigen3 REQUIRED)
 
 add_message_files(
   DIRECTORY msg
-  FILES raven_automove.msg raven_state.msg
+  FILES raven_automove.msg raven_state.msg robot_status.msg 
 )
 
 generate_messages(
@@ -70,6 +71,8 @@ set(r2_control_sources
   src/raven/state_machine.cpp
   src/raven/t_to_DAC_val.cpp
   src/raven/tools.cpp
+  src/raven/crtk_state.cpp
+  src/raven/crtk_motion.cpp
   src/raven/trajectory.cpp
   src/raven/update_atmel_io.cpp
   src/raven/update_device_state.cpp

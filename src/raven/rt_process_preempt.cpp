@@ -82,6 +82,7 @@ int soft_estopped = 0;  // Soft estop flag- indicate desired software estop.
 
 int deviceType = SURGICAL_ROBOT;  // PULLEY_BOARD;
 device device0 = {0};  // Declaration Moved outside rt loop for access from console thread
+                       // BOOOOOOOOOO
 int mech_gravcomp_done[2] = {0};
 
 int NUM_MECH = 0;  // Define NUM_MECH as a C variable, not a c++ variable
@@ -265,15 +266,42 @@ static void *rt_process(void *) {
       showInverseKinematicsSolutions(&device0, currParams.runlevel);
       outputRobotState();
     }
+    // Check for estop command from CRTK interface.
+    char current_estop_level = device0.crtk_state.get_estop_trigger();
+    if (current_estop_level!=0 && soft_estopped == FALSE){
+      soft_estopped = TRUE;
+      ROS_ERROR("CRTK E-stop triggered. (level = %i)",current_estop_level);
+      if (current_estop_level>1){
+        device0.runlevel = RL_E_STOP;
+        device0.crtk_state.reset_estop_trigger();
+      }
+    }
+
+    // 
+    if(device0.crtk_state.get_unhome_trigger() > 0){
+      device0.robot_homed = 0;
+    }
+    else if(robot_ready(&device0)){
+      device0.robot_homed = 1;
+    }
+
     // Update Atmel Output Pins
     updateAtmelOutputs(&device0, currParams.runlevel);
 
     // Fill USB Packet and send it out
     putUSBPackets(&device0);  // disable usb for par port test
 
+    //update CRTK API state flags
+    device0.crtk_state.state_machine_update(device0.runlevel, device0.robot_homed, device0.robot_fault, device0.surgeon_mode, current_estop_level);
+    
+
     // Publish current raven state
     publish_ravenstate_ros(&device0, &currParams);  // from local_io
 
+    // Publish CRTK things
+    publish_crtk_state(&device0);
+    publish_crtk_measured_js(&device0);
+    publish_crtk_setpoint_js(&device0);
     // Done for this cycle
   }
 
@@ -312,7 +340,7 @@ int init_ros(int argc, char **argv) {
   ros::init(argc, argv, "r2_control", ros::init_options::NoSigintHandler);
   ros::NodeHandle n;
   //    rosrt::init();
-  init_ravenstate_publishing(n);
+  init_ravenstate_publishing(&device0, n);
   init_ravengains(n, &device0);
 
   return 0;

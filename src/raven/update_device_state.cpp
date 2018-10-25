@@ -124,6 +124,15 @@ int updateDeviceState(param_pass *currParams, param_pass *rcvdParams, device *de
   }
 
   // Set new surgeon mode
+  // if (device0->crtk_state.get_pedal_trigger() == -1){
+  //   device0->surgeon_mode = 1; // set pedal down
+  //   device0->crtk_state.reset_pedal_trigger();
+  // }
+  // else if(device0->crtk_state.get_pedal_trigger() == 1){
+  //   device0->surgeon_mode = 0; // set pedal up
+  //   device0->crtk_state.reset_pedal_trigger();
+  // }
+  // else 
   if (device0->surgeon_mode != rcvdParams->surgeon_mode) {
     device0->surgeon_mode = rcvdParams->surgeon_mode;  // store the surgeon_mode to DS0
   }

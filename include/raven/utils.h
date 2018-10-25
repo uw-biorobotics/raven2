@@ -47,6 +47,7 @@
 #define SHORT_UNDERFLOW -1
 
 int loop_over_joints(robot_device *, mechanism *&, DOF *&, int &, int &);
+int loop_over_7_joints(robot_device *, mechanism *&, DOF *&, int &, int &);
 int loop_over_joints(mechanism *_mech, DOF *&_joint, int &jnum);
 
 int toShort(int value, short int *target);
@@ -55,7 +56,7 @@ int is_toolDOF(DOF *);
 int is_toolDOF(int);
 int tools_ready(mechanism *mech);
 int robot_ready(robot_device *device0);
-
+int unhome_robot(robot_device *device0);
 /**
 *	\fn static inline void tsnorm(timespec *ts)
 *
