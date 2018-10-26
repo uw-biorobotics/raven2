@@ -70,3 +70,54 @@ tf::Transform CRTK_motion_api::get_goal_cp(){
   //TODO: figure this out later
   return goal_cp[CRTK_servo];
 }
+
+char CRTK_motion_api::check_updates(){
+  return cp_updated; 
+}
+
+tf::Transform CRTK_motion_api::get_pos(){
+  return pos;
+}
+
+// tf::Transform CRTK_motion_api::get_vel(){
+//   return vel;
+// }
+
+void CRTK_motion_api::set_jpos(float* in){
+  for(int i=0; i<7; i++){
+    jpos[i] = in[i];
+  }
+}
+
+// void CRTK_motion_api::set_jvel(float* in){
+
+//   for(int i=0; i<7; i++){
+//     jvel[i] = in[i];
+//   }
+// }
+
+void CRTK_motion_api::set_setpoint_cp(tf::Transform* in){
+  for(int i=0; i<3; i++){
+    setpoint_cp[i]=tf::Transform(in[i]);
+  }
+}
+
+void CRTK_motion_api::set_goal_cp(tf::Transform* in){
+  for(int i=0; i<3; i++){
+    goal_cp[i]=tf::Transform(in[i]);
+  }
+}
+
+
+void CRTK_motion_api::copy_data(CRTK_motion_api* source){ // TODO: keep updating this
+    pos = source->get_pos();
+    //vel = source->get_vel();
+
+    this->set_jpos(source->jpos);
+    //this->set_jvel(source->jvel);
+
+    this->set_setpoint_cp(source->setpoint_cp);
+    this->set_goal_cp(source->goal_cp);
+    cp_updated = source->get_cp_updated();
+
+}

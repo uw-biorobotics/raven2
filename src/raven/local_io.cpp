@@ -54,6 +54,7 @@
 #include "r2_kinematics.h"
 #include "reconfigure.h"
 #include "r2_jacobian.h"
+#include "crtk_motion_api.h"
 
 extern int NUM_MECH;
 extern USBStruct USBBoards;
@@ -74,6 +75,9 @@ volatile int isUpdated;  // TODO: HK volatile int instead of atomic_t ///Should 
 
 extern offsets offsets_l;
 extern offsets offsets_r;
+
+CRTK_motion_api crtk_motion_api_gold; //class to hold robot status flags for CRTK API
+CRTK_motion_api crtk_motion_api_green; //class to hold robot status flags for CRTK API
 
 /**
  * \brief Initialize data arrays to zero and create mutex
@@ -330,7 +334,8 @@ void teleopIntoDS1(u_struct *us_t) {
 int checkLocalUpdates() {
   static unsigned long int lastUpdated;
 
-  if (isUpdated || lastUpdated == 0) {
+  if (isUpdated || lastUpdated == 0 || crtk_motion_api_gold.check_updates() 
+    || crtk_motion_api_green.check_updates()) {
     lastUpdated = gTime;
   } 
   // else if (((gTime - lastUpdated) > MASTER_CONN_TIMEOUT) && (data1.surgeon_mode)) {
@@ -455,8 +460,6 @@ void setSurgeonMode(int pedalstate) {
 #include <geometry_msgs/TwistStamped.h>
 #include <sensor_msgs/JointState.h>
 
-CRTK_motion_api crtk_motion_api_gold; //class to hold robot status flags for CRTK API
-CRTK_motion_api crtk_motion_api_green; //class to hold robot status flags for CRTK API
 
 void publish_joints(robot_device *);
 void autoincrCallback(raven_2::raven_automove);
@@ -607,34 +610,45 @@ void autoincrCallback(raven_2::raven_automove msg) {
   isUpdated = TRUE;
 }
 
-// CRTK stuff: passing CRTK motions to RCVD
-void crtk_motion_to_rcvd(CRTK_motion_api* crtk_motion_api_gold, CRTK_motion_api* crtk_motion_api_green){
-  pthread_mutex_lock(&data1Mutex);
+// // CRTK stuff: passing CRTK motions to RCVD
+// void crtk_motion_to_rcvd(CRTK_motion_api* crtk_motion_api_gold, CRTK_motion_api* crtk_motion_api_green){
+//   pthread_mutex_lock(&data1Mutex);
 
-  // add position increment
+//   // add position increment
 
-  if(crtk_motion_api_gold->get_cp_updated()){
-    tf::Vector3 tmpvec0 = crtk_motion_api_gold->get_goal_cp().getOrigin();
-    data1.xd[0].x += int(tmpvec0[0]);
-    data1.xd[0].y += int(tmpvec0[1]);
-    data1.xd[0].z += int(tmpvec0[2]);
-    crtk_motion_api_gold->reset_cp_updated();
-  }
+//   if(crtk_motion_api_gold->get_cp_updated()){
+//     tf::Vector3 tmpvec0 = crtk_motion_api_gold->get_goal_cp().getOrigin();
+//     data1.xd[0].x += int(tmpvec0[0]);
+//     data1.xd[0].y += int(tmpvec0[1]);
+//     data1.xd[0].z += int(tmpvec0[2]);
+//     crtk_motion_api_gold->reset_cp_updated();
+//   }
 
-  if(crtk_motion_api_green->get_cp_updated()){
-    tf::Vector3 tmpvec1 = crtk_motion_api_green->get_goal_cp().getOrigin();
-    data1.xd[1].x += int(tmpvec1[0]);
-    data1.xd[1].y += int(tmpvec1[1]);
-    data1.xd[1].z += int(tmpvec1[2]);
-    crtk_motion_api_green->reset_cp_updated();
-  } 
+//   if(crtk_motion_api_green->get_cp_updated()){
+//     tf::Vector3 tmpvec1 = crtk_motion_api_green->get_goal_cp().getOrigin();
+//     data1.xd[1].x += int(tmpvec1[0]);
+//     data1.xd[1].y += int(tmpvec1[1]);
+//     data1.xd[1].z += int(tmpvec1[2]);
+//     crtk_motion_api_green->reset_cp_updated();
+//   } 
 
 
-  pthread_mutex_unlock(&data1Mutex);
-  isUpdated = TRUE;  
+//   pthread_mutex_unlock(&data1Mutex);
+//   isUpdated = TRUE;  
+//   return;
+// }
+
+void update_device_motion_api(CRTK_motion_planner* planner){
+
+  // TODO: investigate locking the global variables
+  planner->crtk_motion_api_prev[0].copy_data(&planner->crtk_motion_api[0]);
+  planner->crtk_motion_api_prev[1].copy_data(&planner->crtk_motion_api[1]);
+
+  planner->crtk_motion_api[0].copy_data(&crtk_motion_api_gold);
+  planner->crtk_motion_api[1].copy_data(&crtk_motion_api_green);
+
   return;
 }
-
 
 /**
  * \brief Publishes the raven_state message from the robot and currParams

@@ -48,20 +48,28 @@ class CRTK_motion_api
     void crtk_servo_cr_cb(geometry_msgs::TransformStamped);
     char reset_cp_updated();
     char get_cp_updated();
+    char check_updates(); // TODO: add more flags in
     tf::Transform get_goal_cp();
-
+    tf::Transform get_pos();
+    //tf::Transform get_vel();
+    void set_jpos(float*);
+    //void set_jvel(float*);
+    void set_setpoint_cp(tf::Transform*);
+    void set_goal_cp(tf::Transform*);
+    void copy_data(CRTK_motion_api*);
   private:
     // current robot pose
     tf::Transform pos;
-    tf::Transform vel;
+    //tf::Transform vel;
     float jpos[7];
-    float jvel[7];
+    //float jvel[7];
 
     tf::Transform setpoint_cp[3];
     tf::Transform goal_cp[3];
     char cp_updated;
 
     char set_cp_updated();
+
 };
 
 

@@ -34,6 +34,7 @@
 #include "defines.h"
 #include "USB_init.h"
 #include "itp_teleoperation.h"
+#include "crtk_motion_planner.h"
 
 int initLocalioData(device *device0);
 
@@ -49,6 +50,7 @@ int checkLocalUpdates();
 // Return current parameter-update set
 param_pass *getRcvdParams(param_pass *);
 
+void update_device_motion_api(CRTK_motion_planner*);
 void updateMasterRelativeOrigin(device *device0);
 
 int init_ravenstate_publishing(robot_device *, ros::NodeHandle &n);

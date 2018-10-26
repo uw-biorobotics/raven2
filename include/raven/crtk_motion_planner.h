@@ -41,12 +41,13 @@ class CRTK_motion_planner
   public:
     CRTK_motion_planner();
     ~CRTK_motion_planner(){};
-
+    
+    CRTK_motion_api crtk_motion_api[2];
+    CRTK_motion_api crtk_motion_api_prev[2];
 
   private:
     // tf::Transform goal_cp;
-    CRTK_motion_api crtk_motion_api[2];
-    CRTK_motion_api crtk_motion_api_prev[2];
+
 };
 
 

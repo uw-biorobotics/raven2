@@ -64,6 +64,7 @@
 #include "r2_kinematics.h"
 #include "network_layer.h"
 #include "reconfigure.h"
+#include "local_io.h"
 
 using namespace std;
 
@@ -245,8 +246,10 @@ static void *rt_process(void *) {
     updateAtmelInputs(device0, currParams.runlevel);
 
     // Get state updates from master
-    if (checkLocalUpdates() == TRUE)
+    if (checkLocalUpdates() == TRUE){
       updateDeviceState(&currParams, getRcvdParams(&rcvdParams), &device0);
+      update_device_motion_api(&device0.crtk_motion_planner);
+    }
     else
       rcvdParams.runlevel = currParams.runlevel;
 
