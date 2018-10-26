@@ -19,28 +19,34 @@
  */
 
 /**
- * crtk_state.h
+ * crtk_motion_planner.h
  *
  * \brief Class file for CRTK state object, which holds all of the state
  *  flags for the "Robot Operating State" aspect of the CRTK API
  *
- *  \date Oct 25, 2018
+ *  \date Oct 26, 2018
  *  \author Andrew Lewis, Yun-Hsuan Su
 
  */
 
 #include <ros/ros.h>
-#include <crtk_msgs/robot_command.h>
+#include <tf/tf.h>
+#include "crtk_motion_api.h"
 
-#ifndef CRTK_MOTION_H_
-#define CRTK_MOTION_H_
+#ifndef CRTK_MOTION_PLANNER_H_
+#define CRTK_MOTION_PLANNER_H_
 
-class CRTK_motion 
+class CRTK_motion_planner 
 {
   public:
-    
+    CRTK_motion_planner();
+    ~CRTK_motion_planner(){};
+
+
   private:
-  
+    // tf::Transform goal_cp;
+    CRTK_motion_api crtk_motion_api[2];
+    CRTK_motion_api crtk_motion_api_prev[2];
 };
 
 

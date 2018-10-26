@@ -72,7 +72,8 @@ set(r2_control_sources
   src/raven/t_to_DAC_val.cpp
   src/raven/tools.cpp
   src/raven/crtk_state.cpp
-  src/raven/crtk_motion.cpp
+  src/raven/crtk_motion_api.cpp
+  src/raven/crtk_motion_planner.cpp
   src/raven/trajectory.cpp
   src/raven/update_atmel_io.cpp
   src/raven/update_device_state.cpp

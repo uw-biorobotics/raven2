@@ -19,22 +19,18 @@
  */
 
 /**
- * crtk_state.cpp
+ * crtk_motion_planner.cpp
  *
  * \brief Class file for CRTK API state and status flags
  *
  *
- * \date Oct 18, 2018
+ * \date Oct 26, 2018
  * \author Andrew Lewis
  * \author Melody Yun-Hsuan Su
  *
  */
- 
-#include "crtk_motion.h"
-#include "defines.h"
-#include "local_io.h"
-#include "update_device_state.h"
+#include "crtk_motion_planner.h"
 
-#include "rt_process_preempt.h"
+CRTK_motion_planner::CRTK_motion_planner(){
 
-
+}

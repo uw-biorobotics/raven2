@@ -455,6 +455,9 @@ void setSurgeonMode(int pedalstate) {
 #include <geometry_msgs/TwistStamped.h>
 #include <sensor_msgs/JointState.h>
 
+CRTK_motion_api crtk_motion_api_gold; //class to hold robot status flags for CRTK API
+CRTK_motion_api crtk_motion_api_green; //class to hold robot status flags for CRTK API
+
 void publish_joints(robot_device *);
 void autoincrCallback(raven_2::raven_automove);
 
@@ -483,6 +486,23 @@ ros::Publisher pub_crtk_setpoint_cp_green;
 ros::Publisher pub_crtk_setpoint_cv_gold;
 ros::Publisher pub_crtk_setpoint_cv_green;
 
+ros::Subscriber sub_servo_jp_gold;
+ros::Subscriber sub_servo_jv_gold;
+ros::Subscriber sub_servo_jf_gold;
+ros::Subscriber sub_servo_jr_gold;
+ros::Subscriber sub_servo_cp_gold;
+ros::Subscriber sub_servo_cv_gold;
+// ros::Subscriber sub_servo_cf_gold;
+ros::Subscriber sub_servo_cr_gold;
+
+ros::Subscriber sub_servo_jp_green;
+ros::Subscriber sub_servo_jv_green;
+ros::Subscriber sub_servo_jf_green;
+ros::Subscriber sub_servo_jr_green;
+ros::Subscriber sub_servo_cp_green;
+ros::Subscriber sub_servo_cv_green;
+// ros::Subscriber sub_servo_cf_green;
+ros::Subscriber sub_servo_cr_green;
 
 /**
  *  \brief Initiates all ROS publishers and subscribers
@@ -508,6 +528,11 @@ int init_ravenstate_publishing(robot_device *dev, ros::NodeHandle &n) {
   //CRTK publishers and subscribers
   sub_crtkCommand = n.subscribe<crtk_msgs::robot_command>("crtk_command", 1, &CRTK_state::crtk_cmd_cb
                                              ,&dev->crtk_state);
+
+  sub_servo_cr_gold = n.subscribe<geometry_msgs::TransformStamped>("arm1/servo_cr", 1, &CRTK_motion_api::crtk_servo_cr_cb
+                                             ,&crtk_motion_api_gold);
+  sub_servo_cr_green = n.subscribe<geometry_msgs::TransformStamped>("arm2/servo_cr", 1, &CRTK_motion_api::crtk_servo_cr_cb
+                                             ,&crtk_motion_api_green);
 
   pub_crtk_state              = n.advertise<crtk_msgs::robot_state>("crtk_state", 1);
 
@@ -581,6 +606,35 @@ void autoincrCallback(raven_2::raven_automove msg) {
   pthread_mutex_unlock(&data1Mutex);
   isUpdated = TRUE;
 }
+
+// CRTK stuff: passing CRTK motions to RCVD
+void crtk_motion_to_rcvd(CRTK_motion_api* crtk_motion_api_gold, CRTK_motion_api* crtk_motion_api_green){
+  pthread_mutex_lock(&data1Mutex);
+
+  // add position increment
+
+  if(crtk_motion_api_gold->get_cp_updated()){
+    tf::Vector3 tmpvec0 = crtk_motion_api_gold->get_goal_cp().getOrigin();
+    data1.xd[0].x += int(tmpvec0[0]);
+    data1.xd[0].y += int(tmpvec0[1]);
+    data1.xd[0].z += int(tmpvec0[2]);
+    crtk_motion_api_gold->reset_cp_updated();
+  }
+
+  if(crtk_motion_api_green->get_cp_updated()){
+    tf::Vector3 tmpvec1 = crtk_motion_api_green->get_goal_cp().getOrigin();
+    data1.xd[1].x += int(tmpvec1[0]);
+    data1.xd[1].y += int(tmpvec1[1]);
+    data1.xd[1].z += int(tmpvec1[2]);
+    crtk_motion_api_green->reset_cp_updated();
+  } 
+
+
+  pthread_mutex_unlock(&data1Mutex);
+  isUpdated = TRUE;  
+  return;
+}
+
 
 /**
  * \brief Publishes the raven_state message from the robot and currParams

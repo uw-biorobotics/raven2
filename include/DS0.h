@@ -36,6 +36,8 @@
 #include "tools.h"
 #include "r2_jacobian.h"
 #include "crtk_state.h"
+#include "crtk_motion_api.h"
+#include "crtk_motion_planner.h"
 
 #ifndef DS0_H
 #define DS0_H
@@ -162,6 +164,7 @@ struct robot_device {
   float grav_mag;     // gravity magnitude
   position grav_dir;  // gravity direction
   CRTK_state crtk_state; //class to hold robot status flags for CRTK API
+  CRTK_motion_planner crtk_motion_planner;
   char robot_homed;   // have all joints been homed
   char robot_fault;   //has an e-stop been triggered?
 };
