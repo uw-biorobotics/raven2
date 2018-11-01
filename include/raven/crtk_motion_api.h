@@ -38,7 +38,7 @@
 #ifndef CRTK_MOTION_API_H_
 #define CRTK_MOTION_API_H_
 
-enum CRTK_input {CRTK_servo, CRTK_interp, CRTK_move, CRTK_out};
+enum CRTK_motion_type {CRTK_servo, CRTK_interp, CRTK_move, CRTK_out};
 
 class CRTK_motion_api 
 {
@@ -51,26 +51,31 @@ class CRTK_motion_api
     char check_updates(); // TODO: add more flags in
     tf::Transform get_goal_cp();
     tf::Transform get_pos();
+    char set_pos(tf::Transform);
     //tf::Transform get_vel();
     void set_jpos(float*);
     //void set_jvel(float*);
-    void set_setpoint_cp(tf::Transform*);
-    void set_goal_cp(tf::Transform*);
-    void copy_data(CRTK_motion_api*);
+    void set_setpoint_cp(tf::Transform);
+    void set_goal_cp(tf::Transform,CRTK_motion_type);
+    void transfer_data(CRTK_motion_api*);
+    char preempt_to_network(CRTK_motion_api*);
+    char network_to_preempt(CRTK_motion_api*);
   private:
     // current robot pose
-    tf::Transform pos;
+    tf::Transform pos; // measured_cp
     //tf::Transform vel;
     float jpos[7];
     //float jvel[7];
 
-    tf::Transform setpoint_cp[3];
-    tf::Transform goal_cp[3];
+    tf::Transform setpoint_cp;
+    tf::Transform goal_cp[4];
     char cp_updated;
 
     char set_cp_updated();
 
 };
+
+
 
 
 #endif

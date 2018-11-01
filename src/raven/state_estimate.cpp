@@ -141,6 +141,18 @@ void getStateLPF(DOF *joint, adapter adapter_style) {
 // the filter was shown to cause fluttering in the tool joints after homing
 #ifdef NO_LPF
   joint->mvel = (motorPos - oldPos[0]) / STEP_PERIOD;
+
+  // static int count = 0;
+  // if(joint->type == WRIST_GREEN) {
+  //   //count++;
+  //   if(count % 500 == 0){
+  //     ROS_INFO("motorPos %f",motorPos);
+  //     ROS_INFO("oldPos[0] %f",oldPos[0]);
+  //     ROS_INFO("joint->mvel %f",joint->mvel);  
+  //     count = 0  ;
+  //   }
+  // }
+  
   joint->mpos = motorPos;
 
   static int print_once = 0;

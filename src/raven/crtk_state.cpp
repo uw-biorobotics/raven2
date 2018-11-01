@@ -47,7 +47,7 @@ CRTK_state::CRTK_state() {
   is_paused 	= 0;
   is_fault 		= 0;
   is_homing 	= 0;
-  is_moving 	= 0;
+  is_busy 	= 0;
   is_ready 		= 0;
   is_homed		= 0;
 
@@ -68,21 +68,21 @@ CRTK_state::CRTK_state() {
 *	\output negative if error
 */
 
-char CRTK_state::state_machine_update(char robot_state, char robot_homed, char robot_fault, int surgeon_mode, char current_estop_level){
+char CRTK_state::state_machine_update(char robot_state, bool robot_homed, bool robot_fault, int surgeon_mode, char current_estop_level){
   
   raven_runlevel = robot_state;
 
   int success = 0;
   if(robot_state == RL_E_STOP){
-  	success += set_moving(0);
-  	success += set_ready(0);
+  	success += set_busy(0);
+  	// success += set_ready(0);
   	success += set_homing(0); //no ability to use partially-homed joints
     if(robot_fault == 1){
       success += set_fault_state();
-    }else if(robot_homed == 0 || current_estop_level>1){
-      success += set_disabled_state();
-    }else{
+    }else if(robot_homed == 1 && current_estop_level == 1){
       success += set_paused_state();
+    }else{
+      success += set_disabled_state();
     }
   	
     if(get_home_trigger()){
@@ -98,23 +98,23 @@ char CRTK_state::state_machine_update(char robot_state, char robot_homed, char r
   else if(robot_state == RL_INIT){
   	success += set_enabled_state();
   	success += set_homing(1);
-  	success += set_moving(1);
-  	success += set_ready(0);
+  	success += set_busy(1);
+  	// success += set_ready(0);
   }
 
   else if(!surgeon_mode){
   	success += set_paused_state();
-  	success += set_moving(0);
+  	success += set_busy(0);
   	success += set_homing(0);
-  	success += set_ready(0);
+  	// success += set_ready(0);
   }
 
   else if(surgeon_mode){
   	success += set_enabled_state();
 
   	success += set_homing(0);
-  	//set_moving(1); // \TODO is the robot actively moving? is it owned by some node
-  	success += set_ready(1);
+  	//set_busy(1); // \TODO is the robot actively busy? is it owned by some node
+  	// success += set_ready(1);
   }
 
   if(robot_homed) success += set_homed(1);
@@ -214,47 +214,56 @@ char CRTK_state::set_fault_state(){
 
 }
 
-char CRTK_state::set_homing(char new_state){
-	if(good_state_value(new_state))
-		is_homing = new_state;
-	else return -1;
+char CRTK_state::set_homing(bool new_state){
+	is_homing = new_state;
 
 	return 0;
 }
 
-char CRTK_state::set_moving(char new_state){
-	if(good_state_value(new_state))
-		is_moving = new_state;
-	else return -1;
+char CRTK_state::set_busy(bool new_state){
+	is_busy = new_state;
 
 	return 0;
 
 }
 
-char CRTK_state::set_ready(char new_state){
-	if(good_state_value(new_state))
-		is_ready = new_state;
-	else return -1;
+// char CRTK_state::set_ready(char new_state){
+// 	if(good_state_value(new_state))
+// 		is_ready = new_state;
+// 	else return -1;
+
+// 	return 0;
+
+// }
+
+char CRTK_state::set_homed(bool new_state){
+	is_homed = new_state;
 
 	return 0;
-
 }
 
-char CRTK_state::set_homed(char new_state){
-	if(good_state_value(new_state))
-		is_homed = new_state;
-	else return -1;
+// bool good_state_value(bool state){
+// 	if(state == 1 || state == 0 || state == '?')
+// 		return true;
+// 	else
+// 		return false;
+// }
 
-	return 0;
+
+CRTK_robot_state CRTK_state::get_state(){
+  if(is_disabled){
+    return CRTK_DISABLED;
+  }
+  else if(is_enabled){
+    return CRTK_ENABLED;
+  }
+  else if(is_paused){
+    return CRTK_PAUSED;
+  }
+  else{
+    return CRTK_FAULT;
+  }
 }
-
-bool good_state_value(char state){
-	if(state == 1 || state == 0 || state == '?')
-		return true;
-	else
-		return false;
-}
-
 
 char CRTK_state::get_estop_trigger(){
   return estop_trigger;
@@ -272,33 +281,33 @@ char CRTK_state::get_home_trigger(){
   return home_trigger;
 }
 
-char CRTK_state::get_disabled(){
+bool CRTK_state::get_disabled(){
 	return is_disabled;
 }
 
-char CRTK_state::get_enabled(){
+bool CRTK_state::get_enabled(){
 	return is_enabled;
 }
 
-char CRTK_state::get_paused(){
+bool CRTK_state::get_paused(){
 	return is_paused;
 }
 
-char CRTK_state::get_fault(){
+bool CRTK_state::get_fault(){
 	return is_fault;
 }
 
 
-char CRTK_state::get_homing(){
+bool CRTK_state::get_homing(){
   return is_homing;
 }
-char CRTK_state::get_moving(){
-  return is_moving;
+bool CRTK_state::get_busy(){
+  return is_busy;
 }
-char CRTK_state::get_ready(){
+bool CRTK_state::get_ready(){
   return is_ready;
 }
-char CRTK_state::get_homed(){
+bool CRTK_state::get_homed(){
   return is_homed;
 }
 /**
@@ -313,35 +322,27 @@ char CRTK_state::get_homed(){
  * \ingroup ROS
  *
  */
-void CRTK_state::crtk_cmd_cb(crtk_msgs::robot_command msg){
+void CRTK_state::crtk_cmd_cb(crtk_msgs::StringStamped msg){
 
-  char cmd = NULL;
-
-  command = msg.data;
+  std::string command = msg.data;
   ROS_INFO("Received %s", command.c_str());
 
   if(command == "ENABLE") {
-    cmd = CRTK_ENABLE;
     enable();
   }
   else if (command == "DISABLE") {
-    cmd = CRTK_DISABLE;
     disable();
   }
   else if (command == "PAUSE"){
-    cmd = CRTK_PAUSE;
     pause();
   }
   else if (command == "RESUME") {
-    cmd = CRTK_RESUME;
     resume();
   }
   else if (command == "UNHOME") {
-    cmd = CRTK_UNHOME;
     unhome();
   }
   else if (command == "HOME") {
-    cmd = CRTK_HOME;
     home();
   }
   else
@@ -458,4 +459,16 @@ char CRTK_state::home()
   
   transition_err = 0;
   return 0;
+}
+
+std::string CRTK_state::get_state_string(){
+  std::string out;
+
+  if(is_disabled)       out = "DISABLED";
+  else if (is_enabled)  out = "ENABLED";
+  else if (is_paused)   out = "PAUSED";
+  else if (is_fault)    out = "FAULT";
+  else out = "FAULT"; //no connection?
+
+  return out;
 }

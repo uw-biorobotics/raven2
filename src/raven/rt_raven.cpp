@@ -105,7 +105,7 @@ int controlRaven(device *device0, param_pass *currParams) {
   // Desired control mode
   t_controlmode controlmode = (t_controlmode)currParams->robotControlMode;
 
-  // Initialization code
+  // Data structure initialization code
   initRobotData(device0, currParams->runlevel, currParams);
 
   // Compute Mpos & Velocities

@@ -113,7 +113,7 @@ void fwdMechCableCoupling(mechanism *mech) {
   float d4;
   float d4_dot;
   float m1, m2, m3, m4, m5, m6, m7;
-  float m1_dot, m2_dot, m4_dot;
+  float m1_dot, m2_dot, m4_dot, m5_dot, m6_dot, m7_dot, mroll_dot, th_roll_dot,th5_dot,th6_dot,th7_dot;
   float tr1 = 0, tr2 = 0, tr3 = 0, tr4 = 0, tr5 = 0, tr6 = 0, tr7 = 0;
 
   // get motor positions
@@ -129,6 +129,11 @@ void fwdMechCableCoupling(mechanism *mech) {
   m1_dot = mech->joint[SHOULDER].mvel;
   m2_dot = mech->joint[ELBOW].mvel;
   m4_dot = mech->joint[Z_INS].mvel;
+
+  mroll_dot = mech->joint[TOOL_ROT].mvel;
+  m5_dot = mech->joint[WRIST].mvel;
+  m6_dot = mech->joint[GRASP1].mvel;
+  m7_dot = mech->joint[GRASP2].mvel;
 
   // get transfer ratios for each arm
   if (mech->type == GOLD_ARM) {
@@ -163,8 +168,8 @@ void fwdMechCableCoupling(mechanism *mech) {
 
   // TODO:: Update with new cable coupling terms
   th1_dot = (1.0 / tr1) * m1_dot;
-  th2_dot = (1.0 / tr2) * m2_dot;
-  d4_dot = (1.0 / tr4) * m4_dot;
+  th2_dot = (1.0 / tr2) * m2_dot - CABLE_COUPLING_01 * th1_dot;
+  d4_dot = (1.0 / tr4) * m4_dot - CABLE_COUPLING_02 * th1_dot - CABLE_COUPLING_12 * th2_dot;
 
   // Tool degrees of freedom ===========================================
   int sgn = 0;
@@ -194,6 +199,12 @@ void fwdMechCableCoupling(mechanism *mech) {
   th6 = (1.0 / tr6) * (m6 - sgn_6 * m4 / GB_RATIO) - th5 * tool_coupling;
   th7 = (1.0 / tr7) * (m7 - sgn * m4 / GB_RATIO) + th5 * tool_coupling;
 
+  //GB_ratio puts m4 motion in terms of tool motor input for tr_i
+  th_roll_dot = (1.0 / tr3) * (mroll_dot - sgn * m4_dot / GB_RATIO); 
+  th5_dot = (1.0 / tr5) * (m5_dot - sgn * m4_dot / GB_RATIO);
+  th6_dot = (1.0 / tr6) * (m6_dot - sgn_6 * m4_dot / GB_RATIO) - th5_dot * tool_coupling;
+  th7_dot = (1.0 / tr7) * (m7_dot - sgn * m4_dot / GB_RATIO) + th5_dot * tool_coupling;
+
   // Now have solved for th1, th2, d3, th4, th5, th6
   mech->joint[SHOULDER].jpos = th1;  // - mech->joint[SHOULDER].jpos_off;
   mech->joint[ELBOW].jpos = th2;     // - mech->joint[ELBOW].jpos_off;
@@ -203,10 +214,13 @@ void fwdMechCableCoupling(mechanism *mech) {
   mech->joint[GRASP1].jpos = th6;    // - mech->joint[GRASP1].jpos_off;
   mech->joint[GRASP2].jpos = th7;    // - mech->joint[GRASP2].jpos_off;
 
-  mech->joint[SHOULDER].jvel = th1_dot;  // - mech->joint[SHOULDER].jpos_off;
-  mech->joint[ELBOW].jvel = th2_dot;     // - mech->joint[ELBOW].jpos_off;
-  mech->joint[Z_INS].jvel = d4_dot;      //  - mech->joint[Z_INS].jpos_off;
-
+  mech->joint[SHOULDER].jvel =  th1_dot;  // - mech->joint[SHOULDER].jpos_off;
+  mech->joint[ELBOW].jvel =     th2_dot;     // - mech->joint[ELBOW].jpos_off;
+  mech->joint[Z_INS].jvel =     d4_dot;      //  - mech->joint[Z_INS].jpos_off;
+  mech->joint[TOOL_ROT].jvel =  th_roll_dot;  // - mech->joint[SHOULDER].jpos_off;
+  mech->joint[WRIST].jvel =     th5_dot;     // - mech->joint[ELBOW].jpos_off;
+  mech->joint[GRASP1].jvel =    th6_dot;      //  - mech->joint[Z_INS].jpos_off;
+  mech->joint[GRASP2].jvel =    th7_dot;      //  - mech->joint[Z_INS].jpos_off;
   return;
 }
 

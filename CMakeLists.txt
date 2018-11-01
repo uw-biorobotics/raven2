@@ -19,7 +19,7 @@ find_package(Eigen3 REQUIRED)
 
 add_message_files(
   DIRECTORY msg
-  FILES raven_automove.msg raven_state.msg robot_status.msg 
+  FILES raven_automove.msg raven_state.msg 
 )
 
 generate_messages(

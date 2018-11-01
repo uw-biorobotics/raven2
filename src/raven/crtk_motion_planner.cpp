@@ -34,3 +34,32 @@
 CRTK_motion_planner::CRTK_motion_planner(){
 
 }
+
+int CRTK_motion_planner::crtk_motion_state_machine(CRTK_robot_state current_state){
+
+  static int count=0;
+  float desiredl[3];
+  float desiredr[3];
+  if(count%500 == 0){
+      desiredl[0] = crtk_motion_api[0].get_goal_cp().getOrigin().x();
+      desiredr[0] = crtk_motion_api[1].get_goal_cp().getOrigin().x();
+      desiredl[1] = crtk_motion_api[0].get_goal_cp().getOrigin().y();
+      desiredr[1] = crtk_motion_api[1].get_goal_cp().getOrigin().y();
+      desiredl[2] = crtk_motion_api[0].get_goal_cp().getOrigin().z();
+      desiredr[2] = crtk_motion_api[1].get_goal_cp().getOrigin().z();
+    // ROS_INFO("Robot arm pos desired = %f\t%f\t%f \t\t %f\t%f\t%f", 
+      // desiredl[0],desiredl[1],desiredl[2], desiredr[0],desiredr[1],desiredr[2]);
+  }
+  count ++;
+
+  if(current_state == CRTK_ENABLED){
+
+  }
+  else if (current_state == CRTK_PAUSED) {
+    // do something...? plan?
+  }
+  else {
+    // do nothing
+  }
+
+}

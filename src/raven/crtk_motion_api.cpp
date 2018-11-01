@@ -48,6 +48,7 @@ void CRTK_motion_api::crtk_servo_cr_cb(geometry_msgs::TransformStamped msg){
   tf::transformMsgToTF(msg.transform, in_incr);
   goal_cp[CRTK_servo].setOrigin(goal_cp[CRTK_servo].getOrigin()+in_incr.getOrigin()); // assume scale and rotation are correct
 
+  // TODO: set goal_cp[3]
   set_cp_updated();
 }
 
@@ -89,6 +90,16 @@ void CRTK_motion_api::set_jpos(float* in){
   }
 }
 
+char CRTK_motion_api::set_pos(tf::Transform in){
+  
+  static int counter = 0;
+
+  in.setRotation(in.getRotation().normalize());
+  pos = in;
+  counter ++;
+  return 1;
+}
+
 // void CRTK_motion_api::set_jvel(float* in){
 
 //   for(int i=0; i<7; i++){
@@ -96,28 +107,61 @@ void CRTK_motion_api::set_jpos(float* in){
 //   }
 // }
 
-void CRTK_motion_api::set_setpoint_cp(tf::Transform* in){
-  for(int i=0; i<3; i++){
-    setpoint_cp[i]=tf::Transform(in[i]);
-  }
-}
-
-void CRTK_motion_api::set_goal_cp(tf::Transform* in){
-  for(int i=0; i<3; i++){
-    goal_cp[i]=tf::Transform(in[i]);
-  }
+void CRTK_motion_api::set_setpoint_cp(tf::Transform in){
+  in.setRotation(in.getRotation().normalize());
+  setpoint_cp=tf::Transform(in);
 }
 
 
-void CRTK_motion_api::copy_data(CRTK_motion_api* source){ // TODO: keep updating this
-    pos = source->get_pos();
-    //vel = source->get_vel();
+void CRTK_motion_api::set_goal_cp(tf::Transform in ,CRTK_motion_type type){
 
-    this->set_jpos(source->jpos);
-    //this->set_jvel(source->jvel);
+  if(type > 4 || type < 0){
+    ROS_ERROR("Invalid CRTK motion type.");
+    return;
+  }
 
-    this->set_setpoint_cp(source->setpoint_cp);
-    this->set_goal_cp(source->goal_cp);
-    cp_updated = source->get_cp_updated();
+  in.setRotation(in.getRotation().normalize());
+  goal_cp[type]=tf::Transform(in);
 
+}
+
+
+void CRTK_motion_api::transfer_data(CRTK_motion_api* network_source){ // TODO: keep updating this
+    char success = 0;
+    success = success + preempt_to_network(network_source);
+    success = success + network_to_preempt(network_source);
+
+    if(success != 2){
+      ROS_ERROR("CRTK data transfer failure.");
+    }
+    
+    cp_updated = network_source->get_cp_updated();
+    network_source->reset_cp_updated();
+}
+
+char CRTK_motion_api::preempt_to_network(CRTK_motion_api* network_source){
+  // will be sending these:
+  // pos, setpoint, jpos, goal(out), jvel, measured
+
+  network_source->set_pos(this->get_pos());
+  //vel = network_source->get_vel();
+
+  network_source->set_jpos(this->jpos);
+  //this->set_jvel(network_source->jvel);
+
+  network_source->set_setpoint_cp(this->setpoint_cp);
+  network_source->set_goal_cp(this->goal_cp[3], CRTK_out);
+
+  
+  return 1; // if all goes well
+}
+
+char CRTK_motion_api::network_to_preempt(CRTK_motion_api* network_source){
+  // will be sending these:
+  // goals(0-2)
+   for(int i=0; i<3; i++){
+    this->set_goal_cp(network_source->goal_cp[i], (CRTK_motion_type)i);
+  } 
+
+  return 1; // if all goes well
 }

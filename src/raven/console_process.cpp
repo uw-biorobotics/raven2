@@ -140,6 +140,7 @@ void *console_process(void *) {
       case '=': {
         soft_estopped = FALSE;
         print_msg = 1;
+        device0.crtk_state.reset_estop_trigger();
         log_msg("Soft estop off");
         break;
       }

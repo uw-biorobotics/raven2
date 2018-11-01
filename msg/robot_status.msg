@@ -1,2 +1,0 @@
-Header      hdr
-char       	status

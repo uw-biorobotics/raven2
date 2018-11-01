@@ -29,11 +29,12 @@
 
  */
 #include <ros/ros.h>
-#include <crtk_msgs/robot_command.h>
+#include <crtk_msgs/StringStamped.h>
 
 #ifndef CRTK_STATE_H_
 #define CRTK_STATE_H_
 
+enum CRTK_robot_state {CRTK_ENABLED, CRTK_DISABLED, CRTK_PAUSED, CRTK_FAULT};
 enum CRTK_robot_command {CRTK_ENABLE, CRTK_DISABLE, CRTK_PAUSE, CRTK_RESUME, CRTK_UNHOME, CRTK_HOME};
 enum CRTK_estop_level {CRTK_NOT_ESTOP, CRTK_ESTOP_PAUSE, CRTK_ESTOP_DISABLE};
 /** a tool that can be used on either RAVEN arm
@@ -50,19 +51,20 @@ class CRTK_state
   ~CRTK_state(){};
 
 
-  char set_homing(char new_state);
-  char set_moving(char new_state);
-  char set_ready(char new_state);
-  char set_homed(char new_state);
+  char set_homing(bool new_state);
+  char set_busy(bool new_state);
+  // char set_ready(char new_state);
+  char set_homed(bool new_state);
 
-  char get_disabled();
-  char get_enabled();
-  char get_paused();
-  char get_fault();
-  char get_homing();
-  char get_moving();
-  char get_ready();
-  char get_homed();
+  CRTK_robot_state get_state();
+  bool get_disabled();
+  bool get_enabled();
+  bool get_paused();
+  bool get_fault();
+  bool get_homing();
+  bool get_busy();
+  bool get_ready();
+  bool get_homed();
   char get_estop_trigger();
   char get_pedal_trigger();
   char get_unhome_trigger();
@@ -71,23 +73,24 @@ class CRTK_state
   char reset_pedal_trigger();
   char reset_unhome_trigger();
 
-  char state_machine_update(char, char, char, int, char);
-  void crtk_cmd_cb(crtk_msgs::robot_command);
-
+  char state_machine_update(char, bool, bool, int, char);
+  void crtk_cmd_cb(crtk_msgs::StringStamped);
+  std::string get_state_string();
+  
 private:
   char pedal_trigger;   // 0: neutral, 1: set pedal up, -1: set pedal dn
   char estop_trigger;   // 0: neutral, >0: set e-stop (1: in CRTK pause state, >1: in disabled state)
   char unhome_trigger;  // 0: neutral, 1: make unhome
   char home_trigger;
 
-  char is_disabled;
-  char is_enabled;
-  char is_paused;
-  char is_fault;
-  char is_homing;
-  char is_moving;
-  char is_ready;
-  char is_homed;
+  bool is_disabled;
+  bool is_enabled;
+  bool is_paused;
+  bool is_fault;
+  bool is_homing;
+  bool is_busy;
+  bool is_ready;
+  bool is_homed;
   std::string command;
   char raven_runlevel;
   char transition_err;

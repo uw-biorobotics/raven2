@@ -455,6 +455,7 @@ void setSurgeonMode(int pedalstate) {
 #include <raven_2/raven_state.h>
 #include <raven_2/raven_automove.h>
 #include <raven_2/robot_status.h>
+#include <crtk_msgs/StringStamped.h>
 #include <crtk_msgs/robot_state.h>
 #include <geometry_msgs/TransformStamped.h>
 #include <geometry_msgs/TwistStamped.h>
@@ -529,7 +530,7 @@ int init_ravenstate_publishing(robot_device *dev, ros::NodeHandle &n) {
                                                                    .reliable());
 
   //CRTK publishers and subscribers
-  sub_crtkCommand = n.subscribe<crtk_msgs::robot_command>("crtk_command", 1, &CRTK_state::crtk_cmd_cb
+  sub_crtkCommand = n.subscribe<crtk_msgs::StringStamped>("crtk_command", 1, &CRTK_state::crtk_cmd_cb
                                              ,&dev->crtk_state);
 
   sub_servo_cr_gold = n.subscribe<geometry_msgs::TransformStamped>("arm1/servo_cr", 1, &CRTK_motion_api::crtk_servo_cr_cb
@@ -641,11 +642,11 @@ void autoincrCallback(raven_2::raven_automove msg) {
 void update_device_motion_api(CRTK_motion_planner* planner){
 
   // TODO: investigate locking the global variables
-  planner->crtk_motion_api_prev[0].copy_data(&planner->crtk_motion_api[0]);
-  planner->crtk_motion_api_prev[1].copy_data(&planner->crtk_motion_api[1]);
+  // planner->crtk_motion_api_prev[0].transfer_data(&planner->crtk_motion_api[0]);
+  // planner->crtk_motion_api_prev[1].transfer_data(&planner->crtk_motion_api[1]);
 
-  planner->crtk_motion_api[0].copy_data(&crtk_motion_api_gold);
-  planner->crtk_motion_api[1].copy_data(&crtk_motion_api_green);
+  planner->crtk_motion_api[0].transfer_data(&crtk_motion_api_gold);
+  planner->crtk_motion_api[1].transfer_data(&crtk_motion_api_green);
 
   return;
 }
@@ -703,6 +704,7 @@ void publish_ravenstate_ros(robot_device *dev, param_pass *currParams) {
       }
     }
 
+    // TODO: WHY IS THIS IN DEGREES!? Like --- why?
     for (int m = 0; m < numdof; m++) {
       int jtype = dev->mech[j].joint[m].type;
       msg_ravenstate.encVals[jtype] = dev->mech[j].joint[m].enc_val;
@@ -752,14 +754,10 @@ void publish_ravenstate_ros(robot_device *dev, param_pass *currParams) {
 void publish_crtk_state(robot_device *dev) {
   static crtk_msgs::robot_state msg_state;
 
-  msg_state.is_disabled = dev->crtk_state.get_disabled();
-  msg_state.is_enabled = dev->crtk_state.get_enabled();
-  msg_state.is_paused = dev->crtk_state.get_paused();
-  msg_state.is_fault = dev->crtk_state.get_fault();
-
+  msg_state.state = dev->crtk_state.get_state_string();
   msg_state.is_homed = dev->crtk_state.get_homed();
-  msg_state.is_ready = dev->crtk_state.get_ready();
-  msg_state.is_moving = dev->crtk_state.get_moving();
+  // msg_state.is_ready = dev->crtk_state.get_ready();
+  msg_state.is_busy = dev->crtk_state.get_busy();
   msg_state.is_homing = dev->crtk_state.get_homing();
 
   msg_state.hdr.stamp = msg_state.hdr.stamp.now();
@@ -814,6 +812,14 @@ void publish_crtk_measured_cp(robot_device *dev) {
   msg1.header.stamp = msg1.header.stamp.now();
   msg2.header.stamp = msg2.header.stamp.now();
 
+  // static int counter = 0;
+  // tf::Quaternion curr_quat = dev->crtk_motion_planner.crtk_motion_api[1].get_pos().getRotation();
+  // if(counter % 100 == 0) ROS_INFO("pub_norm: %f", sqrt(pow(curr_quat.x(),2)+pow(curr_quat.y(),2)+pow(curr_quat.z(),2)+pow(curr_quat.w(),2)));
+  // counter ++;
+
+
+  tf::transformTFToMsg(dev->crtk_motion_planner.crtk_motion_api[0].get_pos(),msg1.transform);
+  tf::transformTFToMsg(dev->crtk_motion_planner.crtk_motion_api[1].get_pos(),msg2.transform);
   pub_crtk_measured_cp_gold.publish(msg1);
   pub_crtk_measured_cp_green.publish(msg2);
 }

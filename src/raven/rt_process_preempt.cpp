@@ -240,6 +240,7 @@ static void *rt_process(void *) {
 
     // Run Safety State Machine
     stateMachine(&device0, &currParams, &rcvdParams);
+    update_motion_apis(&device0);
 
     // Update Atmel Input Pins
     // TODO: deleteme
@@ -248,10 +249,10 @@ static void *rt_process(void *) {
     // Get state updates from master
     if (checkLocalUpdates() == TRUE){
       updateDeviceState(&currParams, getRcvdParams(&rcvdParams), &device0);
-      update_device_motion_api(&device0.crtk_motion_planner);
     }
     else
       rcvdParams.runlevel = currParams.runlevel;
+    update_device_motion_api(&device0.crtk_motion_planner);
 
     // Clear DAC Values (set current_cmd to zero on all joints)
     clearDACs(&device0);
@@ -296,7 +297,7 @@ static void *rt_process(void *) {
 
     //update CRTK API state flags
     device0.crtk_state.state_machine_update(device0.runlevel, device0.robot_homed, device0.robot_fault, device0.surgeon_mode, current_estop_level);
-    
+    device0.crtk_motion_planner.crtk_motion_state_machine(device0.crtk_state.get_state());
 
     // Publish current raven state
     publish_ravenstate_ros(&device0, &currParams);  // from local_io
@@ -305,6 +306,9 @@ static void *rt_process(void *) {
     publish_crtk_state(&device0);
     publish_crtk_measured_js(&device0);
     publish_crtk_setpoint_js(&device0);
+    publish_crtk_measured_cp(&device0);
+    publish_crtk_setpoint_cp(&device0);
+
     // Done for this cycle
   }
 

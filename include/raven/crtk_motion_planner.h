@@ -32,6 +32,7 @@
 #include <ros/ros.h>
 #include <tf/tf.h>
 #include "crtk_motion_api.h"
+#include "crtk_state.h"
 
 #ifndef CRTK_MOTION_PLANNER_H_
 #define CRTK_MOTION_PLANNER_H_
@@ -41,10 +42,10 @@ class CRTK_motion_planner
   public:
     CRTK_motion_planner();
     ~CRTK_motion_planner(){};
-    
+
     CRTK_motion_api crtk_motion_api[2];
     CRTK_motion_api crtk_motion_api_prev[2];
-
+    int crtk_motion_state_machine(CRTK_robot_state);
   private:
     // tf::Transform goal_cp;
 
