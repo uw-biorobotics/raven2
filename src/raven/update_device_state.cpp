@@ -193,8 +193,10 @@ void addDofPos(unsigned int in_mech, unsigned int in_dof, float in_pos) {
 int update_motion_apis(device* dev){
     tf::Vector3 curr_pos;
     tf::Matrix3x3 curr_rot;
-    tf::Transform curr_tf;
+    tf::Transform curr_tf, new_tf;
+    tf::Transform base_transform;
 
+    // static int counter = 0;
     float r[9];
     // TODO: copy current to previous
     for(int i=0; i<2; i++){
@@ -202,10 +204,23 @@ int update_motion_apis(device* dev){
         r[j] = dev->mech[i].ori.R[j/3][j%3];
       }
       curr_rot= tf::Matrix3x3(r[0],r[1],r[2],r[3],r[4],r[5],r[6],r[7],r[8]);
-      curr_pos = tf::Vector3(dev->mech[i].pos.x,dev->mech[i].pos.y,dev->mech[i].pos.z);
+      curr_pos = tf::Vector3(dev->mech[i].pos.x/MICRON_PER_M,dev->mech[i].pos.y/MICRON_PER_M,dev->mech[i].pos.z/MICRON_PER_M);
       curr_tf = tf::Transform(curr_rot,curr_pos);
+      // if(counter%1000 == 0){
+      //   tf::Quaternion ttt = dev->crtk_motion_planner.crtk_motion_api[i].get_base_frame().getRotation();
 
-      dev->crtk_motion_planner.crtk_motion_api[i].set_pos(curr_tf);
+      //   ROS_INFO("arm %i", i);
+      //   ROS_INFO("base_frame: angle %f,\t axis %f\t%f\t%f.",ttt.getAngle(),ttt.getAxis().x(),ttt.getAxis().y(),ttt.getAxis().z());
+
+      //   ROS_INFO("before: x %f,\t y %f,\t z %f",curr_tf.getOrigin().x(),curr_tf.getOrigin().y(),curr_tf.getOrigin().z());
+      // }
+      base_transform = dev->crtk_motion_planner.crtk_motion_api[i].get_base_frame();//.inverse();
+      new_tf =  base_transform * curr_tf; 
+      
+      // if(counter%1000 == 0)
+      //   ROS_INFO("after:  x %f,\t y %f,\t z %f\n",new_tf.getOrigin().x(),new_tf.getOrigin().y(),new_tf.getOrigin().z());
+      dev->crtk_motion_planner.crtk_motion_api[i].set_pos(new_tf);
     }
+    // counter ++;
     return 1;
 }

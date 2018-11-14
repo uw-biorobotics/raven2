@@ -51,7 +51,7 @@ class CRTK_state
   ~CRTK_state(){};
 
 
-  char set_homing(bool new_state);
+  char set_homing();
   char set_busy(bool new_state);
   // char set_ready(char new_state);
   char set_homed(bool new_state);
@@ -76,7 +76,7 @@ class CRTK_state
   char state_machine_update(char, bool, bool, int, char);
   void crtk_cmd_cb(crtk_msgs::StringStamped);
   std::string get_state_string();
-  
+
 private:
   char pedal_trigger;   // 0: neutral, 1: set pedal up, -1: set pedal dn
   char estop_trigger;   // 0: neutral, >0: set e-stop (1: in CRTK pause state, >1: in disabled state)
