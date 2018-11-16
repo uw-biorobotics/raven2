@@ -46,6 +46,7 @@ class CRTK_motion_planner
     CRTK_motion_api crtk_motion_api[2];
     CRTK_motion_api crtk_motion_api_prev[2];
     int crtk_motion_state_machine(CRTK_robot_state);
+    int mid_level_controller();
     int low_level_controller();
   private:
 

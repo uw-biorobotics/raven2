@@ -223,7 +223,7 @@ static void *rt_process(void *) {
     // better to ensure realtime access to driver
     int loops = 0;
     int ret;
-
+    ROS_INFO("hello0");
     clock_gettime(CLOCK_REALTIME, &tbz);
     clock_gettime(CLOCK_REALTIME, &tnow);
     while ((ret = getUSBPackets(&device0)) == -EBUSY && loops < 10) {
@@ -237,15 +237,16 @@ static void *rt_process(void *) {
     if (loops != 0)
       std::cout << "bzlup" << loops << "0us time:" << (double)t2.tv_sec + (double)t2.tv_nsec / SEC
                 << std::endl;
-
+    ROS_INFO("hello1");
     // Run Safety State Machine
     stateMachine(&device0, &currParams, &rcvdParams);
+        ROS_INFO("hello2");
     update_motion_apis(&device0);
-
+    ROS_INFO("hello3");
     // Update Atmel Input Pins
     // TODO: deleteme
     updateAtmelInputs(device0, currParams.runlevel);
-
+    ROS_INFO("hello4");
     // Get state updates from master
     if (checkLocalUpdates() == TRUE){
       updateDeviceState(&currParams, getRcvdParams(&rcvdParams), &device0);
@@ -253,7 +254,8 @@ static void *rt_process(void *) {
     else
       rcvdParams.runlevel = currParams.runlevel;
     update_device_motion_api(&device0.crtk_motion_planner);
-
+    //update_device_crtk_motion(&device0);
+        ROS_INFO("hello5");
     // Clear DAC Values (set current_cmd to zero on all joints)
     clearDACs(&device0);
 
@@ -262,6 +264,7 @@ static void *rt_process(void *) {
       // Calculate Raven control
       controlRaven(&device0, &currParams);
     }
+        ROS_INFO("hello6");
     //////////////// END SURGICAL ROBOT CODE ///////////////////////////
 
     // Check for overcurrent and impose safe torque limits
@@ -376,19 +379,22 @@ int main(int argc, char **argv) {
     cerr << "ERROR! Failed to init memory_pool.  Exiting.\n";
     exit(1);
   }
+  cout<<"hi0"<<endl;
 
   // init reconfigure
   dynamic_reconfigure::Server<raven_2::Raven2Config> srv;
   dynamic_reconfigure::Server<raven_2::Raven2Config>::CallbackType f;
   f = boost::bind(&reconfigure_callback, _1, _2);
   srv.setCallback(f);
-
+cout<<"hi1"<<endl;
   pthread_create(&net_thread, NULL, network_process, NULL);  // Start the network thread
+  cout<<"hi2"<<endl;
   pthread_create(&console_thread, NULL, console_process, NULL);
+  cout<<"hi3"<<endl;
   pthread_create(&rt_thread, NULL, rt_process, NULL);
-
+cout<<"hi4"<<endl;
   ros::spin();
-
+cout<<"hi5"<<endl;
   USBShutdown();
   // Suspend main until all threads terminate
   pthread_join(rt_thread, NULL);

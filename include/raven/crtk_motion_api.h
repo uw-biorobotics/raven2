@@ -38,12 +38,25 @@
 #ifndef CRTK_MOTION_API_H_
 #define CRTK_MOTION_API_H_
 
-enum CRTK_motion_level {CRTK_interp, CRTK_move, CRTK_servo, CRTK_NULL_level};
+/**
+ * @brief      Level of motion specified in order of priority
+ */
+enum CRTK_motion_level {CRTK_move, CRTK_interp, CRTK_servo, CRTK_NULL_level};
+
+
+/**
+ * @brief      Type of motion specified (j - joint, c - cartesian)(r - relative, p - position, v - velocity, f - effort)
+ */
 enum CRTK_motion_type {CRTK_jr, CRTK_cr, CRTK_jp, CRTK_cp, CRTK_jv, CRTK_cv, CRTK_jf, CRTK_cf, CRTK_NULL_type};
     
+/**
+ * @brief      Structure for holding requested movements
+ */
 struct CRTK_goal
 {
     char updated; 
+    bool update_flags[8];
+
     float jr[7];
     float jp[7];
     float jv[7];
@@ -55,6 +68,13 @@ struct CRTK_goal
     tf::Transform cf;
 };
 
+/**
+ * @brief      Class for crtk motion api.
+ * 
+ * @details    Handles incoming and outgoing messages for one arm and
+ *             stores data for use in the motion planner.
+ *             
+ */
 class CRTK_motion_api 
 {
   public:
@@ -63,7 +83,8 @@ class CRTK_motion_api
     ~CRTK_motion_api(){};
     void crtk_servo_cr_cb(geometry_msgs::TransformStamped);
 
-    char check_updates();       // START HERE TODAY!!!!!!                       
+    char check_goal_updates();                // for mid level controller      
+    char check_setpoint_updates();            // for loe level controller          
 
     tf::Transform get_pos();
     char set_pos(tf::Transform);
@@ -92,9 +113,11 @@ class CRTK_motion_api
     float* get_goal_in_js(CRTK_motion_level, CRTK_motion_type);
     float* get_setpoint_in_js(CRTK_motion_level, CRTK_motion_type);
 
+    char set_setpoint_out();
     char set_setpoint_out_tf(CRTK_motion_level, CRTK_motion_type, tf::Transform);                // TODO: call this from motion planner
     void set_setpoint_out_js(sensor_msgs::JointState*);
     char set_setpoint_out_js(CRTK_motion_level, CRTK_motion_type, float*);     // TODO: call this from motion planner
+    char set_goal_out();
     char set_goal_out_tf(CRTK_motion_level, CRTK_motion_type, tf::Transform);                    // TODO: call this from motion planner
     void set_goal_out_js(sensor_msgs::JointState*);
     char set_goal_out_js(CRTK_motion_level, CRTK_motion_type, float*);         // TODO: call this from motion planner
@@ -106,6 +129,11 @@ class CRTK_motion_api
     sensor_msgs::JointState get_setpoint_out_js();  // TODO: call this from motion planner
     tf::Transform get_goal_out_tf();                // TODO: call this from motion planner
     sensor_msgs::JointState get_goal_out_js();      // TODO: call this from motion planner
+
+    CRTK_motion_level   get_goal_out_level();
+    CRTK_motion_type    get_goal_out_type();
+    CRTK_motion_level   get_setpoint_out_level();
+    CRTK_motion_type    get_setpoint_out_type();
 
   private:
     // current robot pose

@@ -456,7 +456,7 @@ void setSurgeonMode(int pedalstate) {
 #include <tf/transform_datatypes.h>
 #include <raven_2/raven_state.h>
 #include <raven_2/raven_automove.h>
-#include <raven_2/robot_status.h>
+//#include <raven_2/robot_status.h>
 #include <crtk_msgs/StringStamped.h>
 #include <crtk_msgs/robot_state.h>
 #include <geometry_msgs/TransformStamped.h>

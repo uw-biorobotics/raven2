@@ -32,4 +32,8 @@ int updateDeviceState(param_pass *params_current, param_pass *params_update, dev
 void setRobotControlMode(t_controlmode);
 void setDofTorque(unsigned int, unsigned int, int);
 void addDofPos(unsigned int in_mech, unsigned int in_dof, float in_pos);
+
 int update_motion_apis(device*);
+int update_device_crtk_motion(device*);
+int update_device_crtk_motion_js(device*,int);
+int update_device_crtk_motion_tf(device*,int);

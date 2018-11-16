@@ -35,25 +35,20 @@ CRTK_motion_planner::CRTK_motion_planner(){
 
 }
 
+/**
+ * @brief      Top level crtk motion function calls appropriate planners
+ *
+ * @param[in]  current_state  The current CRTK state of the robot
+ *
+ * @return     1 for success
+ *             - 0 for no activity
+ */
 int CRTK_motion_planner::crtk_motion_state_machine(CRTK_robot_state current_state){
 
-  static int count=0;
-  float desiredl[3];
-  float desiredr[3];
-  if(count%500 == 0){
-      desiredl[0] = crtk_motion_api[0].get_goal_out_tf().getOrigin().x();
-      desiredr[0] = crtk_motion_api[1].get_goal_out_tf().getOrigin().x();
-      desiredl[1] = crtk_motion_api[0].get_goal_out_tf().getOrigin().y();
-      desiredr[1] = crtk_motion_api[1].get_goal_out_tf().getOrigin().y();
-      desiredl[2] = crtk_motion_api[0].get_goal_out_tf().getOrigin().z();
-      desiredr[2] = crtk_motion_api[1].get_goal_out_tf().getOrigin().z();
-    // ROS_INFO("Robot arm pos desired = %f\t%f\t%f \t\t %f\t%f\t%f", 
-      // desiredl[0],desiredl[1],desiredl[2], desiredr[0],desiredr[1],desiredr[2]);
-  }
-  count ++;
-
   if(current_state == CRTK_ENABLED){
-    low_level_controller();
+    // mid_level_controller();
+    // low_level_controller();
+
   }
   else if (current_state == CRTK_PAUSED) {
     // do something...? plan?
@@ -62,12 +57,59 @@ int CRTK_motion_planner::crtk_motion_state_machine(CRTK_robot_state current_stat
     // do nothing
   }
 
+  float desiredl[3];
+  float desiredr[3];
+  tf::Transform tf_left = crtk_motion_api[0].get_setpoint_out_tf();
+  tf::Transform tf_right = crtk_motion_api[1].get_setpoint_out_tf();
+  static int count=0;
+  if(count%500 == 0){
+      desiredl[0] = tf_left.getOrigin().x();
+      desiredr[0] = tf_right.getOrigin().x();
+      desiredl[1] = tf_left.getOrigin().y();
+      desiredr[1] = tf_right.getOrigin().y();
+      desiredl[2] = tf_left.getOrigin().z();
+      desiredr[2] = tf_right.getOrigin().z();
+    ROS_INFO("Robot arm pos desired = %f\t%f\t%f \t\t %f\t%f\t%f", 
+      desiredl[0],desiredl[1],desiredl[2], desiredr[0],desiredr[1],desiredr[2]);
+  }
+  count ++;
+
+  return 1;
+
 }
 
-int CRTK_motion_planner::low_level_controller(){
+/**
+ * @brief      determines appropriate servo commands to pass to the device
+ *
+ * @return     1 for success
+ */
+int CRTK_motion_planner::low_level_controller(){  
+  int out = 0;
+  for(int i=0;i<2;i++){
+    // check for setpoint updates
+    if(crtk_motion_api[i].check_setpoint_updates()){
+      // set setpoint_out
+      out = crtk_motion_api[i].set_setpoint_out() ;     
+    }
 
-  // for(int i=0;i<2;i++){
+  }
+  return out;
+}
 
-  // }
+/**
+ * @brief      Coordinates Move and Interp commands and calls appropriate planners
+ *
+ * @return     1 for success
+ */
+int CRTK_motion_planner::mid_level_controller(){
+  int out = 0;
+  for(int i=0;i<3;i++){
+    // check for goal updates
+    if(crtk_motion_api[i].check_goal_updates()){
+      // set goal_out
+      out = crtk_motion_api[i].set_goal_out() ;     
+    }
 
+  }
+  return out;
 }
