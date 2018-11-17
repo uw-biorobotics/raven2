@@ -183,8 +183,6 @@ void initRobotData(device *device0, int runlevel, param_pass *currParams) {
       initialized = TRUE;  // Set initialized flag
   }
 
-  // device0->crtk_motion_planner.crtk_motion_api[0].set_default_base_frame(0);
-  // device0->crtk_motion_planner.crtk_motion_api[1].set_default_base_frame(1);
   return;
 }
 

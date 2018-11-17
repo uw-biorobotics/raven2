@@ -76,6 +76,7 @@ char CRTK_state::state_machine_update(char robot_state, bool robot_homed, bool r
   if(robot_state == RL_E_STOP){
   	success += set_busy(0);
   	// success += set_ready(0);
+  	success += set_homing(0); //no ability to use partially-homed joints
     if(robot_fault == 1){
       success += set_fault_state();
     }else if(robot_homed == 1 && current_estop_level == 1){
@@ -96,6 +97,7 @@ char CRTK_state::state_machine_update(char robot_state, bool robot_homed, bool r
 
   else if(robot_state == RL_INIT){
   	success += set_enabled_state();
+  	success += set_homing(1);
   	success += set_busy(1);
   	// success += set_ready(0);
   }
@@ -103,21 +105,20 @@ char CRTK_state::state_machine_update(char robot_state, bool robot_homed, bool r
   else if(!surgeon_mode){
   	success += set_paused_state();
   	success += set_busy(0);
+  	success += set_homing(0);
   	// success += set_ready(0);
   }
 
   else if(surgeon_mode){
   	success += set_enabled_state();
 
+  	success += set_homing(0);
   	//set_busy(1); // \TODO is the robot actively busy? is it owned by some node
   	// success += set_ready(1);
   }
 
-
   if(robot_homed) success += set_homed(1);
-  else success += set_homed(0);
-  success += set_homing();
-
+  if(is_homing) success += set_homed(0);
   return success;
 }
 
@@ -213,8 +214,8 @@ char CRTK_state::set_fault_state(){
 
 }
 
-char CRTK_state::set_homing(){
-	is_homing = is_busy && !is_homed;
+char CRTK_state::set_homing(bool new_state){
+	is_homing = new_state;
 
 	return 0;
 }

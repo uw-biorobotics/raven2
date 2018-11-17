@@ -63,8 +63,6 @@
 #define SAFETY_LEVEL MODERATE_MODE     // User can change this! (this value is used in init.cpp)
                                        // CHOICES: BEGINNER, MODERATE, ADVANCED
 
-// #define ALLOW_TIMEOUT               // enables a 5 sec timeout if no commands received
-
 //~~~~~~~~ Other settings, experts only ~~~~~~~~~~~~
 #define NO_LPF  // This setting short circuits the Low Pass Filter in
                 // state_estimate.cpp

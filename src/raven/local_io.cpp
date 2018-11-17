@@ -76,9 +76,8 @@ volatile int isUpdated;  // TODO: HK volatile int instead of atomic_t ///Should 
 extern offsets offsets_l;
 extern offsets offsets_r;
 
-CRTK_motion_api crtk_motion_api_gold(0); //class to hold robot status flags for CRTK API
-CRTK_motion_api crtk_motion_api_green(1); //class to hold robot status flags for CRTK API
-
+CRTK_motion_api crtk_motion_api_gold; //class to hold robot status flags for CRTK API
+CRTK_motion_api crtk_motion_api_green; //class to hold robot status flags for CRTK API
 
 /**
  * \brief Initialize data arrays to zero and create mutex
@@ -335,21 +334,20 @@ void teleopIntoDS1(u_struct *us_t) {
 int checkLocalUpdates() {
   static unsigned long int lastUpdated;
 
-  if (isUpdated || lastUpdated == 0) {
+  if (isUpdated || lastUpdated == 0 || crtk_motion_api_gold.check_updates() 
+    || crtk_motion_api_green.check_updates()) {
     lastUpdated = gTime;
   } 
-  #ifdef ALLOW_TIMEOUT 
-  else if (((gTime - lastUpdated) > MASTER_CONN_TIMEOUT) && (data1.surgeon_mode)) {
-    // if timeout period is expired, set surgeon_mode "DISENGAGED" if currently
-    // "ENGAGED"
-    log_msg("Master connection timeout.  surgeon_mode -> up.\n");
-    data1.surgeon_mode = SURGEON_DISENGAGED;
-    //       data1.surgeon_mode = 1;
+  // else if (((gTime - lastUpdated) > MASTER_CONN_TIMEOUT) && (data1.surgeon_mode)) {
+  //   // if timeout period is expired, set surgeon_mode "DISENGAGED" if currently
+  //   // "ENGAGED"
+  //   log_msg("Master connection timeout.  surgeon_mode -> up.\n");
+  //   data1.surgeon_mode = SURGEON_DISENGAGED;
+  //   //       data1.surgeon_mode = 1;
 
-    lastUpdated = gTime;
-    isUpdated = TRUE;
-  }
-  #endif
+  //   lastUpdated = gTime;
+  //   isUpdated = TRUE;
+  // }
 
   return isUpdated;
 }
@@ -613,6 +611,33 @@ void autoincrCallback(raven_2::raven_automove msg) {
   isUpdated = TRUE;
 }
 
+// // CRTK stuff: passing CRTK motions to RCVD
+// void crtk_motion_to_rcvd(CRTK_motion_api* crtk_motion_api_gold, CRTK_motion_api* crtk_motion_api_green){
+//   pthread_mutex_lock(&data1Mutex);
+
+//   // add position increment
+
+//   if(crtk_motion_api_gold->get_cp_updated()){
+//     tf::Vector3 tmpvec0 = crtk_motion_api_gold->get_goal_cp().getOrigin();
+//     data1.xd[0].x += int(tmpvec0[0]);
+//     data1.xd[0].y += int(tmpvec0[1]);
+//     data1.xd[0].z += int(tmpvec0[2]);
+//     crtk_motion_api_gold->reset_cp_updated();
+//   }
+
+//   if(crtk_motion_api_green->get_cp_updated()){
+//     tf::Vector3 tmpvec1 = crtk_motion_api_green->get_goal_cp().getOrigin();
+//     data1.xd[1].x += int(tmpvec1[0]);
+//     data1.xd[1].y += int(tmpvec1[1]);
+//     data1.xd[1].z += int(tmpvec1[2]);
+//     crtk_motion_api_green->reset_cp_updated();
+//   } 
+
+
+//   pthread_mutex_unlock(&data1Mutex);
+//   isUpdated = TRUE;  
+//   return;
+// }
 
 void update_device_motion_api(CRTK_motion_planner* planner){
 
@@ -622,8 +647,7 @@ void update_device_motion_api(CRTK_motion_planner* planner){
 
   planner->crtk_motion_api[0].transfer_data(&crtk_motion_api_gold);
   planner->crtk_motion_api[1].transfer_data(&crtk_motion_api_green);
-  planner->crtk_motion_api[0].set_default_base_frame(0);
-  planner->crtk_motion_api[1].set_default_base_frame(1);
+
   return;
 }
 
@@ -732,7 +756,9 @@ void publish_crtk_state(robot_device *dev) {
 
   msg_state.state = dev->crtk_state.get_state_string();
   msg_state.is_homed = dev->crtk_state.get_homed();
+  // msg_state.is_ready = dev->crtk_state.get_ready();
   msg_state.is_busy = dev->crtk_state.get_busy();
+  msg_state.is_homing = dev->crtk_state.get_homing();
 
   msg_state.hdr.stamp = msg_state.hdr.stamp.now();
 
@@ -817,19 +843,32 @@ void publish_crtk_setpoint_js(robot_device *dev) {
 // float64[] position
 // float64[] velocity
 // float64[] effort
-
-  msg1 = crtk_motion_api_gold.get_setpoint_out_js();
-  msg2 = crtk_motion_api_green.get_setpoint_out_js();
-
   msg1.header.stamp = msg1.header.stamp.now();
   msg2.header.stamp = msg2.header.stamp.now();
 
   std::string gold_names[7] = {"gold_shoulder","gold_elbow","gold_ins","gold_roll","gold_wrist","gold_jaw1","gold_jaw2"};
   std::string green_names[7] = {"green_shoulder","green_elbow","green_ins","green_roll","green_wrist","green_jaw1","green_jaw2"};
 
-  for(int i=0; i<7; i++){
-    msg1.name.push_back(gold_names[i]);
-    msg2.name.push_back(green_names[i]);   
+  mechanism *_mech = NULL;
+  DOF *_joint = NULL;
+  int i, j;
+  while (loop_over_7_joints(dev, _mech, _joint, i, j)) {
+    if (_mech->type == GOLD_ARM_SERIAL) {
+
+        msg1.position.push_back(_joint->jpos_d);
+        msg1.velocity.push_back(_joint->jvel_d);
+        msg1.effort.push_back(_joint->tau_d);
+        msg1.name.push_back(gold_names[j]);
+
+    }
+    else if (_mech->type == GREEN_ARM_SERIAL) {
+
+        msg2.position.push_back(_joint->jpos_d);
+        msg2.velocity.push_back(_joint->jvel_d);
+        msg2.effort.push_back(_joint->tau_d);
+        msg2.name.push_back(green_names[j]);
+
+    }
   }
 
   pub_crtk_setpoint_js_gold.publish(msg1);
