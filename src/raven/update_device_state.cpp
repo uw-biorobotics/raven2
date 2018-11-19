@@ -193,8 +193,10 @@ void addDofPos(unsigned int in_mech, unsigned int in_dof, float in_pos) {
 int update_motion_apis(device* dev){
     tf::Vector3 curr_pos;
     tf::Matrix3x3 curr_rot;
-    tf::Transform curr_tf;
+    tf::Transform curr_tf, new_tf;
+    tf::Transform base_transform;
 
+    // static int counter = 0;
     float r[9];
     // TODO: copy current to previous
     for(int i=0; i<2; i++){
@@ -202,10 +204,107 @@ int update_motion_apis(device* dev){
         r[j] = dev->mech[i].ori.R[j/3][j%3];
       }
       curr_rot= tf::Matrix3x3(r[0],r[1],r[2],r[3],r[4],r[5],r[6],r[7],r[8]);
-      curr_pos = tf::Vector3(dev->mech[i].pos.x,dev->mech[i].pos.y,dev->mech[i].pos.z);
+      curr_pos = tf::Vector3(dev->mech[i].pos.x/MICRON_PER_M,dev->mech[i].pos.y/MICRON_PER_M,dev->mech[i].pos.z/MICRON_PER_M);
       curr_tf = tf::Transform(curr_rot,curr_pos);
+      // if(counter%1000 == 0){
+      //   tf::Quaternion ttt = dev->crtk_motion_planner.crtk_motion_api[i].get_base_frame().getRotation();
 
-      dev->crtk_motion_planner.crtk_motion_api[i].set_pos(curr_tf);
+      //   ROS_INFO("arm %i", i);
+      //   ROS_INFO("base_frame: angle %f,\t axis %f\t%f\t%f.",ttt.getAngle(),ttt.getAxis().x(),ttt.getAxis().y(),ttt.getAxis().z());
+
+      //   ROS_INFO("before: x %f,\t y %f,\t z %f",curr_tf.getOrigin().x(),curr_tf.getOrigin().y(),curr_tf.getOrigin().z());
+      // }
+      base_transform = dev->crtk_motion_planner.crtk_motion_api[i].get_base_frame();//.inverse();
+      new_tf =  base_transform * curr_tf; 
+      
+      // if(counter%1000 == 0)
+      //   ROS_INFO("after:  x %f,\t y %f,\t z %f\n",new_tf.getOrigin().x(),new_tf.getOrigin().y(),new_tf.getOrigin().z());
+      dev->crtk_motion_planner.crtk_motion_api[i].set_pos(new_tf);
     }
+    // counter ++;
     return 1;
+}
+
+/**
+ * @brief      { function_description }
+ *
+ * @param      <unnamed>  { parameter_description }
+ *
+ * @return     { description_of_the_return_value }
+ */
+int update_device_crtk_motion(device* dev){
+  CRTK_motion_type type;
+
+  for(int i=0;i<2;i++){
+    type = dev->crtk_motion_planner.crtk_motion_api[i].get_setpoint_out_type();    
+    if(is_tf_type(type)){
+      update_device_crtk_motion_tf(dev,i);
+    }
+    else if(is_js_type(type)){
+      update_device_crtk_motion_js(dev,i);
+    }
+    else{
+      continue;
+    }
+  }
+  return 1;
+ 
+}
+
+int update_device_crtk_motion_tf(device* dev, int arm){
+
+  float max_dist_per_ms = 0.0001;   // m/ms = 10 cm/s 
+
+  CRTK_motion_type  type = dev->crtk_motion_planner.crtk_motion_api[arm].get_setpoint_out_type(); 
+
+  switch(type){
+    case CRTK_cr:{
+      tf::Vector3 incr = dev->crtk_motion_planner.crtk_motion_api[arm].get_setpoint_out_tf().getOrigin();
+      if(incr.length() <= max_dist_per_ms){
+        dev->mech[arm].pos_d.x += incr.x() * MICRON_PER_M;
+        dev->mech[arm].pos_d.y += incr.y() * MICRON_PER_M;
+        dev->mech[arm].pos_d.z += incr.z() * MICRON_PER_M;
+        return 1;
+      }
+      else{
+        ROS_ERROR("Relative Cartesian too large. (length=%f m per ms)",incr.length());
+        return 0;
+      }
+      break;
+    }
+    case CRTK_cp:{
+      tf::Vector3 new_pos = dev->crtk_motion_planner.crtk_motion_api[arm].get_setpoint_out_tf().getOrigin();
+      tf::Vector3 curr_pos = tf::Vector3(dev->mech[arm].pos_d.x,dev->mech[arm].pos_d.y,dev->mech[arm].pos_d.z);
+
+      new_pos = new_pos * MICRON_PER_M;
+      if(fabs((new_pos-curr_pos).length()) <= max_dist_per_ms * MICRON_PER_M){
+        dev->mech[arm].pos_d.x = new_pos.x();
+        dev->mech[arm].pos_d.y = new_pos.y();
+        dev->mech[arm].pos_d.z = new_pos.z();
+        return 1;
+      }
+      else{
+        ROS_ERROR("Absolute Cartesian step size too large. (step length=%f micron per ms)",fabs((new_pos-curr_pos).length()));
+        return 0;
+      }
+      break;
+    }
+    case CRTK_cv:{
+      // TODO later:D
+      break;
+    }
+    default:{
+      ROS_ERROR("Unsupported motion tf type.");
+      return 0;
+    }
+  }
+
+  return 0;
+}
+
+int update_device_crtk_motion_js(device* dev, int arm){
+
+  // CRTK_motion_type  type = dev->crtk_motion_planner.crtk_motion_api[arm].get_setpoint_out_type(); 
+  // TODO later:D
+  return 0;
 }

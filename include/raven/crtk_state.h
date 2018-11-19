@@ -51,7 +51,7 @@ class CRTK_state
   ~CRTK_state(){};
 
 
-  char set_homing(bool new_state);
+  char set_homing();
   char set_busy(bool new_state);
   // char set_ready(char new_state);
   char set_homed(bool new_state);
