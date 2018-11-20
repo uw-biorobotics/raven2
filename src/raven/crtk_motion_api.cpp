@@ -122,6 +122,11 @@ char is_type_valid(CRTK_motion_level level, CRTK_motion_type type){
 }
 
 
+/**
+ * @brief      callback function for relative cartesian servo commands
+ *
+ * @param[in]  msg   The message from ROS
+ */
 void CRTK_motion_api::crtk_servo_cr_cb(geometry_msgs::TransformStamped msg){
 
   // check length of incoming translation
@@ -129,8 +134,8 @@ void CRTK_motion_api::crtk_servo_cr_cb(geometry_msgs::TransformStamped msg){
   tf::transformMsgToTF(msg.transform, in_incr);
   set_setpoint_in(CRTK_servo, CRTK_cr, in_incr);
 
-  tf::Transform out;
-  out = this->get_base_frame().inverse() * in_incr;  // TODO!!!
+  ROS_INFO("servo cr cmd of %f ", in_incr.getOrigin().length());
+
 }
 
 

@@ -260,10 +260,17 @@ int update_device_crtk_motion_tf(device* dev, int arm){
   switch(type){
     case CRTK_cr:{
       tf::Vector3 incr = dev->crtk_motion_planner.crtk_motion_api[arm].get_setpoint_out_tf().getOrigin();
+
+      // rotate to RAVEN frame and scale from meters to microns
+      incr = dev->crtk_motion_planner.crtk_motion_api[arm].get_base_frame().inverse() * incr;
+      incr = incr * MICRON_PER_M;
+
       if(incr.length() <= max_dist_per_ms){
-        dev->mech[arm].pos_d.x += incr.x() * MICRON_PER_M;
-        dev->mech[arm].pos_d.y += incr.y() * MICRON_PER_M;
-        dev->mech[arm].pos_d.z += incr.z() * MICRON_PER_M;
+        dev->mech[arm].pos_d.x += (int)(incr.x() * MICRON_PER_M);
+        dev->mech[arm].pos_d.y += (int)(incr.y() * MICRON_PER_M);
+        dev->mech[arm].pos_d.z += (int)(incr.z() * MICRON_PER_M);
+
+        ROS_INFO("dev pos_d --> %i , %i , %i ", dev->mech[arm].pos_d.x, dev->mech[arm].pos_d.y, dev->mech[arm].pos_d.z);
         return 1;
       }
       else{
@@ -276,7 +283,10 @@ int update_device_crtk_motion_tf(device* dev, int arm){
       tf::Vector3 new_pos = dev->crtk_motion_planner.crtk_motion_api[arm].get_setpoint_out_tf().getOrigin();
       tf::Vector3 curr_pos = tf::Vector3(dev->mech[arm].pos_d.x,dev->mech[arm].pos_d.y,dev->mech[arm].pos_d.z);
 
+      // rotate to RAVEN frame and scale from meters to microns
+      new_pos = dev->crtk_motion_planner.crtk_motion_api[arm].get_base_frame().inverse() * new_pos;
       new_pos = new_pos * MICRON_PER_M;
+;
       if(fabs((new_pos-curr_pos).length()) <= max_dist_per_ms * MICRON_PER_M){
         dev->mech[arm].pos_d.x = new_pos.x();
         dev->mech[arm].pos_d.y = new_pos.y();

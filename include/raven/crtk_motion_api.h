@@ -73,6 +73,8 @@ struct CRTK_goal
  * 
  * @details    Handles incoming and outgoing messages for one arm and
  *             stores data for use in the motion planner.
+ *             Positions are stored in CRTK frame and then tranformed
+ *             upon sending commands to the RAVEN data structures
  *             
  */
 class CRTK_motion_api 

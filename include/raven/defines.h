@@ -111,6 +111,8 @@
 #define DEG2RAD *(M_PI / 180.0)
 #define RAD2DEG *(180.0 / M_PI)
 
+#define M_2_MICRON * 1000000
+
 #define ENC_CNT_PER_DEG (float)(ENC_CNTS_PER_REV / 360)
 #define ENC_CNT_PER_RAD (float)(ENC_CNTS_PER_REV / (2 * M_PI))
 

@@ -109,6 +109,9 @@ int initLocalioData(device *device0) {
   data1.last_sequence = 111;
 
   pthread_mutex_unlock(&data1Mutex);
+
+  crtk_motion_api_gold.set_default_base_frame(0);
+  crtk_motion_api_green.set_default_base_frame(1);
   return 0;
 }
 

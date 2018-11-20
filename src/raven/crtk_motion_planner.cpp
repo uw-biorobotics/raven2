@@ -61,14 +61,14 @@ int CRTK_motion_planner::crtk_motion_state_machine(CRTK_robot_state current_stat
       desiredr[1] = tf_right.getOrigin().y();
       desiredl[2] = tf_left.getOrigin().z();
       desiredr[2] = tf_right.getOrigin().z();
-    ROS_INFO("Robot arm pos desired = %f\t%f\t%f \t\t %f\t%f\t%f", 
-      desiredl[0],desiredl[1],desiredl[2], desiredr[0],desiredr[1],desiredr[2]);
+    // ROS_INFO("Robot arm pos desired = %f\t%f\t%f \t\t %f\t%f\t%f", 
+    //   desiredl[0],desiredl[1],desiredl[2], desiredr[0],desiredr[1],desiredr[2]);
   }
   count ++;
 
   if(current_state == CRTK_ENABLED){
-    // mid_level_controller();
-    // low_level_controller();
+    mid_level_controller();
+    low_level_controller();
 
   }
   else if (current_state == CRTK_PAUSED) {
@@ -99,7 +99,8 @@ int CRTK_motion_planner::low_level_controller(){
 }
 
 /**
- * @brief      Coordinates Move and Interp commands and calls appropriate planners
+ * @brief      Coordinates Move and Interp commands and calls appropriate
+ *             planners
  *
  * @return     1 for success
  */
