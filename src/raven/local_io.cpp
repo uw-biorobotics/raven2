@@ -853,8 +853,24 @@ void publish_crtk_setpoint_cp(robot_device *dev) {
 // Header header
 // string child_frame_id # the frame id of the child frame
 // Transform transform
+  tf::Transform trans1, trans2;
   msg1.header.stamp = msg1.header.stamp.now();
   msg2.header.stamp = msg2.header.stamp.now();
+
+  trans1.setOrigin(tf::Vector3(dev->mech[0].pos_d.x,dev->mech[0].pos_d.y,dev->mech[0].pos_d.z));
+  trans2.setOrigin(tf::Vector3(dev->mech[1].pos_d.x,dev->mech[1].pos_d.y,dev->mech[1].pos_d.z));
+  float ori1[9], ori2[9];
+  for (int orii = 0; orii < 3; orii++) {
+    for (int orij = 0; orij < 3; orij++) {
+      ori1[orii*3 + orij] = dev->mech[0].ori_d.R[orii][orij];
+      ori2[orii*3 + orij] = dev->mech[1].ori_d.R[orii][orij];
+    }
+  }
+  trans1.setBasis(tf::Matrix3x3(ori1[0],ori1[1],ori1[2],ori1[3],ori1[4],ori1[5],ori1[6],ori1[7],ori1[8]));
+  trans2.setBasis(tf::Matrix3x3(ori2[0],ori2[1],ori2[2],ori2[3],ori2[4],ori2[5],ori2[6],ori2[7],ori2[8]));
+
+  tf::transformTFToMsg(trans1,msg1.transform);
+  tf::transformTFToMsg(trans2,msg2.transform);
   
   pub_crtk_setpoint_cp_gold.publish(msg1);
   pub_crtk_setpoint_cp_green.publish(msg2);

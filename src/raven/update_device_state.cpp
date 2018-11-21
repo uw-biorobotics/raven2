@@ -254,29 +254,36 @@ int update_device_crtk_motion(device* dev){
 int update_device_crtk_motion_tf(device* dev, int arm){
 
   float max_dist_per_ms = 0.0001;   // m/ms = 10 cm/s 
-
+  static int count = 0;
   CRTK_motion_type  type = dev->crtk_motion_planner.crtk_motion_api[arm].get_setpoint_out_type(); 
 
   switch(type){
     case CRTK_cr:{
+      count++;
       tf::Vector3 incr = dev->crtk_motion_planner.crtk_motion_api[arm].get_setpoint_out_tf().getOrigin();
 
       // rotate to RAVEN frame and scale from meters to microns
       incr = dev->crtk_motion_planner.crtk_motion_api[arm].get_base_frame().inverse() * incr;
       incr = incr * MICRON_PER_M;
 
-      if(incr.length() <= max_dist_per_ms){
-        dev->mech[arm].pos_d.x += (int)(incr.x() * MICRON_PER_M);
-        dev->mech[arm].pos_d.y += (int)(incr.y() * MICRON_PER_M);
-        dev->mech[arm].pos_d.z += (int)(incr.z() * MICRON_PER_M);
-
-        ROS_INFO("dev pos_d --> %i , %i , %i ", dev->mech[arm].pos_d.x, dev->mech[arm].pos_d.y, dev->mech[arm].pos_d.z);
+      if(incr.length() <= max_dist_per_ms * MICRON_PER_M){
+        dev->mech[arm].pos_d.x += (int)(incr.x());
+        dev->mech[arm].pos_d.y += (int)(incr.y());
+        dev->mech[arm].pos_d.z += (int)(incr.z());
+        if(count%250 == 0){
+        //   ROS_INFO("dev pos_incr --> %f , %f , %f (m per ms)",incr.x()/MICRON_PER_M,incr.y()/MICRON_PER_M,incr.z()/MICRON_PER_M);
+        //   ROS_INFO("dev pos_d -->    %f , %f , %f (m)", dev->mech[arm].pos_d.x/MICRON_PER_M, dev->mech[arm].pos_d.y/MICRON_PER_M, dev->mech[arm].pos_d.z/MICRON_PER_M);
+          ROS_INFO("update_device_crtk_motion_tf count %i",count);         
+        }
+        dev->crtk_motion_planner.crtk_motion_api[arm].reset_setpoint_out(); 
+        // dev->crtk_motion_planner.crtk_motion_api[arm].reset_setpoint_in(); 
         return 1;
       }
       else{
-        ROS_ERROR("Relative Cartesian too large. (length=%f m per ms)",incr.length());
+        ROS_ERROR("Relative Cartesian too large. (length=%f m per ms)",incr.length()/MICRON_PER_M);
         return 0;
       }
+      
       break;
     }
     case CRTK_cp:{
@@ -291,6 +298,8 @@ int update_device_crtk_motion_tf(device* dev, int arm){
         dev->mech[arm].pos_d.x = new_pos.x();
         dev->mech[arm].pos_d.y = new_pos.y();
         dev->mech[arm].pos_d.z = new_pos.z();
+        dev->crtk_motion_planner.crtk_motion_api[arm].reset_setpoint_out(); 
+        // dev->crtk_motion_planner.crtk_motion_api[arm].reset_setpoint_in(); 
         return 1;
       }
       else{

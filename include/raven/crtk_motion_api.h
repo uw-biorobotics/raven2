@@ -101,6 +101,8 @@ class CRTK_motion_api
     void set_base_frame(tf::Transform);
     void set_default_base_frame(char);
     tf::Transform get_base_frame();
+    char get_new_base_frame_flag();
+    char set_new_base_frame_flag(char);
 
     // moving data between local_io and preempt threads
     void transfer_data(CRTK_motion_api*);
@@ -145,9 +147,13 @@ class CRTK_motion_api
     CRTK_motion_level   get_setpoint_out_level();
     CRTK_motion_type    get_setpoint_out_type();
 
+    char get_setpoint_update_flag(CRTK_motion_level, CRTK_motion_type);
+    void reset_goal_out();      
+    void reset_setpoint_out();  
   private:
     // current robot pose
     tf::Transform r0_transform;
+    char new_base_frame_flag;
     tf::Transform pos; // measured_cp
 
     float jpos[7];
@@ -168,8 +174,7 @@ class CRTK_motion_api
 
     void reset_goal_in();      // for interpolation, move
     void reset_setpoint_in();  // for interpolation, move, servo
-    void reset_goal_out();      
-    void reset_setpoint_out();  
+
 
 };
 

@@ -69,7 +69,6 @@ int CRTK_motion_planner::crtk_motion_state_machine(CRTK_robot_state current_stat
   if(current_state == CRTK_ENABLED){
     mid_level_controller();
     low_level_controller();
-
   }
   else if (current_state == CRTK_PAUSED) {
     // do something...? plan?
@@ -110,7 +109,7 @@ int CRTK_motion_planner::mid_level_controller(){
     // check for goal updates
     if(crtk_motion_api[i].check_goal_updates()){
       // set goal_out
-      out = crtk_motion_api[i].set_goal_out() ;     
+      out = crtk_motion_api[i].set_goal_out();     
     }
 
   }

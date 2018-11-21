@@ -223,7 +223,7 @@ static void *rt_process(void *) {
     // better to ensure realtime access to driver
     int loops = 0;
     int ret;
-
+    std::cout.precision(6);
     clock_gettime(CLOCK_REALTIME, &tbz);
     clock_gettime(CLOCK_REALTIME, &tnow);
     while ((ret = getUSBPackets(&device0)) == -EBUSY && loops < 10) {
@@ -235,8 +235,19 @@ static void *rt_process(void *) {
     clock_gettime(CLOCK_REALTIME, &t2);
     t2 = tsSubtract(t2, tnow);
     if (loops != 0)
-      std::cout << "bzlup" << loops << "0us time:" << (double)t2.tv_sec + (double)t2.tv_nsec / SEC
+      std::cout << "bzlup" << loops << "0us time:" << fixed<<(double)t2.tv_sec + (double)t2.tv_nsec / SEC
                 << std::endl;
+
+                
+    static int count =0;
+    static timespec t_old;
+    t_old = tsSubtract(tnow,t_old);
+    if((double)t_old.tv_sec + (double)t_old.tv_nsec / SEC > 0.0011){
+      std::cout<<"Loop time = " << std::fixed<<(double)t_old.tv_sec + (double)t_old.tv_nsec / SEC<<std::endl;
+      count = 0;
+    }
+    count ++;
+    clock_gettime(CLOCK_REALTIME, &t_old);
 
     // Run Safety State Machine
     stateMachine(&device0, &currParams, &rcvdParams);
@@ -298,6 +309,7 @@ static void *rt_process(void *) {
     //update CRTK API state flags
     device0.crtk_state.state_machine_update(device0.runlevel, device0.robot_homed, device0.robot_fault, device0.surgeon_mode, current_estop_level);
     device0.crtk_motion_planner.crtk_motion_state_machine(device0.crtk_state.get_state());
+    update_device_crtk_motion(&device0);
 
     // Publish current raven state
     publish_ravenstate_ros(&device0, &currParams);  // from local_io

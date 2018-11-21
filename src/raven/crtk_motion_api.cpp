@@ -54,6 +54,7 @@ CRTK_motion_api::CRTK_motion_api(){
   reset_setpoint_out();
 
   r0_transform = tf::Transform();
+  new_base_frame_flag = 0;
   pos = tf::Transform(); // measured_cp
 
 
@@ -78,6 +79,8 @@ CRTK_motion_api::CRTK_motion_api(char arm){
   else
     ROS_ERROR("Invalid arm type API constructor.");
   pos = tf::Transform(); // measured_cp
+
+  new_base_frame_flag = 1;
 
   for(int i= 0; i<7; i++) jpos[i] = 0;
 
@@ -129,12 +132,21 @@ char is_type_valid(CRTK_motion_level level, CRTK_motion_type type){
  */
 void CRTK_motion_api::crtk_servo_cr_cb(geometry_msgs::TransformStamped msg){
 
-  // check length of incoming translation
+  //check length of incoming translation
+  static int count = 0;
+  if(count%250 == 0){
+    ROS_INFO("crtk_servo_cr_cb count %i",count);
+  }
+  count ++;
+
   tf::Transform in_incr;
   tf::transformMsgToTF(msg.transform, in_incr);
+
+  if(get_setpoint_update_flag(CRTK_servo, CRTK_cr))
+    in_incr.setOrigin(in_incr.getOrigin() + get_setpoint_in(CRTK_servo).cr.getOrigin());
   set_setpoint_in(CRTK_servo, CRTK_cr, in_incr);
 
-  ROS_INFO("servo cr cmd of %f ", in_incr.getOrigin().length());
+  // ROS_INFO("servo cr cmd of %f ", in_incr.getOrigin().length());
 
 }
 
@@ -248,23 +260,49 @@ void CRTK_motion_api::set_default_base_frame(char arm){
 
 void CRTK_motion_api::transfer_data(CRTK_motion_api* network_source){ // TODO: keep updating this
     char success = 0;
-    success = success + preempt_to_network(network_source);
-    success = success + network_to_preempt(network_source);
+    success += preempt_to_network(network_source);
+    success += network_to_preempt(network_source);
 
     if(success != 2){
       ROS_ERROR("CRTK data transfer failure.");
     }
 }
 
+/**
+ * @brief      Transfers CRTK motion api data from network thread objects to device thread objects 
+ * 
+ * @details    Transfers outgoing current pos, jpos, vel, jvel, force, jforce
+ *             (goal_out, setpoint_out)*(js, tf, level, type)
+ *             Forces and velocities not implemented
+ *
+ * @param      network_source  The network source
+ *
+ * @return     success
+ */
 char CRTK_motion_api::preempt_to_network(CRTK_motion_api* network_source){
-  // copy goal_out and setpoint_out and measured...
 
+  // cartesian pos & velocity
   network_source->set_pos(get_pos());
-  //vel = network_source->get_vel();
+  //network_source->set_vel(get_vel());
 
+  // joint position and velocity
   network_source->set_jpos(jpos);
-  //this->set_jvel(network_source->jvel);
+  //network_source->set_jvel(jvel);
 
+  // force and joint force
+  //network_source->set_force(force);
+  //network_source->set_jforce(jforce);
+  //
+  
+  //goal out (tf, js, level, type)
+    if(is_tf_type(goal_out_type)){
+    network_source->set_goal_out_tf(goal_out_level, goal_out_type, goal_out_tf);
+  }
+  else if(is_js_type(goal_out_type)){
+    network_source->copy_goal_out_js(&goal_out_js);
+  }  
+
+  //setpoint out (tf, js, level, type)
   if(is_tf_type(setpoint_out_type)){
     network_source->set_setpoint_out_tf(setpoint_out_level, setpoint_out_type, setpoint_out_tf);
   }
@@ -272,25 +310,36 @@ char CRTK_motion_api::preempt_to_network(CRTK_motion_api* network_source){
     network_source->copy_setpoint_out_js(&setpoint_out_js);
   }
 
-
-  if(is_tf_type(goal_out_type)){
-    network_source->set_goal_out_tf(goal_out_level, goal_out_type, goal_out_tf);
-  }
-  else if(is_js_type(goal_out_type)){
-    network_source->copy_goal_out_js(&goal_out_js);
-  }  
-
   return 1; // if all goes well
 }
 
+/**
+ * @brief      Transfers CRTK motion api data from device thread objects to network thread objects. 
+ *
+ * @details    transfers base transform, goal_in[2] and setpoint_in[servo] without performing any
+ *             calculations on incoming commands.
+ *
+ * @param      network_source  The network source
+ *
+ * @return     success
+ */
 char CRTK_motion_api::network_to_preempt(CRTK_motion_api* network_source){
-  // copy goal_in and setpoint_in
+  // transfer base frame from user
+  if(network_source->get_new_base_frame_flag()){
+    set_base_frame(network_source->get_base_frame());
+    network_source->set_new_base_frame_flag(0);
+  }
+  
 
+  // copy goal_in(move and interp) and setpoint_in(just servo)
   for(int i=CRTK_move; i<=CRTK_interp; i++){
-    this->set_goal_in((CRTK_motion_level)i, (network_source->get_goal_in((CRTK_motion_level)i)));
+    set_goal_in((CRTK_motion_level)i, (network_source->get_goal_in((CRTK_motion_level)i)));
   } 
-set_setpoint_in(CRTK_servo, (network_source->get_setpoint_in(CRTK_servo)));
+  set_setpoint_in(CRTK_servo, (network_source->get_setpoint_in(CRTK_servo)));
 
+
+
+  //reset network data
   network_source->reset_goal_in();
   network_source->reset_setpoint_in();
   return 1; // if all goes well
@@ -708,4 +757,47 @@ CRTK_motion_level   CRTK_motion_api::get_setpoint_out_level(){
  */
 CRTK_motion_type    CRTK_motion_api::get_setpoint_out_type(){
   return setpoint_out_type;
+}
+
+
+/**
+ * @brief      Gets the new base frame flag.
+ *
+ * @return     The new base frame flag.
+ */
+char CRTK_motion_api::get_new_base_frame_flag(){
+  return new_base_frame_flag;
+}
+
+
+/**
+ * @brief      Sets the new base frame flag indicating that it should be sent to device
+ *
+ * @param[in]  in    new flag value (0 or 1)
+ *
+ * @return     returns the new flag value -1 for error
+ */
+char CRTK_motion_api::set_new_base_frame_flag(char in){
+  if(in == 0 || in == 1){
+    new_base_frame_flag = in;
+    return in;
+  }
+  return -1;
+}
+
+
+/**
+ * @brief      Gets the setpoint update flag for a given leveland type.
+ *
+ * @param[in]  level  The level
+ * @param[in]  type   The type
+ *
+ * @return     The setpoint update flag.
+ */
+char CRTK_motion_api::get_setpoint_update_flag(CRTK_motion_level level, CRTK_motion_type type){
+  char out = 0;
+  if(setpoint_in[level].update_flags[type])
+    out = 1;
+
+  return out;
 }
