@@ -254,42 +254,78 @@ int update_device_crtk_motion(device* dev){
 int update_device_crtk_motion_tf(device* dev, int arm){
 
   float max_dist_per_ms = 0.0001;   // m/ms = 10 cm/s 
-  static int count = 0;
+  float max_radian_per_ms = 0.001;  // rad/ms = 1 rad/s 
+  // static int count = 0;
+  int out = 1;
   CRTK_motion_type  type = dev->crtk_motion_planner.crtk_motion_api[arm].get_setpoint_out_type(); 
-
+  tf::Quaternion curr_rot = tf::Transform(tf::Matrix3x3(dev->mech[arm].ori.R[0][0], dev->mech[arm].ori.R[0][1], dev->mech[arm].ori.R[0][2], 
+                                                        dev->mech[arm].ori.R[1][0], dev->mech[arm].ori.R[1][1], dev->mech[arm].ori.R[1][2], 
+                                                        dev->mech[arm].ori.R[2][0], dev->mech[arm].ori.R[2][1], dev->mech[arm].ori.R[2][2])).getRotation();
   switch(type){
     case CRTK_cr:{
-      count++;
+      // count++;
       tf::Vector3 incr = dev->crtk_motion_planner.crtk_motion_api[arm].get_setpoint_out_tf().getOrigin();
+      tf::Quaternion incr_rot = dev->crtk_motion_planner.crtk_motion_api[arm].get_setpoint_out_tf().getRotation();
+      tf::Vector3 incr_rot_axis = incr_rot.getAxis().normalize();
+      float incr_rot_angle = incr_rot.getAngle();
 
       // rotate to RAVEN frame and scale from meters to microns
       incr = dev->crtk_motion_planner.crtk_motion_api[arm].get_base_frame().inverse() * incr;
       incr = incr * MICRON_PER_M;
+      // ROS_INFO("curr quaternion:%f,%f,%f,%f", curr_rot.x(),curr_rot.y(),curr_rot.z(),curr_rot.w());
+      // ROS_INFO("incr axis before: %f,%f,%f step %f", incr_rot_axis.x(),incr_rot_axis.y(),incr_rot_axis.z(), incr_rot_angle);
+
+
+      incr_rot_axis = dev->crtk_motion_planner.crtk_motion_api[arm].get_base_frame().inverse().getBasis() * incr_rot_axis;
+      incr_rot = tf::Quaternion(incr_rot_axis,incr_rot_angle);
+      tf::Transform incr_rot_mx = tf::Transform(curr_rot)*tf::Transform(incr_rot);
+      // ROS_INFO("after quaternion:%f,%f,%f,%f", incr_rot_mx.getRotation().x(),incr_rot_mx.getRotation().y(),incr_rot_mx.getRotation().z(),incr_rot_mx.getRotation().w());
+      // ROS_INFO("incr axis after: \t %f,%f,%f step %f", incr_rot_axis.x(),incr_rot_axis.y(),incr_rot_axis.z(), incr_rot_angle);
+      // ROS_INFO("angle diff = %f",curr_rot.angle(incr_rot_mx.getRotation()));
 
       if(incr.length() <= max_dist_per_ms * MICRON_PER_M){
         dev->mech[arm].pos_d.x += (int)(incr.x());
         dev->mech[arm].pos_d.y += (int)(incr.y());
         dev->mech[arm].pos_d.z += (int)(incr.z());
-        if(count%250 == 0){
+
+        // if(count%250 == 0){
         //   ROS_INFO("dev pos_incr --> %f , %f , %f (m per ms)",incr.x()/MICRON_PER_M,incr.y()/MICRON_PER_M,incr.z()/MICRON_PER_M);
         //   ROS_INFO("dev pos_d -->    %f , %f , %f (m)", dev->mech[arm].pos_d.x/MICRON_PER_M, dev->mech[arm].pos_d.y/MICRON_PER_M, dev->mech[arm].pos_d.z/MICRON_PER_M);
-          ROS_INFO("update_device_crtk_motion_tf count %i",count);         
-        }
+        //   ROS_INFO("update_device_crtk_motion_tf count %i",count);         
+        // }
         dev->crtk_motion_planner.crtk_motion_api[arm].reset_setpoint_out(); 
         // dev->crtk_motion_planner.crtk_motion_api[arm].reset_setpoint_in(); 
-        return 1;
       }
       else{
-        ROS_ERROR("Relative Cartesian too large. (length=%f m per ms)",incr.length()/MICRON_PER_M);
-        return 0;
+        ROS_ERROR("Relative Cartesian translation too large. (length= %f m per ms)",incr.length()/MICRON_PER_M);
+        out = 0;
       }
       
+      if(incr_rot.length() > 0 && !isnan(incr_rot.length())){
+        if(incr_rot.getAngle() <= max_radian_per_ms){
+          tf::Matrix3x3 incr_rot_mx_mx = incr_rot_mx.getBasis();
+          for(int i=0; i<3 ; i++)
+            for(int j=0;j<3;j++)
+              dev->mech[arm].ori_d.R[i][j] = incr_rot_mx_mx[i][j];
+        }
+        else{
+          ROS_ERROR("Relative Cartesian rotation too large. (angle= %f rad per ms)",incr_rot.getAngle());
+          out = 0;
+        }
+      }
+      else{
+        out = 0;
+      }
+
+      return out;
       break;
     }
     case CRTK_cp:{
       tf::Vector3 new_pos = dev->crtk_motion_planner.crtk_motion_api[arm].get_setpoint_out_tf().getOrigin();
-      tf::Vector3 curr_pos = tf::Vector3(dev->mech[arm].pos_d.x,dev->mech[arm].pos_d.y,dev->mech[arm].pos_d.z);
+      tf::Vector3 curr_pos = tf::Vector3(dev->mech[arm].pos.x,dev->mech[arm].pos.y,dev->mech[arm].pos.z);
 
+      tf::Quaternion new_rot = dev->crtk_motion_planner.crtk_motion_api[arm].get_setpoint_out_tf().getRotation();
+      
       // rotate to RAVEN frame and scale from meters to microns
       new_pos = dev->crtk_motion_planner.crtk_motion_api[arm].get_base_frame().inverse() * new_pos;
       new_pos = new_pos * MICRON_PER_M;
@@ -299,13 +335,28 @@ int update_device_crtk_motion_tf(device* dev, int arm){
         dev->mech[arm].pos_d.y = new_pos.y();
         dev->mech[arm].pos_d.z = new_pos.z();
         dev->crtk_motion_planner.crtk_motion_api[arm].reset_setpoint_out(); 
-        // dev->crtk_motion_planner.crtk_motion_api[arm].reset_setpoint_in(); 
-        return 1;
       }
       else{
         ROS_ERROR("Absolute Cartesian step size too large. (step length=%f micron per ms)",fabs((new_pos-curr_pos).length()));
-        return 0;
+        out = 0;
       }
+      if(new_rot.length() > 0 && !isnan(new_rot.length())){
+        if(new_rot.angle(curr_rot) <= 0.5*max_radian_per_ms){
+          tf::Matrix3x3 incr_rot_mx_mx = dev->crtk_motion_planner.crtk_motion_api[arm].get_setpoint_out_tf().getBasis();
+          for(int i=0; i<3 ; i++)
+            for(int j=0;j<3;j++)
+              dev->mech[arm].ori_d.R[i][j] = incr_rot_mx_mx[i][j];
+        }
+        else{
+          ROS_ERROR("Absolute Cartesian rotation too large. (angle= %f rad per ms)",new_rot.angle(curr_rot));
+          out = 0;
+        }
+      }
+      else{
+        out = 0;
+      }
+      
+      return out;
       break;
     }
     case CRTK_cv:{

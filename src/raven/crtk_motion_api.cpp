@@ -132,18 +132,22 @@ char is_type_valid(CRTK_motion_level level, CRTK_motion_type type){
  */
 void CRTK_motion_api::crtk_servo_cr_cb(geometry_msgs::TransformStamped msg){
 
-  //check length of incoming translation
-  static int count = 0;
-  if(count%250 == 0){
-    ROS_INFO("crtk_servo_cr_cb count %i",count);
-  }
-  count ++;
+  // static int count = 0; // check length of incoming translation
+  // if(count%250 == 0){
+  //   ROS_INFO("crtk_servo_cr_cb count %i",count);
+  // }
+  // count ++;
 
   tf::Transform in_incr;
   tf::transformMsgToTF(msg.transform, in_incr);
 
-  if(get_setpoint_update_flag(CRTK_servo, CRTK_cr))
-    in_incr.setOrigin(in_incr.getOrigin() + get_setpoint_in(CRTK_servo).cr.getOrigin());
+  if(get_setpoint_update_flag(CRTK_servo, CRTK_cr)){
+    in_incr.setOrigin(  get_setpoint_in(CRTK_servo).cr.getOrigin()   + in_incr.getOrigin());
+    if(!isnan(in_incr.getRotation().length()))
+      in_incr.setRotation(get_setpoint_in(CRTK_servo).cr.getRotation() * in_incr.getRotation());
+    else
+      ROS_INFO("Getting servo_cr nan rotation command!");
+  }
   set_setpoint_in(CRTK_servo, CRTK_cr, in_incr);
 
   // ROS_INFO("servo cr cmd of %f ", in_incr.getOrigin().length());
@@ -361,7 +365,7 @@ void CRTK_motion_api::reset_goal_in(){
       goal_in[i].jf[j] = 0;
  
     }
-    goal_in[i].cr = tf::Transform();
+    goal_in[i].cr = tf::Transform(tf::Quaternion(0,0,0,0));
     goal_in[i].cp = tf::Transform();
     goal_in[i].cv = tf::Transform();
     goal_in[i].cf = tf::Transform();
@@ -381,7 +385,7 @@ void CRTK_motion_api::reset_setpoint_in(){
       setpoint_in[i].jv[j] = 0;
       setpoint_in[i].jf[j] = 0;
     }
-    setpoint_in[i].cr = tf::Transform();
+    setpoint_in[i].cr = tf::Transform(tf::Quaternion(0,0,0,0));
     setpoint_in[i].cp = tf::Transform();
     setpoint_in[i].cv = tf::Transform();
     setpoint_in[i].cf = tf::Transform();
