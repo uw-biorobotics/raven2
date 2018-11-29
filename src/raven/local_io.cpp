@@ -78,7 +78,8 @@ extern offsets offsets_r;
 
 CRTK_motion_api crtk_motion_api_gold(0); //class to hold robot status flags for CRTK API
 CRTK_motion_api crtk_motion_api_green(1); //class to hold robot status flags for CRTK API
-
+CRTK_motion_api crtk_motion_api_gold_grasp(0); //class to hold robot status flags for CRTK API
+CRTK_motion_api crtk_motion_api_green_grasp(1); //class to hold robot status flags for CRTK API
 
 /**
  * \brief Initialize data arrays to zero and create mutex
@@ -494,6 +495,11 @@ ros::Publisher pub_crtk_setpoint_cp_green;
 ros::Publisher pub_crtk_setpoint_cv_gold;
 ros::Publisher pub_crtk_setpoint_cv_green;
 
+ros::Publisher pub_crtk_measured_js_gold_grasper;
+ros::Publisher pub_crtk_measured_js_green_grasper;
+ros::Publisher pub_crtk_setpoint_js_gold_grasper;
+ros::Publisher pub_crtk_setpoint_js_green_grasper;
+
 ros::Subscriber sub_servo_jp_gold;
 ros::Subscriber sub_servo_jv_gold;
 ros::Subscriber sub_servo_jf_gold;
@@ -511,6 +517,15 @@ ros::Subscriber sub_servo_cp_green;
 ros::Subscriber sub_servo_cv_green;
 // ros::Subscriber sub_servo_cf_green;
 ros::Subscriber sub_servo_cr_green;
+
+ros::Subscriber sub_servo_jp_green_grasper;
+ros::Subscriber sub_servo_jv_green_grasper;
+ros::Subscriber sub_servo_jf_green_grasper;
+ros::Subscriber sub_servo_jr_green_grasper;
+ros::Subscriber sub_servo_jp_gold_grasper;
+ros::Subscriber sub_servo_jv_gold_grasper;
+ros::Subscriber sub_servo_jf_gold_grasper;
+ros::Subscriber sub_servo_jr_gold_grasper;
 
 /**
  *  \brief Initiates all ROS publishers and subscribers
@@ -542,8 +557,25 @@ int init_ravenstate_publishing(robot_device *dev, ros::NodeHandle &n) {
   sub_servo_cr_green = n.subscribe<geometry_msgs::TransformStamped>("arm2/servo_cr", 1, &CRTK_motion_api::crtk_servo_cr_cb
                                              ,&crtk_motion_api_green);
 
-  pub_crtk_state              = n.advertise<crtk_msgs::robot_state>("crtk_state", 1);
+  // sub_servo_jp_green_grasper = n.subscribe<sensor_msgs::JointState>("grasp2/servo_jp", 1, &CRTK_motion_api::crtk_servo_jp_cb
+  //                                            ,&crtk_motion_api_green_grasp);
+  // sub_servo_jv_green_grasper = n.subscribe<sensor_msgs::JointState>("grasp2/servo_jv", 1, &CRTK_motion_api::crtk_servo_jv_cb
+  //                                            ,&crtk_motion_api_green_grasp);
+  // sub_servo_jf_green_grasper = n.subscribe<sensor_msgs::JointState>("grasp2/servo_jf", 1, &CRTK_motion_api::crtk_servo_jf_cb
+  //                                            ,&crtk_motion_api_green_grasp);
+  // sub_servo_jr_green_grasper = n.subscribe<sensor_msgs::JointState>("grasp2/servo_jr", 1, &CRTK_motion_api::crtk_servo_jr_cb
+  //                                            ,&crtk_motion_api_green_grasp);
+  // sub_servo_jp_gold_grasper = n.subscribe<sensor_msgs::JointState>("grasp1/servo_jp", 1, &CRTK_motion_api::crtk_servo_jp_cb
+  //                                            ,&crtk_motion_api_gold_grasp);
+  // sub_servo_jv_gold_grasper = n.subscribe<sensor_msgs::JointState>("grasp1/servo_jv", 1, &CRTK_motion_api::crtk_servo_jv_cb
+  //                                            ,&crtk_motion_api_gold_grasp);
+  // sub_servo_jf_gold_grasper = n.subscribe<sensor_msgs::JointState>("grasp1/servo_jf", 1, &CRTK_motion_api::crtk_servo_jf_cb
+  //                                            ,&crtk_motion_api_gold_grasp);
+  // sub_servo_jr_gold_grasper = n.subscribe<sensor_msgs::JointState>("grasp1/servo_jr", 1, &CRTK_motion_api::crtk_servo_jr_cb
+  //                                            ,&crtk_motion_api_gold_grasp);
 
+
+  pub_crtk_state              = n.advertise<crtk_msgs::robot_state>("crtk_state", 1);
   pub_crtk_measured_js_gold   = n.advertise<sensor_msgs::JointState>("arm1/measured_js", 1);
   pub_crtk_measured_js_green  = n.advertise<sensor_msgs::JointState>("arm2/measured_js", 1);
   pub_crtk_measured_cp_gold   = n.advertise<geometry_msgs::TransformStamped>("arm1/measured_cp", 1);
@@ -557,6 +589,11 @@ int init_ravenstate_publishing(robot_device *dev, ros::NodeHandle &n) {
   pub_crtk_setpoint_cp_green  = n.advertise<geometry_msgs::TransformStamped>("arm2/setpoint_cp", 1);
   pub_crtk_setpoint_cv_gold   = n.advertise<geometry_msgs::TwistStamped>("arm1/setpoint_cv", 1);
   pub_crtk_setpoint_cv_green  = n.advertise<geometry_msgs::TwistStamped>("arm2/setpoint_cv", 1);
+
+  pub_crtk_measured_js_gold_grasper  = n.advertise<sensor_msgs::JointState>("grasp1/measured_js", 1);
+  pub_crtk_measured_js_green_grasper = n.advertise<sensor_msgs::JointState>("grasp2/measured_js", 1);
+  pub_crtk_setpoint_js_gold_grasper  = n.advertise<sensor_msgs::JointState>("grasp1/setpoint_js", 1);
+  pub_crtk_setpoint_js_green_grasper = n.advertise<sensor_msgs::JointState>("grasp2/setpoint_js", 1);
 
   return 0;
 }

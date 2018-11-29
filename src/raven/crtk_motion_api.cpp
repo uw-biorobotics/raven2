@@ -132,11 +132,11 @@ char is_type_valid(CRTK_motion_level level, CRTK_motion_type type){
  */
 void CRTK_motion_api::crtk_servo_cr_cb(geometry_msgs::TransformStamped msg){
 
-  // static int count = 0; // check length of incoming translation
+  static int count = 0; // check length of incoming translation
   // if(count%250 == 0){
   //   ROS_INFO("crtk_servo_cr_cb count %i",count);
   // }
-  // count ++;
+  count ++;
 
   tf::Transform in_incr;
   tf::transformMsgToTF(msg.transform, in_incr);
@@ -145,14 +145,60 @@ void CRTK_motion_api::crtk_servo_cr_cb(geometry_msgs::TransformStamped msg){
     in_incr.setOrigin(  get_setpoint_in(CRTK_servo).cr.getOrigin()   + in_incr.getOrigin());
     if(!isnan(in_incr.getRotation().length()))
       in_incr.setRotation(get_setpoint_in(CRTK_servo).cr.getRotation() * in_incr.getRotation());
-    else
-      ROS_INFO("Getting servo_cr nan rotation command!");
+    // else
+      //ROS_INFO("Getting servo_cr nan rotation command!");
   }
   set_setpoint_in(CRTK_servo, CRTK_cr, in_incr);
-
-  // ROS_INFO("servo cr cmd of %f ", in_incr.getOrigin().length());
+  // if(count%250 == 0)
+  //   ROS_INFO("servo cr cmd of %f ", in_incr.getRotation().getAngle());
 
 }
+
+
+// /**
+//  * @brief      { function_description }
+//  *
+//  * @param[in]  in    { parameter_description }
+//  */
+// void CRTK_motion_api::crtk_servo_jr_gr_cb(sensor_msgs::JointState in){
+
+//   setpoint_gr_in.jr[0] = in.position[0];
+//   setpoint_gr_in.update_flags[CRTK_jr] = 1;
+
+// }
+
+// /**
+//  * @brief      { function_description }
+//  *
+//  * @param[in]  in    { parameter_description }
+//  */
+// void CRTK_motion_api::crtk_servo_jp_gr_cb(sensor_msgs::JointState in){
+
+//   setpoint_gr_in.jp[0] = in.position[0];
+//   setpoint_gr_in.update_flags[CRTK_jp] = 1;
+// }
+
+// /**
+//  * @brief      { function_description }
+//  *
+//  * @param[in]  in    { parameter_description }
+//  */
+// void CRTK_motion_api::crtk_servo_jv_gr_cb(sensor_msgs::JointState in){
+
+//   setpoint_gr_in.jv[0] = in.velocity[0];
+//   setpoint_gr_in.update_flags[CRTK_jv] = 1;
+// }
+
+// /**
+//  * @brief      { function_description }
+//  *
+//  * @param[in]  in    { parameter_description }
+//  */
+// void CRTK_motion_api::crtk_servo_jf_gr_cb(sensor_msgs::JointState in){
+
+//   setpoint_gr_in.jf[0] = in.effort[0];
+//   setpoint_gr_in.update_flags[CRTK_jf] = 1;
+// }
 
 
 /**
@@ -365,7 +411,7 @@ void CRTK_motion_api::reset_goal_in(){
       goal_in[i].jf[j] = 0;
  
     }
-    goal_in[i].cr = tf::Transform(tf::Quaternion(0,0,0,0));
+    goal_in[i].cr = tf::Transform();
     goal_in[i].cp = tf::Transform();
     goal_in[i].cv = tf::Transform();
     goal_in[i].cf = tf::Transform();
@@ -385,7 +431,7 @@ void CRTK_motion_api::reset_setpoint_in(){
       setpoint_in[i].jv[j] = 0;
       setpoint_in[i].jf[j] = 0;
     }
-    setpoint_in[i].cr = tf::Transform(tf::Quaternion(0,0,0,0));
+    setpoint_in[i].cr = tf::Transform();
     setpoint_in[i].cp = tf::Transform();
     setpoint_in[i].cv = tf::Transform();
     setpoint_in[i].cf = tf::Transform();
@@ -407,6 +453,7 @@ void CRTK_motion_api::reset_setpoint_out(){
   setpoint_out_tf = tf::Transform();
   setpoint_out_level = CRTK_NULL_level;
   setpoint_out_type = CRTK_NULL_type;
+
 }
 
 /**
@@ -436,6 +483,7 @@ char CRTK_motion_api::set_setpoint_out_tf(CRTK_motion_level level, CRTK_motion_t
     setpoint_out_level = level;
     setpoint_out_type = type;
     reset_setpoint_in();
+    // ROS_INFO("setpoint out: level=%i,type=%i (rotation: %f,%f,%f,%f)",setpoint_out_level,setpoint_out_type,setpoint_out_tf.getRotation().x(),setpoint_out_tf.getRotation().y(),setpoint_out_tf.getRotation().z(),setpoint_out_tf.getRotation().w());
     return 1;
   } 
   else{

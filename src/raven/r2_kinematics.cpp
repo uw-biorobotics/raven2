@@ -403,6 +403,8 @@ int r2_inv_kin(device *d0, int runlevel) {
   orientation *ori_d;
   position *pos_d;
 
+  // static int count = 0;
+  //   count ++;
   //  Do FK for each mechanism
   for (int m = 0; m < NUM_MECH; m++) {
     // get arm type and wrist actuation angle
@@ -425,6 +427,10 @@ int r2_inv_kin(device *d0, int runlevel) {
     xf.setOrigin(tf::Vector3(pos_d->x / (1000.0 * 1000.0), pos_d->y / (1000.0 * 1000.0),
                              pos_d->z / (1000.0 * 1000.0)));
 
+    
+    // if((count % 500 == 0) && (m ==0)){
+    //         ROS_INFO("kinematics desired quaternion = %f,%f,%f,%f ,angle = %f", xf.getRotation().x(),xf.getRotation().y(),xf.getRotation().z(),xf.getRotation().w(),xf.getRotation().getAngle());
+    // }
     //		DO IK
     ik_solution iksol[8] = {{}, {}, {}, {}, {}, {}, {}, {}};
     int ret = inv_kin(xf, arm, iksol);

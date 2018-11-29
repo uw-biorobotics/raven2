@@ -263,60 +263,121 @@ int update_device_crtk_motion_tf(device* dev, int arm){
                                                         dev->mech[arm].ori.R[2][0], dev->mech[arm].ori.R[2][1], dev->mech[arm].ori.R[2][2])).getRotation();
   switch(type){
     case CRTK_cr:{
-      // count++;
-      tf::Vector3 incr = dev->crtk_motion_planner.crtk_motion_api[arm].get_setpoint_out_tf().getOrigin();
-      tf::Quaternion incr_rot = dev->crtk_motion_planner.crtk_motion_api[arm].get_setpoint_out_tf().getRotation();
-      tf::Vector3 incr_rot_axis = incr_rot.getAxis().normalize();
-      float incr_rot_angle = incr_rot.getAngle();
+      tf::Transform incr_tf = dev->crtk_motion_planner.crtk_motion_api[arm].get_setpoint_out_tf();
 
+      // (1) for translation
+      tf::Vector3 incr = incr_tf.getOrigin();
+    
       // rotate to RAVEN frame and scale from meters to microns
       incr = dev->crtk_motion_planner.crtk_motion_api[arm].get_base_frame().inverse() * incr;
       incr = incr * MICRON_PER_M;
-      // ROS_INFO("curr quaternion:%f,%f,%f,%f", curr_rot.x(),curr_rot.y(),curr_rot.z(),curr_rot.w());
-      // ROS_INFO("incr axis before: %f,%f,%f step %f", incr_rot_axis.x(),incr_rot_axis.y(),incr_rot_axis.z(), incr_rot_angle);
-
-
-      incr_rot_axis = dev->crtk_motion_planner.crtk_motion_api[arm].get_base_frame().inverse().getBasis() * incr_rot_axis;
-      incr_rot = tf::Quaternion(incr_rot_axis,incr_rot_angle);
-      tf::Transform incr_rot_mx = tf::Transform(curr_rot)*tf::Transform(incr_rot);
-      // ROS_INFO("after quaternion:%f,%f,%f,%f", incr_rot_mx.getRotation().x(),incr_rot_mx.getRotation().y(),incr_rot_mx.getRotation().z(),incr_rot_mx.getRotation().w());
-      // ROS_INFO("incr axis after: \t %f,%f,%f step %f", incr_rot_axis.x(),incr_rot_axis.y(),incr_rot_axis.z(), incr_rot_angle);
-      // ROS_INFO("angle diff = %f",curr_rot.angle(incr_rot_mx.getRotation()));
+      
 
       if(incr.length() <= max_dist_per_ms * MICRON_PER_M){
         dev->mech[arm].pos_d.x += (int)(incr.x());
         dev->mech[arm].pos_d.y += (int)(incr.y());
         dev->mech[arm].pos_d.z += (int)(incr.z());
-
-        // if(count%250 == 0){
-        //   ROS_INFO("dev pos_incr --> %f , %f , %f (m per ms)",incr.x()/MICRON_PER_M,incr.y()/MICRON_PER_M,incr.z()/MICRON_PER_M);
-        //   ROS_INFO("dev pos_d -->    %f , %f , %f (m)", dev->mech[arm].pos_d.x/MICRON_PER_M, dev->mech[arm].pos_d.y/MICRON_PER_M, dev->mech[arm].pos_d.z/MICRON_PER_M);
-        //   ROS_INFO("update_device_crtk_motion_tf count %i",count);         
-        // }
-        dev->crtk_motion_planner.crtk_motion_api[arm].reset_setpoint_out(); 
-        // dev->crtk_motion_planner.crtk_motion_api[arm].reset_setpoint_in(); 
       }
       else{
         ROS_ERROR("Relative Cartesian translation too large. (length= %f m per ms)",incr.length()/MICRON_PER_M);
         out = 0;
       }
       
-      if(incr_rot.length() > 0 && !isnan(incr_rot.length())){
-        if(incr_rot.getAngle() <= max_radian_per_ms){
-          tf::Matrix3x3 incr_rot_mx_mx = incr_rot_mx.getBasis();
-          for(int i=0; i<3 ; i++)
-            for(int j=0;j<3;j++)
-              dev->mech[arm].ori_d.R[i][j] = incr_rot_mx_mx[i][j];
-        }
-        else{
-          ROS_ERROR("Relative Cartesian rotation too large. (angle= %f rad per ms)",incr_rot.getAngle());
-          out = 0;
-        }
+
+      // (2) for rotation!
+      static int count = 0;
+      count ++;
+
+      static float incr_rot_angle_prev = 0;
+      tf::Quaternion incr_rot = incr_tf.getRotation();
+      // if(count % 250 == 0){
+      //   ROS_INFO("incr quaternion before1: %f,%f,%f,%f", incr_rot.x(),incr_rot.y(),incr_rot.z(), incr_rot.w());
+      // }
+      tf::Vector3 incr_rot_axis = incr_rot.getAxis().normalize();
+      
+      float incr_rot_angle = incr_rot.getAngle();
+
+      // if(incr_rot_angle_prev != incr_rot_angle){
+      //   ROS_INFO("switching axis: %f", incr_rot_angle);
+      //   incr_rot_angle_prev = incr_rot_angle;
+      // }
+
+      // if(count % 250 == 0){
+      //   ROS_INFO("incr quaternion before2: %f,%f,%f,%f", incr_rot.x(),incr_rot.y(),incr_rot.z(), incr_rot.w());
+      //   ROS_INFO("incr axis before: %f,%f,%f angle %f", incr_rot_axis.x(),incr_rot_axis.y(),incr_rot_axis.z(), incr_rot_angle);
+      // }
+      // incr_rot_axis = dev->crtk_motion_planner.crtk_motion_api[arm].get_base_frame().inverse().getBasis() * incr_rot_axis;
+      // incr_rot = tf::Quaternion(incr_rot_axis,incr_rot_angle);
+      // tf::Transform incr_rot_mx = tf::Transform(curr_rot)*tf::Transform(incr_rot);  
+      // if(count % 250 == 0){   
+      //   ROS_INFO("incr axis after: \t %f,%f,%f angle %f", incr_rot_axis.x(),incr_rot_axis.y(),incr_rot_axis.z(), incr_rot_angle);
+      //   ROS_INFO("angle diff = %f\n",curr_rot.angle(incr_rot_mx.getRotation()));
+      // }
+      
+      // if(count % 500 == 0){
+      //   // ROS_INFO("incr quaternion after: %f,%f,%f,%f", incr_rot.x(),incr_rot.y(),incr_rot.z(), incr_rot.w());
+      //   ROS_INFO("\n incr_rot_length = %f \t !isnan = %i ", incr_rot.length(), !isnan(incr_rot.length()));
+      //   ROS_INFO("incr_rot.getAngle = %f \t max_rad_per_ms = %f \n", incr_rot.getAngle(), max_radian_per_ms);
+      // }
+
+
+      tf::Matrix3x3 t1 = dev->crtk_motion_planner.crtk_motion_api[arm].get_base_frame().inverse().getBasis();
+      tf::Matrix3x3 t2 = incr_tf.getBasis();
+      tf::Matrix3x3 q_temp = t1*t2*t1.inverse();
+      tf::Matrix3x3 mx_temp = tf::Transform(tf::Matrix3x3(dev->mech[arm].ori_d.R[0][0], dev->mech[arm].ori_d.R[0][1], dev->mech[arm].ori_d.R[0][2], 
+                                                        dev->mech[arm].ori_d.R[1][0], dev->mech[arm].ori_d.R[1][1], dev->mech[arm].ori_d.R[1][2], 
+                                                        dev->mech[arm].ori_d.R[2][0], dev->mech[arm].ori_d.R[2][1], dev->mech[arm].ori_d.R[2][2])).getBasis();
+      // double R,P,Y;
+      // if(count % 500 == 0){
+      //   incr_tf.getBasis().getRPY(R,P,Y);
+      //   ROS_INFO("incr_tf (before transform)   : roll %f, pitch %f, yaw %f", R,P,Y);
+      //   // ROS_INFO("incr_tf: %f,%f,%f,%f", incr_tf.getRotation().x(),incr_tf.getRotation().y(),incr_tf.getRotation().z(), incr_tf.getRotation().w());
+        
+      //   q_temp.getRPY(R,P,Y);
+      //   ROS_INFO("q_temp (after transform)     : roll %f, pitch %f, yaw %f", R,P,Y);
+      //   // ROS_INFO("q_temp: %f,%f,%f,%f", q_temp.x(),q_temp.y(),q_temp.z(), q_temp.w());
+      // }
+
+      if (tf::Transform(t2).getRotation() != tf::Quaternion::getIdentity()) {
+        q_temp = q_temp * mx_temp;
+        tf::Matrix3x3 rot_mx_temp(q_temp);
+
+
+        for (int j = 0; j < 3; j++)
+          for (int k = 0; k < 3; k++) 
+            dev->mech[arm].ori_d.R[j][k] = rot_mx_temp[j][k];
+
+        tf::Quaternion test = tf::Transform(rot_mx_temp).getRotation();
+
+        // if(count % 500 == 0){
+        //   ROS_INFO("matrix quaternion = %f,%f,%f,%f ,angle = %f\n", test.x(),test.y(),test.z(),test.w(),test.getAngle());
+        // }
       }
+      // if(incr_rot.length() > 0 && !isnan(incr_rot.length())){
+      //   if(incr_rot.getAngle() <= max_radian_per_ms){
+      //     tf::Matrix3x3 incr_rot_mx_mx = incr_rot_mx.getBasis();
+      //     tf::Quaternion test = tf::Transform(incr_rot_mx_mx).getRotation();
+
+      //     if(count % 500 == 0){
+      //       ROS_INFO("matrix quaternion = %f,%f,%f,%f ,angle = %f\n", test.x(),test.y(),test.z(),test.w(),test.getAngle());
+      //     }
+
+      //     for(int i=0; i<3 ; i++){
+      //       for(int j=0;j<3;j++){
+      //         dev->mech[arm].ori_d.R[i][j] = incr_rot_mx_mx[i][j];
+      //       }
+      //     }
+      //   }
+      //   else{
+      //     ROS_ERROR("Cartesian Relative rotation too large. (angle= %f rad per ms)",incr_rot.getAngle());
+      //     out = 0;
+      //   }
+      // }
       else{
         out = 0;
       }
 
+      dev->crtk_motion_planner.crtk_motion_api[arm].reset_setpoint_out(); 
       return out;
       break;
     }

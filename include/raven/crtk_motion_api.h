@@ -87,7 +87,6 @@ class CRTK_motion_api
     // callbacks
     void crtk_servo_cr_cb(geometry_msgs::TransformStamped);
 
-
     // checking functions
     char check_goal_updates();                // for mid level controller      
     char check_setpoint_updates();            // for loe level controller          
@@ -174,8 +173,6 @@ class CRTK_motion_api
 
     void reset_goal_in();      // for interpolation, move
     void reset_setpoint_in();  // for interpolation, move, servo
-
-
 };
 
 
