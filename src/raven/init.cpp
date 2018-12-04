@@ -83,9 +83,9 @@ const int green_joints_homing_max_dac[4] = {
 /**************** tool DOF Homing DAC ***************/
 const int dv_tool_homing_max_dac[4] = {
                                2000,   // tool_rot 
-                               2600,   // wrist
-                               2000,   // grasp1
-                               2000};  // grasp2
+                               2200,   // wrist
+                               1600,   // grasp1
+                               1600};  // grasp2
 
 const int raven_tool_homing_max_dac[4] = {
                                1900,   // tool_rot

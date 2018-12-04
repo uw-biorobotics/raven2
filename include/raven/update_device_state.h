@@ -22,6 +22,9 @@
  * update_device_state.h
  */
 
+#ifndef _UPDATE_DEVICE_STATE_H_
+#define _UPDATE_DEVICE_STATE_H_
+
 // Include files
 //#include <rtai.h>
 #include "defines.h"
@@ -37,3 +40,6 @@ int update_motion_apis(device*);
 int update_device_crtk_motion(device*);
 int update_device_crtk_motion_js(device*,int);
 int update_device_crtk_motion_tf(device*,int);
+int update_device_crtk_grasp(device*, int);
+
+#endif

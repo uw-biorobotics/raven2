@@ -64,5 +64,5 @@ void publish_crtk_measured_cv(robot_device *dev);
 void publish_crtk_setpoint_js(robot_device *dev);
 void publish_crtk_setpoint_cp(robot_device *dev);
 void publish_crtk_setpoint_cv(robot_device *dev);
-
+void publish_crtk_measured_gr_js(robot_device *dev);
 #endif

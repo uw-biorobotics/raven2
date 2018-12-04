@@ -57,11 +57,20 @@ CRTK_motion_api::CRTK_motion_api(){
   new_base_frame_flag = 0;
   pos = tf::Transform(); // measured_cp
 
-
-  for(int i= 0; i<7; i++) jpos[i] = 0;
-
   goal_out_js = sensor_msgs::JointState();
   setpoint_out_js = sensor_msgs::JointState();
+
+  for(int i= 0; i<7; i++) 
+  {
+    jpos[i] = 0;
+    goal_out_js.position.push_back(0);
+    goal_out_js.velocity.push_back(0);
+    goal_out_js.effort.push_back(0);
+    setpoint_out_js.position.push_back(0);
+    setpoint_out_js.velocity.push_back(0);
+    setpoint_out_js.effort.push_back(0);
+  }
+
   goal_out_tf = tf::Transform ();
   setpoint_out_tf = tf::Transform ();
 }
@@ -82,7 +91,17 @@ CRTK_motion_api::CRTK_motion_api(char arm){
 
   new_base_frame_flag = 1;
 
-  for(int i= 0; i<7; i++) jpos[i] = 0;
+  for(int i= 0; i<7; i++) 
+  {
+    jpos[i] = 0;
+    goal_out_js.position.push_back(0);
+    goal_out_js.velocity.push_back(0);
+    goal_out_js.effort.push_back(0);
+    setpoint_out_js.position.push_back(0);
+    setpoint_out_js.velocity.push_back(0);
+    setpoint_out_js.effort.push_back(0);
+  }
+
 
   goal_out_js = sensor_msgs::JointState();
   setpoint_out_js = sensor_msgs::JointState();
@@ -155,50 +174,38 @@ void CRTK_motion_api::crtk_servo_cr_cb(geometry_msgs::TransformStamped msg){
 }
 
 
-// /**
-//  * @brief      { function_description }
-//  *
-//  * @param[in]  in    { parameter_description }
-//  */
-// void CRTK_motion_api::crtk_servo_jr_gr_cb(sensor_msgs::JointState in){
 
-//   setpoint_gr_in.jr[0] = in.position[0];
-//   setpoint_gr_in.update_flags[CRTK_jr] = 1;
+/**
+ * @brief      callback function for relative joint servo commands
+ *
+ * @param[in]  msg   The message from ROS
+ */
+void CRTK_motion_api::crtk_servo_jr_cb(sensor_msgs::JointState in){
 
-// }
+  static int count = 0;
+  count++;
 
-// /**
-//  * @brief      { function_description }
-//  *
-//  * @param[in]  in    { parameter_description }
-//  */
-// void CRTK_motion_api::crtk_servo_jp_gr_cb(sensor_msgs::JointState in){
+  if (in.position.size() == 7){
+    for(int i=0;i<7;i++)
+    setpoint_in[CRTK_servo].jr[i] = in.position[i];
+  }
+  else if (in.position.size() == 1){
+    setpoint_in[CRTK_servo].jr[0] = in.position[0];
+    for(int i=1;i<7;i++)
+    setpoint_in[CRTK_servo].jr[i] = 0;
+  }
+  else{
+    ROS_INFO("unusual # of inputs to servo_jr!?!?!");
+  }
 
-//   setpoint_gr_in.jp[0] = in.position[0];
-//   setpoint_gr_in.update_flags[CRTK_jp] = 1;
-// }
 
-// /**
-//  * @brief      { function_description }
-//  *
-//  * @param[in]  in    { parameter_description }
-//  */
-// void CRTK_motion_api::crtk_servo_jv_gr_cb(sensor_msgs::JointState in){
+  setpoint_in[CRTK_servo].update_flags[CRTK_jr] = 1;
+  setpoint_in[CRTK_servo].updated = 1;
 
-//   setpoint_gr_in.jv[0] = in.velocity[0];
-//   setpoint_gr_in.update_flags[CRTK_jv] = 1;
-// }
-
-// /**
-//  * @brief      { function_description }
-//  *
-//  * @param[in]  in    { parameter_description }
-//  */
-// void CRTK_motion_api::crtk_servo_jf_gr_cb(sensor_msgs::JointState in){
-
-//   setpoint_gr_in.jf[0] = in.effort[0];
-//   setpoint_gr_in.update_flags[CRTK_jf] = 1;
-// }
+  // if(count %500 == 0){
+  //   ROS_INFO("heard 500 grasp things!!!!! omg %f", setpoint_in[CRTK_servo].jr[0]);
+  // }
+}
 
 
 /**
@@ -308,14 +315,16 @@ void CRTK_motion_api::set_default_base_frame(char arm){
 }
 
 
-void CRTK_motion_api::transfer_data(CRTK_motion_api* network_source){ // TODO: keep updating this
+char CRTK_motion_api::transfer_data(CRTK_motion_api* network_source){ // TODO: keep updating this
     char success = 0;
     success += preempt_to_network(network_source);
     success += network_to_preempt(network_source);
 
-    if(success != 2){
-      ROS_ERROR("CRTK data transfer failure.");
-    }
+    // if(success != 2){
+    //   ROS_ERROR("CRTK data transfer failure.");
+    // }
+
+    return success;
 }
 
 /**
@@ -345,7 +354,7 @@ char CRTK_motion_api::preempt_to_network(CRTK_motion_api* network_source){
   //
   
   //goal out (tf, js, level, type)
-    if(is_tf_type(goal_out_type)){
+  if(is_tf_type(goal_out_type)){
     network_source->set_goal_out_tf(goal_out_level, goal_out_type, goal_out_tf);
   }
   else if(is_js_type(goal_out_type)){
@@ -494,16 +503,25 @@ char CRTK_motion_api::set_setpoint_out_tf(CRTK_motion_level level, CRTK_motion_t
 
 char CRTK_motion_api::set_setpoint_out_js(CRTK_motion_level level, CRTK_motion_type type, float* in){
 //TODO remove level and type from params 
- if(is_js_type(type)){
+   
+  
+  if(is_js_type(type)){
     for(int i=0; i<7; i++){
-      if(type == CRTK_jr)
+      if(type == CRTK_jr || type == CRTK_jp){
         setpoint_out_js.position[i] = in[i];
-      else if(type == CRTK_jp)
-        setpoint_out_js.position[i] = in[i];
-      else if(type == CRTK_jv)
+        setpoint_out_js.velocity[i] = 0;
+        setpoint_out_js.effort[i] = 0;
+      }
+      else if(type == CRTK_jv){
         setpoint_out_js.velocity[i] = in[i];
-      else if(type == CRTK_jf)
+        setpoint_out_js.position[i] = 0;
+        setpoint_out_js.effort[i] = 0;
+      }
+      else if(type == CRTK_jf){
         setpoint_out_js.effort[i] = in[i];
+        setpoint_out_js.velocity[i] = 0;
+        setpoint_out_js.position[i] = 0;
+      }
     }
     setpoint_out_level = level;
     setpoint_out_type = type;
@@ -611,7 +629,7 @@ void CRTK_motion_api::copy_goal_out_js(sensor_msgs::JointState* in){
 tf::Transform CRTK_motion_api::get_setpoint_out_tf(){
   return setpoint_out_tf;
 }
-sensor_msgs::JointState CRTK_motion_api::get_setpoint_out_js(){
+sensor_msgs::JointState CRTK_motion_api::get_setpoint_out_js(){  
   return setpoint_out_js;
 }
 tf::Transform CRTK_motion_api::get_goal_out_tf(){
@@ -852,4 +870,14 @@ char CRTK_motion_api::get_setpoint_update_flag(CRTK_motion_level level, CRTK_mot
     out = 1;
 
   return out;
+}
+
+
+float CRTK_motion_api::get_setpoint_out_grasp_angle(){
+
+  // static int count=0;
+  // if(count %500 == 0)
+  //   ROS_INFO("getting grasper setpoint_out angle %f",setpoint_out_js.position[0]);
+  // count ++;
+  return setpoint_out_js.position[0];
 }

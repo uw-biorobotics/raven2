@@ -86,6 +86,7 @@ class CRTK_motion_api
 
     // callbacks
     void crtk_servo_cr_cb(geometry_msgs::TransformStamped);
+    void crtk_servo_jr_cb(sensor_msgs::JointState);
 
     // checking functions
     char check_goal_updates();                // for mid level controller      
@@ -104,7 +105,7 @@ class CRTK_motion_api
     char set_new_base_frame_flag(char);
 
     // moving data between local_io and preempt threads
-    void transfer_data(CRTK_motion_api*);
+    char transfer_data(CRTK_motion_api*);
     char preempt_to_network(CRTK_motion_api*);
     char network_to_preempt(CRTK_motion_api*);
 
@@ -132,7 +133,7 @@ class CRTK_motion_api
     char set_goal_out_tf(CRTK_motion_level, CRTK_motion_type, tf::Transform);                    // TODO: call this from motion planner
     void copy_goal_out_js(sensor_msgs::JointState*);
     char set_goal_out_js(CRTK_motion_level, CRTK_motion_type, float*);         // TODO: call this from motion planner
-
+    float get_setpoint_out_grasp_angle();
     
     CRTK_goal get_setpoint_in(CRTK_motion_level);
     

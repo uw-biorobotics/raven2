@@ -243,9 +243,10 @@ int update_device_crtk_motion(device* dev){
     else if(is_js_type(type)){
       update_device_crtk_motion_js(dev,i);
     }
-    else{
-      continue;
-    }
+
+    type = dev->crtk_motion_planner.crtk_motion_api_grasp[i].get_setpoint_out_type();    
+    if(is_js_type(type))
+      update_device_crtk_grasp(dev,i);
   }
   return 1;
  
@@ -290,35 +291,10 @@ int update_device_crtk_motion_tf(device* dev, int arm){
 
       static float incr_rot_angle_prev = 0;
       tf::Quaternion incr_rot = incr_tf.getRotation();
-      // if(count % 250 == 0){
-      //   ROS_INFO("incr quaternion before1: %f,%f,%f,%f", incr_rot.x(),incr_rot.y(),incr_rot.z(), incr_rot.w());
-      // }
+
       tf::Vector3 incr_rot_axis = incr_rot.getAxis().normalize();
       
       float incr_rot_angle = incr_rot.getAngle();
-
-      // if(incr_rot_angle_prev != incr_rot_angle){
-      //   ROS_INFO("switching axis: %f", incr_rot_angle);
-      //   incr_rot_angle_prev = incr_rot_angle;
-      // }
-
-      // if(count % 250 == 0){
-      //   ROS_INFO("incr quaternion before2: %f,%f,%f,%f", incr_rot.x(),incr_rot.y(),incr_rot.z(), incr_rot.w());
-      //   ROS_INFO("incr axis before: %f,%f,%f angle %f", incr_rot_axis.x(),incr_rot_axis.y(),incr_rot_axis.z(), incr_rot_angle);
-      // }
-      // incr_rot_axis = dev->crtk_motion_planner.crtk_motion_api[arm].get_base_frame().inverse().getBasis() * incr_rot_axis;
-      // incr_rot = tf::Quaternion(incr_rot_axis,incr_rot_angle);
-      // tf::Transform incr_rot_mx = tf::Transform(curr_rot)*tf::Transform(incr_rot);  
-      // if(count % 250 == 0){   
-      //   ROS_INFO("incr axis after: \t %f,%f,%f angle %f", incr_rot_axis.x(),incr_rot_axis.y(),incr_rot_axis.z(), incr_rot_angle);
-      //   ROS_INFO("angle diff = %f\n",curr_rot.angle(incr_rot_mx.getRotation()));
-      // }
-      
-      // if(count % 500 == 0){
-      //   // ROS_INFO("incr quaternion after: %f,%f,%f,%f", incr_rot.x(),incr_rot.y(),incr_rot.z(), incr_rot.w());
-      //   ROS_INFO("\n incr_rot_length = %f \t !isnan = %i ", incr_rot.length(), !isnan(incr_rot.length()));
-      //   ROS_INFO("incr_rot.getAngle = %f \t max_rad_per_ms = %f \n", incr_rot.getAngle(), max_radian_per_ms);
-      // }
 
 
       tf::Matrix3x3 t1 = dev->crtk_motion_planner.crtk_motion_api[arm].get_base_frame().inverse().getBasis();
@@ -327,16 +303,7 @@ int update_device_crtk_motion_tf(device* dev, int arm){
       tf::Matrix3x3 mx_temp = tf::Transform(tf::Matrix3x3(dev->mech[arm].ori_d.R[0][0], dev->mech[arm].ori_d.R[0][1], dev->mech[arm].ori_d.R[0][2], 
                                                         dev->mech[arm].ori_d.R[1][0], dev->mech[arm].ori_d.R[1][1], dev->mech[arm].ori_d.R[1][2], 
                                                         dev->mech[arm].ori_d.R[2][0], dev->mech[arm].ori_d.R[2][1], dev->mech[arm].ori_d.R[2][2])).getBasis();
-      // double R,P,Y;
-      // if(count % 500 == 0){
-      //   incr_tf.getBasis().getRPY(R,P,Y);
-      //   ROS_INFO("incr_tf (before transform)   : roll %f, pitch %f, yaw %f", R,P,Y);
-      //   // ROS_INFO("incr_tf: %f,%f,%f,%f", incr_tf.getRotation().x(),incr_tf.getRotation().y(),incr_tf.getRotation().z(), incr_tf.getRotation().w());
-        
-      //   q_temp.getRPY(R,P,Y);
-      //   ROS_INFO("q_temp (after transform)     : roll %f, pitch %f, yaw %f", R,P,Y);
-      //   // ROS_INFO("q_temp: %f,%f,%f,%f", q_temp.x(),q_temp.y(),q_temp.z(), q_temp.w());
-      // }
+
 
       if (tf::Transform(t2).getRotation() != tf::Quaternion::getIdentity()) {
         q_temp = q_temp * mx_temp;
@@ -349,30 +316,9 @@ int update_device_crtk_motion_tf(device* dev, int arm){
 
         tf::Quaternion test = tf::Transform(rot_mx_temp).getRotation();
 
-        // if(count % 500 == 0){
-        //   ROS_INFO("matrix quaternion = %f,%f,%f,%f ,angle = %f\n", test.x(),test.y(),test.z(),test.w(),test.getAngle());
-        // }
+
       }
-      // if(incr_rot.length() > 0 && !isnan(incr_rot.length())){
-      //   if(incr_rot.getAngle() <= max_radian_per_ms){
-      //     tf::Matrix3x3 incr_rot_mx_mx = incr_rot_mx.getBasis();
-      //     tf::Quaternion test = tf::Transform(incr_rot_mx_mx).getRotation();
 
-      //     if(count % 500 == 0){
-      //       ROS_INFO("matrix quaternion = %f,%f,%f,%f ,angle = %f\n", test.x(),test.y(),test.z(),test.w(),test.getAngle());
-      //     }
-
-      //     for(int i=0; i<3 ; i++){
-      //       for(int j=0;j<3;j++){
-      //         dev->mech[arm].ori_d.R[i][j] = incr_rot_mx_mx[i][j];
-      //       }
-      //     }
-      //   }
-      //   else{
-      //     ROS_ERROR("Cartesian Relative rotation too large. (angle= %f rad per ms)",incr_rot.getAngle());
-      //     out = 0;
-      //   }
-      // }
       else{
         out = 0;
       }
@@ -416,12 +362,13 @@ int update_device_crtk_motion_tf(device* dev, int arm){
       else{
         out = 0;
       }
-      
+      dev->crtk_motion_planner.crtk_motion_api[arm].reset_setpoint_out(); 
       return out;
       break;
     }
     case CRTK_cv:{
       // TODO later:D
+      dev->crtk_motion_planner.crtk_motion_api[arm].reset_setpoint_out(); 
       break;
     }
     default:{
@@ -437,5 +384,61 @@ int update_device_crtk_motion_js(device* dev, int arm){
 
   // CRTK_motion_type  type = dev->crtk_motion_planner.crtk_motion_api[arm].get_setpoint_out_type(); 
   // TODO later:D
+  dev->crtk_motion_planner.crtk_motion_api[arm].reset_setpoint_out(); 
   return 0;
+}
+
+int update_device_crtk_grasp(device* dev, int arm){
+
+  CRTK_motion_type type = dev->crtk_motion_planner.crtk_motion_api_grasp[arm].get_setpoint_out_type(); 
+  sensor_msgs::JointState setpoint = dev->crtk_motion_planner.crtk_motion_api_grasp[arm].get_setpoint_out_js();
+  float angle;
+
+  static int count = 0;
+  
+
+  switch(type){
+
+    case CRTK_jr:
+    {
+      // HELP! using "angle = setpoint.position[0]" doesn't work!!!!! 
+      angle = dev->crtk_motion_planner.crtk_motion_api_grasp[arm].get_setpoint_out_grasp_angle();
+      dev->mech[arm].ori_d.grasp = dev->mech[arm].ori_d.grasp + angle * 1000; //TODO: safety limit???      
+      // if(count %500 == 0){
+      //    ROS_INFO("doing 500 grasp things!!!!! omg %i = %i + %i", dev->mech[arm].ori_d.grasp, dev->mech[arm].ori.grasp, (int)angle * 1000);
+      // }
+      dev->crtk_motion_planner.crtk_motion_api_grasp[arm].reset_setpoint_out(); 
+      break;
+    }
+    case CRTK_jp:
+    {
+      angle = dev->crtk_motion_planner.crtk_motion_api_grasp[arm].get_setpoint_out_grasp_angle();
+      dev->mech[arm].ori_d.grasp = angle; //TODO: safety limit???
+      dev->crtk_motion_planner.crtk_motion_api_grasp[arm].reset_setpoint_out(); 
+      break;
+    }
+    case CRTK_jv:// TODO later:D
+    {
+      // angle = setpoint.velocity[0];
+      // dev->mech[arm].ori_d.grasp = angle;
+      dev->crtk_motion_planner.crtk_motion_api_grasp[arm].reset_setpoint_out(); 
+      break;
+    }
+    case CRTK_jf:// TODO later:D
+    {
+      // angle = setpoint.effort[0];
+      // dev->mech[arm].ori_d.grasp = angle;
+      dev->crtk_motion_planner.crtk_motion_api_grasp[arm].reset_setpoint_out(); 
+      break;
+    }
+    default:
+    {
+      ROS_INFO("grasper setpoint out type = %i",(int)type);
+      break;
+    }
+
+  }
+
+  count ++;
+  return 1;
 }

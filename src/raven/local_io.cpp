@@ -563,16 +563,16 @@ int init_ravenstate_publishing(robot_device *dev, ros::NodeHandle &n) {
   //                                            ,&crtk_motion_api_green_grasp);
   // sub_servo_jf_green_grasper = n.subscribe<sensor_msgs::JointState>("grasp2/servo_jf", 1, &CRTK_motion_api::crtk_servo_jf_cb
   //                                            ,&crtk_motion_api_green_grasp);
-  // sub_servo_jr_green_grasper = n.subscribe<sensor_msgs::JointState>("grasp2/servo_jr", 1, &CRTK_motion_api::crtk_servo_jr_cb
-  //                                            ,&crtk_motion_api_green_grasp);
+  sub_servo_jr_green_grasper = n.subscribe<sensor_msgs::JointState>("grasp2/servo_jr", 1, &CRTK_motion_api::crtk_servo_jr_cb
+                                             ,&crtk_motion_api_green_grasp);
   // sub_servo_jp_gold_grasper = n.subscribe<sensor_msgs::JointState>("grasp1/servo_jp", 1, &CRTK_motion_api::crtk_servo_jp_cb
   //                                            ,&crtk_motion_api_gold_grasp);
   // sub_servo_jv_gold_grasper = n.subscribe<sensor_msgs::JointState>("grasp1/servo_jv", 1, &CRTK_motion_api::crtk_servo_jv_cb
   //                                            ,&crtk_motion_api_gold_grasp);
   // sub_servo_jf_gold_grasper = n.subscribe<sensor_msgs::JointState>("grasp1/servo_jf", 1, &CRTK_motion_api::crtk_servo_jf_cb
   //                                            ,&crtk_motion_api_gold_grasp);
-  // sub_servo_jr_gold_grasper = n.subscribe<sensor_msgs::JointState>("grasp1/servo_jr", 1, &CRTK_motion_api::crtk_servo_jr_cb
-  //                                            ,&crtk_motion_api_gold_grasp);
+  sub_servo_jr_gold_grasper = n.subscribe<sensor_msgs::JointState>("grasp1/servo_jr", 1, &CRTK_motion_api::crtk_servo_jr_cb
+                                             ,&crtk_motion_api_gold_grasp);
 
 
   pub_crtk_state              = n.advertise<crtk_msgs::robot_state>("crtk_state", 1);
@@ -661,6 +661,9 @@ void update_device_motion_api(CRTK_motion_planner* planner){
 
   planner->crtk_motion_api[0].transfer_data(&crtk_motion_api_gold);
   planner->crtk_motion_api[1].transfer_data(&crtk_motion_api_green);
+
+  planner->crtk_motion_api_grasp[0].transfer_data(&crtk_motion_api_gold_grasp);
+  planner->crtk_motion_api_grasp[1].transfer_data(&crtk_motion_api_green_grasp);
 
   return;
 }
@@ -778,6 +781,47 @@ void publish_crtk_state(robot_device *dev) {
   pub_crtk_state.publish(msg_state);
 }
 
+
+void publish_crtk_measured_gr_js(robot_device *dev){
+// pub_crtk_measured_js_gold_grasper
+  sensor_msgs::JointState msg1, msg2;
+// Header header
+// string[] name
+// float64[] position
+// float64[] velocity
+// float64[] effort
+  msg1.header.stamp = msg1.header.stamp.now();
+  msg2.header.stamp = msg2.header.stamp.now();
+
+  float g_angle1 = dev->mech[0].joint[GRASP2].jpos + dev->mech[0].joint[GRASP1].jpos;
+  float g_angle2 = dev->mech[1].joint[GRASP2].jpos + dev->mech[1].joint[GRASP1].jpos;
+
+  float vel1 = 0, vel2 = 0;
+  float eff1 = 0, eff2 = 0;
+
+  std::string name1[3] = {"gold_grasp","gold_jaw1","gold_jaw2"};
+  std::string name2[3] = {"green_grasp","green_jaw1","green_jaw2"};
+
+  msg1.position.push_back(g_angle1);
+  msg1.position.push_back(dev->mech[0].joint[GRASP1].jpos);
+  msg1.position.push_back(dev->mech[0].joint[GRASP2].jpos);
+  msg1.velocity.push_back(vel1);
+  msg1.effort.push_back(eff1);
+  for(int i=0; i<3; i++)
+    msg1.name.push_back(name1[i]);
+
+  msg2.position.push_back(g_angle2);
+  msg2.position.push_back(dev->mech[1].joint[GRASP1].jpos);
+  msg2.position.push_back(dev->mech[1].joint[GRASP2].jpos);
+  msg2.velocity.push_back(vel2);
+  msg2.effort.push_back(eff2);
+  for(int i=0; i<3; i++)
+    msg2.name.push_back(name2[i]);
+
+
+  pub_crtk_measured_js_gold_grasper.publish(msg1);
+  pub_crtk_measured_js_green_grasper.publish(msg2);
+}
 
 /**
  * @brief      retrieves joint states from dev and publishes

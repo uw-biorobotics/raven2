@@ -251,6 +251,8 @@ static void *rt_process(void *) {
 
     // Run Safety State Machine
     stateMachine(&device0, &currParams, &rcvdParams);
+    
+    // update CRTK motion APIs with data from mech structs
     update_motion_apis(&device0);
 
     // Update Atmel Input Pins
@@ -263,10 +265,29 @@ static void *rt_process(void *) {
     }
     else
       rcvdParams.runlevel = currParams.runlevel;
+
+    // move CRTK API data from network to device in preempt thread
     update_device_motion_api(&device0.crtk_motion_planner);
 
     // Clear DAC Values (set current_cmd to zero on all joints)
     clearDACs(&device0);
+
+    // Check for estop command from CRTK interface.
+    char current_estop_level = device0.crtk_state.get_estop_trigger();
+    if (current_estop_level!=0 && soft_estopped == FALSE){
+      soft_estopped = TRUE;
+      ROS_ERROR("CRTK E-stop triggered. (level = %i)",current_estop_level);
+      if (current_estop_level>1){
+        device0.runlevel = RL_E_STOP;
+        device0.crtk_state.reset_estop_trigger();
+      }
+    }
+
+    //update CRTK API state flags, motion objects, and transfer setpoints to mech structs
+    device0.crtk_state.state_machine_update(device0.runlevel, device0.robot_homed, device0.robot_fault, device0.surgeon_mode, current_estop_level);
+    device0.crtk_motion_planner.crtk_motion_state_machine(device0.crtk_state.get_state());
+    update_device_crtk_motion(&device0);
+
 
     //////////////// SURGICAL ROBOT CODE //////////////////////////
     if (deviceType == SURGICAL_ROBOT) {
@@ -281,16 +302,7 @@ static void *rt_process(void *) {
       showInverseKinematicsSolutions(&device0, currParams.runlevel);
       outputRobotState();
     }
-    // Check for estop command from CRTK interface.
-    char current_estop_level = device0.crtk_state.get_estop_trigger();
-    if (current_estop_level!=0 && soft_estopped == FALSE){
-      soft_estopped = TRUE;
-      ROS_ERROR("CRTK E-stop triggered. (level = %i)",current_estop_level);
-      if (current_estop_level>1){
-        device0.runlevel = RL_E_STOP;
-        device0.crtk_state.reset_estop_trigger();
-      }
-    }
+
 
     // 
     if(device0.crtk_state.get_unhome_trigger() > 0){
@@ -306,10 +318,7 @@ static void *rt_process(void *) {
     // Fill USB Packet and send it out
     putUSBPackets(&device0);  // disable usb for par port test
 
-    //update CRTK API state flags
-    device0.crtk_state.state_machine_update(device0.runlevel, device0.robot_homed, device0.robot_fault, device0.surgeon_mode, current_estop_level);
-    device0.crtk_motion_planner.crtk_motion_state_machine(device0.crtk_state.get_state());
-    update_device_crtk_motion(&device0);
+
 
     // Publish current raven state
     publish_ravenstate_ros(&device0, &currParams);  // from local_io
@@ -320,7 +329,7 @@ static void *rt_process(void *) {
     publish_crtk_setpoint_js(&device0);
     publish_crtk_measured_cp(&device0);
     publish_crtk_setpoint_cp(&device0);
-
+    publish_crtk_measured_gr_js(&device0);
     // Done for this cycle
   }
 
