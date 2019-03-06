@@ -54,6 +54,10 @@ int toShort(int value, short int *target);
 
 int is_toolDOF(DOF *);
 int is_toolDOF(int);
+int is_graspDOF(int);
+int is_graspDOF(DOF *);
+
+int grasp_ready(mechanism *mech);
 int tools_ready(mechanism *mech);
 int robot_ready(robot_device *device0);
 int unhome_robot(robot_device *device0);

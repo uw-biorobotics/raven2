@@ -226,6 +226,17 @@ int loop_over_joints(mechanism *_mech, DOF *&_joint, int &jnum) {
 */
 int is_toolDOF(DOF *_joint) { return is_toolDOF(_joint->type); }
 
+
+/**
+ * @brief      Determines if grasp dof.
+ *
+ * @param      _joint  The joint
+ *
+ * @return     True if grasp dof, False otherwise.
+ */
+int is_graspDOF(DOF *_joint) { return is_graspDOF(_joint->type); }
+
+
 /**
 *	\fn int is_toolDOF(int jointType)
 *
@@ -246,6 +257,25 @@ int is_toolDOF(int jointType) {
 }
 
 /**
+ * @fn         int is_graspDOF(int jointType)
+ *
+ * @brief      check if the current joint is a toolDOF
+ *
+ * @param      jointType  an integer value of joint type
+ *
+ * @return     1 if the joint is a toolDOF 0 otherwise
+ */
+int is_graspDOF(int jointType) {
+
+  if (jointType == GRASP1_GOLD || jointType == GRASP1_GREEN) return 1;
+  if (jointType == GRASP2_GOLD || jointType == GRASP2_GREEN) return 1;
+
+  return 0;
+}
+
+
+
+/**
 *	\fn int tools_ready(mechanism *mech)
 *
 * 	\brief check if all tool joints of the current mechanism are in the
@@ -259,6 +289,21 @@ int is_toolDOF(int jointType) {
 int tools_ready(mechanism *mech) {
   if (mech->joint[TOOL_ROT].state != jstate_ready) return 0;
   if (mech->joint[WRIST].state != jstate_ready) return 0;
+  if (mech->joint[GRASP1].state != jstate_ready) return 0;
+  if (mech->joint[GRASP2].state != jstate_ready) return 0;
+
+  return 1;
+}
+
+/**
+ * @brief      check each grasp joint in mech for ready state
+ *
+ * @param      mech  The mech
+ *
+ * @return     1 iff all grasp joints are ready
+ */
+int grasp_ready(mechanism *mech) {
+
   if (mech->joint[GRASP1].state != jstate_ready) return 0;
   if (mech->joint[GRASP2].state != jstate_ready) return 0;
 

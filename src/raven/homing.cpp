@@ -69,7 +69,7 @@
 
 #define HOMING_PERIOD 3.
 
-int set_joints_known_pos(mechanism *_mech, int tool_only);
+int set_joints_known_pos(mechanism *_mech, int tool_only, int grasp_only);
 
 extern unsigned long int gTime;
 extern DOF_type DOF_types[];
@@ -153,9 +153,10 @@ int raven_homing(device *device0, param_pass *currParams, int begin_homing) {
 
       if (is_toolDOF(_joint)) jvel_PI_control(_joint, 1);  // reset PI control integral term
       
+      //skip homing certain tool joints for QUT and ricks tools
       if (is_toolDOF(_joint)) {
-        if ((_mech->mech_tool.t_end == qut_camera) && 
-            (_joint->type != TOOL_ROT_GOLD) && (_joint->type != TOOL_ROT_GREEN)
+        if (((_mech->mech_tool.t_end == qut_camera) && 
+            (_joint->type != TOOL_ROT_GOLD) && (_joint->type != TOOL_ROT_GREEN))
             || _mech->mech_tool.t_end == ricks_tool)
         {
           _joint->state = jstate_hard_stop;
@@ -172,11 +173,15 @@ int raven_homing(device *device0, param_pass *currParams, int begin_homing) {
   _mech = NULL;
   _joint = NULL;
   while (loop_over_joints(device0, _mech, _joint, i, j)) {
-    // Initialize tools first.
-    if (is_toolDOF(_joint)) {
+    // Initialize tools first - starting with Jaws
+    if(is_graspDOF(_joint)){
+      homing(_joint, device0->mech[i].mech_tool);
+    }
+
+    if (is_toolDOF(_joint) && grasp_ready(_mech) && !is_graspDOF(_joint)) {
       homing(_joint, device0->mech[i].mech_tool);
 
-    } else if (tools_ready(&(device0->mech[i]))) {
+    } else if (tools_ready(_mech)) {
       homing(_joint);
     }
   }
@@ -213,11 +218,13 @@ int raven_homing(device *device0, param_pass *currParams, int begin_homing) {
     // For each mechanism, check to see if the mech is finished homing.
     if (j == (MAX_DOF_PER_MECH - 1)) {
       /// if we're homing tools, wait for tools to be finished
-      if ((!tools_ready(_mech) && 
-           _mech->joint[TOOL_ROT].state == jstate_hard_stop &&
-           _mech->joint[WRIST].state == jstate_hard_stop &&
+      if ((!grasp_ready(_mech) && 
            _mech->joint[GRASP1].state == jstate_hard_stop &&
-           _mech->joint[GRASP2].state == jstate_hard_stop)  // \TODO check for grasp2 - bug?
+           _mech->joint[GRASP2].state == jstate_hard_stop)
+          ||
+          (!tools_ready(_mech) && 
+           _mech->joint[TOOL_ROT].state == jstate_hard_stop &&
+           _mech->joint[WRIST].state == jstate_hard_stop)
           ||
           (tools_ready(_mech) && 
            _mech->joint[SHOULDER].state == jstate_hard_stop &&
@@ -228,7 +235,7 @@ int raven_homing(device *device0, param_pass *currParams, int begin_homing) {
 
         if (gTime > delay2 + 200)  // wait 200 ticks for cables to settle down
         {
-          set_joints_known_pos(_mech, !tools_ready(_mech));  // perform second phase
+          set_joints_known_pos(_mech, !tools_ready(_mech), !grasp_ready(_mech));  // perform second phase
           delay2 = 0;
         }
       }
@@ -239,26 +246,27 @@ int raven_homing(device *device0, param_pass *currParams, int begin_homing) {
 }
 
 /**
- *   \fn int set_joints_known_pos(mechanism* _mech, int tool_only)
+ * @fn         int set_joints_known_pos(mechanism* _mech, int tool_only)
  *
- *	\brief  Set joint angles to known values after hard stops are reached.
+ * @brief      Set joint angles to known values after hard stops are reached.
  *
- *	\desc Set all the mechanism joints to known reference angles.
- *       Propagate the joint angle to motor position and encoder offset.
+ *             \desc Set all the mechanism joints to known reference angles.
+ *             Propagate the joint angle to motor position and encoder offset.
  *
- *   \param _mech       which mechanism (gold/green)
- *   \param tool_only   flag which initializes only the tool/wrist joints
+ * @param      _mech       which mechanism (gold/green)
+ * @param      tool_only   flag which initializes only the roll/wrist joints
+ * @param[in]  grasp_only  flag which initializes only the grasp joints
  *
- *	\ingroup Control
+ * @ingroup    Control
  *
- *	\return 0
+ * @return     0
  *
- * 	\todo  Rationalize the sign changes on GREEN_ARM vs GOLD_ARM (see IFDEF
- *below).
- * 	\todo  This MAYBE needs to be changed to support device specific
- *parameter changes read from a config file or ROS service.
+ * @todo       Rationalize the sign changes on GREEN_ARM vs GOLD_ARM (see IFDEF
+ *             below).
+ * @todo       This MAYBE needs to be changed to support device specific
+ *             parameter changes read from a config file or ROS service.
  */
-int set_joints_known_pos(mechanism *_mech, int tool_only) {
+int set_joints_known_pos(mechanism *_mech, int tool_only, int grasp_only) {
   DOF *_joint = NULL;
   int j = 0;
 
@@ -270,19 +278,30 @@ int set_joints_known_pos(mechanism *_mech, int tool_only) {
 
   log_msg("setting joints known");
 
+  if(grasp_only) tool_only = 0; //zeroth phase of grasp overrides tool only
+
   //    int offset = 0;
   //    if (_mech->type == GREEN_ARM) offset = 8;
   /// Set joint position reference for just tools, or all DOFS
   _joint = NULL;
   while (loop_over_joints(_mech, _joint, j)) {
     // when tool joints finish, set positioning joints to neutral
-    if (tool_only && !is_toolDOF(_joint->type)) {
+    if (grasp_only && !is_graspDOF(_joint->type)) {
       // Set jpos_d to the joint limit value.
       _joint->jpos_d = DOF_types[_joint->type].home_position;  // keep non tool joints from moving
     }
 
+    else if (tool_only && !is_toolDOF(_joint->type)) {
+      // Set jpos_d to the joint limit value.
+      _joint->jpos_d = DOF_types[_joint->type].home_position;  // keep non tool joints from moving
+    }
+
+    else if(!grasp_only && is_graspDOF(_joint->type)){
+      _joint->jpos_d = _joint->jpos;
+    }
+
     // when positioning joints finish, set tool joints to nothing special
-    else if (!tool_only && is_toolDOF(_joint->type)) {
+    else if (!tool_only && !grasp_only && is_toolDOF(_joint->type)) {
       _joint->jpos_d = _joint->jpos;
     }
     // when tool or positioning joints finish, set them to max_angle
