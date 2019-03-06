@@ -38,7 +38,7 @@
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE  // For realtime posix support. see
                      // http://www.gnu.org/s/libc/manual/html_node/Feature-Test-Macros.html
-#endif
+#endif //TODO: move this endif?
 
 #include <cstring>
 #include <pthread.h>
@@ -776,7 +776,7 @@ void publish_crtk_state(robot_device *dev) {
   msg_state.is_homed = dev->crtk_state.get_homed();
   msg_state.is_busy = dev->crtk_state.get_busy();
 
-  msg_state.hdr.stamp = msg_state.hdr.stamp.now();
+  msg_state.header.stamp = msg_state.header.stamp.now();
 
   pub_crtk_state.publish(msg_state);
 }

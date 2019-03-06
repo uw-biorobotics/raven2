@@ -37,9 +37,7 @@
 enum CRTK_robot_state {CRTK_ENABLED, CRTK_DISABLED, CRTK_PAUSED, CRTK_FAULT};
 enum CRTK_robot_command {CRTK_ENABLE, CRTK_DISABLE, CRTK_PAUSE, CRTK_RESUME, CRTK_UNHOME, CRTK_HOME};
 enum CRTK_estop_level {CRTK_NOT_ESTOP, CRTK_ESTOP_PAUSE, CRTK_ESTOP_DISABLE};
-/** a tool that can be used on either RAVEN arm
- *
- */
+
 
 class CRTK_state 
 {
