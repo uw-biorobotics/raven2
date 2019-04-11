@@ -326,28 +326,67 @@ void CRTK_state::crtk_cmd_cb(crtk_msgs::StringStamped msg){
   std::string command = msg.data;
   ROS_INFO("Received %s", command.c_str());
 
-  if(command == "ENABLE") {
+  if(command == "enable") {
     enable();
   }
-  else if (command == "DISABLE") {
+  else if (command == "disable") {
     disable();
   }
-  else if (command == "PAUSE"){
+  else if (command == "pause"){
     pause();
   }
-  else if (command == "RESUME") {
+  else if (command == "resume") {
     resume();
   }
-  else if (command == "UNHOME") {
+  else if (command == "unhome") {
     unhome();
   }
-  else if (command == "HOME") {
+  else if (command == "home") {
     home();
   }
   else
   	return;
 }
 
+
+/**
+ *\brief Callback for the automove topic - Updates the data1 structure
+ *
+ * Callback for the automove topic. Updates the data1 structure with the
+ *information from the
+ * ROS topic. Properly locks the data1 mutex. Accepts cartesian or quaternion
+ *increments.
+ *
+ * \param msg the
+ * \ingroup ROS
+ *
+ */
+void CRTK_state::crtk_cmd_arm1_cb(std_msgs::String msg){
+
+  std::string command = msg.data;
+  ROS_INFO("Received %s", command.c_str());
+
+  if(command == "enable") {
+    enable();
+  }
+  else if (command == "disable") {
+    disable();
+  }
+  else if (command == "pause"){
+    pause();
+  }
+  else if (command == "resume") {
+    resume();
+  }
+  else if (command == "unhome") {
+    unhome();
+  }
+  else if (command == "home") {
+    home();
+  }
+  else
+    return;
+}
 
 char CRTK_state::enable()
 {

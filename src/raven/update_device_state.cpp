@@ -239,7 +239,7 @@ int update_device_crtk_motion(device* dev){
     type = dev->crtk_motion_planner.crtk_motion_api[i].get_setpoint_out_type();    
     if(is_tf_type(type)){
       update_device_crtk_motion_tf(dev,i);
-    }
+    }   
     else if(is_js_type(type)){
       update_device_crtk_motion_js(dev,i);
     }
@@ -252,9 +252,17 @@ int update_device_crtk_motion(device* dev){
  
 }
 
+/**
+ * @brief      updates the desired motions of the device from the CRTK interface
+ *
+ * @param      dev   The device
+ * @param[in]  arm   The arm that's being updated
+ *
+ * @return     success
+ */
 int update_device_crtk_motion_tf(device* dev, int arm){
 
-  float max_dist_per_ms = 0.0001;   // m/ms = 10 cm/s 
+  float max_dist_per_ms = 0.0005;   // m/ms = 50 cm/s 
   float max_radian_per_ms = 0.001;  // rad/ms = 1 rad/s 
   // static int count = 0;
   int out = 1;
@@ -280,7 +288,13 @@ int update_device_crtk_motion_tf(device* dev, int arm){
         dev->mech[arm].pos_d.z += (int)(incr.z());
       }
       else{
-        ROS_ERROR("Relative Cartesian translation too large. (length= %f m per ms)",incr.length()/MICRON_PER_M);
+        ROS_INFO("Relative Cartesian translation scaled to max speed. (length= %f m per ms)",incr.length()/MICRON_PER_M);
+
+        incr = incr.normalized() * max_dist_per_ms * MICRON_PER_M;
+
+        dev->mech[arm].pos_d.x += (int)(incr.x());
+        dev->mech[arm].pos_d.y += (int)(incr.y());
+        dev->mech[arm].pos_d.z += (int)(incr.z());
         out = 0;
       }
       

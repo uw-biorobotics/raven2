@@ -30,11 +30,12 @@
  */
 #include <ros/ros.h>
 #include <crtk_msgs/StringStamped.h>
+#include <std_msgs/String.h>
 
 #ifndef CRTK_STATE_H_
 #define CRTK_STATE_H_
 
-enum CRTK_robot_state {CRTK_ENABLED, CRTK_DISABLED, CRTK_PAUSED, CRTK_FAULT};
+enum CRTK_robot_state {CRTK_ENABLED, CRTK_DISABLED, CRTK_PAUSED, CRTK_FAULT, CRTK_VOID};
 enum CRTK_robot_command {CRTK_ENABLE, CRTK_DISABLE, CRTK_PAUSE, CRTK_RESUME, CRTK_UNHOME, CRTK_HOME};
 enum CRTK_estop_level {CRTK_NOT_ESTOP, CRTK_ESTOP_PAUSE, CRTK_ESTOP_DISABLE};
 
@@ -73,6 +74,7 @@ class CRTK_state
 
   char state_machine_update(char, bool, bool, int, char);
   void crtk_cmd_cb(crtk_msgs::StringStamped);
+  void crtk_cmd_arm1_cb(std_msgs::String);
   std::string get_state_string();
   
 private:

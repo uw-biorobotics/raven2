@@ -325,6 +325,7 @@ static void *rt_process(void *) {
 
     // Publish CRTK things
     publish_crtk_state(&device0);
+    publish_crtk_state_arm1(&device0);
     publish_crtk_measured_js(&device0);
     publish_crtk_setpoint_js(&device0);
     publish_crtk_measured_cp(&device0);

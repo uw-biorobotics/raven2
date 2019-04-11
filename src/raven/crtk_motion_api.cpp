@@ -173,7 +173,72 @@ void CRTK_motion_api::crtk_servo_cr_cb(geometry_msgs::TransformStamped msg){
 
 }
 
+/**
+ * @brief      callback function for absolute cartesian servo commands
+ * 
+ * currently computes the increment from the previous command, sorry
+ *
+ * @param[in]  msg   The message from ROS
+ */
+void CRTK_motion_api::crtk_servo_cp_cb(geometry_msgs::TransformStamped msg){
 
+  const float scale = .75;
+
+  static int restart = 0;
+  static int last_seq = 100000;
+  static int count = 0;
+  static tf::Transform last_cmd;
+  count++;
+
+  tf::Transform in_pos, out_incr;
+  tf::Quaternion curr_rot;
+  tf::transformMsgToTF(msg.transform, in_pos);
+
+
+  
+
+  // if sequence numbering gets wonky
+  // wait for a few messages to let things settle
+  if (msg.header.seq < last_seq){
+    ROS_INFO("Current sequence out of order --> %i", msg.header.seq);
+    restart = 1;
+    count = 0;
+  }
+
+  if (count < 4 && restart == 1){
+    count++;
+    count--;
+  }
+  else if (in_pos.getOrigin().length() != 0){
+
+    //ROS_INFO("servo_cp_cb is doing something!!!");
+
+    out_incr.setOrigin(in_pos.getOrigin() - last_cmd.getOrigin()); 
+
+    //this isn't working
+    out_incr.setRotation(in_pos.getRotation().inverse() * last_cmd.getRotation() * in_pos.getRotation());
+    
+    out_incr.setOrigin(out_incr.getOrigin() * scale);   
+
+    if(get_setpoint_update_flag(CRTK_servo, CRTK_cr)){
+      out_incr.setOrigin(  get_setpoint_in(CRTK_servo).cr.getOrigin()   + out_incr.getOrigin());
+       // if(!isnan(out_incr.getRotation().length()))
+         
+       //   out_incr.setRotation(get_setpoint_in(CRTK_servo).cr.getRotation() * out_incr.getRotation());
+    }
+
+    //out_incr.setRotation(tf::Quaternion());
+
+    set_setpoint_in(CRTK_servo, CRTK_cr, out_incr);
+
+  }
+
+
+  last_cmd = in_pos;
+  last_seq = msg.header.seq;
+
+  return;
+}
 
 /**
  * @brief      callback function for relative joint servo commands
@@ -193,6 +258,47 @@ void CRTK_motion_api::crtk_servo_jr_cb(sensor_msgs::JointState in){
     setpoint_in[CRTK_servo].jr[0] = in.position[0];
     for(int i=1;i<7;i++)
     setpoint_in[CRTK_servo].jr[i] = 0;
+  }
+  else{
+    ROS_INFO("unusual # of inputs to servo_jr!?!?!");
+  }
+
+
+  setpoint_in[CRTK_servo].update_flags[CRTK_jr] = 1;
+  setpoint_in[CRTK_servo].updated = 1;
+
+  // if(count %500 == 0){
+  //   ROS_INFO("heard 500 grasp things!!!!! omg %f", setpoint_in[CRTK_servo].jr[0]);
+  // }
+}
+
+/**
+ * @brief      callback function for absolute joint servo commands
+ * 
+ * treated as incremental for the moment
+ *
+ * @param[in]  msg   The message from ROS
+ */
+void CRTK_motion_api::crtk_servo_jp_cb(sensor_msgs::JointState in){
+
+  static int count = 0;
+  count++;
+
+  static int last_cmd[7];
+
+  if (in.position.size() == 7){
+    for(int i=0;i<7;i++){
+      setpoint_in[CRTK_servo].jr[i] = in.position[i] - last_cmd[i];
+      last_cmd[i] = in.position[i];
+    }
+  }
+  else if (in.position.size() == 1){
+    setpoint_in[CRTK_servo].jr[0] = in.position[0] - last_cmd[0];
+    last_cmd[0] = in.position[0];
+    for(int i=1;i<7;i++){
+      setpoint_in[CRTK_servo].jr[i] = 0;
+      last_cmd[i] = in.position[i];
+    }
   }
   else{
     ROS_INFO("unusual # of inputs to servo_jr!?!?!");

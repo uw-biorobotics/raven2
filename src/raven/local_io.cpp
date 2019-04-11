@@ -461,10 +461,11 @@ void setSurgeonMode(int pedalstate) {
 #include <raven_2/raven_state.h>
 #include <raven_2/raven_automove.h>
 #include <crtk_msgs/StringStamped.h>
-#include <crtk_msgs/robot_state.h>
+#include <crtk_msgs/operating_state.h>
 #include <geometry_msgs/TransformStamped.h>
 #include <geometry_msgs/TwistStamped.h>
 #include <sensor_msgs/JointState.h>
+#include <std_msgs/String.h>
 
 
 void publish_joints(robot_device *);
@@ -476,10 +477,12 @@ using namespace raven_2;
 ros::Publisher pub_ravenstate;
 ros::Subscriber sub_automove;
 ros::Subscriber sub_crtkCommand;
+ros::Subscriber sub_crtkCommand_arm1;
 ros::Publisher joint_publisher;
 
 //CRTK publishers and subscribers
 ros::Publisher pub_crtk_state;
+ros::Publisher pub_crtk_state_arm1;
 
 ros::Publisher pub_crtk_measured_js_gold;
 ros::Publisher pub_crtk_measured_js_green;
@@ -549,13 +552,23 @@ int init_ravenstate_publishing(robot_device *dev, ros::NodeHandle &n) {
                                                                    .reliable());
 
   //CRTK publishers and subscribers
-  sub_crtkCommand = n.subscribe<crtk_msgs::StringStamped>("crtk_command", 1, &CRTK_state::crtk_cmd_cb
+  sub_crtkCommand = n.subscribe<crtk_msgs::StringStamped>("state_command", 1, &CRTK_state::crtk_cmd_cb
                                              ,&dev->crtk_state);
-
+  // sub_crtkCommand = n.subscribe<crtk_msgs::StringStamped>("arm1/state_command", 1, &CRTK_state::crtk_cmd_cb
+  //                                            ,&dev->crtk_state);
+  sub_crtkCommand_arm1 = n.subscribe<std_msgs::String>("arm1/state_command", 1, &CRTK_state::crtk_cmd_arm1_cb
+                                             ,&dev->crtk_state);
   sub_servo_cr_gold = n.subscribe<geometry_msgs::TransformStamped>("arm1/servo_cr", 1, &CRTK_motion_api::crtk_servo_cr_cb
                                              ,&crtk_motion_api_gold);
   sub_servo_cr_green = n.subscribe<geometry_msgs::TransformStamped>("arm2/servo_cr", 1, &CRTK_motion_api::crtk_servo_cr_cb
                                              ,&crtk_motion_api_green);
+   sub_servo_cp_gold = n.subscribe<geometry_msgs::TransformStamped>("/arm1/servo_cp", 1, 
+     &CRTK_motion_api::crtk_servo_cp_cb, &crtk_motion_api_gold);
+
+
+  sub_servo_cp_green = n.subscribe<geometry_msgs::TransformStamped>("arm2/servo_cp", 1, &CRTK_motion_api::crtk_servo_cp_cb
+                                             ,&crtk_motion_api_green);
+
 
   // sub_servo_jp_green_grasper = n.subscribe<sensor_msgs::JointState>("grasp2/servo_jp", 1, &CRTK_motion_api::crtk_servo_jp_cb
   //                                            ,&crtk_motion_api_green_grasp);
@@ -573,9 +586,11 @@ int init_ravenstate_publishing(robot_device *dev, ros::NodeHandle &n) {
   //                                            ,&crtk_motion_api_gold_grasp);
   sub_servo_jr_gold_grasper = n.subscribe<sensor_msgs::JointState>("grasp1/servo_jr", 1, &CRTK_motion_api::crtk_servo_jr_cb
                                              ,&crtk_motion_api_gold_grasp);
+  sub_servo_jp_gold_grasper = n.subscribe<sensor_msgs::JointState>("grasp1/servo_jp", 1, &CRTK_motion_api::crtk_servo_jp_cb
+                                             ,&crtk_motion_api_gold_grasp);
 
-
-  pub_crtk_state              = n.advertise<crtk_msgs::robot_state>("crtk_state", 1);
+  pub_crtk_state              = n.advertise<crtk_msgs::operating_state>("crtk_state", 1);
+  pub_crtk_state_arm1         = n.advertise<crtk_msgs::operating_state>("/arm1/operating_state", 1);
   pub_crtk_measured_js_gold   = n.advertise<sensor_msgs::JointState>("arm1/measured_js", 1);
   pub_crtk_measured_js_green  = n.advertise<sensor_msgs::JointState>("arm2/measured_js", 1);
   pub_crtk_measured_cp_gold   = n.advertise<geometry_msgs::TransformStamped>("arm1/measured_cp", 1);
@@ -770,7 +785,7 @@ void publish_ravenstate_ros(robot_device *dev, param_pass *currParams) {
  * @ingroup    CRTK
  */
 void publish_crtk_state(robot_device *dev) {
-  static crtk_msgs::robot_state msg_state;
+  static crtk_msgs::operating_state msg_state;
 
   msg_state.state = dev->crtk_state.get_state_string();
   msg_state.is_homed = dev->crtk_state.get_homed();
@@ -779,6 +794,29 @@ void publish_crtk_state(robot_device *dev) {
   msg_state.header.stamp = msg_state.header.stamp.now();
 
   pub_crtk_state.publish(msg_state);
+}
+
+/**
+ * @brief      Publishes the CRTK state message from the robot arm 1
+ *
+ *             The robot is in the CRTK disabled state if it is (e-stopped & not
+ *             homed & no fault). This is the initial state of the robot.
+ *
+ * @param      dev   robot device structure with the current state of the robot
+ * @param      currParams  the parameters being passed from the interfaces
+ * @ingroup    ROS
+ * @ingroup    CRTK
+ */
+void publish_crtk_state_arm1(robot_device *dev) {
+  static crtk_msgs::operating_state msg_state;
+
+  msg_state.state = dev->crtk_state.get_state_string();
+  msg_state.is_homed = dev->crtk_state.get_homed();
+  msg_state.is_busy = dev->crtk_state.get_busy();
+
+  msg_state.header.stamp = msg_state.header.stamp.now();
+
+  pub_crtk_state_arm1.publish(msg_state);
 }
 
 
