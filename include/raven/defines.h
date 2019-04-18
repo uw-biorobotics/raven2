@@ -358,6 +358,17 @@
 #define ADVANCED_ELBOW_MAX_DAC 5000
 #define ADVANCED_Z_INS_MAX_DAC 4000
 
+
+//define standard RAVEN workspace limits
+#define WKSP_X       0.13 //m
+#define WKSP_X_NEG  -0.03 //m
+#define WKSP_Y       0.15 //m
+#define WKSP_Y_NEG  -0.10 //m
+#define WKSP_Z      -0.015 //m
+#define WKSP_Z_NEG  -0.20 //m
+
+
+
 #define SHOULDER_MAX_ANGLE 0.0
 #define ELBOW_MAX_ANGLE 3 * M_PI / 4 + (2.5 * M_PI / 180)
 #define Z_INS_MAX_ANGLE 0.562

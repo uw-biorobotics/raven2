@@ -179,6 +179,7 @@ class CRTK_motion_api
 };
 
 
+char pos_in_workspace(tf::Vector3);
 
 char is_tf_type(CRTK_motion_type);
 char is_js_type(CRTK_motion_type);

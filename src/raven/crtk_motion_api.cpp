@@ -176,67 +176,100 @@ void CRTK_motion_api::crtk_servo_cr_cb(geometry_msgs::TransformStamped msg){
 /**
  * @brief      callback function for absolute cartesian servo commands
  * 
+ * don't 
+ * 
  * currently computes the increment from the previous command, sorry
  *
  * @param[in]  msg   The message from ROS
  */
 void CRTK_motion_api::crtk_servo_cp_cb(geometry_msgs::TransformStamped msg){
 
-  const float scale = .75;
 
-  static int restart = 0;
-  static int last_seq = 100000;
   static int count = 0;
-  static tf::Transform last_cmd;
   count++;
+  const float max_step = 0.015; // maximum step size per ctrl loop in m
+  const float max_rot = 0.01 DEG2RAD; //maximum rotation step in degrees (to radians)
+  float cmd_step, cmd_rot;
+  char thresh_pos, thresh_rot;
+  tf::Vector3 thresh_vec;
 
-  tf::Transform in_pos, out_incr;
-  tf::Quaternion curr_rot;
-  tf::transformMsgToTF(msg.transform, in_pos);
 
+  //get command
+  tf::Transform in_tf, curr_tf;
+  tf::Quaternion in_rot, curr_rot, diff_rot;
+  tf::Vector3 in_pos, curr_pos;
+  tf::transformMsgToTF(msg.transform, in_tf);
 
-  
+  in_pos = in_tf.getOrigin();
+  in_rot = in_tf.getRotation();
 
-  // if sequence numbering gets wonky
-  // wait for a few messages to let things settle
-  if (msg.header.seq < last_seq){
-    ROS_INFO("Current sequence out of order --> %i", msg.header.seq);
-    restart = 1;
-    count = 0;
+  curr_tf = get_pos();
+  curr_pos = curr_tf.getOrigin();
+  curr_rot = curr_tf.getRotation();
+
+  //check if it's in workspace range
+  if (!pos_in_workspace(in_pos)){
+    ROS_ERROR("servo cp out of workspace - check yo self before you wreck yo robot");
+    return;
   }
 
-  if (count < 4 && restart == 1){
-    count++;
-    count--;
-  }
-  else if (in_pos.getOrigin().length() != 0){
+  //check if it's close enough to current position
+  cmd_step = curr_pos.distance(in_pos); //always positive
+  if(cmd_step >= max_step){
+    if(cmd_step > 5 * max_step){
+      ROS_ERROR("cmd_step = %f (too large)",cmd_step);
+      return;
+    } 
+    else {
+      // threshold direction
+      thresh_pos = 1;
+      thresh_vec = (in_pos - curr_pos).normalize(); //is this the correct direction?
+      in_pos = curr_pos + max_step * thresh_vec;
 
-    //ROS_INFO("servo_cp_cb is doing something!!!");
+      static int thresh_count = 0;
+      thresh_count++;
+      if (thresh_count % 500 == 0){
+        ROS_INFO("Thresholded 500 of these here servo_cp positions for you, boss");
+        thresh_count = 0;
+      }
 
-    out_incr.setOrigin(in_pos.getOrigin() - last_cmd.getOrigin()); 
-
-    //this isn't working
-    out_incr.setRotation(in_pos.getRotation().inverse() * last_cmd.getRotation() * in_pos.getRotation());
-    
-    out_incr.setOrigin(out_incr.getOrigin() * scale);   
-
-    if(get_setpoint_update_flag(CRTK_servo, CRTK_cr)){
-      out_incr.setOrigin(  get_setpoint_in(CRTK_servo).cr.getOrigin()   + out_incr.getOrigin());
-       // if(!isnan(out_incr.getRotation().length()))
-         
-       //   out_incr.setRotation(get_setpoint_in(CRTK_servo).cr.getRotation() * out_incr.getRotation());
     }
 
-    //out_incr.setRotation(tf::Quaternion());
-
-    set_setpoint_in(CRTK_servo, CRTK_cr, out_incr);
-
   }
 
+  // check if it's close enough to current position
+  diff_rot = curr_rot * in_rot.inverse();
 
-  last_cmd = in_pos;
-  last_seq = msg.header.seq;
+  cmd_rot = curr_rot.angleShortestPath(in_rot);
+  // if(cmd_rot != diff_rot.getAngle())
+  //   thresh_vec = -diff_rot.getAxis();
+  // else
+  thresh_vec = diff_rot.getAxis();
 
+  
+  if(cmd_rot > max_rot){
+    if(cmd_rot > 5 * max_rot){
+      //ROS_ERROR("rot_step = %f (too large)",cmd_rot);
+      return;
+    } 
+    else {
+      // threshold direction
+      thresh_rot = 1;
+      in_rot = tf::Quaternion(thresh_vec,max_rot);
+      static int foo = 0;
+      if (foo % 500 == 0){
+        //ROS_ERROR("We've had it up to here with these big ol' rotations!");
+        foo = 0;
+      }
+    }
+  } 
+ 
+
+  // set goal
+  tf::Transform out_tf = tf::Transform(in_rot,in_pos);
+  set_setpoint_in(CRTK_servo, CRTK_cp, out_tf);
+
+  // party
   return;
 }
 
@@ -471,9 +504,13 @@ char CRTK_motion_api::preempt_to_network(CRTK_motion_api* network_source){
   if(is_tf_type(setpoint_out_type)){
     network_source->set_setpoint_out_tf(setpoint_out_level, setpoint_out_type, setpoint_out_tf);
   }
+
   else if(is_js_type(setpoint_out_type)){
     network_source->copy_setpoint_out_js(&setpoint_out_js);
   }
+
+  if(setpoint_out_type == CRTK_NULL_type)
+    return 0;
 
   return 1; // if all goes well
 }
@@ -986,4 +1023,25 @@ float CRTK_motion_api::get_setpoint_out_grasp_angle(){
   //   ROS_INFO("getting grasper setpoint_out angle %f",setpoint_out_js.position[0]);
   // count ++;
   return setpoint_out_js.position[0];
+}
+
+
+
+/**
+ * @brief      Checks the input position against defined workspace limits
+ *
+ * @param[in]  pos   The position in meters
+ *
+ * @return     Is the position within the workspace
+ */
+char pos_in_workspace(tf::Vector3 pos){
+  char out = 0;
+  if(pos.x() > WKSP_X) return out;
+  else if(pos.x() < WKSP_X_NEG) return out;
+  else if(pos.y() > WKSP_Y) return out;
+  else if(pos.y() < WKSP_Y_NEG) return out;
+  else if(pos.z() > WKSP_Z) return out;
+  else if(pos.z() < WKSP_Z_NEG) return out;
+  else out = 1;
+  return out;
 }

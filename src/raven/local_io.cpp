@@ -615,6 +615,22 @@ int init_ravenstate_publishing(robot_device *dev, ros::NodeHandle &n) {
 
 
 /**
+ * @brief      Publishes all crtk stuff
+ *
+ * @param      device0  The device 0
+ */
+void publish_crtk(robot_device *device0){
+    publish_crtk_state(device0);
+    publish_crtk_state_arm1(device0);
+    publish_crtk_measured_js(device0);
+    publish_crtk_setpoint_js(device0);
+    publish_crtk_measured_cp(device0);
+    publish_crtk_setpoint_cp(device0);
+    publish_crtk_measured_gr_js(device0);
+}
+
+
+/**
  *\brief Callback for the automove topic - Updates the data1 structure
  *
  * Callback for the automove topic. Updates the data1 structure with the
@@ -976,8 +992,12 @@ void publish_crtk_setpoint_cp(robot_device *dev) {
   msg1.header.stamp = msg1.header.stamp.now();
   msg2.header.stamp = msg2.header.stamp.now();
 
-  trans1.setOrigin(tf::Vector3(dev->mech[0].pos_d.x,dev->mech[0].pos_d.y,dev->mech[0].pos_d.z));
-  trans2.setOrigin(tf::Vector3(dev->mech[1].pos_d.x,dev->mech[1].pos_d.y,dev->mech[1].pos_d.z));
+  tf::Vector3 trans_pos1 = tf::Vector3(dev->mech[0].pos_d.x,dev->mech[0].pos_d.y,dev->mech[0].pos_d.z);
+  tf::Vector3 trans_pos2 = tf::Vector3(dev->mech[1].pos_d.x,dev->mech[1].pos_d.y,dev->mech[1].pos_d.z);
+
+  trans1.setOrigin(trans_pos1 / (1 M_2_MICRON));
+  trans2.setOrigin(trans_pos2 / (1 M_2_MICRON));
+
   float ori1[9], ori2[9];
   for (int orii = 0; orii < 3; orii++) {
     for (int orij = 0; orij < 3; orij++) {

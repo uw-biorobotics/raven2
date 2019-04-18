@@ -48,7 +48,7 @@
 //tool gold_arm_tool(large_needle, GOLD_ARM);
 tool gold_arm_tool(r_grasper, GOLD_ARM);
 // tool gold_arm_tool(micro_forceps, GOLD_ARM);
-// tool gold_arm_tool(ricks_tool, GOLD_ARM);
+//tool gold_arm_tool(ricks_tool, GOLD_ARM);
 //tool gold_arm_tool(qut_camera, GOLD_ARM);
 
 //#ifdef SCISSOR_RIGHT
@@ -63,8 +63,9 @@ tool gold_arm_tool(r_grasper, GOLD_ARM);
 //tool green_arm_tool(bipolar_forceps, GREEN_ARM);
 //tool green_arm_tool(qut_camera, GREEN_ARM);
 // tool green_arm_tool(r_grasper, GREEN_ARM);
-// tool green_arm_tool(ricks_tool, GREEN_ARM);
+//tool green_arm_tool(ricks_tool, GREEN_ARM);
 tool green_arm_tool(large_needle, GREEN_ARM);
+//tool green_arm_tool(qut_camera, GREEN_ARM);
 
 /********** positioning joints Homing DAC ***********/
 const int gold_joints_homing_max_dac[4] = {

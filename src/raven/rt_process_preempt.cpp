@@ -324,13 +324,8 @@ static void *rt_process(void *) {
     publish_ravenstate_ros(&device0, &currParams);  // from local_io
 
     // Publish CRTK things
-    publish_crtk_state(&device0);
-    publish_crtk_state_arm1(&device0);
-    publish_crtk_measured_js(&device0);
-    publish_crtk_setpoint_js(&device0);
-    publish_crtk_measured_cp(&device0);
-    publish_crtk_setpoint_cp(&device0);
-    publish_crtk_measured_gr_js(&device0);
+    publish_crtk(&device0); // from local_io
+
     // Done for this cycle
   }
 
