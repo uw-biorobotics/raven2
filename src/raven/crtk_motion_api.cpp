@@ -241,13 +241,13 @@ void CRTK_motion_api::crtk_servo_cp_cb(geometry_msgs::TransformStamped msg){
   diff_rot = curr_rot * in_rot.inverse();
 
   cmd_rot = curr_rot.angleShortestPath(in_rot);
-  // if(cmd_rot != diff_rot.getAngle())
-  //   thresh_vec = -diff_rot.getAxis();
-  // else
-  thresh_vec = diff_rot.getAxis();
+  if(cmd_rot != diff_rot.getAngle())
+    thresh_vec = -diff_rot.getAxis();
+  else
+    thresh_vec = diff_rot.getAxis();
 
   
-  if(cmd_rot > max_rot){
+  if(false){//cmd_rot > max_rot){
     if(cmd_rot > 5 * max_rot){
       //ROS_ERROR("rot_step = %f (too large)",cmd_rot);
       return;
@@ -255,10 +255,10 @@ void CRTK_motion_api::crtk_servo_cp_cb(geometry_msgs::TransformStamped msg){
     else {
       // threshold direction
       thresh_rot = 1;
-      in_rot = tf::Quaternion(thresh_vec,max_rot);
+      //in_rot = tf::Quaternion(thresh_vec,max_rot);
       static int foo = 0;
       if (foo % 500 == 0){
-        //ROS_ERROR("We've had it up to here with these big ol' rotations!");
+        ROS_ERROR("We've had it up to here with these big ol' rotations!");
         foo = 0;
       }
     }
@@ -267,6 +267,9 @@ void CRTK_motion_api::crtk_servo_cp_cb(geometry_msgs::TransformStamped msg){
 
   // set goal
   tf::Transform out_tf = tf::Transform(in_rot,in_pos);
+
+  // ROS_INFO("callback (shortest cmd_rot, cmd_rot) = (%f, %f)", in_rot.angleShortestPath(curr_rot),in_rot.angle(curr_rot)*2);
+
   set_setpoint_in(CRTK_servo, CRTK_cp, out_tf);
 
   // party

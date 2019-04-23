@@ -260,7 +260,7 @@ int update_device_crtk_motion(device* dev){
 int update_device_crtk_motion_tf(device* dev, int arm){
 
   float max_dist_per_ms = 0.0005;   // m/ms = 50 cm/s 
-  float max_radian_per_ms = 0.001;  // rad/ms = 1 rad/s 
+  float max_radian_per_ms = 0.5;  // rad/ms
   // static int count = 0;
   int out = 1;
   CRTK_motion_type  type = dev->crtk_motion_planner.crtk_motion_api[arm].get_setpoint_out_type(); 
@@ -350,61 +350,67 @@ int update_device_crtk_motion_tf(device* dev, int arm){
       new_pos = dev->crtk_motion_planner.crtk_motion_api[arm].get_base_frame().inverse() * new_pos;
       new_pos = new_pos * MICRON_PER_M;
 
-      //if(fabs((new_pos-curr_pos).length()) <= max_dist_per_ms * MICRON_PER_M){
-      if(true){
+      if(fabs((new_pos-curr_pos).length()) <= max_dist_per_ms * MICRON_PER_M){
         dev->mech[arm].pos_d.x = (int)(new_pos.x());
         dev->mech[arm].pos_d.y = (int)(new_pos.y());
         dev->mech[arm].pos_d.z = (int)(new_pos.z());
         out = 0;
 
-        static int bar = 0;
-        if (bar % 1500 == 0){
-          ROS_INFO("distance to pos_d %f mm", (new_pos-curr_pos).length()/1000);
-        }
         dev->crtk_motion_planner.crtk_motion_api[arm].reset_setpoint_out(); 
       }
       else{
-        ROS_ERROR("Absolute Cartesian step size too large. (step length=%f micron per ms)",fabs((new_pos-curr_pos).length()));
+        ROS_ERROR("Absolute Cartesian step size too large. (step length = %f micron per ms)",fabs((new_pos-curr_pos).length()));
         out = 0;
       }
 
 
       //rotation
-      // tf::Quaternion t1 = dev->crtk_motion_planner.crtk_motion_api[arm].get_base_frame().inverse().getRotation();
-      // // new_rot = t1*new_rot*t1.inverse();
-      // new_rot = t1.inverse()*new_rot;
+      //transform CRTK rotation to RAVEN frame
+      tf::Quaternion t1 = dev->crtk_motion_planner.crtk_motion_api[arm].get_base_frame().inverse().getRotation();
+      new_rot = t1*new_rot;
+      
 
       // static int foo = 0;
-      // if (foo % 100 == 0) {
+      // if (foo % 1000 == 0) {
       //   tf::Vector3 ax = curr_rot.getAxis();
       //   float an = curr_rot.getAngle();
+      //   tf::Transform crtk_pos = dev->crtk_motion_planner.crtk_motion_api[arm].get_pos();
+      //   ROS_INFO(" ");
+      //   ROS_INFO(" ");
+      //   ROS_INFO("CRTK frame angle difference %f", new_rot.angle(crtk_pos.getRotation())*2);
       //   ROS_INFO(" ");
       //   ROS_INFO("Current orientation vector - %f, %f, %f \t angle %f", ax.x(), ax.y(), ax.z(), an RAD2DEG);
-      //   ax = curr_rot.getAxis();
-      //   an = new_rot.getAngle();
+
+
+      //   tf::Quaternion new_rot4 = t1*new_rot;
+      //   ax = new_rot4.getAxis();
+      //   an = new_rot4.getAngle();
+      //   ROS_INFO(" t1 * q");
       //   ROS_INFO("new orientation vector - %f, %f, %f \t angle %f", ax.x(), ax.y(), ax.z(), an  RAD2DEG);
-      //   ROS_INFO("angular difference of %f", new_rot.angle(curr_rot));
+      //   ROS_INFO("angular difference of %f\n", new_rot4.angleShortestPath(curr_rot) RAD2DEG);
+
 
       // }
-
-      // if(new_rot.length() > 0 && !isnan(new_rot.length())){
-      //   if(new_rot.angle(curr_rot) <= max_radian_per_ms){
-      //     tf::Matrix3x3 incr_rot_mx_mx = dev->crtk_motion_planner.crtk_motion_api[arm].get_setpoint_out_tf().getBasis();
-      //     for(int i=0; i<3 ; i++)
-      //       for(int j=0;j<3;j++)
-      //         dev->mech[arm].ori_d.R[i][j] = incr_rot_mx_mx[i][j];
-      //   }
-      //   else{
-      //     //ROS_ERROR("Absolute Cartesian rotation too large. (angle= %f rad per ms)",new_rot.angle(curr_rot));
-      //     out = 0;
-      //   }
-      //}
-      // else{
-      //   out = 0;
-      // }
-      // for(int i=0; i<3 ; i++)
-      //   for(int j=0;j<3;j++)
-      //     dev->mech[arm].ori_d.R[i][j] = dev->mech[arm].ori.R[i][j]; 
+      // foo ++;
+      
+      //check rotation step, update ori_d if fine
+      if(new_rot.length() > 0 && !isnan(new_rot.length())){
+        if(new_rot.angleShortestPath(curr_rot) <= max_radian_per_ms){
+          tf::Matrix3x3 incr_rot_mx_mx = tf::Transform(new_rot).getBasis();
+          for(int i=0; i<3 ; i++){
+            for(int j=0;j<3;j++){
+              dev->mech[arm].ori_d.R[i][j] = incr_rot_mx_mx[i][j];
+            }
+          }
+        }
+        else{
+          ROS_ERROR("Absolute Cartesian rotation too large. (angle= %f deg per ms)",new_rot.angleShortestPath(curr_rot) RAD2DEG);
+          out = 0;
+        }
+      }
+      else{
+        out = 0;
+      }
        
       
       dev->crtk_motion_planner.crtk_motion_api[arm].reset_setpoint_out(); 
