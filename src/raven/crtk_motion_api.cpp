@@ -91,6 +91,9 @@ CRTK_motion_api::CRTK_motion_api(char arm){
 
   new_base_frame_flag = 1;
 
+  goal_out_js = sensor_msgs::JointState();
+  setpoint_out_js = sensor_msgs::JointState();
+
   for(int i= 0; i<7; i++) 
   {
     jpos[i] = 0;
@@ -102,9 +105,6 @@ CRTK_motion_api::CRTK_motion_api(char arm){
     setpoint_out_js.effort.push_back(0);
   }
 
-
-  goal_out_js = sensor_msgs::JointState();
-  setpoint_out_js = sensor_msgs::JointState();
   goal_out_tf = tf::Transform ();
   setpoint_out_tf = tf::Transform();
 }
@@ -283,29 +283,36 @@ void CRTK_motion_api::crtk_servo_cp_cb(geometry_msgs::TransformStamped msg){
  */
 void CRTK_motion_api::crtk_servo_jr_cb(sensor_msgs::JointState in){
 
-  static int count = 0;
+  static int count = 2;
   count++;
 
   if (in.position.size() == 7){
-    for(int i=0;i<7;i++)
-    setpoint_in[CRTK_servo].jr[i] = in.position[i];
+    for(int i=0;i<7;i++){
+      if(get_setpoint_update_flag(CRTK_servo, CRTK_jr))
+        setpoint_in[CRTK_servo].jr[i] = in.position[i] + get_setpoint_in(CRTK_servo).jr[i];
+      else
+        setpoint_in[CRTK_servo].jr[i] = in.position[i];
+    }
   }
   else if (in.position.size() == 1){
-    setpoint_in[CRTK_servo].jr[0] = in.position[0];
-    for(int i=1;i<7;i++)
-    setpoint_in[CRTK_servo].jr[i] = 0;
+    for(int i=1;i<7;i++){
+      if(get_setpoint_update_flag(CRTK_servo, CRTK_jr)){
+        setpoint_in[CRTK_servo].jr[0] = in.position[0] + get_setpoint_in(CRTK_servo).jr[0];
+        setpoint_in[CRTK_servo].jr[i] = 0 + get_setpoint_in(CRTK_servo).jr[i];
+      }
+      else{
+        setpoint_in[CRTK_servo].jr[0] = in.position[0];
+        setpoint_in[CRTK_servo].jr[i] = 0;
+      }
+    }
   }
   else{
-    ROS_INFO("unusual # of inputs to servo_jr!?!?!");
+    ROS_INFO("unusual # of inputs to servo_jr.");
+    return;
   }
-
 
   setpoint_in[CRTK_servo].update_flags[CRTK_jr] = 1;
   setpoint_in[CRTK_servo].updated = 1;
-
-  // if(count %500 == 0){
-  //   ROS_INFO("heard 500 grasp things!!!!! omg %f", setpoint_in[CRTK_servo].jr[0]);
-  // }
 }
 
 /**
@@ -600,6 +607,13 @@ void CRTK_motion_api::reset_goal_out(){
   goal_out_tf = tf::Transform();
   goal_out_level = CRTK_NULL_level;
   goal_out_type = CRTK_NULL_type;
+
+  for(int i= 0; i<7; i++) 
+  {
+    goal_out_js.position.push_back(0);
+    goal_out_js.velocity.push_back(0);
+    goal_out_js.effort.push_back(0);
+  }
 }
 
 void CRTK_motion_api::reset_setpoint_out(){
@@ -608,6 +622,13 @@ void CRTK_motion_api::reset_setpoint_out(){
   setpoint_out_tf = tf::Transform();
   setpoint_out_level = CRTK_NULL_level;
   setpoint_out_type = CRTK_NULL_type;
+
+  for(int i= 0; i<7; i++) 
+  {
+    setpoint_out_js.position.push_back(0);
+    setpoint_out_js.velocity.push_back(0);
+    setpoint_out_js.effort.push_back(0);
+  }
 
 }
 
@@ -623,7 +644,10 @@ char CRTK_motion_api::set_setpoint_out(){
     return 1;
   }
   else if(is_js_type(setpoint_out_type)){
-    set_setpoint_out_js(setpoint_out_level,setpoint_out_type,get_setpoint_in_js(setpoint_out_level,setpoint_out_type));
+   
+    float out[7];
+    get_setpoint_in_js(setpoint_out_level,setpoint_out_type,out);
+    set_setpoint_out_js(setpoint_out_level,setpoint_out_type,out);
     return 1;
   }
   ROS_ERROR("Set setpoint_out_error!");
@@ -650,7 +674,6 @@ char CRTK_motion_api::set_setpoint_out_tf(CRTK_motion_level level, CRTK_motion_t
 char CRTK_motion_api::set_setpoint_out_js(CRTK_motion_level level, CRTK_motion_type type, float* in){
 //TODO remove level and type from params 
    
-  
   if(is_js_type(type)){
     for(int i=0; i<7; i++){
       if(type == CRTK_jr || type == CRTK_jp){
@@ -740,6 +763,7 @@ char CRTK_motion_api::set_goal_out_js(CRTK_motion_level level, CRTK_motion_type 
   }
 }
 
+
 //TODO rename to copy
 void CRTK_motion_api::set_setpoint_in(CRTK_motion_level level, CRTK_goal in){
   if(level == CRTK_servo || level == CRTK_interp || level == CRTK_move){
@@ -778,6 +802,24 @@ tf::Transform CRTK_motion_api::get_setpoint_out_tf(){
 sensor_msgs::JointState CRTK_motion_api::get_setpoint_out_js(){  
   return setpoint_out_js;
 }
+
+
+float CRTK_motion_api::get_setpoint_out_js_value(CRTK_motion_type type, int index)
+{
+  if(type == CRTK_jp || type == CRTK_jr)
+    return setpoint_out_js.position[index];
+  else if(type == CRTK_jv)
+    return setpoint_out_js.velocity[index];
+  else if(type == CRTK_jf)
+    return setpoint_out_js.effort[index];
+  else
+  {
+    ROS_INFO("get_setpoint_out_js_value invalid request type.");
+    return -1;
+  }
+}
+
+
 tf::Transform CRTK_motion_api::get_goal_out_tf(){
   return goal_out_tf;
 }
@@ -928,14 +970,28 @@ float* CRTK_motion_api::get_goal_in_js(CRTK_motion_level level, CRTK_motion_type
   }
   return empty_out;
 }
-float* CRTK_motion_api::get_setpoint_in_js(CRTK_motion_level level, CRTK_motion_type type){
+
+void CRTK_motion_api::get_setpoint_in_js(CRTK_motion_level level, CRTK_motion_type type, float* out){
+
   if(is_js_type(type) && is_type_valid(level,type)){
-    if(type == CRTK_jr)       return setpoint_in[level].jr;
-    else if(type == CRTK_jp)  return setpoint_in[level].jp;
-    else if(type == CRTK_jv)  return setpoint_in[level].jv;  
-    else                      return setpoint_in[level].jf;
+    if(type == CRTK_jr){
+      for(int i=0;i<7;i++)
+        out[i] = setpoint_in[level].jr[i];
+    }       
+    else if(type == CRTK_jp){
+      for(int i=0;i<7;i++)
+        out[i] = setpoint_in[level].jp[i];
+    }       
+    else if(type == CRTK_jv){
+      for(int i=0;i<7;i++)
+        out[i] = setpoint_in[level].jv[i];
+    }       
+    else {
+      for(int i=0;i<7;i++)
+        out[i] = setpoint_in[level].jf[i];
+    }       
   }
-  return empty_out;
+  return;
 }
 
 

@@ -149,6 +149,7 @@ int controlRaven(device *device0, param_pass *currParams) {
     case cartesian_space_control:
       ret = raven_cartesian_space_command(device0, currParams);
       break;
+
     // Motor PD control runs PD control on motor position
     case motor_pd_control:
       initialized = false;
@@ -225,9 +226,11 @@ int controlRaven(device *device0, param_pass *currParams) {
 *	\ingroup Control
 */
 int raven_cartesian_space_command(device *device0, param_pass *currParams) {
+  static int count=0;
   DOF *_joint = NULL;
   mechanism *_mech = NULL;
   int i = 0, j = 0;
+  static int joint_ctrl_countdown = 10;
 
   if (currParams->runlevel < RL_PEDAL_UP) {
     return -1;
@@ -237,7 +240,18 @@ int raven_cartesian_space_command(device *device0, param_pass *currParams) {
   }
 
   // Inverse kinematics
-  r2_inv_kin(device0, currParams->runlevel);
+  if(!device0->mech[0].joint_control & !device0->mech[1].joint_control)
+  {
+    if(joint_ctrl_countdown == 0)
+      r2_inv_kin(device0, currParams->runlevel);
+    else joint_ctrl_countdown--;
+
+  }else{ 
+    if(count %250 == 0) ROS_INFO("Skipping inverse kin");
+    joint_ctrl_countdown = 10;
+    set_posd_to_pos(device0);
+  }
+
 
   // Inverse Cable Coupling
   invCableCoupling(device0, currParams->runlevel);
@@ -269,7 +283,7 @@ int raven_cartesian_space_command(device *device0, param_pass *currParams) {
   }
 
   TorqueToDAC(device0);
-
+  count ++;
   return 0;
 }
 

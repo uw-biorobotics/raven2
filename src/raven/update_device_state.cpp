@@ -230,21 +230,37 @@ int update_motion_apis(device* dev){
  */
 int update_device_crtk_motion(device* dev){
   CRTK_motion_type type;
+  bool js_messages = false;
 
   for(int i=0;i<2;i++){
     type = dev->crtk_motion_planner.crtk_motion_api[i].get_setpoint_out_type();    
 
     if(is_tf_type(type)){
+      
       update_device_crtk_motion_tf(dev,i);
     }   
     else if(is_js_type(type)){
+      // static int crud;
+      // if(crud%500 == 1) ROS_INFO("Got 500 js messages :0");
+      // crud++;
+      js_messages = true;
       update_device_crtk_motion_js(dev,i);
     }
 
     type = dev->crtk_motion_planner.crtk_motion_api_grasp[i].get_setpoint_out_type();    
-    if(is_js_type(type))
+    if(is_js_type(type) && !js_messages)
       update_device_crtk_grasp(dev,i);
+
+    dev->crtk_motion_planner.crtk_motion_api[i].reset_setpoint_out(); 
+    dev->crtk_motion_planner.crtk_motion_api_grasp[i].reset_setpoint_out(); 
+  
+    //wait for js radio silence for 10 loops before switching back to cart mode
+
+    if (!js_messages) dev->mech[i].joint_control = false;
   }
+
+
+
   return 1;
  
 }
@@ -259,7 +275,7 @@ int update_device_crtk_motion(device* dev){
  */
 int update_device_crtk_motion_tf(device* dev, int arm){
 
-  float max_dist_per_ms = 0.0005;   // m/ms = 50 cm/s 
+  float max_dist_per_ms = 0.005;   // m/ms
   float max_radian_per_ms = 0.5;  // rad/ms
   // static int count = 0;
   int out = 1;
@@ -294,7 +310,6 @@ int update_device_crtk_motion_tf(device* dev, int arm){
         dev->mech[arm].pos_d.z += (int)(incr.z());
         out = 0;
       }
-      
 
       // (2) for rotation!
       static int count = 0;
@@ -326,19 +341,14 @@ int update_device_crtk_motion_tf(device* dev, int arm){
             dev->mech[arm].ori_d.R[j][k] = rot_mx_temp[j][k];
 
         tf::Quaternion test = tf::Transform(rot_mx_temp).getRotation();
-
-
       }
 
       else{
         out = 0;
       }
-
-      dev->crtk_motion_planner.crtk_motion_api[arm].reset_setpoint_out(); 
       return out;
       break;
     }
-
 
     case CRTK_cp:{
       tf::Vector3 new_pos = dev->crtk_motion_planner.crtk_motion_api[arm].get_setpoint_out_tf().getOrigin();
@@ -355,44 +365,17 @@ int update_device_crtk_motion_tf(device* dev, int arm){
         dev->mech[arm].pos_d.y = (int)(new_pos.y());
         dev->mech[arm].pos_d.z = (int)(new_pos.z());
         out = 0;
-
-        dev->crtk_motion_planner.crtk_motion_api[arm].reset_setpoint_out(); 
       }
       else{
         ROS_ERROR("Absolute Cartesian step size too large. (step length = %f micron per ms)",fabs((new_pos-curr_pos).length()));
         out = 0;
       }
 
-
       //rotation
       //transform CRTK rotation to RAVEN frame
       tf::Quaternion t1 = dev->crtk_motion_planner.crtk_motion_api[arm].get_base_frame().inverse().getRotation();
       new_rot = t1*new_rot;
-      
 
-      // static int foo = 0;
-      // if (foo % 1000 == 0) {
-      //   tf::Vector3 ax = curr_rot.getAxis();
-      //   float an = curr_rot.getAngle();
-      //   tf::Transform crtk_pos = dev->crtk_motion_planner.crtk_motion_api[arm].get_pos();
-      //   ROS_INFO(" ");
-      //   ROS_INFO(" ");
-      //   ROS_INFO("CRTK frame angle difference %f", new_rot.angle(crtk_pos.getRotation())*2);
-      //   ROS_INFO(" ");
-      //   ROS_INFO("Current orientation vector - %f, %f, %f \t angle %f", ax.x(), ax.y(), ax.z(), an RAD2DEG);
-
-
-      //   tf::Quaternion new_rot4 = t1*new_rot;
-      //   ax = new_rot4.getAxis();
-      //   an = new_rot4.getAngle();
-      //   ROS_INFO(" t1 * q");
-      //   ROS_INFO("new orientation vector - %f, %f, %f \t angle %f", ax.x(), ax.y(), ax.z(), an  RAD2DEG);
-      //   ROS_INFO("angular difference of %f\n", new_rot4.angleShortestPath(curr_rot) RAD2DEG);
-
-
-      // }
-      // foo ++;
-      
       //check rotation step, update ori_d if fine
       if(new_rot.length() > 0 && !isnan(new_rot.length())){
         if(new_rot.angleShortestPath(curr_rot) <= max_radian_per_ms){
@@ -411,15 +394,11 @@ int update_device_crtk_motion_tf(device* dev, int arm){
       else{
         out = 0;
       }
-       
-      
-      dev->crtk_motion_planner.crtk_motion_api[arm].reset_setpoint_out(); 
       return out;
       break;
     }
     case CRTK_cv:{
       // TODO later:D
-      dev->crtk_motion_planner.crtk_motion_api[arm].reset_setpoint_out(); 
       break;
     }
     default:{
@@ -431,13 +410,70 @@ int update_device_crtk_motion_tf(device* dev, int arm){
   return 0;
 }
 
+
+
 int update_device_crtk_motion_js(device* dev, int arm){
 
-  // CRTK_motion_type  type = dev->crtk_motion_planner.crtk_motion_api[arm].get_setpoint_out_type(); 
-  // TODO later:D
-  dev->crtk_motion_planner.crtk_motion_api[arm].reset_setpoint_out(); 
+  float max_radian_per_ms = 0.005;  // rad/ms
+  static int count=0;
+  int index_offset =0;
+
+  CRTK_motion_type  type = dev->crtk_motion_planner.crtk_motion_api[arm].get_setpoint_out_type(); 
+  sensor_msgs::JointState setpoint = dev->crtk_motion_planner.crtk_motion_api[arm].get_setpoint_out_js();
+
+  dev->mech[arm].joint_control = true;
+
+/*
+  for(int i=0; i<7;i++)
+    ROS_INFO("arm %d: setpoint[%d]=(%f)",arm, i, 
+      dev->crtk_motion_planner.crtk_motion_api[arm].get_setpoint_out_js_value(type,i));*/
+
+  switch(type){
+    case CRTK_jr:
+        for(int i=0; i<7;i++){
+          if(fabs(setpoint.position[i]) <= max_radian_per_ms){ 
+            index_offset = (i>=3) ? 1 : 0;
+            dev->mech[arm].joint[i+index_offset].jpos_d += setpoint.position[i];
+          }
+          else ROS_INFO("THAT WAS TOO MANY #JointStates!");
+        }
+        if(count%250 == 0)
+        {
+          ROS_INFO("arm%d: jpos_d[0]=%f",arm,dev->mech[arm].joint[0].jpos_d);
+        }
+      break;
+
+    case CRTK_jp:
+        for(int i=0; i<7;i++){
+          if(dev->mech[arm].joint[i].jpos_d-fabs(setpoint.position[i]) <= max_radian_per_ms){
+            if (i>=3) index_offset = 1;
+            dev->mech[arm].joint[i+index_offset].jpos_d = setpoint.position[i];
+          }
+        }
+      break;
+
+    case CRTK_jv:
+        // TODO:
+      break;
+
+    case CRTK_jf:
+        // TODO:
+      break;
+
+    default:
+    {
+      ROS_INFO("raven js setpoint out type = %i",(int)type);
+      dev->mech[arm].joint_control = false;
+      break;
+    }
+
+  }
+  
+  count ++;
   return 0;
 }
+
+
 
 int update_device_crtk_grasp(device* dev, int arm){
 
@@ -446,7 +482,6 @@ int update_device_crtk_grasp(device* dev, int arm){
   float angle;
 
   static int count = 0;
-  
 
   switch(type){
 
@@ -458,28 +493,24 @@ int update_device_crtk_grasp(device* dev, int arm){
       // if(count %500 == 0){
       //    ROS_INFO("doing 500 grasp things!!!!! omg %i = %i + %i", dev->mech[arm].ori_d.grasp, dev->mech[arm].ori.grasp, (int)angle * 1000);
       // }
-      dev->crtk_motion_planner.crtk_motion_api_grasp[arm].reset_setpoint_out(); 
       break;
     }
     case CRTK_jp:
     {
       angle = dev->crtk_motion_planner.crtk_motion_api_grasp[arm].get_setpoint_out_grasp_angle();
       dev->mech[arm].ori_d.grasp = angle; //TODO: safety limit???
-      dev->crtk_motion_planner.crtk_motion_api_grasp[arm].reset_setpoint_out(); 
       break;
     }
     case CRTK_jv:// TODO later:D
     {
       // angle = setpoint.velocity[0];
       // dev->mech[arm].ori_d.grasp = angle;
-      dev->crtk_motion_planner.crtk_motion_api_grasp[arm].reset_setpoint_out(); 
       break;
     }
     case CRTK_jf:// TODO later:D
     {
       // angle = setpoint.effort[0];
       // dev->mech[arm].ori_d.grasp = angle;
-      dev->crtk_motion_planner.crtk_motion_api_grasp[arm].reset_setpoint_out(); 
       break;
     }
     default:

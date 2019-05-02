@@ -147,6 +147,7 @@ struct mechanism {
   u_08 outputs;               // output pins
   r2_jacobian r2_jac;         // class needed to avoid build error about forward declarations
   float teleop_transform[4];  // quaternion rotation between 0 and desired output frame
+  bool joint_control;
 };
 
 /********************************************************

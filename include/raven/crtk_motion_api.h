@@ -125,8 +125,7 @@ class CRTK_motion_api
     tf::Transform get_goal_in_tf(CRTK_motion_level, CRTK_motion_type);
     tf::Transform get_setpoint_in_tf(CRTK_motion_level, CRTK_motion_type);
     float* get_goal_in_js(CRTK_motion_level, CRTK_motion_type);
-    float* get_setpoint_in_js(CRTK_motion_level, CRTK_motion_type);
-
+    void get_setpoint_in_js(CRTK_motion_level, CRTK_motion_type , float*);
     char set_setpoint_out();
     char set_setpoint_out_tf(CRTK_motion_level, CRTK_motion_type, tf::Transform);                // TODO: call this from motion planner
     void copy_setpoint_out_js(sensor_msgs::JointState*);
@@ -141,6 +140,7 @@ class CRTK_motion_api
     
     tf::Transform get_setpoint_out_tf();            // TODO: call this from motion planner
     sensor_msgs::JointState get_setpoint_out_js();  // TODO: call this from motion planner
+    float get_setpoint_out_js_value(CRTK_motion_type,int);     // TODO: call this from motion planner
     tf::Transform get_goal_out_tf();                // TODO: call this from motion planner
     sensor_msgs::JointState get_goal_out_js();      // TODO: call this from motion planner
 

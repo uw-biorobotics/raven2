@@ -59,7 +59,7 @@ void setSurgeonMode(int pedalstate);
 
 void publish_crtk(robot_device *);
 void publish_crtk_state(robot_device *);
-void publish_crtk_state_arm1(robot_device *);
+void publish_crtk_state_arms(robot_device *);
 void publish_crtk_measured_js(robot_device *dev);
 void publish_crtk_measured_cp(robot_device *dev);
 void publish_crtk_measured_cv(robot_device *dev);

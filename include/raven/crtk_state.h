@@ -74,7 +74,7 @@ class CRTK_state
 
   char state_machine_update(char, bool, bool, int, char);
   void crtk_cmd_cb(crtk_msgs::StringStamped);
-  void crtk_cmd_arm1_cb(std_msgs::String);
+
   std::string get_state_string();
   
 private:
