@@ -439,11 +439,16 @@ int update_device_crtk_motion_js(device* dev, int arm){
             
             dev->mech[arm].joint[i+index_offset].jpos_d += setpoint.position[i];
           }
-          else ROS_INFO("THAT WAS TOO MANY #JointStates!");
-        }
-        if(count%250 == 0)
-        {
-          ROS_INFO("arm%d: jpos_d[0]=%f",arm,dev->mech[arm].joint[0].jpos_d);
+          else 
+          {
+            float sign = (setpoint.position[i] > 0) ? 1 : -1;
+            dev->mech[arm].joint[i+index_offset].jpos_d += sign*limit;
+
+            limit_count ++;
+            if(limit_count%500 == 0)
+            ROS_ERROR("THAT WAS TOO FAR! joint %i jpos_d - %f, in %f ",
+             i+index_offset, dev->mech[arm].joint[i+index_offset].jpos_d , setpoint.position[i]);
+          }
         }
       break;
 
