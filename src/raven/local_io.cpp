@@ -577,7 +577,10 @@ int init_ravenstate_publishing(robot_device *dev, ros::NodeHandle &n) {
   sub_servo_jr_green = n.subscribe<sensor_msgs::JointState>("/arm2/servo_jr", 1, 
      &CRTK_motion_api::crtk_servo_jr_cb, &crtk_motion_api_green);
 
-
+  sub_servo_jp_gold = n.subscribe<sensor_msgs::JointState>("/arm1/servo_jp", 1, 
+     &CRTK_motion_api::crtk_servo_jp_cb, &crtk_motion_api_gold);
+  sub_servo_jp_green = n.subscribe<sensor_msgs::JointState>("/arm2/servo_jp", 1, 
+     &CRTK_motion_api::crtk_servo_jp_cb, &crtk_motion_api_green);
 
 
   // sub_servo_jp_green_grasper = n.subscribe<sensor_msgs::JointState>("grasp2/servo_jp", 1, &CRTK_motion_api::crtk_servo_jp_cb
@@ -904,6 +907,9 @@ void publish_crtk_measured_js(robot_device *dev) {
 // float64[] position
 // float64[] velocity
 // float64[] effort
+// 
+  static int count;
+  static int once = 1;
   msg1.header.stamp = msg1.header.stamp.now();
   msg2.header.stamp = msg2.header.stamp.now();
 
@@ -920,7 +926,6 @@ void publish_crtk_measured_js(robot_device *dev) {
         msg1.velocity.push_back(_joint->jvel);
         msg1.effort.push_back(_joint->tau);
         msg1.name.push_back(gold_names[j]);
-
     }
     else if (_mech->type == GREEN_ARM_SERIAL) {
 
@@ -933,6 +938,8 @@ void publish_crtk_measured_js(robot_device *dev) {
   }
   pub_crtk_measured_js_gold.publish(msg1);
   pub_crtk_measured_js_green.publish(msg2);
+
+  count++;
 }
 
 /**

@@ -44,7 +44,7 @@
 
 extern DOF_type DOF_types[];
 extern int NUM_MECH;
-extern unsigned long int gTime;  // Defined in rt_process_preempt.cpp //just here for debugging
+
 
 /**
  * \fn void fwdCableCoupling(device *device0, int runlevel)

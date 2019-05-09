@@ -327,32 +327,29 @@ void CRTK_motion_api::crtk_servo_jp_cb(sensor_msgs::JointState in){
   static int count = 0;
   count++;
 
-  static int last_cmd[7];
-
   if (in.position.size() == 7){
     for(int i=0;i<7;i++){
-      setpoint_in[CRTK_servo].jr[i] = in.position[i] - last_cmd[i];
-      last_cmd[i] = in.position[i];
+      setpoint_in[CRTK_servo].jp[i] = in.position[i];
+
     }
   }
   else if (in.position.size() == 1){
-    setpoint_in[CRTK_servo].jr[0] = in.position[0] - last_cmd[0];
-    last_cmd[0] = in.position[0];
+    setpoint_in[CRTK_servo].jp[0] = in.position[0];
+
     for(int i=1;i<7;i++){
-      setpoint_in[CRTK_servo].jr[i] = 0;
-      last_cmd[i] = in.position[i];
+      setpoint_in[CRTK_servo].jp[i] = 0;
     }
   }
   else{
-    ROS_INFO("unusual # of inputs to servo_jr!?!?!");
+    ROS_INFO("unusual # of inputs to servo_jp!?!?!");
   }
 
 
-  setpoint_in[CRTK_servo].update_flags[CRTK_jr] = 1;
+  setpoint_in[CRTK_servo].update_flags[CRTK_jp] = 1;
   setpoint_in[CRTK_servo].updated = 1;
 
   // if(count %500 == 0){
-  //   ROS_INFO("heard 500 grasp things!!!!! omg %f", setpoint_in[CRTK_servo].jr[0]);
+  //   ROS_INFO("heard 500 grasp things!!!!! omg %f", setpoint_in[CRTK_servo].jp[0]);
   // }
 }
 

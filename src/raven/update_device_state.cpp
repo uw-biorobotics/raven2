@@ -108,7 +108,7 @@ int updateDeviceState(param_pass *currParams, param_pass *rcvdParams, device *de
   }
 
   // Set new joint position command from console user input
-  // robotControlMode for keyboard control of RAVEN is not yest set
+  // robotControlMode for keyboard control of RAVEN is not yet set
   // TODO: reset to new keyboard mode when implemented
   if (newDofPosSetting && currParams->robotControlMode == -99) {
     // reset all other joints to zero
@@ -414,8 +414,10 @@ int update_device_crtk_motion_tf(device* dev, int arm){
 
 int update_device_crtk_motion_js(device* dev, int arm){
 
-  float max_radian_per_ms = 0.005;  // rad/ms
+  float max_radian_per_ms = 0.0025;    // rad/ms
+  float max_meters_per_ms = 0.00005;  // meters/ms
   static int count=0;
+  static int limit_count=0;
   int index_offset =0;
 
   CRTK_motion_type  type = dev->crtk_motion_planner.crtk_motion_api[arm].get_setpoint_out_type(); 
@@ -427,12 +429,14 @@ int update_device_crtk_motion_js(device* dev, int arm){
   for(int i=0; i<7;i++)
     ROS_INFO("arm %d: setpoint[%d]=(%f)",arm, i, 
       dev->crtk_motion_planner.crtk_motion_api[arm].get_setpoint_out_js_value(type,i));*/
-
+  float limit;
   switch(type){
     case CRTK_jr:
         for(int i=0; i<7;i++){
-          if(fabs(setpoint.position[i]) <= max_radian_per_ms){ 
-            index_offset = (i>=3) ? 1 : 0;
+          index_offset = (i>=3) ? 1 : 0;
+          limit = (i==2) ? max_meters_per_ms : max_radian_per_ms;
+          if(fabs(setpoint.position[i]) <= limit){ 
+            
             dev->mech[arm].joint[i+index_offset].jpos_d += setpoint.position[i];
           }
           else ROS_INFO("THAT WAS TOO MANY #JointStates!");
@@ -445,9 +449,31 @@ int update_device_crtk_motion_js(device* dev, int arm){
 
     case CRTK_jp:
         for(int i=0; i<7;i++){
-          if(dev->mech[arm].joint[i].jpos_d-fabs(setpoint.position[i]) <= max_radian_per_ms){
-            if (i>=3) index_offset = 1;
+
+          limit = (i==2) ? max_meters_per_ms : max_radian_per_ms;
+
+          index_offset = (i>=3) ? 1 : 0;
+          // if(count%250 == 0 && ( i == 3 || i == 4 ||i == 5 ||i == 6  ))
+          // ROS_INFO("i+off %i, actual[i+off] - %f desired %f in_desired - %f", 
+          // i+index_offset, dev->mech[arm].joint[i+index_offset].jpos, 
+          // dev->mech[arm].joint[i+index_offset].jpos_d, setpoint.position[i]);
+
+
+          float step_diff  = setpoint.position[i] - dev->mech[arm].joint[i+index_offset].jpos_d;
+          if(fabs(step_diff) <= limit){
             dev->mech[arm].joint[i+index_offset].jpos_d = setpoint.position[i];
+          }
+          else
+          {
+
+            float sign = (step_diff > 0) ? 1 : -1;
+            dev->mech[arm].joint[i+index_offset].jpos_d = dev->mech[arm].joint[i+index_offset].jpos_d + sign*limit;
+
+            limit_count ++;
+            if(limit_count%500 == 0)
+            ROS_ERROR("THAT WAS TOO FAR! joint %i actual, jpos_d - %f, in %f diff %f ",
+             i+index_offset, dev->mech[arm].joint[i+index_offset].jpos_d , setpoint.position[i], 
+             fabs(dev->mech[arm].joint[i+index_offset].jpos_d - setpoint.position[i]));
           }
         }
       break;

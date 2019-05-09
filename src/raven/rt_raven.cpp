@@ -247,7 +247,7 @@ int raven_cartesian_space_command(device *device0, param_pass *currParams) {
     else joint_ctrl_countdown--;
 
   }else{ 
-    if(count %250 == 0) ROS_INFO("Skipping inverse kin");
+    
     joint_ctrl_countdown = 10;
     set_posd_to_pos(device0);
   }
