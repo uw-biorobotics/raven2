@@ -402,6 +402,9 @@ int r2_inv_kin(device *d0, int runlevel) {
   tf::Transform xf;
   orientation *ori_d;
   position *pos_d;
+  static tf::Matrix3x3 last_good_ori[2];
+  static bool last_good_ori_set[2] = {false,false};
+  int skip_ik = 0;
 
   // static int count = 0;
   //   count ++;
@@ -410,16 +413,16 @@ int r2_inv_kin(device *d0, int runlevel) {
     // get arm type and wrist actuation angle
     if (d0->mech[m].type == GOLD_ARM)
       arm = dh_left;
-    else {
+    else 
       arm = dh_right;
-    }
+  
 
     ori_d = &(d0->mech[m].ori_d);
     pos_d = &(d0->mech[m].pos_d);
 
     // copy R matrix
-    for (int i = 0; i < 3; i++)
-      for (int j = 0; j < 3; j++) (xf.getBasis())[i][j] = ori_d->R[i][j];
+    // for (int i = 0; i < 3; i++)
+    //   for (int j = 0; j < 3; j++) (xf.getBasis())[i][j] = ori_d->R[i][j];
 
     xf.setBasis(tf::Matrix3x3(ori_d->R[0][0], ori_d->R[0][1], ori_d->R[0][2], ori_d->R[1][0],
                               ori_d->R[1][1], ori_d->R[1][2], ori_d->R[2][0], ori_d->R[2][1],
@@ -427,16 +430,35 @@ int r2_inv_kin(device *d0, int runlevel) {
     xf.setOrigin(tf::Vector3(pos_d->x / (1000.0 * 1000.0), pos_d->y / (1000.0 * 1000.0),
                              pos_d->z / (1000.0 * 1000.0)));
 
-    
-    // if((count % 500 == 0) && (m ==0)){
-    //         ROS_INFO("kinematics desired quaternion = %f,%f,%f,%f ,angle = %f", xf.getRotation().x(),xf.getRotation().y(),xf.getRotation().z(),xf.getRotation().w(),xf.getRotation().getAngle());
-    // }
-    //		DO IK
-    ik_solution iksol[8] = {{}, {}, {}, {}, {}, {}, {}, {}};
-    int ret = inv_kin(xf, arm, iksol);
-    if (ret < 0) log_msg("ik failed gracefully (arm%d ret:%d", arm, ret);
+    double norm;
+    norm = xf.getBasis().determinant();
+    if(norm < 0.95) 
+    {
+      if(gTime%250 == 0)
+        ROS_ERROR("Bad basis - skipping IK in favor of current pose (determinant - %f)", norm);
+  
+      ori_d = &(d0->mech[m].ori);
+      for(int i=0;i<3;i++)
+      for(int j=0;j<3;j++)
+        d0->mech[m].ori_d.R[i][j] = d0->mech[m].ori.R[i][j];
 
-    // Check solutions - compare IK solutions to current joint angles...
+      if(last_good_ori_set[m])
+        xf.setBasis(last_good_ori[m]);
+      else
+        skip_ik = 1;
+    }
+    else
+    {
+      last_good_ori[m] = tf::Matrix3x3(ori_d->R[0][0], ori_d->R[0][1], ori_d->R[0][2], ori_d->R[1][0],
+                              ori_d->R[1][1], ori_d->R[1][2], ori_d->R[2][0], ori_d->R[2][1],
+                              ori_d->R[2][2]);
+
+      last_good_ori_set[m] = true;
+    }
+
+     
+
+    // get current joint angles
     double wrist2 =
         (d0->mech[m].joint[GRASP2].jpos - d0->mech[m].joint[GRASP1].jpos) / 2.0;
     double joints[6] = {d0->mech[m].joint[SHOULDER].jpos, d0->mech[m].joint[ELBOW].jpos,
@@ -446,76 +468,109 @@ int r2_inv_kin(device *d0, int runlevel) {
     // convert from joint angle representation to DH theta convention
     double lo_thetas[6];
 
-    joint2theta(lo_thetas, joints, arm);  // this is the one that's wrong
-    int sol_idx = 0;
+    joint2theta(lo_thetas, joints, arm);  
+
+    int sol_idx = 0;  
     double sol_err;
     int check_result = 0;
-    if ((check_result = check_solutions(lo_thetas, iksol, sol_idx, sol_err)) < 0) {
-      //			cout << "IK failed\n";
-      return -1;
-    }
+    ik_solution iksol[8] = {{}, {}, {}, {}, {}, {}, {}, {}};
+      
+    if(!skip_ik){
+      //    DO IK
+      
+      int ret = inv_kin(xf, arm, iksol);
+      if (ret < 0) log_msg("ik failed gracefully ( arm%d ret:%d )", arm, ret);
 
-    double Js[6];
-    double Js_sat[6];
-    double thetas_sat[6];
-    tf::Transform xf_sat;
-    double gangle = double(d0->mech[m].ori_d.grasp) / 1000.0;
-    theta2joint(iksol[sol_idx], Js);
 
-    // check joint limits for saturating
-    int limited = apply_joint_limits(Js, Js_sat);
+      static int count = 0;
+      if ((check_result = check_solutions(lo_thetas, iksol, sol_idx, sol_err)) < 0) {
+        count++;
+        if(count %500 == 0) 
+          ROS_ERROR("IK Failure, setting jpos_d to jpos. Result: %i", check_result);
+        // if IK fails, set desired joints to current joints
+        sol_idx = 0;
+        sol_err = 0;
 
-    if (limited) {
-      joint2theta(thetas_sat, Js_sat, arm);
-      fwd_kin(thetas_sat, arm, xf_sat);
-      d0->mech[m].pos_d.x = xf_sat.getOrigin()[0] * (1000.0 * 1000.0);
-      d0->mech[m].pos_d.y = xf_sat.getOrigin()[1] * (1000.0 * 1000.0);
-      d0->mech[m].pos_d.z = xf_sat.getOrigin()[2] * (1000.0 * 1000.0);
-      for (int i = 0; i < 3; i++)
-        for (int j = 0; j < 3; j++) d0->mech[m].ori_d.R[i][j] = (xf_sat.getBasis())[i][j];
-
-      updateMasterRelativeOrigin(d0);
-    } else {
-      for (int satloop = 0; satloop < 6; satloop++) Js_sat[satloop] = Js[satloop];
-    }
-
-    d0->mech[m].joint[SHOULDER].jpos_d = Js_sat[0];
-    d0->mech[m].joint[ELBOW].jpos_d = Js_sat[1];
-    d0->mech[m].joint[Z_INS].jpos_d = Js_sat[2];
-    d0->mech[m].joint[TOOL_ROT].jpos_d = Js_sat[3];
-    d0->mech[m].joint[WRIST].jpos_d = Js_sat[4];
-    d0->mech[m].joint[GRASP1].jpos_d = -Js[5] + gangle / 2;
-    d0->mech[m].joint[GRASP2].jpos_d = Js[5] + gangle / 2;
-
-    //if it's a camera tool, keep the non-roll joints where they are
-    // if(d0->mech[m].mech_tool.t_end == qut_camera){
-    //   d0->mech[m].joint[WRIST].jpos_d = d0->mech[m].mech_tool.wrist_home_angle;
-    //   d0->mech[m].joint[GRASP1].jpos_d = d0->mech[m].mech_tool.grasp1_home_angle;
-    //   d0->mech[m].joint[GRASP2].jpos_d = d0->mech[m].mech_tool.grasp2_home_angle;
-    // }
-    
-
-    if (printIK != 0)  // && d0->mech[m].type == GREEN_ARM_SERIAL )
-    {
-      log_msg("All IK solutions for mechanism %d.  Chosen solution:%d:", m, sol_idx);
-      log_msg(
-          "Current     :\t( %3f,\t %3f,\t %3f,\t %3f,\t %3f,\t %3f (\t "
-          "%3f/\t %3f))",
-          joints[0] * r2d, joints[1] * r2d, joints[2], joints[3] * r2d, joints[4] * r2d,
-          joints[5] * r2d, d0->mech[m].joint[GRASP1].jpos * r2d,
-          d0->mech[m].joint[GRASP2].jpos * r2d);
-      for (int i = 0; i < 8; i++) {
-        theta2joint(iksol[i], Js);
-        log_msg("ik_joints[%d]:\t( %3f,\t %3f,\t %3f,\t %3f,\t %3f,\t %3f)", i, Js[0] * r2d,
-                Js[1] * r2d, Js[2], Js[3] * r2d, Js[4] * r2d, Js[5] * r2d);
+        iksol[sol_idx].th1 = lo_thetas[0];
+        iksol[sol_idx].th2 = lo_thetas[1];
+        iksol[sol_idx].d3 = lo_thetas[2];
+        iksol[sol_idx].th4 = lo_thetas[3];
+        iksol[sol_idx].th5 = lo_thetas[4];
+        iksol[sol_idx].th6 = lo_thetas[5];
+        return -1;
       }
+
+      double Js[6];
+      double Js_sat[6];
+      double thetas_sat[6];
+      tf::Transform xf_sat;
+      double gangle = double(d0->mech[m].ori_d.grasp) / 1000.0;
+      theta2joint(iksol[sol_idx], Js);
+
+      // check joint limits for saturating
+      int limited = apply_joint_limits(Js, Js_sat);
+
+      if (limited) {
+        joint2theta(thetas_sat, Js_sat, arm);
+        fwd_kin(thetas_sat, arm, xf_sat);
+        d0->mech[m].pos_d.x = xf_sat.getOrigin()[0] * (1000.0 * 1000.0);
+        d0->mech[m].pos_d.y = xf_sat.getOrigin()[1] * (1000.0 * 1000.0);
+        d0->mech[m].pos_d.z = xf_sat.getOrigin()[2] * (1000.0 * 1000.0);
+        for (int i = 0; i < 3; i++)
+          for (int j = 0; j < 3; j++) d0->mech[m].ori_d.R[i][j] = (xf_sat.getBasis())[i][j];
+
+        updateMasterRelativeOrigin(d0);
+      } 
+      else
+        for (int satloop = 0; satloop < 6; satloop++) 
+          Js_sat[satloop] = Js[satloop];
+      
+      d0->mech[m].joint[SHOULDER].jpos_d = Js_sat[0];
+      d0->mech[m].joint[ELBOW].jpos_d = Js_sat[1];
+      d0->mech[m].joint[Z_INS].jpos_d = Js_sat[2];
+      d0->mech[m].joint[TOOL_ROT].jpos_d = Js_sat[3];
+      d0->mech[m].joint[WRIST].jpos_d = Js_sat[4];
+      d0->mech[m].joint[GRASP1].jpos_d = -Js[5] + gangle / 2;
+      d0->mech[m].joint[GRASP2].jpos_d = Js[5] + gangle / 2;
+
+
+      if (printIK != 0)  // && d0->mech[m].type == GREEN_ARM_SERIAL )
+      {
+        log_msg("All IK solutions for mechanism %d.  Chosen solution:%d:", m, sol_idx);
+        log_msg(
+            "Current     :\t( %3f,\t %3f,\t %3f,\t %3f,\t %3f,\t %3f (\t "
+            "%3f/\t %3f))",
+            joints[0] * r2d, joints[1] * r2d, joints[2], joints[3] * r2d, joints[4] * r2d,
+            joints[5] * r2d, d0->mech[m].joint[GRASP1].jpos * r2d,
+            d0->mech[m].joint[GRASP2].jpos * r2d);
+        for (int i = 0; i < 8; i++) {
+          theta2joint(iksol[i], Js);
+          log_msg("ik_joints[%d]:\t( %3f,\t %3f,\t %3f,\t %3f,\t %3f,\t %3f)", i, Js[0] * r2d,
+                  Js[1] * r2d, Js[2], Js[3] * r2d, Js[4] * r2d, Js[5] * r2d);
+        }
+      }
+     
+
+      printIK = 0;
+
+    }  
+    else{
+      d0->mech[m].joint[SHOULDER].jpos_d = d0->mech[m].joint[SHOULDER].jpos;
+      d0->mech[m].joint[ELBOW].jpos_d = d0->mech[m].joint[ELBOW].jpos;
+      d0->mech[m].joint[Z_INS].jpos_d = d0->mech[m].joint[Z_INS].jpos;
+      d0->mech[m].joint[TOOL_ROT].jpos_d = d0->mech[m].joint[TOOL_ROT].jpos;
+      d0->mech[m].joint[WRIST].jpos_d = d0->mech[m].joint[WRIST].jpos;
+      d0->mech[m].joint[GRASP1].jpos_d = d0->mech[m].joint[GRASP1].jpos;
+      d0->mech[m].joint[GRASP2].jpos_d = d0->mech[m].joint[GRASP2].jpos;
     }
   }
 
-  printIK = 0;
+
 
   return 0;
 }
+
+
 
 /**\fn  inv_kin(tf::Transform in_T06, l_r in_arm, ik_solution iksol[8])
  * \brief Runs the Raven II INVERSE kinematics to determine end effector
@@ -549,12 +604,35 @@ int __attribute__((optimize("0"))) inv_kin(tf::Transform in_T06, l_r in_arm, ik_
     return -1;
   }
 
-  for (int i = 0; i < 8; i++) iksol[i].arm = in_arm;
+  for (int i = 0; i < 8; i++) 
+    iksol[i].arm = in_arm;
 
   //  Step 1, Compute P5
   tf::Transform T60 = in_T06.inverse();
   tf::Vector3 p6rcm = T60.getOrigin();
   tf::Vector3 p05[8];
+
+
+
+  float norm;
+  norm = in_T06.getBasis().determinant();
+  if(norm < 0.95) 
+    {
+      ROS_ERROR("Arm %d input TF has determinant of %f instead of 1", in_arm, norm);
+      double wtf[9];
+      in_T06.getBasis().getOpenGLSubMatrix(wtf);
+      for(int j = 0; j< 3; j++)
+        ROS_INFO("%f, %f, %f", wtf[3*j], wtf[3*j+1], wtf[3*j+2]);
+
+
+      for (int i = 0; i < 8; i++) 
+        iksol[i].invalid = ik_invalid;
+
+      return -1;
+    }
+
+
+
 
   p6rcm[2] = 0;  // take projection onto x-y plane
   for (int i = 0; i < 2; i++) {
@@ -675,19 +753,9 @@ int __attribute__((optimize("0"))) inv_kin(tf::Transform in_T06, l_r in_arm, ik_
     }
     iksol[i].th6 = atan2(s6, c6);
 
-    //		if (gTime%1000 == 0 && in_arm == dh_left )
-    //		{
-    //			log_msg("dh_iksols: [%d]\t( %3f,\t %3f,\t %3f,\t %3f,\t %3f,\t
-    //%3f)",0,
-    //					iksol[i].th1 * r2d,
-    //					iksol[i].th2 * r2d,
-    //					iksol[i].d3,
-    //					iksol[i].th4 * r2d,
-    //					iksol[i].th5 * r2d,
-    //					iksol[i].th6 * r2d
-    //					);
-    //		}
+
   }
+
   return 0;
 }
 
@@ -843,6 +911,11 @@ int check_solutions(double *in_thetas, ik_solution *iksol, int &out_idx, double 
         iksol[i].th4 -= 2 * M_PI;
     }
 
+    if(invalids > 5){
+      ROS_ERROR("IK found %f invalid solutions on arm %i", invalids, iksol[i].arm);
+    }
+
+    //find the minimum distance from each solution to current pose (joint space)
     double s2err = 0;
     s2err += pow(in_thetas[0] - iksol[i].th1, 2);
     s2err += pow(in_thetas[1] - iksol[i].th2, 2);
@@ -850,12 +923,14 @@ int check_solutions(double *in_thetas, ik_solution *iksol, int &out_idx, double 
     s2err += pow(in_thetas[3] - iksol[i].th4, 2);
     s2err += pow(in_thetas[4] - iksol[i].th5, 2);
     s2err += pow(in_thetas[5] - iksol[i].th6, 2);
+    //is this solution lower than best so far?
     if (s2err < minerr) {
       minerr = s2err;
       minidx = i;
     }
   }
 
+  //check the sum of squares of best solution distance against chosen limit (eps)
   if (minerr > eps) {
     minidx = 9;
     minerr = 0;
@@ -880,10 +955,12 @@ int check_solutions(double *in_thetas, ik_solution *iksol, int &out_idx, double 
         s2err += pow((in_thetas[4] - iksol[idx].th5), 2);
         s2err += pow((in_thetas[5] - iksol[idx].th6), 2);
        
-       	cout << "sol[" << idx<<"]: err:"<<   s2err <<
+       	cout << "sol[" << idx<<"]: err:"<<   sqrt(s2err) <<
           "\t\t" << (in_thetas[0] - iksol[idx].th1) * r2d << ",\t" << (in_thetas[1] - iksol[idx].th2) * r2d << ",\t"
           << (in_thetas[2] - iksol[idx].d3) * 100 << ",\t" << (in_thetas[3] - iksol[idx].th4)*r2d << ",\t"
-          << (in_thetas[4] - iksol[idx].th5)*r2d << ",\t" << (in_thetas[5] - iksol[idx].th6)*r2d << ",\n";
+           << (in_thetas[4] - iksol[idx].th5)*r2d << ",\t" << (in_thetas[5] - iksol[idx].th6)*r2d << ",\n";
+          
+
       }
     }
     return -1;
@@ -958,7 +1035,7 @@ const static double TH6B_J6_R = 0;   // add this to J6 to get \theta6b (in deg)
 // void joint2thetaCallback(const sensor_msgs::JointStateConstPtr joint_state)
 
 /**\fn void joint2theta(double *out_iktheta, double *in_J, l_r in_arm)
- * \brief converts the inverse kinematic solution to the thethas (detailes refer
+ * \brief converts the inverse kinematic solution to the thetas (refer
  * to the kinematic report)
  * \param out_iktheta - a double type pointer of the converted output
  * \param in_J - a double type pointer of the inverse kinetmatic solution
@@ -999,7 +1076,6 @@ void joint2theta(double *out_iktheta, double *in_J, l_r in_arm) {
   }
 }
 
-// void joint2thetaCallback(const sensor_msgs::JointStateConstPtr joint_state)
 
 /**\fn void theta2joint(ik_solution in_iktheta, double *out_J)
  * \brief converts theta values to the joint angles (detailes refer to the

@@ -639,8 +639,8 @@ void publish_crtk(robot_device *device0){
     publish_crtk_state_arms(device0);
     publish_crtk_measured_js(device0);
     publish_crtk_setpoint_js(device0);
-    publish_crtk_measured_cp(device0);
-    publish_crtk_setpoint_cp(device0);
+    //publish_crtk_measured_cp(device0);
+    //publish_crtk_setpoint_cp(device0);
     publish_crtk_measured_gr_js(device0);
 }
 
@@ -960,9 +960,17 @@ void publish_crtk_measured_cp(robot_device *dev) {
   // if(counter % 100 == 0) ROS_INFO("pub_norm: %f", sqrt(pow(curr_quat.x(),2)+pow(curr_quat.y(),2)+pow(curr_quat.z(),2)+pow(curr_quat.w(),2)));
   // counter ++;
 
+  tf::Transform pos1 = dev->crtk_motion_planner.crtk_motion_api[0].get_pos();
+  tf::Transform pos2 = dev->crtk_motion_planner.crtk_motion_api[1].get_pos();
 
-  tf::transformTFToMsg(dev->crtk_motion_planner.crtk_motion_api[0].get_pos(),msg1.transform);
-  tf::transformTFToMsg(dev->crtk_motion_planner.crtk_motion_api[1].get_pos(),msg2.transform);
+  tf::Quaternion norm1 = pos1.getRotation().normalized();
+  tf::Quaternion norm2 = pos2.getRotation().normalized();
+
+  pos1.setRotation(norm1); 
+  pos2.setRotation(norm2);
+
+  tf::transformTFToMsg(pos1,msg1.transform);
+  tf::transformTFToMsg(pos2,msg2.transform);
   pub_crtk_measured_cp_gold.publish(msg1);
   pub_crtk_measured_cp_green.publish(msg2);
 }
@@ -1029,6 +1037,12 @@ void publish_crtk_setpoint_cp(robot_device *dev) {
   }
   trans1.setBasis(tf::Matrix3x3(ori1[0],ori1[1],ori1[2],ori1[3],ori1[4],ori1[5],ori1[6],ori1[7],ori1[8]));
   trans2.setBasis(tf::Matrix3x3(ori2[0],ori2[1],ori2[2],ori2[3],ori2[4],ori2[5],ori2[6],ori2[7],ori2[8]));
+
+  tf::Quaternion norm1 = trans1.getRotation().normalized();
+  tf::Quaternion norm2 = trans2.getRotation().normalized();
+
+  trans1.setRotation(norm1); 
+  trans2.setRotation(norm2);
 
   tf::transformTFToMsg(trans1,msg1.transform);
   tf::transformTFToMsg(trans2,msg2.transform);
