@@ -916,6 +916,7 @@ int check_solutions(double *in_thetas, ik_solution *iksol, int &out_idx, double 
     }
 
     //find the minimum distance from each solution to current pose (joint space)
+    //the sum of these distances is used to determine the closest single solution
     double s2err = 0;
     s2err += pow(in_thetas[0] - iksol[i].th1, 2);
     s2err += pow(in_thetas[1] - iksol[i].th2, 2);
@@ -931,6 +932,7 @@ int check_solutions(double *in_thetas, ik_solution *iksol, int &out_idx, double 
   }
 
   //check the sum of squares of best solution distance against chosen limit (eps)
+  // Blake will bake you a pie if you can tell him why the value is set at Pi
   if (minerr > eps) {
     minidx = 9;
     minerr = 0;
