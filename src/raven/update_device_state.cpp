@@ -229,22 +229,24 @@ int update_motion_apis(device* dev){
  * @return     { description_of_the_return_value }
  */
 int update_device_crtk_motion(device* dev){
+  static int busy_cycle = 0;
+  static char busy_flag = 0;
   CRTK_motion_type type;
   bool js_messages = false;
-
+  int out = 0;
   for(int i=0;i<2;i++){
     type = dev->crtk_motion_planner.crtk_motion_api[i].get_setpoint_out_type();    
 
     if(is_tf_type(type)){
       
-      update_device_crtk_motion_tf(dev,i);
+      out = update_device_crtk_motion_tf(dev,i);
     }   
     else if(is_js_type(type)){
       // static int crud;
       // if(crud%500 == 1) ROS_INFO("Got 500 js messages :0");
       // crud++;
       js_messages = true;
-      update_device_crtk_motion_js(dev,i);
+      out = update_device_crtk_motion_js(dev,i);
     }
 
     type = dev->crtk_motion_planner.crtk_motion_api_grasp[i].get_setpoint_out_type();    
@@ -259,6 +261,19 @@ int update_device_crtk_motion(device* dev){
     if (!js_messages) dev->mech[i].joint_control = false;
   }
 
+  if(out || busy_flag) 
+  {
+    dev->crtk_state.set_busy(1);
+    busy_flag = 1;
+    busy_cycle ++;
+    if(!out && busy_cycle > 1000)
+      busy_flag = 0;
+  }
+  else 
+  {
+    dev->crtk_state.set_busy(0);
+    busy_cycle = 0;
+  }
 
 
   return 1;
@@ -275,10 +290,10 @@ int update_device_crtk_motion(device* dev){
  */
 int update_device_crtk_motion_tf(device* dev, int arm){
 
-  float max_dist_per_ms = 0.005;   // m/ms
+  float max_dist_per_ms = 0.1;   // m/ms
   float max_radian_per_ms = 0.5;  // rad/ms
   // static int count = 0;
-  int out = 1;
+  int out = 0;
   CRTK_motion_type  type = dev->crtk_motion_planner.crtk_motion_api[arm].get_setpoint_out_type(); 
   tf::Quaternion curr_rot = tf::Transform(tf::Matrix3x3(dev->mech[arm].ori.R[0][0], dev->mech[arm].ori.R[0][1], dev->mech[arm].ori.R[0][2], 
                                                         dev->mech[arm].ori.R[1][0], dev->mech[arm].ori.R[1][1], dev->mech[arm].ori.R[1][2], 
@@ -299,6 +314,7 @@ int update_device_crtk_motion_tf(device* dev, int arm){
         dev->mech[arm].pos_d.x += (int)(incr.x());
         dev->mech[arm].pos_d.y += (int)(incr.y());
         dev->mech[arm].pos_d.z += (int)(incr.z());
+        out = 1;
       }
       else{
         ROS_INFO("Relative Cartesian translation scaled to max speed. (length= %f m per ms)",incr.length()/MICRON_PER_M);
@@ -308,7 +324,7 @@ int update_device_crtk_motion_tf(device* dev, int arm){
         dev->mech[arm].pos_d.x += (int)(incr.x());
         dev->mech[arm].pos_d.y += (int)(incr.y());
         dev->mech[arm].pos_d.z += (int)(incr.z());
-        out = 0;
+        out = 1;
       }
 
       // (2) for rotation!
@@ -364,7 +380,17 @@ int update_device_crtk_motion_tf(device* dev, int arm){
         dev->mech[arm].pos_d.x = (int)(new_pos.x());
         dev->mech[arm].pos_d.y = (int)(new_pos.y());
         dev->mech[arm].pos_d.z = (int)(new_pos.z());
-        out = 0;
+        out = 1;
+      }
+      else if (fabs((new_pos-curr_pos).length()) <= 5 * max_dist_per_ms * MICRON_PER_M){
+        tf::Vector3 vec_threshed = (new_pos-curr_pos).normalized() * max_dist_per_ms * MICRON_PER_M;
+        dev->mech[arm].pos_d.x = (int)(new_pos.x());
+        dev->mech[arm].pos_d.y = (int)(new_pos.y());
+        dev->mech[arm].pos_d.z = (int)(new_pos.z());
+        // dev->mech[arm].pos_d.x = (int)(curr_pos.x() + vec_threshed.x());
+        // dev->mech[arm].pos_d.y = (int)(curr_pos.y() + vec_threshed.y());
+        // dev->mech[arm].pos_d.z = (int)(curr_pos.z() + vec_threshed.z());
+        out = 1;
       }
       else{
         ROS_ERROR("Absolute Cartesian step size too large. (step length = %f micron per ms)",fabs((new_pos-curr_pos).length()));
@@ -388,7 +414,7 @@ int update_device_crtk_motion_tf(device* dev, int arm){
         }
         else{
           ROS_ERROR("Absolute Cartesian rotation too large. (angle= %f deg per ms)",new_rot.angleShortestPath(curr_rot) RAD2DEG);
-          out = 0;
+          out = -1;
         }
       }
       else{
@@ -403,11 +429,11 @@ int update_device_crtk_motion_tf(device* dev, int arm){
     }
     default:{
       ROS_ERROR("Unsupported motion tf type.");
-      return 0;
+      return -1;
     }
   }
 
-  return 0;
+  return out;
 }
 
 
@@ -419,7 +445,7 @@ int update_device_crtk_motion_js(device* dev, int arm){
   static int count=0;
   static int limit_count=0;
   int index_offset =0;
-
+  int out = 0;
   CRTK_motion_type  type = dev->crtk_motion_planner.crtk_motion_api[arm].get_setpoint_out_type(); 
   sensor_msgs::JointState setpoint = dev->crtk_motion_planner.crtk_motion_api[arm].get_setpoint_out_js();
 
@@ -438,6 +464,7 @@ int update_device_crtk_motion_js(device* dev, int arm){
           if(fabs(setpoint.position[i]) <= limit){ 
             
             dev->mech[arm].joint[i+index_offset].jpos_d += setpoint.position[i];
+            out = 1;
           }
           else 
           {
@@ -445,9 +472,13 @@ int update_device_crtk_motion_js(device* dev, int arm){
             dev->mech[arm].joint[i+index_offset].jpos_d += sign*limit;
 
             limit_count ++;
-            if(limit_count%500 == 0)
-            ROS_ERROR("THAT WAS TOO FAR! joint %i jpos_d - %f, in %f ",
-             i+index_offset, dev->mech[arm].joint[i+index_offset].jpos_d , setpoint.position[i]);
+            out = 1;
+            if(limit_count%500 == 0){
+              ROS_ERROR("THAT WAS TOO FAR! joint %i jpos_d - %f, in %f ",
+              i+index_offset, dev->mech[arm].joint[i+index_offset].jpos_d , setpoint.position[i]);
+              out = -1;
+            }
+            
           }
         }
       break;
@@ -467,18 +498,24 @@ int update_device_crtk_motion_js(device* dev, int arm){
           float step_diff  = setpoint.position[i] - dev->mech[arm].joint[i+index_offset].jpos_d;
           if(fabs(step_diff) <= limit){
             dev->mech[arm].joint[i+index_offset].jpos_d = setpoint.position[i];
+            out = 1;
           }
           else
           {
 
             float sign = (step_diff > 0) ? 1 : -1;
             dev->mech[arm].joint[i+index_offset].jpos_d = dev->mech[arm].joint[i+index_offset].jpos_d + sign*limit;
-
+            out = 1;
             limit_count ++;
+
             if(limit_count%500 == 0)
-            ROS_ERROR("THAT WAS TOO FAR! joint %i actual, jpos_d - %f, in %f diff %f ",
-             i+index_offset, dev->mech[arm].joint[i+index_offset].jpos_d , setpoint.position[i], 
-             fabs(dev->mech[arm].joint[i+index_offset].jpos_d - setpoint.position[i]));
+            {
+              ROS_ERROR("THAT WAS TOO FAR! joint %i actual, jpos_d - %f, in %f diff %f ",
+               i+index_offset, dev->mech[arm].joint[i+index_offset].jpos_d , setpoint.position[i], 
+               fabs(dev->mech[arm].joint[i+index_offset].jpos_d - setpoint.position[i]));
+              out = -1;
+            }
+            
           }
         }
       break;
@@ -501,7 +538,7 @@ int update_device_crtk_motion_js(device* dev, int arm){
   }
   
   count ++;
-  return 0;
+  return out;
 }
 
 

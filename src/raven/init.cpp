@@ -517,6 +517,9 @@ int init_ravengains(ros::NodeHandle n, device *device0) {
   bool res = 0;
   log_msg("Getting gains params...");
 
+  //XmlRpc::XmlRpcValue my_list;
+  //nh.getParam("my_list", my_list);
+
   // initialize all gains to zero
   for (int i = 0; i < MAX_MECH * MAX_DOF_PER_MECH; i++) {
     DOF_types[i].KP = DOF_types[i].KD = DOF_types[i].KI = 0.0;

@@ -603,7 +603,7 @@ int init_ravenstate_publishing(robot_device *dev, ros::NodeHandle &n) {
                                              ,&crtk_motion_api_gold_grasp);
 
 
-  pub_crtk_state              = n.advertise<crtk_msgs::operating_state>("crtk_state", 1);
+  pub_crtk_state              = n.advertise<crtk_msgs::operating_state>("operating_state", 1);
   pub_crtk_state_arm1         = n.advertise<crtk_msgs::operating_state>("/arm1/operating_state", 1);
   pub_crtk_state_arm2         = n.advertise<crtk_msgs::operating_state>("/arm2/operating_state", 1);
   pub_crtk_measured_js_gold   = n.advertise<sensor_msgs::JointState>("arm1/measured_js", 1);
@@ -639,8 +639,8 @@ void publish_crtk(robot_device *device0){
     publish_crtk_state_arms(device0);
     publish_crtk_measured_js(device0);
     publish_crtk_setpoint_js(device0);
-    //publish_crtk_measured_cp(device0);
-    //publish_crtk_setpoint_cp(device0);
+    publish_crtk_measured_cp(device0);
+    publish_crtk_setpoint_cp(device0);
     publish_crtk_measured_gr_js(device0);
 }
 

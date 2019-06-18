@@ -318,7 +318,7 @@ bool CRTK_state::get_homed(){
  */
 void CRTK_state::crtk_cmd_cb(crtk_msgs::StringStamped msg){
 
-  std::string command = msg.data;
+  std::string command = msg.string;
   ROS_INFO("Received %s", command.c_str());
 
   if(command == "enable") {
