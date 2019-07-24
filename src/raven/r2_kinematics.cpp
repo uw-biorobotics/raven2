@@ -167,10 +167,12 @@ int setTeleTransform(mechanism &in_mch, int a, int b) {
   tf::Quaternion q_temp;
 
   /// get arm type and wrist actuation angle
-  if (in_mch.type == GOLD_ARM_SERIAL)
+  if (in_mch.type == GOLD_ARM)
     arm = dh_left;
-  else
+  else if (in_mch.type == GREEN_ARM)
     arm = dh_right;
+  else 
+    log_msg("what kind of arm is this in tele-kinematics!?");
 
   double wrist2 = (in_mch.joint[GRASP2].jpos - in_mch.joint[GRASP1].jpos) / 2.0;
 
@@ -214,10 +216,12 @@ int r2_fwd_kin(device *d0, int runlevel) {
   /// Do FK for each mechanism
   for (int m = 0; m < NUM_MECH; m++) {
     /// get arm type and wrist actuation angle
-    if (d0->mech[m].type == GOLD_ARM_SERIAL)
+    if (d0->mech[m].type == GOLD_ARM)
       arm = dh_left;
-    else
+    else if (d0->mech[m].type == GREEN_ARM)
       arm = dh_right;
+    else 
+      log_msg("what kind of arm is this in kinematics!?");
 
     double wrist2 = (d0->mech[m].joint[GRASP2].jpos - d0->mech[m].joint[GRASP1].jpos) / 2.0;
     d0->mech[m].ori.grasp =
@@ -329,10 +333,12 @@ int getATransform(mechanism &in_mch, tf::Transform &out_xform, int frameA, int f
   l_r arm;
 
   /// get arm type and wrist actuation angle
-  if (in_mch.type == GOLD_ARM_SERIAL)
+  if (in_mch.type == GOLD_ARM)
     arm = dh_left;
-  else
+  else if (in_mch.type == GREEN_ARM)
     arm = dh_right;
+  else 
+    log_msg("what kind of arm is this in transform-kinematics!?");
 
   double wrist2 = (in_mch.joint[GRASP2].jpos - in_mch.joint[GRASP1].jpos) / 2.0;
 
@@ -413,9 +419,10 @@ int r2_inv_kin(device *d0, int runlevel) {
     // get arm type and wrist actuation angle
     if (d0->mech[m].type == GOLD_ARM)
       arm = dh_left;
-    else 
+    else if (d0->mech[m].type == GREEN_ARM)
       arm = dh_right;
-  
+    else 
+      log_msg("what kind of arm is this in inverse kinematics!?");
 
     ori_d = &(d0->mech[m].ori_d);
     pos_d = &(d0->mech[m].pos_d);
@@ -767,6 +774,7 @@ int __attribute__((optimize("0"))) inv_kin(tf::Transform in_T06, l_r in_arm, ik_
  * \return 1 limit value of joint angle is appied, 0 inverse solution has not
  * reached joint limit
  *  \ingroup Kinematics
+ * \todo apply arm-specific limits. This just checks limits set for gold arm
  */
 int apply_joint_limits(double *Js, double *Js_sat) {
   int limited = 0;

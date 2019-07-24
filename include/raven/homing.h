@@ -30,6 +30,9 @@
 *
 *   \ingroup Control
 */
+#ifndef __HOMING_H__
+#define __HOMING_H__
+
 #include "DS0.h"
 
 /** prototype for homing()
@@ -47,3 +50,4 @@ int check_homing_condition(DOF *);
 
 
 
+#endif

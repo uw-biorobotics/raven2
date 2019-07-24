@@ -23,6 +23,9 @@
  *
  */
 
+#ifndef __OVERDRIVE_DETECT_H__
+#define __OVERDRIVE_DETECT_H__
+
 //#include <rtai.h>
 #include "struct.h"
 #include "defines.h"
@@ -35,3 +38,5 @@
 
 // Function prototypes
 int overdriveDetect(device *device0, int runlevel);
+
+#endif

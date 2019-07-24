@@ -26,6 +26,9 @@
  *
  */
 
+#ifndef __INIT_H__
+#define __INIT_H__
+
 // Include files
 #include <ros/ros.h>
 
@@ -58,3 +61,5 @@ const int raven_sq_tool_homing_max_dac[4] = {
                                2200,   // wrist
                                2300,   // grasp1
                                2300};  // grasp2
+
+#endif		

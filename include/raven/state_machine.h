@@ -27,6 +27,10 @@
  *
  */
 
+#ifndef __STATE_MACHINE_H__
+#define __STATE_MACHINE_H__
+
+
 // Include Files
 #include "struct.h"
 #include "defines.h"
@@ -35,3 +39,5 @@
 
 // Function prototypes
 void stateMachine(device *device0, param_pass *currParams, param_pass *rcvdParams);
+
+#endif

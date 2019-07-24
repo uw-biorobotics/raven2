@@ -22,7 +22,8 @@
  * dof.h - Degree of Freedom related functions
  *
  */
-
+#ifndef __DOF_H__
+#define __DOF_H__
 // Include Files
 //#include <linux/kernel.h>
 //#include <linux/module.h>
@@ -44,3 +45,6 @@ void encToJPos(DOF *joint);
 void encToMPos(DOF *joint);
 float encToMPos2(DOF *joint);
 int normalizeEncCnt(DOF *joint);
+bool isJointType(DOF *joint, int jType);
+
+#endif

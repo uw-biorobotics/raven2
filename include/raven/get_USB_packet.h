@@ -27,6 +27,9 @@
  *
  */
 
+#ifndef __GET_USB_PACKET_H__
+#define __GET_USB_PACKET_H__
+
 // RTAI + Linux include files
 //#include <linux/module.h> //used for jiffies
 //#include <rtai.h>
@@ -47,3 +50,5 @@ void processEncoderPacket(mechanism *mech, unsigned char buffer[]);
 
 int getUSBPacket(int id, device *dev, int index);
 void processJointEncoderPacket(device *dev, unsigned char buffer[]);
+
+#endif

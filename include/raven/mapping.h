@@ -34,6 +34,9 @@
 #undef __attribute_pure__
 #endif*/
 
+#ifndef __MAPPING_H__
+#define __MAPPING_H__	
+
 #include <cmath>
 #include <tf/transform_datatypes.h>
 
@@ -47,3 +50,5 @@
 
 void masterToSlave(position *, int);
 void fromITP(position *, tf::Quaternion &, int);
+
+#endif

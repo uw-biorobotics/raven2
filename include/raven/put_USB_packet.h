@@ -27,6 +27,9 @@
  *
  */
 
+#ifndef __PUT_USB_PACKET_H__
+#define __PUT_USB_PACKET_H__
+
 // Include files
 //#include <rtai.h>
 
@@ -39,3 +42,5 @@
 void putUSBPackets(device *device0);
 int putUSBPacket(int id, mechanism *mech);
 int putJointEncUSBPacket(int id);
+
+#endif

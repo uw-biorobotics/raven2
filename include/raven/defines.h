@@ -37,6 +37,8 @@
 //#define KIST
 #define JOINT_ENCODERS 0  // 1 indicates that there is a USB board for joint encoders
                           // 0 if no joint encoders
+#define EXTRA_ARMS 1  // 1 indicates that there are more than 2 arms
+                      // 0 if 2 or fewer arms
 
 //~~~~~~~~~ tool adapter definition ~~~~~~~~~~~~~~~~
 //#define RICKS_TOOLS     //skips tool initialization
@@ -50,10 +52,16 @@
 //~~~~~~~~~ USB Board definition ~~~~~~~~~~~~~~~~~~~
 // Two arm identification
 // Change this to match device ID in /dev/brl_usbXX
-#define GREEN_ARM_SERIAL 21
+#define GREEN_ARM_SERIAL 50
 #define GOLD_ARM_SERIAL 37
 
-#define JOINT_ENC_SERIAL 99  // 99 if no joint encoder board
+#define ORANGE_ARM_SERIAL 99  // 99 if no third/fourth arm
+#define BLUE_ARM_SERIAL   99 //27  // 99 if no third/fourth arm
+
+
+
+#define JOINT_ENC_SERIAL    99  // 99 if no joint encoder board
+#define JOINT_ENC_SERIAL_2  99  // 99 if no 2nd joint encoder board
 
 
 //~~~~~~~~~ safety policy selection ~~~~~~~~~~~~~~~~~~~
@@ -70,15 +78,15 @@
                 // state_estimate.cpp
 #define GRASP_GAIN  1  // 2 will get a little more oomph out of the omni grasping
                        // 0 or 1 for normal operation
-// button - sets a gain in local__io.cpp
+                       // button - sets a gain in local__io.cpp
 //#define ORIENTATION_V
 //#define DAC_TEST  				// treat the desired torque as the
-// desired DAC output
+                            // desired DAC output
 
 //~~~~~~~~ Other defines ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#define GOLD_ARM  0     // used for mech type (mechanical configuration)
+#define GREEN_ARM 1     // used for mech type (mechanical configuration)
 
-#define GREEN_ARM GREEN_ARM_SERIAL
-#define GOLD_ARM GOLD_ARM_SERIAL
 
 // KIST configuration is GREEN ONLY and no tools(ricks tools)
 #ifdef KIST
@@ -174,6 +182,28 @@
 #define GRASP2_GREEN 15
 #define NO_CONNECTION_GREEN 11
 
+// BLUE Arm
+#define SHOULDER_BLUE 16
+#define ELBOW_BLUE 17
+#define Z_INS_BLUE 18
+//<not connected>    19
+#define TOOL_ROT_BLUE 20
+#define WRIST_BLUE 21
+#define GRASP1_BLUE 22
+#define GRASP2_BLUE 23
+#define NO_CONNECTION_BLUE 20
+
+// ORANGE Arm
+#define SHOULDER_ORANGE 24
+#define ELBOW_ORANGE 25
+#define Z_INS_ORANGE 26
+//<not connected>    27
+#define TOOL_ROT_ORANGE 28
+#define WRIST_ORANGE 29
+#define GRASP1_ORANGE 30
+#define GRASP2_ORANGE 31
+#define NO_CONNECTION_ORANGE 27
+
 // Joint Scale Factors
 #define WRIST_SCALE_FACTOR (float)(1.5) /*used in update_device_state.c on incoming param*/
 
@@ -263,11 +293,21 @@
 #define GRASP1_TR_GOLD_ARM (GRASP1_TR_GREEN_ARM)
 #define GRASP2_TR_GOLD_ARM (GRASP2_TR_GREEN_ARM)
 
-// Link Angles/Lengths
-// these names cause conflicts with Eigen libraries
-// moved to inv_kinematics.h
-//#define A12 (float)(1.30899694)    /*Link1 - 75deg in RAD*/
-//#define A23 (float)(0.907571211)    /*Link2 - 52deg in RAD - was set to 60*/
+#define SHOULDER_TR_BLUE_ARM (SHOULDER_TR_GREEN_ARM)
+#define ELBOW_TR_BLUE_ARM (ELBOW_TR_GREEN_ARM)
+#define Z_INS_TR_BLUE_ARM (Z_INS_TR_GREEN_ARM)
+#define TOOL_ROT_TR_BLUE_ARM (TOOL_ROT_TR_GREEN_ARM)
+#define WRIST_TR_BLUE_ARM (WRIST_TR_GREEN_ARM)
+#define GRASP1_TR_BLUE_ARM (GRASP1_TR_GREEN_ARM)
+#define GRASP2_TR_BLUE_ARM (GRASP2_TR_GREEN_ARM)
+
+#define SHOULDER_TR_ORANGE_ARM (SHOULDER_TR_GREEN_ARM)
+#define ELBOW_TR_ORANGE_ARM (ELBOW_TR_GREEN_ARM)
+#define Z_INS_TR_ORANGE_ARM (Z_INS_TR_GREEN_ARM)
+#define TOOL_ROT_TR_ORANGE_ARM (TOOL_ROT_TR_GREEN_ARM)
+#define WRIST_TR_ORANGE_ARM (WRIST_TR_GREEN_ARM)
+#define GRASP1_TR_ORANGE_ARM (GRASP1_TR_GREEN_ARM)
+#define GRASP2_TR_ORANGE_ARM (GRASP2_TR_GREEN_ARM)
 
 // Kinematic Zero Offset (encoder space)
 #define SHOULDER_GOLD_KIN_OFFSET (float)(0.0)  //(62.0)
@@ -278,14 +318,14 @@
 #define ELBOW_GREEN_KIN_OFFSET ELBOW_GOLD_KIN_OFFSET
 #define Z_INS_GREEN_KIN_OFFSET Z_INS_GOLD_KIN_OFFSET
 
-// Kinematic Zero Offset (encoder space) RAVEN_I used differnet kin. eq's
-//#define SHOULDER_A_KIN_OFFSET (float)(-62.0)
-//#define ELBOW_A_KIN_OFFSET    (float)(-32.0)
-//#define Z_INS_A_KIN_OFFSET    (float)(0.0)
-//
-//#define SHOULDER_B_KIN_OFFSET (float)(62.0)
-//#define ELBOW_B_KIN_OFFSET    (float)(-328.0)
-//#define Z_INS_B_KIN_OFFSET    (float)(0.0)
+#define SHOULDER_BLUE_KIN_OFFSET SHOULDER_GOLD_KIN_OFFSET
+#define ELBOW_BLUE_KIN_OFFSET ELBOW_GOLD_KIN_OFFSET
+#define Z_INS_BLUE_KIN_OFFSET Z_INS_GOLD_KIN_OFFSET
+
+#define SHOULDER_ORANGE_KIN_OFFSET SHOULDER_GOLD_KIN_OFFSET
+#define ELBOW_ORANGE_KIN_OFFSET ELBOW_GOLD_KIN_OFFSET
+#define Z_INS_ORANGE_KIN_OFFSET Z_INS_GOLD_KIN_OFFSET
+
 
 // InvKinematic Software Stops
 //   Kinematics equations for R+II are formulated so that joint ranges are

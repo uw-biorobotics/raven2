@@ -166,8 +166,7 @@ int USBInit(device *device0) {
     boardid = get_board_id_from_filename(files[i]);
 
     // Is this a USB device that we know or care about?
-    if ((boardid == GREEN_ARM_SERIAL) || (boardid == GOLD_ARM_SERIAL) ||
-        (boardid == JOINT_ENC_SERIAL)) {
+    if (isMechanismBoard(boardid) || isJointEncBoard(boardid)) {
       // Open usb dev
       int tmp_fileHandle =
           open(boardStr.c_str(),
@@ -191,13 +190,34 @@ int USBInit(device *device0) {
         okboards++;
         log_msg("  Green Arm on board #%d.", boardid);
         device0->mech[mechcounter].type = GREEN_ARM;
+        device0->mech[mechcounter].name = green;
+        device0->mech[mechcounter].serial = GREEN_ARM_SERIAL;
+        mechcounter++;
+      } else if (boardid == ORANGE_ARM_SERIAL) {
+        okboards++;
+        log_msg("  Orange Arm on board #%d.", boardid);
+        device0->mech[mechcounter].type = GREEN_ARM;
+        device0->mech[mechcounter].name = orange;
+        device0->mech[mechcounter].serial = ORANGE_ARM_SERIAL;   
         mechcounter++;
       } else if (boardid == GOLD_ARM_SERIAL) {
         okboards++;
         log_msg("  Gold Arm on board #%d.", boardid);
         device0->mech[mechcounter].type = GOLD_ARM;
+        device0->mech[mechcounter].name = gold;
+        device0->mech[mechcounter].serial = GOLD_ARM_SERIAL;   
+        mechcounter++;
+      } else if (boardid == BLUE_ARM_SERIAL) {
+        okboards++;
+        log_msg("  Blue Arm on board #%d.", boardid);
+        device0->mech[mechcounter].type = GOLD_ARM;
+        device0->mech[mechcounter].name = blue;
+        device0->mech[mechcounter].serial = BLUE_ARM_SERIAL;
         mechcounter++;
       } else if (boardid == JOINT_ENC_SERIAL) {
+        okboards++;
+        log_msg("  Joint Encoder on board #%d.", boardid);
+      } else if (boardid == JOINT_ENC_SERIAL_2) {
         okboards++;
         log_msg("  Joint Encoder on board #%d.", boardid);
       } else {
@@ -224,16 +244,43 @@ int USBInit(device *device0) {
         "Error: failed to init two boards!  Behavior is henceforce "
         "undetermined...");
   }
+  if (okboards > 2) {
+    ROS_ERROR(
+        "Warning: more than two boards inited!  Behavior is henceforce "
+        "in beta");
+  }
   //      return 0;
   // Only now we have info about number of boards and set it to number of
   // mechanisms
   // should this be the number of arms or number of USB boards
   // lets try to do it as # arms
   // JOINT_ENCODERS tag
+
+  device0->num_mechs = mechcounter;
   NUM_MECH = mechcounter;  // USBBoards.activeAtStart;
 
   return USBBoards.activeAtStart;
 }
+
+/** determine if the given board ID is associated with a Joint encoder board
+* \param    id    the board ID in question
+* 
+* \return   1 if board is joint encoder board, 0 otherwise
+*/
+int isJointEncBoard(int id){
+  return ((id == JOINT_ENC_SERIAL) || (id == JOINT_ENC_SERIAL));
+}
+
+/** determine if the given board ID is associated with a RAVEN mechanism (arm)
+* \param    id    the board ID in question
+* 
+* \return   1 if board is RAVEN mech board, 0 otherwise
+*/
+int isMechanismBoard(int id){
+  return ((id == GREEN_ARM_SERIAL)  || (id == GOLD_ARM_SERIAL) ||
+          (id == ORANGE_ARM_SERIAL) || (id == BLUE_ARM_SERIAL));
+}
+
 
 /**\fn void USBShutdown()
 * \brief shutsdown the USB modules, setting DAC outputs to zero before shutting

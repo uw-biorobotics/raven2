@@ -282,11 +282,11 @@ int r2_jacobian::calc_jacobian(float j_pos[6], tool a_tool, int arm_type) {
   int d3 = D3;
 
   // set dh_alpha based on mech type
-  if (arm_type == GREEN_ARM_SERIAL) {
+  if (arm_type == GREEN_ARM) {
     for (int i = 0; i < 6; i++) {
       dh_alpha[i] = dh_alpha_gold[i];
     }
-  } else if (arm_type == GOLD_ARM_SERIAL) {
+  } else if (arm_type == GOLD_ARM) {
     for (int i = 0; i < 6; i++) {
       dh_alpha[i] = dh_alpha_green[i];
     }

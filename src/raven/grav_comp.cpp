@@ -92,17 +92,17 @@ tf::Vector3 getCurrentG(device *d0, int m) {
   mechanism *_mech;
   _mech = &(d0->mech[m]);
   float xG0, yG0, zG0;
-  if (_mech->type == GOLD_ARM_SERIAL) {
+  if (_mech->type == GOLD_ARM) {
     // take new data and rotate to frame 0 GOLD and scale to m/s^2
     xG0 = -1 * ((float)d0->grav_dir.z) / 100;
     yG0 = ((float)d0->grav_dir.x) / 100;
     zG0 = -1 * ((float)d0->grav_dir.y) / 100;
-  } else {
+  } else if (_mech->type == GREEN_ARM) {
     // take new data and rotate to frame 0 GREEN and scale to m/s^2
     xG0 = -1 * ((float)d0->grav_dir.z) / 100;
     yG0 = -1 * ((float)d0->grav_dir.x) / 100;
     zG0 = ((float)d0->grav_dir.y) / 100;
-  }
+  } else log_msg("unknown mech type in grav comp!");
 
   // return as a bt vector
   return tf::Vector3(xG0, yG0, zG0);
@@ -150,7 +150,7 @@ void getGravityTorque(device &d0, param_pass &params) {
     // G0 = G0Static;
     G0 = getCurrentG(&d0, m);  // uncomment this line to enable dynamic gravity vectors
 
-    if (_mech->type == GOLD_ARM_SERIAL) {
+    if (_mech->type == GOLD_ARM) {
       COM1_1 = COM1_1_GL;
       COM2_2 = COM2_2_GL;
       COM3_3 = COM3_3_GL;

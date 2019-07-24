@@ -29,10 +29,13 @@
 *	\ingroup IO
 */
 
-/** prototype for console_process()
- */
+#ifndef __CONSOLE_PROCESS_H__
+#define __CONSOLE_PROCESS_H__
+
+#include "local_io.h"
+
 void *console_process(void *);
 
-/** prototype for outputRobotState()
- */
 void outputRobotState();
+
+#endif

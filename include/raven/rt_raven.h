@@ -33,9 +33,14 @@
 *   \ingroup Control
 */
 
+#ifndef __RT_RAVEN_H__
+#define __RT_RAVEN_H__
+
 #include "DS0.h"
 #include "DS1.h"
 
 /** prototype for controlRaven()
  */
 int controlRaven(robot_device *, param_pass *);
+
+#endif

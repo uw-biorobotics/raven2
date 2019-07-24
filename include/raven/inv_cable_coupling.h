@@ -27,6 +27,9 @@
  *
  ************************************************/
 
+#ifndef __INV_CABLE_COUPLING_H__
+#define __INV_CABLE_COUPLING_H__
+
 //#include <linux/kernel.h>
 //#include <linux/module.h>
 //#include <rtai.h>
@@ -39,3 +42,5 @@
 
 void invCableCoupling(device *device0, int runlevel);
 void invMechCableCoupling(mechanism *mech, int no_use_actual = 0);
+
+#endif

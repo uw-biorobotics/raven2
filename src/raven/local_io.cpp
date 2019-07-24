@@ -38,7 +38,7 @@
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE  // For realtime posix support. see
                      // http://www.gnu.org/s/libc/manual/html_node/Feature-Test-Macros.html
-#endif //TODO: move this endif?
+#endif 
 
 #include <cstring>
 #include <pthread.h>
@@ -76,6 +76,8 @@ volatile int isUpdated;  // TODO: HK volatile int instead of atomic_t ///Should 
 extern offsets offsets_l;
 extern offsets offsets_r;
 
+int cameraTransform(tf::Quaternion &q_temp, position &p, int armidx);
+
 CRTK_motion_api crtk_motion_api_gold(0); //class to hold robot status flags for CRTK API
 CRTK_motion_api crtk_motion_api_green(1); //class to hold robot status flags for CRTK API
 CRTK_motion_api crtk_motion_api_gold_grasp(0); //class to hold robot status flags for CRTK API
@@ -108,6 +110,8 @@ int initLocalioData(device *device0) {
   }
   data1.surgeon_mode = 0;
   data1.last_sequence = 111;
+
+  log_msg("NUM_MECH -->  %i", NUM_MECH);
 
   pthread_mutex_unlock(&data1Mutex);
 
@@ -148,7 +152,7 @@ int receiveUserspace(void *u, int size) {
  */
 void teleopIntoDS1(u_struct *us_t) {
   position p, p_temp;
-  int i, armidx, armserial, loops;
+  int i, armidx, armtype, loops;
   pthread_mutex_lock(&data1Mutex);
   tf::Quaternion q_temp;
   tf::Matrix3x3 rot_mx_temp;
@@ -164,13 +168,17 @@ void teleopIntoDS1(u_struct *us_t) {
 
   for (i = 0; i < loops; i++) {
     if (USBBoards.boards[i] == GOLD_ARM_SERIAL) {
-      armserial = GOLD_ARM_SERIAL;
+      armtype = GOLD_ARM;
       armidx = 0;
     } else if (USBBoards.boards[i] == GREEN_ARM_SERIAL) {
-      armserial = GREEN_ARM_SERIAL;
+      armtype = GREEN_ARM;
       armidx = 1;
-    } else if (USBBoards.boards[i] == JOINT_ENC_SERIAL) {
-      continue;  // don't do any teleop data for joint encoders
+    } else if ((USBBoards.boards[i] == JOINT_ENC_SERIAL) 
+              || (USBBoards.boards[i] == BLUE_ARM_SERIAL)
+              || (USBBoards.boards[i] == ORANGE_ARM_SERIAL)
+              || (USBBoards.boards[i] == JOINT_ENC_SERIAL_2)) {
+      continue;  // don't do any teleop data for joint encoders 
+                 // or extra arms, yet
     }
 
     // apply mapping to teleop data
@@ -190,81 +198,9 @@ void teleopIntoDS1(u_struct *us_t) {
     //tool is a camera tool, only take z comp
     //TODO make this a separate function
     if(data1.param_tool_type[armidx] == qut_camera){ 
-      // tf_0_4 --> roll frame represented in frame 0 (at RCM)
-      tf::Transform tf_0_4, tf_4_cz, tf_m_c, tf_0_m;
-      tf::Quaternion q_master;
-      tf::Vector3 k_c, k_cz, k_0, k_m; // equivalent angle axis
-      tf::Vector3 v_m, v_0, v_rot_axis; // master position incr and ouput incr 
-      tfScalar out_angle, mech_tool_frame[4];
-
-      // *** 0 set known transforms *** 
-      tf_4_cz.setIdentity(); // this transformation can be used to 
-                             // compensate for camera angle offsets
-
-      // camera frame represented in master frame
-      tf_m_c = tf::Transform(tf::Matrix3x3(0,  0,  1,
-                                           0,  -1, 0,
-                                           1,  0,  0)); 
-
-      // *** 1 represent master input in tf datatypes *** 
-      q_master = q_temp;
-      // equiv angle axis of master rot incr
-      k_m = q_master.getAngle() * q_master.getAxis(); 
-      // vector type of master position incr
-      v_m.setValue(p.x, p.y, p.z); 
-
-
-
-      // *** 2 get the transform 0_4 passed from kinematics to data1 *** 
-      for(int i = 0; i < 4; i++){
-        mech_tool_frame[i] = data1.teleop_tf_quat[armidx * 4 + i];
-      }
-      tf_0_4.setRotation(tf::Quaternion(mech_tool_frame[0], mech_tool_frame[1], 
-        mech_tool_frame[2], mech_tool_frame[3]));
-
-
-      // *** 3 project master rotation onto z axis *** 
-      // camera only allows roll about insertion axis
-      k_c = tf_m_c.getBasis().inverse() * k_m;
-      k_cz = k_c * tf::Vector3(0,0,1);
-
-      // *** 4 kind k_0 and v_0
-      // k_0 = tf_0_4 * t_4_cz * k_cz;
-      // v_0 = tf_0_4 * t_4_cz * tf_m_c.inverse() * v_m;
-      k_0 = tf_0_4.getBasis() * k_cz;
-      v_0 = tf_0_4.getBasis() * tf_m_c.getBasis().inverse() * v_m;
-
-
-
-      // *** 5 translate data back to traditional forms ***
-      v_rot_axis = k_0.normalized();
-      out_angle = k_0.length();
-      char zero_flag = 0;
-      if(out_angle == 0.0){
-        zero_flag = 1;
-        q_temp.setRPY(0,0,0);
-      }else
-        q_temp.setRotation(v_rot_axis, out_angle);
-      p.x = v_0.getX(); p.y = v_0.getY(); p.z = v_0.getZ();
-
-      static int check = 0;
-      check++;
-      if((check % 1000 == 0) && debug_camera){
-        tf::Transform(q_master).getBasis().getEulerYPR(yaw_temp, pitch_temp, roll_temp);
-        log_msg("q_master   r p y   %f \t %f \t %f", roll_temp, pitch_temp, yaw_temp);
-        log_msg("K_c                %f \t %f \t %f", k_c.getX(), k_c.getY(), k_c.getZ());        
-        log_msg("K_c proj           %f \t %f \t %f", k_cz.getX(), k_cz.getY(), k_cz.getZ());
-        log_msg("K_0                %f \t %f \t %f", k_0.getX(), k_0.getY(), k_0.getZ());
-        log_msg("V_0                %f \t %f \t %f", v_0.getX(), v_0.getY(), v_0.getZ());
-        log_msg("rot_axis           %f \t %f \t %f", v_rot_axis.getX(), v_rot_axis.getY(), v_rot_axis.getZ());
-        log_msg("out_angle                %f", out_angle);
-        if(zero_flag) log_msg("Zero!");
-        else log_msg("");        
-        log_msg("---");  
-      }
-
+      cameraTransform(q_temp, p, armidx);
     }else
-    fromITP(&p, q_temp, armserial);
+      fromITP(&p, q_temp, armtype);
 
 
     data1.xd[armidx].x += p.x;
@@ -321,6 +257,95 @@ void teleopIntoDS1(u_struct *us_t) {
 
   data1.surgeon_mode = us_t->surgeon_mode;
   pthread_mutex_unlock(&data1Mutex);
+}
+
+
+/**
+* \brief Calculates camera-centric commands in 0-frame from teleop
+*
+* 
+*
+* \return 0 if success
+*/
+int cameraTransform(tf::Quaternion& q_temp, position& p, int armidx){
+  int success = 0;
+
+  // tf_0_4 --> roll frame represented in frame 0 (at RCM)
+  tf::Transform tf_0_4, tf_4_cz, tf_m_c, tf_0_m;
+  tf::Quaternion q_master;
+  tf::Vector3 k_c, k_cz, k_0, k_m; // equivalent angle axis
+  tf::Vector3 v_m, v_0, v_rot_axis; // master position incr and ouput incr 
+  tfScalar out_angle, mech_tool_frame[4];
+  tfScalar roll_temp, pitch_temp, yaw_temp;
+
+  int debug_camera = 0;
+
+  // *** 0 set known transforms *** 
+  tf_4_cz.setIdentity(); // this transformation can be used to 
+                         // compensate for camera angle offsets
+
+  // camera frame represented in master frame
+  tf_m_c = tf::Transform(tf::Matrix3x3(0,  0,  1,
+                                       0,  -1, 0,
+                                       1,  0,  0)); 
+
+  // *** 1 represent master input in tf datatypes *** 
+  q_master = q_temp;
+  // equiv angle axis of master rot incr
+  k_m = q_master.getAngle() * q_master.getAxis(); 
+  // vector type of master position incr
+  v_m.setValue(p.x, p.y, p.z); 
+
+
+
+  // *** 2 get the transform 0_4 passed from kinematics to data1 *** 
+  for(int i = 0; i < 4; i++){
+    mech_tool_frame[i] = data1.teleop_tf_quat[armidx * 4 + i];
+  }
+  tf_0_4.setRotation(tf::Quaternion(mech_tool_frame[0], mech_tool_frame[1], 
+    mech_tool_frame[2], mech_tool_frame[3]));
+
+
+  // *** 3 project master rotation onto z axis *** 
+  // camera only allows roll about insertion axis
+  k_c = tf_m_c.getBasis().inverse() * k_m;
+  k_cz = k_c * tf::Vector3(0,0,1);
+
+  // *** 4 kind k_0 and v_0
+  // k_0 = tf_0_4 * t_4_cz * k_cz;
+  // v_0 = tf_0_4 * t_4_cz * tf_m_c.inverse() * v_m;
+  k_0 = tf_0_4.getBasis() * k_cz;
+  v_0 = tf_0_4.getBasis() * tf_m_c.getBasis().inverse() * v_m;
+
+
+
+  // *** 5 translate data back to traditional forms ***
+  v_rot_axis = k_0.normalized();
+  out_angle = k_0.length();
+  char zero_flag = 0;
+  if(out_angle == 0.0){
+    zero_flag = 1;
+    q_temp.setRPY(0,0,0);
+  }else
+    q_temp.setRotation(v_rot_axis, out_angle);
+  p.x = v_0.getX(); p.y = v_0.getY(); p.z = v_0.getZ();
+
+  static int check = 0;
+  check++;
+  if((check % 1000 == 0) && debug_camera){
+    tf::Transform(q_master).getBasis().getEulerYPR(yaw_temp, pitch_temp, roll_temp);
+    log_msg("q_master   r p y   %f \t %f \t %f", roll_temp, pitch_temp, yaw_temp);
+    log_msg("K_c                %f \t %f \t %f", k_c.getX(), k_c.getY(), k_c.getZ());        
+    log_msg("K_c proj           %f \t %f \t %f", k_cz.getX(), k_cz.getY(), k_cz.getZ());
+    log_msg("K_0                %f \t %f \t %f", k_0.getX(), k_0.getY(), k_0.getZ());
+    log_msg("V_0                %f \t %f \t %f", v_0.getX(), v_0.getY(), v_0.getZ());
+    log_msg("rot_axis           %f \t %f \t %f", v_rot_axis.getX(), v_rot_axis.getY(), v_rot_axis.getZ());
+    log_msg("out_angle                %f", out_angle);
+    if(zero_flag) log_msg("Zero!");
+    else log_msg("");        
+    log_msg("---");  
+  }
+  return success;    
 }
 
 /**
@@ -432,7 +457,11 @@ void updateMasterRelativeOrigin(device *device0) {
       for (int k = 0; k < 3; k++) data1.rd[i].R[j][k] = _ori->R[j][k];
 
     // Set the local quaternion orientation rep.
-    armidx = device0->mech[i].type == GREEN_ARM_SERIAL ? 1 : 0;
+    if (device0->mech[i].name == green) 
+      armidx = 1;
+    else if (device0->mech[i].name == gold)
+      armidx = 0;
+    else continue; //don't do anything for joint encoders or extra arms yet 
     tmpmx.setValue(_ori->R[0][0], _ori->R[0][1], _ori->R[0][2], _ori->R[1][0], _ori->R[1][1],
                    _ori->R[1][2], _ori->R[2][0], _ori->R[2][1], _ori->R[2][2]);
     tmpmx.getRotation(Q_ori[armidx]);
@@ -674,8 +703,12 @@ void autoincrCallback(raven_2::raven_automove msg) {
       armidx = 0;
     } else if (USBBoards.boards[i] == GREEN_ARM_SERIAL) {
       armidx = 1;
-    } else if (USBBoards.boards[i] == JOINT_ENC_SERIAL) {
+    } else if ((USBBoards.boards[i] == JOINT_ENC_SERIAL) 
+              || (USBBoards.boards[i] == BLUE_ARM_SERIAL)
+              || (USBBoards.boards[i] == ORANGE_ARM_SERIAL)
+              || (USBBoards.boards[i] == JOINT_ENC_SERIAL_2)) {
       continue;  // don't do any teleop data for joint encoders
+                 // or extra arms yet
     }
 
     // add position increment
@@ -786,7 +819,12 @@ void publish_ravenstate_ros(robot_device *dev, param_pass *currParams) {
     // grab jacobian velocities and forces
     float vel[6];
     float f[6];
-    j = dev->mech[i].type == GREEN_ARM ? 1 : 0;
+    if (dev->mech[i].name == green) 
+      j = 1;
+    else if (dev->mech[i].name == gold)
+      j = 0;
+    else continue; //don't do anything for joint encoders or extra arms yet 
+    // j = dev->mech[i].name == green ? 1 : 0;
     dev->mech[j].r2_jac.get_vel(vel);
     dev->mech[j].r2_jac.get_vel(f);
     for (int k = 0; k < 6; k++) {
@@ -1094,7 +1132,7 @@ void publish_joints(robot_device *device0) {
   //    joint_state.name.resize(14);
   //    joint_state.position.resize(14);
   int left, right;
-  if (device0->mech[0].type == GOLD_ARM) {
+  if (device0->mech[0].name == gold) {
     left = 0;
     right = 1;
   } else {

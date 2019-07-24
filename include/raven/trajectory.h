@@ -27,6 +27,9 @@
 *upon calling.
 */
 
+#ifndef __TRAJECTORY_H__
+#define __TRAJECTORY_H__
+
 #include "struct.h"
 
 // Setup and teardown of trajectory generation
@@ -43,3 +46,5 @@ int update_linear_sinusoid_velocity_trajectory(DOF *);
 int update_sinusoid_position_trajectory(DOF *);
 int update_linear_sinusoid_position_trajectory(DOF *);
 int update_position_trajectory(DOF *);
+
+#endif

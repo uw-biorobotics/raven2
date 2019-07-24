@@ -27,6 +27,9 @@
  *
  */
 
+#ifndef __T_TO_DAC_VAL_H__
+#define __T_TO_DAC_VAL_H__
+
 //#include <rtai.h>
 
 // Local include files
@@ -53,4 +56,6 @@ int TorqueToDACTest(device *device0);  // Square wave for timing test
 
 #ifdef __cplusplus
 }
+#endif
+
 #endif

@@ -27,6 +27,9 @@
  *
  */
 
+#ifndef __UPDATE_ATMEL_IO_H__
+#define __UPDATE_ATMEL_IO_H__
+
 #include "struct.h"
 #include "defines.h"
 
@@ -64,3 +67,5 @@
 // Function Prototypes
 void updateAtmelOutputs(device *device0, int runlevel);
 void updateAtmelInputs(device device0, int runlevel);
+
+#endif

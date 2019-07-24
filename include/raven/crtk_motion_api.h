@@ -28,6 +28,8 @@
  *  \author Andrew Lewis, Yun-Hsuan Su
 
  */
+#ifndef CRTK_MOTION_API_H_
+#define CRTK_MOTION_API_H_
 
 #include <ros/ros.h>
 #include <geometry_msgs/TransformStamped.h>
@@ -35,8 +37,7 @@
 #include <sensor_msgs/JointState.h>
 #include <tf/tf.h>
 
-#ifndef CRTK_MOTION_API_H_
-#define CRTK_MOTION_API_H_
+
 
 /**
  * @brief      Level of motion specified in order of priority

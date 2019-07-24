@@ -28,12 +28,14 @@
  *  \author Andrew Lewis, Yun-Hsuan Su
 
  */
+#ifndef CRTK_STATE_H_
+#define CRTK_STATE_H_
+
 #include <ros/ros.h>
 #include <crtk_msgs/StringStamped.h>
 #include <std_msgs/String.h>
 
-#ifndef CRTK_STATE_H_
-#define CRTK_STATE_H_
+
 
 enum CRTK_robot_state {CRTK_ENABLED, CRTK_DISABLED, CRTK_PAUSED, CRTK_FAULT, CRTK_VOID};
 enum CRTK_robot_command {CRTK_ENABLE, CRTK_DISABLE, CRTK_PAUSE, CRTK_RESUME, CRTK_UNHOME, CRTK_HOME};

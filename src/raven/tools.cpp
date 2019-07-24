@@ -65,12 +65,12 @@ int isCamera(end_effector_type end){
 
 /** creates new tool and sets style according to end effector type
  *  \param t_end_new   type of end effector
- *  \param a_mech      which arm is the tool mounted on
+ *  \param a_mech_name      name of arm that the tool is mounted on
  *  \return void
  */
-void tool::set_tool(end_effector_type t_end_new, int a_mech) {
+void tool::set_tool(end_effector_type t_end_new, int a_mech_name) {
   t_end = t_end_new;
-  mech_type = a_mech;
+  mech_name = a_mech_name;
   if ((t_end == r_grasper) || (t_end == qut_camera) || (t_end == ricks_tool))
     adapter_style = raven;
   else if (t_end == r_sq_grasper)

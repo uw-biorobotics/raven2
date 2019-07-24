@@ -28,6 +28,9 @@
  *
  */
 
+#ifndef __STATE_ESTIMATE_H__
+#define __STATE_ESTIMATE_H__
+
 #include "struct.h"
 #include "defines.h"
 #include "dof.h"
@@ -35,3 +38,5 @@
 void stateEstimate(robot_device *device0);
 void getStateLPF(DOF *joint, adapter adapter_style);
 void resetFilter(DOF *_joint);
+
+#endif

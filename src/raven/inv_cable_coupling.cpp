@@ -68,7 +68,8 @@ void invCableCoupling(device *device0, int runlevel) {
 */
 
 void invMechCableCoupling(mechanism *mech, int no_use_actual) {
-  if (mech->type != GOLD_ARM && mech->type != GREEN_ARM) {
+  if (mech->name != gold && mech->name != green
+      && mech->name != blue &&  mech->name != orange) {
     log_msg("bad mech type!");
     return;
   }
@@ -86,7 +87,7 @@ void invMechCableCoupling(mechanism *mech, int no_use_actual) {
   th6 = mech->joint[GRASP1].jpos_d;
   th7 = mech->joint[GRASP2].jpos_d;
 
-  if (mech->type == GOLD_ARM) {
+  if (mech->name == gold) {
     tr1 = DOF_types[SHOULDER_GOLD].TR;
     tr2 = DOF_types[ELBOW_GOLD].TR;
     tr3 = DOF_types[TOOL_ROT_GOLD].TR;
@@ -95,7 +96,7 @@ void invMechCableCoupling(mechanism *mech, int no_use_actual) {
     tr6 = DOF_types[GRASP1_GOLD].TR;
     tr7 = DOF_types[GRASP2_GOLD].TR;
 
-  } else if (mech->type == GREEN_ARM) {
+  } else if (mech->name == green) {
     tr1 = DOF_types[SHOULDER_GREEN].TR;
     tr2 = DOF_types[ELBOW_GREEN].TR;
     tr3 = DOF_types[TOOL_ROT_GREEN].TR;
@@ -103,6 +104,24 @@ void invMechCableCoupling(mechanism *mech, int no_use_actual) {
     tr5 = DOF_types[WRIST_GREEN].TR;
     tr6 = DOF_types[GRASP1_GREEN].TR;
     tr7 = DOF_types[GRASP2_GREEN].TR;
+  }
+  else if (mech->name == blue) {
+    tr1 = DOF_types[SHOULDER_BLUE].TR;
+    tr2 = DOF_types[ELBOW_BLUE].TR;
+    tr3 = DOF_types[TOOL_ROT_BLUE].TR;
+    tr4 = DOF_types[Z_INS_BLUE].TR;
+    tr5 = DOF_types[WRIST_BLUE].TR;
+    tr6 = DOF_types[GRASP1_BLUE].TR;
+    tr7 = DOF_types[GRASP2_BLUE].TR;
+  }
+  else if (mech->name == orange) {
+    tr1 = DOF_types[SHOULDER_ORANGE].TR;
+    tr2 = DOF_types[ELBOW_ORANGE].TR;
+    tr3 = DOF_types[TOOL_ROT_ORANGE].TR;
+    tr4 = DOF_types[Z_INS_ORANGE].TR;
+    tr5 = DOF_types[WRIST_ORANGE].TR;
+    tr6 = DOF_types[GRASP1_ORANGE].TR;
+    tr7 = DOF_types[GRASP2_ORANGE].TR;
   }
 
   // --------------Coupling and Transmission

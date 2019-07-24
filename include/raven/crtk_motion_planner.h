@@ -28,14 +28,15 @@
  *  \author Andrew Lewis, Yun-Hsuan Su
 
  */
+#ifndef CRTK_MOTION_PLANNER_H_
+#define CRTK_MOTION_PLANNER_H_
 
 #include <ros/ros.h>
 #include <tf/tf.h>
 #include "crtk_motion_api.h"
 #include "crtk_state.h"
 
-#ifndef CRTK_MOTION_PLANNER_H_
-#define CRTK_MOTION_PLANNER_H_
+
 
 class CRTK_motion_planner 
 {

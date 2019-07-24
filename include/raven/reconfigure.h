@@ -18,6 +18,9 @@
  * along with Raven 2 Control.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef __RECONFIGURE_H__
+#define __RECONFIGURE_H__
+
 #include <dynamic_reconfigure/server.h>
 #include <raven_2/Raven2Config.h>
 
@@ -32,3 +35,5 @@ struct offsets {
 };
 
 void reconfigure_callback(raven_2::Raven2Config &config, uint32_t level);
+
+#endif

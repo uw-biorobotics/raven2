@@ -27,6 +27,9 @@
  *
  ************************************************/
 
+#ifndef __FWD_CABLE_COUPLING_H__
+#define __FWD_CABLE_COUPLING_H__
+
 //#include <linux/kernel.h>
 //#include <linux/module.h>
 //#include <rtai.h>
@@ -54,3 +57,5 @@ void fwdTorqueCoupling(device *device0, int runlevel);
 void fwdMechTorqueCoupling(mechanism *mech);
 
 int fwdJointEncoders(device *device0);
+
+#endif

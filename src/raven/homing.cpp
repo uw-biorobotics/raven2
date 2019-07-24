@@ -310,7 +310,7 @@ int set_joints_known_pos(mechanism *_mech, int tool_only, int grasp_only) {
       if (scissor && ((_joint->type == GRASP2_GREEN) || (_joint->type == GRASP2_GOLD))) {
         _joint->jpos_d = _mech->mech_tool.grasp2_min_angle;
         log_msg("setting grasp 2 to     arm %d,     joint %d to    value %f",
-                _mech->mech_tool.mech_type, _joint->type, _joint->jpos_d);
+                _mech->mech_tool.mech_name, _joint->type, _joint->jpos_d);
       } 
       else if (is_toolDOF(_joint) &&  camera && 
                (_joint->type != TOOL_ROT_GOLD) &&
@@ -513,16 +513,16 @@ void homing(DOF *_joint, tool a_tool) {
       -10 DEG2RAD, 10 DEG2RAD, 0.02, 9999999, 80 DEG2RAD, 40 DEG2RAD, 40 DEG2RAD, 40 DEG2RAD};
 
   if (a_tool.adapter_style == square_raven) {
-    if (a_tool.mech_type == GOLD_ARM)
+    if ((a_tool.mech_name == gold) || (a_tool.mech_name == blue))
       f_magnitude[TOOL_ROT_GOLD] = -80 DEG2RAD;
-    else if (a_tool.mech_type == GREEN_ARM)
+    else if ((a_tool.mech_name == green) || (a_tool.mech_name == orange))
       f_magnitude[TOOL_ROT_GREEN] = -80 DEG2RAD;
   }
 
   if (scissor) {
-    if (a_tool.mech_type == GOLD_ARM)
+    if ((a_tool.mech_name == gold) || (a_tool.mech_name == blue))
       f_magnitude[GRASP2_GOLD] = -40 DEG2RAD;
-    else if (a_tool.mech_type == GREEN_ARM)
+    else if ((a_tool.mech_name == green) || (a_tool.mech_name == orange))
       f_magnitude[GRASP2_GREEN] = -40 DEG2RAD;
   }
 

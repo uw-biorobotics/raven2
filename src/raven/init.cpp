@@ -46,26 +46,30 @@
 /**************** tool selection ********************/
 // tool gold_arm_tool (bipolar_forceps, GOLD_ARM);
 //tool gold_arm_tool(large_needle, GOLD_ARM);
-tool gold_arm_tool(r_grasper, GOLD_ARM);
+ tool gold_arm_tool(r_grasper, GOLD_ARM);
 // tool gold_arm_tool(micro_forceps, GOLD_ARM);
-//tool gold_arm_tool(ricks_tool, GOLD_ARM);
+//tool gold_arm_tool(ricks_tool, gold);
 //tool gold_arm_tool(qut_camera, GOLD_ARM);
 
 //#ifdef SCISSOR_RIGHT
 // tool green_arm_tool(mopocu_scissor, GREEN_ARM);
 //#else
-// tool green_arm_tool(large_needle,  GREEN_ARM);
+tool green_arm_tool(large_needle,  GREEN_ARM);
 //#endif
 
 // tool green_arm_tool(mopocu_scissor, GREEN_ARM);
 // tool green_arm_tool(potts_scissor, GREEN_ARM);
 //tool green_arm_tool(r_grasper, GREEN_ARM);
 //tool green_arm_tool(bipolar_forceps, GREEN_ARM);
-//tool green_arm_tool(qut_camera, GREEN_ARM);
+//tool green_arm_tool(qut_camera, green);
 // tool green_arm_tool(r_grasper, GREEN_ARM);
 //tool green_arm_tool(ricks_tool, GREEN_ARM);
-tool green_arm_tool(large_needle, GREEN_ARM);
-//tool green_arm_tool(qut_camera, GREEN_ARM);
+
+
+
+tool blue_arm_tool(ricks_tool, blue);
+
+tool orange_arm_tool(ricks_tool, orange);
 
 /********** positioning joints Homing DAC ***********/
 const int gold_joints_homing_max_dac[4] = {
@@ -79,7 +83,17 @@ const int green_joints_homing_max_dac[4] = {
                                2100,  // elbow
                                1600,  // z-ins
                                0};                               
+const int blue_joints_homing_max_dac[4] = {
+                               2100,  // shoulder
+                               2100,  // elbow
+                               1600,  // z-ins
+                               0};
 
+const int orange_joints_homing_max_dac[4] = {
+                               2100,  // shoulder
+                               2100,  // elbow
+                               1600,  // z-ins
+                               0};     
 
 /**************** tool DOF Homing DAC ***************/
 const int dv_tool_homing_max_dac[4] = {
@@ -135,10 +149,14 @@ void initRobotData(device *device0, int runlevel, param_pass *currParams) {
     device0->grav_mag = 9.8;
 
     for(int i = 0; i < NUM_MECH; i++){
-      if (device0->mech[i].type == GREEN_ARM)
+      if (device0->mech[i].name == green)
         currParams->param_tool_type[i] = green_arm_tool.t_end;
-      else if (device0->mech[i].type == GOLD_ARM)
+      else if (device0->mech[i].type == gold)
         currParams->param_tool_type[i] = gold_arm_tool.t_end;
+      else if (device0->mech[i].type == blue)
+        currParams->param_tool_type[i] = blue_arm_tool.t_end;
+      else if (device0->mech[i].type == orange)
+        currParams->param_tool_type[i] = orange_arm_tool.t_end;
     }
   }
 
@@ -186,6 +204,8 @@ void initRobotData(device *device0, int runlevel, param_pass *currParams) {
 
   device0->mech[0].joint_control = false;
   device0->mech[1].joint_control = false;
+  device0->mech[2].joint_control = false;
+  device0->mech[3].joint_control = false;
   // device0->crtk_motion_planner.crtk_motion_api[0].set_default_base_frame(0);
   // device0->crtk_motion_planner.crtk_motion_api[1].set_default_base_frame(1);
   return;
@@ -224,6 +244,22 @@ void initDOFs(device *device0) {
   DOF_types[GRASP1_GREEN].TR = GRASP1_TR_GOLD_ARM;
   DOF_types[GRASP2_GREEN].TR = GRASP2_TR_GREEN_ARM;
 
+  DOF_types[SHOULDER_BLUE].TR = SHOULDER_TR_BLUE_ARM;
+  DOF_types[ELBOW_BLUE].TR = ELBOW_TR_BLUE_ARM;
+  DOF_types[Z_INS_BLUE].TR = Z_INS_TR_BLUE_ARM;
+  DOF_types[TOOL_ROT_BLUE].TR = TOOL_ROT_TR_BLUE_ARM;
+  DOF_types[WRIST_BLUE].TR = WRIST_TR_BLUE_ARM;
+  DOF_types[GRASP1_BLUE].TR = GRASP1_TR_BLUE_ARM;
+  DOF_types[GRASP2_BLUE].TR = GRASP2_TR_BLUE_ARM;
+
+  DOF_types[SHOULDER_ORANGE].TR = SHOULDER_TR_ORANGE_ARM;
+  DOF_types[ELBOW_ORANGE].TR = ELBOW_TR_ORANGE_ARM;
+  DOF_types[Z_INS_ORANGE].TR = Z_INS_TR_ORANGE_ARM;
+  DOF_types[TOOL_ROT_ORANGE].TR = TOOL_ROT_TR_ORANGE_ARM;
+  DOF_types[WRIST_ORANGE].TR = WRIST_TR_ORANGE_ARM;
+  DOF_types[GRASP1_ORANGE].TR = GRASP1_TR_ORANGE_ARM;
+  DOF_types[GRASP2_ORANGE].TR = GRASP2_TR_ORANGE_ARM;
+
   /// Initialize current limits
   if (SAFETY_LEVEL == BEGINNER_MODE) {
     DOF_types[SHOULDER_GOLD].DAC_max = BEGINNER_SHOULDER_MAX_DAC;
@@ -232,6 +268,13 @@ void initDOFs(device *device0) {
     DOF_types[ELBOW_GREEN].DAC_max = BEGINNER_ELBOW_MAX_DAC;
     DOF_types[Z_INS_GOLD].DAC_max = BEGINNER_Z_INS_MAX_DAC;
     DOF_types[Z_INS_GREEN].DAC_max = BEGINNER_Z_INS_MAX_DAC;
+
+    DOF_types[SHOULDER_BLUE].DAC_max = BEGINNER_SHOULDER_MAX_DAC;
+    DOF_types[SHOULDER_ORANGE].DAC_max = BEGINNER_SHOULDER_MAX_DAC;
+    DOF_types[ELBOW_BLUE].DAC_max = BEGINNER_ELBOW_MAX_DAC;
+    DOF_types[ELBOW_ORANGE].DAC_max = BEGINNER_ELBOW_MAX_DAC;
+    DOF_types[Z_INS_BLUE].DAC_max = BEGINNER_Z_INS_MAX_DAC;
+    DOF_types[Z_INS_ORANGE].DAC_max = BEGINNER_Z_INS_MAX_DAC;
   } else if (SAFETY_LEVEL == MODERATE_MODE) {
     DOF_types[SHOULDER_GOLD].DAC_max = MODERATE_SHOULDER_MAX_DAC;
     DOF_types[SHOULDER_GREEN].DAC_max = MODERATE_SHOULDER_MAX_DAC;
@@ -239,6 +282,13 @@ void initDOFs(device *device0) {
     DOF_types[ELBOW_GREEN].DAC_max = MODERATE_ELBOW_MAX_DAC;
     DOF_types[Z_INS_GOLD].DAC_max = MODERATE_Z_INS_MAX_DAC;
     DOF_types[Z_INS_GREEN].DAC_max = MODERATE_Z_INS_MAX_DAC;
+
+    DOF_types[SHOULDER_BLUE].DAC_max = MODERATE_SHOULDER_MAX_DAC;
+    DOF_types[SHOULDER_ORANGE].DAC_max = MODERATE_SHOULDER_MAX_DAC;
+    DOF_types[ELBOW_BLUE].DAC_max = MODERATE_ELBOW_MAX_DAC;
+    DOF_types[ELBOW_ORANGE].DAC_max = MODERATE_ELBOW_MAX_DAC;
+    DOF_types[Z_INS_BLUE].DAC_max = MODERATE_Z_INS_MAX_DAC;
+    DOF_types[Z_INS_ORANGE].DAC_max = MODERATE_Z_INS_MAX_DAC;
   } else  // SAFETY_LEVEL == ADVANCED_MODE
   {
     DOF_types[SHOULDER_GOLD].DAC_max = ADVANCED_SHOULDER_MAX_DAC;
@@ -247,6 +297,13 @@ void initDOFs(device *device0) {
     DOF_types[ELBOW_GREEN].DAC_max = ADVANCED_ELBOW_MAX_DAC;
     DOF_types[Z_INS_GOLD].DAC_max = ADVANCED_Z_INS_MAX_DAC;
     DOF_types[Z_INS_GREEN].DAC_max = ADVANCED_Z_INS_MAX_DAC;
+
+    DOF_types[SHOULDER_BLUE].DAC_max = ADVANCED_SHOULDER_MAX_DAC;
+    DOF_types[SHOULDER_ORANGE].DAC_max = ADVANCED_SHOULDER_MAX_DAC;
+    DOF_types[ELBOW_BLUE].DAC_max = ADVANCED_ELBOW_MAX_DAC;
+    DOF_types[ELBOW_ORANGE].DAC_max = ADVANCED_ELBOW_MAX_DAC;
+    DOF_types[Z_INS_BLUE].DAC_max = ADVANCED_Z_INS_MAX_DAC;
+    DOF_types[Z_INS_ORANGE].DAC_max = ADVANCED_Z_INS_MAX_DAC;
   }
 
 
@@ -258,6 +315,15 @@ void initDOFs(device *device0) {
   DOF_types[GRASP1_GREEN].DAC_max = GRASP1_MAX_DAC;
   DOF_types[GRASP2_GOLD].DAC_max = GRASP2_MAX_DAC;
   DOF_types[GRASP2_GREEN].DAC_max = GRASP2_MAX_DAC;
+
+  DOF_types[TOOL_ROT_BLUE].DAC_max = TOOL_ROT_MAX_DAC;
+  DOF_types[TOOL_ROT_ORANGE].DAC_max = TOOL_ROT_MAX_DAC;
+  DOF_types[WRIST_BLUE].DAC_max = WRIST_MAX_DAC;
+  DOF_types[WRIST_ORANGE].DAC_max = WRIST_MAX_DAC;
+  DOF_types[GRASP1_BLUE].DAC_max = GRASP1_MAX_DAC;
+  DOF_types[GRASP1_ORANGE].DAC_max = GRASP1_MAX_DAC;
+  DOF_types[GRASP2_BLUE].DAC_max = GRASP2_MAX_DAC;
+  DOF_types[GRASP2_ORANGE].DAC_max = GRASP2_MAX_DAC;
 
   // DAC offsets to compensate for amp-specific output - defined in motor.h
   DOF_types[SHOULDER_GOLD].DAC_zero_offset = DAC_ZERO_0_0;
@@ -278,12 +344,30 @@ void initDOFs(device *device0) {
   DOF_types[GRASP1_GREEN].DAC_zero_offset = DAC_ZERO_1_6;
   DOF_types[GRASP2_GREEN].DAC_zero_offset = DAC_ZERO_1_7;
 
+  DOF_types[SHOULDER_BLUE].DAC_zero_offset = DAC_ZERO_2_0;
+  DOF_types[ELBOW_BLUE].DAC_zero_offset = DAC_ZERO_2_1;
+  DOF_types[Z_INS_BLUE].DAC_zero_offset = DAC_ZERO_2_2;
+  DOF_types[NO_CONNECTION_BLUE].DAC_zero_offset = DAC_ZERO_2_3;
+  DOF_types[TOOL_ROT_BLUE].DAC_zero_offset = DAC_ZERO_2_4;
+  DOF_types[WRIST_BLUE].DAC_zero_offset = DAC_ZERO_2_5;
+  DOF_types[GRASP1_BLUE].DAC_zero_offset = DAC_ZERO_2_6;
+  DOF_types[GRASP2_BLUE].DAC_zero_offset = DAC_ZERO_2_7;
+
+  DOF_types[SHOULDER_ORANGE].DAC_zero_offset = DAC_ZERO_3_0;
+  DOF_types[ELBOW_ORANGE].DAC_zero_offset = DAC_ZERO_3_1;
+  DOF_types[Z_INS_ORANGE].DAC_zero_offset = DAC_ZERO_3_2;
+  DOF_types[NO_CONNECTION_ORANGE].DAC_zero_offset = DAC_ZERO_3_3;
+  DOF_types[TOOL_ROT_ORANGE].DAC_zero_offset = DAC_ZERO_3_4;
+  DOF_types[WRIST_ORANGE].DAC_zero_offset = DAC_ZERO_3_5;
+  DOF_types[GRASP1_ORANGE].DAC_zero_offset = DAC_ZERO_3_6;
+  DOF_types[GRASP2_ORANGE].DAC_zero_offset = DAC_ZERO_3_7;
+
   /// Initialize values of joint and DOF structures
   for (int i = 0; i < NUM_MECH; i++) {
     
 
     /// Initialize joint types
-    if (device0->mech[i].type == GOLD_ARM) {
+    if (device0->mech[i].name == gold) {
       // Set DOF type to unique index
       device0->mech[i].joint[SHOULDER].type = SHOULDER_GOLD;
       device0->mech[i].joint[ELBOW].type = ELBOW_GOLD;
@@ -294,9 +378,8 @@ void initDOFs(device *device0) {
       device0->mech[i].joint[GRASP2].type = GRASP2_GOLD;
       device0->mech[i].joint[NO_CONNECTION].type = NO_CONNECTION_GOLD;
 
-      device0->mech[i].mech_tool = gold_arm_tool;
       
-    } else if (device0->mech[i].type == GREEN_ARM) {
+    } else if (device0->mech[i].name == green) {
       device0->mech[i].joint[SHOULDER].type = SHOULDER_GREEN;
       device0->mech[i].joint[ELBOW].type = ELBOW_GREEN;
       device0->mech[i].joint[Z_INS].type = Z_INS_GREEN;
@@ -304,10 +387,40 @@ void initDOFs(device *device0) {
       device0->mech[i].joint[WRIST].type = WRIST_GREEN;
       device0->mech[i].joint[GRASP1].type = GRASP1_GREEN;
       device0->mech[i].joint[GRASP2].type = GRASP2_GREEN;
-      device0->mech[i].joint[NO_CONNECTION].type = NO_CONNECTION_GREEN;
+      device0->mech[i].joint[NO_CONNECTION].type = NO_CONNECTION_GREEN; 
+    
+    
+    } else if (device0->mech[i].name == blue) {
+      device0->mech[i].joint[SHOULDER].type = SHOULDER_BLUE;
+      device0->mech[i].joint[ELBOW].type = ELBOW_BLUE;
+      device0->mech[i].joint[Z_INS].type = Z_INS_BLUE;
+      device0->mech[i].joint[TOOL_ROT].type = TOOL_ROT_BLUE;
+      device0->mech[i].joint[WRIST].type = WRIST_BLUE;
+      device0->mech[i].joint[GRASP1].type = GRASP1_BLUE;
+      device0->mech[i].joint[GRASP2].type = GRASP2_BLUE;
+      device0->mech[i].joint[NO_CONNECTION].type = NO_CONNECTION_BLUE;
+  
+    
+    } else if (device0->mech[i].name == orange) {
+      device0->mech[i].joint[SHOULDER].type = SHOULDER_ORANGE;
+      device0->mech[i].joint[ELBOW].type = ELBOW_ORANGE;
+      device0->mech[i].joint[Z_INS].type = Z_INS_ORANGE;
+      device0->mech[i].joint[TOOL_ROT].type = TOOL_ROT_ORANGE;
+      device0->mech[i].joint[WRIST].type = WRIST_ORANGE;
+      device0->mech[i].joint[GRASP1].type = GRASP1_ORANGE;
+      device0->mech[i].joint[GRASP2].type = GRASP2_ORANGE;
+      device0->mech[i].joint[NO_CONNECTION].type = NO_CONNECTION_ORANGE;
 
-      device0->mech[i].mech_tool = green_arm_tool;
     }
+
+    if (device0->mech[i].name == gold)
+      device0->mech[i].mech_tool = gold_arm_tool;
+    else if (device0->mech[i].name == green)
+      device0->mech[i].mech_tool = green_arm_tool;    
+    else if (device0->mech[i].name == blue)
+      device0->mech[i].mech_tool = blue_arm_tool;    
+    else if (device0->mech[i].name == orange)
+      device0->mech[i].mech_tool = orange_arm_tool;
 
     for (int j = 0; j < MAX_DOF_PER_MECH; j++) {
       DOF *_joint = &(device0->mech[i].joint[j]);
@@ -360,11 +473,17 @@ void initDOFs(device *device0) {
         _dof->DAC_per_amp = (float)(K_DAC_PER_AMP_HIGH_CURRENT);  // DAC counts to AMPS
         _dof->i_max = (float)(I_MAX_BIG_MOTOR);
         _dof->i_cont = (float)(I_CONT_BIG_MOTOR);
-        if (device0->mech[i].type == GOLD_ARM){
+        if (device0->mech[i].name == gold){
           _joint->homing_dac = gold_joints_homing_max_dac[j];
         }
-        if (device0->mech[i].type == GREEN_ARM){ 
+        else if (device0->mech[i].type == green){ 
           _joint->homing_dac = green_joints_homing_max_dac[j];
+        }
+        else if (device0->mech[i].type == blue){ 
+          _joint->homing_dac = blue_joints_homing_max_dac[j];
+        }
+        else if (device0->mech[i].type == orange){ 
+          _joint->homing_dac = orange_joints_homing_max_dac[j];
         }
       } else  // set tool stuff
       {
@@ -460,7 +579,13 @@ void initDOFs(device *device0) {
     // set tool specific values
     // TODO: add home angles????
 
-    int offset = (device0->mech[i].type == GREEN_ARM) ? 8 : 0;
+    int offset = 0; 
+    if (device0->mech[i].name == green) 
+      offset = 1 * MAX_DOF_PER_MECH; 
+    else if (device0->mech[i].name == blue) 
+      offset = 2 * MAX_DOF_PER_MECH;
+    else if (device0->mech[i].name == orange) 
+      offset = 3 * MAX_DOF_PER_MECH;
 
     DOF_types[SHOULDER + offset].max_position = SHOULDER_MAX_ANGLE;
     DOF_types[SHOULDER + offset].max_limit = SHOULDER_MAX_LIMIT;
@@ -557,12 +682,14 @@ int init_ravengains(ros::NodeHandle n, device *device0) {
               (double)kp_gold[j];  // Cast XMLRPC value to a double and set gain
           DOF_types[dofindex].KD = (double)kd_gold[j];  //   ""
           DOF_types[dofindex].KI = (double)ki_gold[j];  //   ""
+          if (device0->mech[i].name == blue) log_msg("blue arm gains set to GOLD gains");
         } else if (device0->mech[i].type == GREEN_ARM) {
           initgreen = true;
           dofindex = 1 * MAX_DOF_PER_MECH + j;
           DOF_types[dofindex].KP = (double)kp_green[j];  //   ""
           DOF_types[dofindex].KD = (double)kd_green[j];  //   ""
           DOF_types[dofindex].KI = (double)ki_green[j];  //   ""
+          if (device0->mech[i].name == orange) log_msg("orange arm gains set to GREEN gains");
         } else {
           ROS_ERROR("What device is this?? %d\n", device0->mech[i].type);
         }
@@ -570,11 +697,11 @@ int init_ravengains(ros::NodeHandle n, device *device0) {
     }
     if (!initgold) {
       ROS_ERROR("Failed to set gains for gold arm (ser:%d not %d).  Set to zero",
-                device0->mech[0].type, GOLD_ARM);
+                device0->mech[0].serial, GOLD_ARM_SERIAL);
     }
     if (!initgreen) {
       ROS_ERROR("Failed to set gains for green arm (ser:%d not %d).  Set to zero",
-                device0->mech[1].type, GREEN_ARM);
+                device0->mech[1].serial, GREEN_ARM_SERIAL);
     }
     log_msg("  PD gains set to");
     log_msg(
