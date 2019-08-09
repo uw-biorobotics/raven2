@@ -156,7 +156,8 @@ int raven_homing(device *device0, param_pass *currParams, int begin_homing) {
       //skip homing certain tool joints for QUT and ricks tools
       if (is_toolDOF(_joint)) {
         if (((_mech->mech_tool.t_end == qut_camera) && 
-            (_joint->type != TOOL_ROT_GOLD) && (_joint->type != TOOL_ROT_GREEN))
+            (_joint->type != TOOL_ROT_GOLD) && (_joint->type != TOOL_ROT_GREEN) &&
+            (_joint->type != TOOL_ROT_BLUE) && (_joint->type != TOOL_ROT_ORANGE))
             || _mech->mech_tool.t_end == ricks_tool)
         {
           _joint->state = jstate_hard_stop;
@@ -236,6 +237,7 @@ int raven_homing(device *device0, param_pass *currParams, int begin_homing) {
         if (gTime > delay2 + 200)  // wait 200 ticks for cables to settle down
         {
           set_joints_known_pos(_mech, !tools_ready(_mech), !grasp_ready(_mech));  // perform second phase
+
           delay2 = 0;
         }
       }
@@ -307,14 +309,17 @@ int set_joints_known_pos(mechanism *_mech, int tool_only, int grasp_only) {
     // when tool or positioning joints finish, set them to max_angle
     else {
       // Set jpos_d to the joint limit value.
-      if (scissor && ((_joint->type == GRASP2_GREEN) || (_joint->type == GRASP2_GOLD))) {
+      if (scissor && ((_joint->type == GRASP2_GREEN) || (_joint->type == GRASP2_GOLD) ||
+                      (_joint->type == GRASP2_ORANGE) || (_joint->type == GRASP2_BLUE))) {
         _joint->jpos_d = _mech->mech_tool.grasp2_min_angle;
         log_msg("setting grasp 2 to     arm %d,     joint %d to    value %f",
                 _mech->mech_tool.mech_name, _joint->type, _joint->jpos_d);
       } 
       else if (is_toolDOF(_joint) &&  camera && 
                (_joint->type != TOOL_ROT_GOLD) &&
-               (_joint->type != TOOL_ROT_GREEN))
+               (_joint->type != TOOL_ROT_GREEN)&&
+               (_joint->type != TOOL_ROT_ORANGE)&&
+               (_joint->type != TOOL_ROT_BLUE))
       {
         _joint->jpos_d = DOF_types[_joint->type].home_position;//_joint->jpos; //don't move non-roll DOFs for camera tool
         log_msg("non-camera %i set to home_position", j);
@@ -325,8 +330,8 @@ int set_joints_known_pos(mechanism *_mech, int tool_only, int grasp_only) {
       else
         _joint->jpos_d = DOF_types[_joint->type].max_position;
 
-      // Initialize a trajectory to operating angle
-      _joint->state = jstate_homing1;
+        // Initialize a trajectory to operating angle
+        _joint->state = jstate_homing1;
     }
   }
   /// Inverse cable coupling: jpos_d  ---> mpos_d
@@ -423,25 +428,18 @@ int set_joints_known_pos(mechanism *_mech, int tool_only, int grasp_only) {
  */
 void homing(DOF *_joint) {
   // duration for homing of each joint
-  const float f_period[MAX_MECH * MAX_DOF_PER_MECH] = {1, 1, 1, 9999999, 1, 1, 1, 1,
-                                                       1, 1, 1, 9999999, 1, 1, 1, 1};
+  const float f_period[MAX_DOF_PER_MECH] = {1, 1, 1, 9999999, 1, 1, 1, 1};
 // degrees for homing of each joint
 #ifdef RAVEN_II_SQUARE
   // roll is backwards because of the 'click' in the mechanism
-  const float f_magnitude[MAX_MECH * MAX_DOF_PER_MECH] = {
-      -10 DEG2RAD, 10 DEG2RAD, 0.02, 9999999, -80 DEG2RAD, 40 DEG2RAD, 40 DEG2RAD, 40 DEG2RAD,
+  const float f_magnitude[MAX_DOF_PER_MECH] = {
       -10 DEG2RAD, 10 DEG2RAD, 0.02, 9999999, -80 DEG2RAD, 40 DEG2RAD, 40 DEG2RAD, 40 DEG2RAD};
-#else
-#ifdef DV_ADAPTER
-  const float f_magnitude[MAX_MECH * MAX_DOF_PER_MECH] = {
-      -10 DEG2RAD, 10 DEG2RAD, 0.02, 9999999, 80 DEG2RAD, 40 DEG2RAD, 40 DEG2RAD, 40 DEG2RAD,
-      -10 DEG2RAD, 10 DEG2RAD, 0.02, 9999999, 80 DEG2RAD, 40 DEG2RAD, 40 DEG2RAD, 40 DEG2RAD};
 #else  // default
-  const float f_magnitude[MAX_MECH * MAX_DOF_PER_MECH] = {
-      -10 DEG2RAD, 10 DEG2RAD, 0.02, 9999999, 80 DEG2RAD, 40 DEG2RAD, 40 DEG2RAD, 40 DEG2RAD,
+  const float f_magnitude[MAX_DOF_PER_MECH] = {
       -10 DEG2RAD, 10 DEG2RAD, 0.02, 9999999, 80 DEG2RAD, 40 DEG2RAD, 40 DEG2RAD, 40 DEG2RAD};
 #endif
-#endif
+
+  int joint_index = _joint->type % MAX_DOF_PER_MECH; // value of 0-7
 
   switch (_joint->state) {
     case jstate_wait:
@@ -451,7 +449,7 @@ void homing(DOF *_joint) {
       // Initialize velocity trajectory
       // log_msg("Starting homing on joint %d", _joint->type);
       _joint->state = jstate_pos_unknown;
-      start_trajectory_mag(_joint, f_magnitude[_joint->type], f_period[_joint->type]);
+      start_trajectory_mag(_joint, f_magnitude[joint_index], f_period[joint_index]);
       break;
 
     case jstate_pos_unknown:
@@ -501,29 +499,23 @@ void homing(DOF *_joint) {
  *   \TODO refactor for tool class
  */
 void homing(DOF *_joint, tool a_tool) {
+  int joint_index = _joint->type % MAX_DOF_PER_MECH; // value of 0-7
+
   // duration for homing of each joint
-  const float f_period[MAX_MECH * MAX_DOF_PER_MECH] = {1, 1, 1, 9999999, 1, 1, 1, 1,
-                                                       1, 1, 1, 9999999, 1, 1, 1, 1};
+  const float f_period[MAX_DOF_PER_MECH] = {1, 1, 1, 9999999, 1, 1, 1, 1};
   // check if scissors or camera
   int scissor = ((a_tool.t_end == mopocu_scissor) || (a_tool.t_end == potts_scissor)) ? 1 : 0;
   //int camera = (a_tool.t_end == qut_camera) ? 1 : 0;
 
-  float f_magnitude[MAX_MECH * MAX_DOF_PER_MECH] = {
-      -10 DEG2RAD, 10 DEG2RAD, 0.02, 9999999, 80 DEG2RAD, 40 DEG2RAD, 40 DEG2RAD, 40 DEG2RAD,
+  float f_magnitude[MAX_DOF_PER_MECH] = {
       -10 DEG2RAD, 10 DEG2RAD, 0.02, 9999999, 80 DEG2RAD, 40 DEG2RAD, 40 DEG2RAD, 40 DEG2RAD};
 
   if (a_tool.adapter_style == square_raven) {
-    if ((a_tool.mech_name == gold) || (a_tool.mech_name == blue))
-      f_magnitude[TOOL_ROT_GOLD] = -80 DEG2RAD;
-    else if ((a_tool.mech_name == green) || (a_tool.mech_name == orange))
-      f_magnitude[TOOL_ROT_GREEN] = -80 DEG2RAD;
+    f_magnitude[TOOL_ROT] = -80 DEG2RAD;
   }
 
   if (scissor) {
-    if ((a_tool.mech_name == gold) || (a_tool.mech_name == blue))
-      f_magnitude[GRASP2_GOLD] = -40 DEG2RAD;
-    else if ((a_tool.mech_name == green) || (a_tool.mech_name == orange))
-      f_magnitude[GRASP2_GREEN] = -40 DEG2RAD;
+    f_magnitude[GRASP2] = -40 DEG2RAD;
   }
 
 
@@ -535,7 +527,7 @@ void homing(DOF *_joint, tool a_tool) {
     case jstate_not_ready:
       // Initialize velocity trajectory
       _joint->state = jstate_pos_unknown;
-      start_trajectory_mag(_joint, f_magnitude[_joint->type], f_period[_joint->type]);
+      start_trajectory_mag(_joint, f_magnitude[joint_index], f_period[joint_index]);
       break;
 
     case jstate_pos_unknown:

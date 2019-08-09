@@ -54,14 +54,17 @@
 // Change this to match device ID in /dev/brl_usbXX
 #define GREEN_ARM_SERIAL 50
 #define GOLD_ARM_SERIAL 37
+// #define GOLD_ARM_SERIAL 27
 
 #define ORANGE_ARM_SERIAL 99  // 99 if no third/fourth arm
 #define BLUE_ARM_SERIAL   99 //27  // 99 if no third/fourth arm
+// #define BLUE_ARM_SERIAL   37  // 99 if no third/fourth arm
 
 
 
-#define JOINT_ENC_SERIAL    99  // 99 if no joint encoder board
-#define JOINT_ENC_SERIAL_2  99  // 99 if no 2nd joint encoder board
+
+#define JOINT_ENC_SERIAL    99  // 99 if no joint encoder board -- For GOLD and GREEN arms
+#define JOINT_ENC_SERIAL_2  99  // 99 if no 2nd joint encoder board -- For BLUE and ORANGE arms
 
 
 //~~~~~~~~~ safety policy selection ~~~~~~~~~~~~~~~~~~~
@@ -72,6 +75,8 @@
                                        // CHOICES: BEGINNER, MODERATE, ADVANCED
 
 // #define ALLOW_TIMEOUT               // enables a 5 sec timeout if no commands received
+
+//#define PRINT_J_STATE                // prints the joint states for debugging homing
 
 //~~~~~~~~ Other settings, experts only ~~~~~~~~~~~~
 #define NO_LPF  // This setting short circuits the Low Pass Filter in
@@ -191,7 +196,7 @@
 #define WRIST_BLUE 21
 #define GRASP1_BLUE 22
 #define GRASP2_BLUE 23
-#define NO_CONNECTION_BLUE 20
+#define NO_CONNECTION_BLUE 19
 
 // ORANGE Arm
 #define SHOULDER_ORANGE 24

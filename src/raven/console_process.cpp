@@ -158,10 +158,10 @@ void *console_process(void *) {
       case 'T': {
         print_msg = 1;
         // Get user-input mechanism #
-        printf("\n\nEnter a mechanism number: 0-Gold, 1-Green:\t");
+        printf("\n\nEnter a mechanism number: 0-Gold, 1-Green, 2-Blue, 3-Orange:\t");
         cin.getline(inputbuffer, 100);
         unsigned int _mech = atoi(inputbuffer);
-        if (_mech > 1) break;
+        if (_mech > MAX_MECH) break;
 
         // Get user-input joint #
         printf(
@@ -169,7 +169,7 @@ void *console_process(void *) {
             "4-tool_roll, 5-wrist, 6/7- grasp 1/2:\t");
         cin.getline(inputbuffer, 100);
         unsigned int _joint = atoi(inputbuffer);
-        if (_joint > MAX_DOF_PER_MECH) break;
+        if (_joint >= MAX_DOF_PER_MECH) break;
 
 // Get user-input DAC value #
 #ifndef DAC_TEST
@@ -270,25 +270,25 @@ void outputRobotState() {
 
   for (int j = 0; j < device0.num_mechs; j++) {
     if (device0.mech[j].name == gold){
-      cout << "Gold arm:\t";
+      cout << "Gold arm:\t" << "type: " << device0.mech[j].type;
       offset = 0;
     }
     else if (device0.mech[j].name == green){
-      cout << "Green arm:\t";
+      cout << "Green arm:\t " << "type: " << device0.mech[j].type;
       offset = 1 * MAX_DOF_PER_MECH;
     }
     else if (device0.mech[j].name == blue){
-      cout << "Blue arm:\t";
+      cout << "Blue arm:\t" <<  "type: " << device0.mech[j].type;
       offset = 2 * MAX_DOF_PER_MECH;
     }
     else if (device0.mech[j].name == orange){
-      cout << "Orange arm:\t";
+      cout << "Orange arm:\t" << "type: " << device0.mech[j].type;
       offset = 3 * MAX_DOF_PER_MECH;
     }
     else
       cout << "Unknown arm:\t";
 
-    cout << "Board " << j << ", serial " << device0.mech[j].serial << ":\n";
+    cout << ",  Board " << j << ",  serial " << device0.mech[j].serial << ":\n";
     cout << "P: (x,y,z) : (" << device0.mech[j].pos.x / (1000.0 * 1000.0) << "\t"
          << device0.mech[j].pos.y / (1000.0 * 1000.0);
     cout << "\t" << device0.mech[j].pos.z / (1000.0 * 1000.0);
@@ -432,6 +432,14 @@ void outputRobotState() {
     //        for (int i=0;i<MAX_DOF_PER_MECH;i++)
     //            cout<<device0.mech[j].joint[i].enc_offset<<"\t";
     //        cout<<"\n";
+
+
+#ifdef PRINT_J_STATE
+    cout << "j_state:\t";
+    for (int i = 0; i < MAX_DOF_PER_MECH; i++) cout << device0.mech[j].joint[i].state << "\t";
+    cout << "\n";
+
+#endif
 
     cout << "\n";
   }

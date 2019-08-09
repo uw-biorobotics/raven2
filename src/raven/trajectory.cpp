@@ -243,17 +243,11 @@ int update_sinusoid_position_trajectory(DOF *_joint) {
 *     \ingroup Control
 */
 int update_linear_sinusoid_position_trajectory(DOF *_joint) {
-  //    const float f_magnitude[8] = {-10 DEG2RAD, 10 DEG2RAD, 0.01, 0, 60
-  //    DEG2RAD, 60 DEG2RAD, 60 DEG2RAD, 60 DEG2RAD};
-  //    const float f_period[8] = {7000, 3200, 7000, 0000, 5000, 5000, 5000,
-  //    5000};
   _trajectory *traj = &(trajectory[_joint->type]);
 
   ros::Duration t = ros::Time::now() - traj->startTime;
 
   if (t.toSec() < traj->period / 2)
-    //        _joint->jpos_d += ONE_MS * f_magnitude[index] * (1-cos( 2*M_PI *
-    //        (1/f_period[index]) * t.toSec()));
     _joint->jpos_d +=
         ONE_MS * traj->magnitude * (1 - cos(2 * M_PI * (1 / traj->period) * t.toSec()));
   else

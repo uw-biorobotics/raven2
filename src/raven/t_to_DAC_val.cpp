@@ -68,7 +68,9 @@ int TorqueToDAC(device *device0) {
   for (i = 0; i < NUM_MECH; i++)
     for (j = 0; j < MAX_DOF_PER_MECH; j++) {
       if (device0->mech[i].joint[j].type == NO_CONNECTION_GOLD ||
-          device0->mech[i].joint[j].type == NO_CONNECTION_GREEN) {
+          device0->mech[i].joint[j].type == NO_CONNECTION_GREEN ||
+          device0->mech[i].joint[j].type == NO_CONNECTION_BLUE ||
+          device0->mech[i].joint[j].type == NO_CONNECTION_ORANGE) {
         continue;
       }
 

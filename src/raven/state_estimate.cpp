@@ -95,7 +95,9 @@ void getStateLPF(DOF *joint, adapter adapter_style) {
 
     case dv:
       if ((joint->type == SHOULDER_GOLD) || (joint->type == ELBOW_GOLD) ||
-          (joint->type == Z_INS_GOLD))
+          (joint->type == Z_INS_GOLD) || 
+          (joint->type == SHOULDER_BLUE) || (joint->type == ELBOW_BLUE) ||
+          (joint->type == Z_INS_BLUE))
         f_enc_val *= -1;
       break;
 
@@ -105,13 +107,22 @@ void getStateLPF(DOF *joint, adapter adapter_style) {
           (joint->type == WRIST_GOLD) || (joint->type == GRASP1_GOLD) ||
           (joint->type == GRASP2_GOLD) || (joint->type == TOOL_ROT_GREEN) ||
           (joint->type == WRIST_GREEN) || (joint->type == GRASP1_GREEN) ||
-          (joint->type == GRASP2_GREEN))
+          (joint->type == GRASP2_GREEN) ||
+          (joint->type == SHOULDER_BLUE) || (joint->type == ELBOW_BLUE) ||
+          (joint->type == Z_INS_BLUE) || (joint->type == TOOL_ROT_BLUE) ||
+          (joint->type == WRIST_BLUE) || (joint->type == GRASP1_BLUE) ||
+          (joint->type == GRASP2_BLUE) || (joint->type == TOOL_ROT_ORANGE) ||
+          (joint->type == WRIST_ORANGE) || (joint->type == GRASP1_ORANGE) ||
+          (joint->type == GRASP2_ORANGE))
         f_enc_val *= -1;
       break;
   }
 
 #ifdef OPPOSE_GRIP
-  if ((joint->type == GRASP1_GOLD) || (joint->type == GRASP1_GREEN)) f_enc_val *= -1;
+  if ((joint->type == GRASP1_GOLD) || (joint->type == GRASP1_GREEN)
+    || (joint->type == GRASP1_BLUE) || (joint->type == GRASP1_ORANGE)){
+    f_enc_val *= -1;
+  } 
 #endif
 
   // Calculate motor angle from encoder value
@@ -141,18 +152,6 @@ void getStateLPF(DOF *joint, adapter adapter_style) {
 // the filter was shown to cause fluttering in the tool joints after homing
 #ifdef NO_LPF
   joint->mvel = (motorPos - oldPos[0]) / STEP_PERIOD;
-
-  // static int count = 0;
-  // if(joint->type == WRIST_GREEN) {
-  //   //count++;
-  //   if(count % 500 == 0){
-  //     ROS_INFO("motorPos %f",motorPos);
-  //     ROS_INFO("oldPos[0] %f",oldPos[0]);
-  //     ROS_INFO("joint->mvel %f",joint->mvel);  
-  //     count = 0  ;
-  //   }
-  // }
-  
   joint->mpos = motorPos;
 
   static int print_once = 0;

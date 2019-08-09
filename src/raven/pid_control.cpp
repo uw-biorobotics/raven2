@@ -119,6 +119,15 @@ float jvel_PI_control(DOF *_joint, int resetI) {
   kv[GRASP1_GOLD] = kv[GRASP1_GREEN] = 0;
   kv[GRASP2_GOLD] = kv[GRASP2_GREEN] = 0;
 
+  kv[SHOULDER_BLUE] = kv[SHOULDER_ORANGE] = (0.528 / (15 DEG2RAD));
+  kv[ELBOW_BLUE] = kv[ELBOW_ORANGE] = (0.528 / (15 DEG2RAD));
+  kv[Z_INS_BLUE] = kv[Z_INS_ORANGE] = (0.400 / 0.1);
+  kv[TOOL_ROT_BLUE] = kv[TOOL_ROT_ORANGE] = (0.005 / (15 DEG2RAD));
+  kv[WRIST_BLUE] = kv[WRIST_ORANGE] = 0;
+  kv[GRASP1_BLUE] = kv[GRASP1_ORANGE] = 0;
+  kv[GRASP2_BLUE] = kv[GRASP2_ORANGE] = 0;
+
+
   static float jVelIntErr[MAX_MECH * MAX_DOF_PER_MECH];  // Integral of velocity error
 
   // Reset integral term

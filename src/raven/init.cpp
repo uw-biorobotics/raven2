@@ -51,12 +51,9 @@
 //tool gold_arm_tool(ricks_tool, gold);
 //tool gold_arm_tool(qut_camera, GOLD_ARM);
 
-//#ifdef SCISSOR_RIGHT
-// tool green_arm_tool(mopocu_scissor, GREEN_ARM);
-//#else
-tool green_arm_tool(large_needle,  GREEN_ARM);
-//#endif
 
+// tool green_arm_tool(mopocu_scissor, GREEN_ARM);
+tool green_arm_tool(large_needle,  GREEN_ARM);
 // tool green_arm_tool(mopocu_scissor, GREEN_ARM);
 // tool green_arm_tool(potts_scissor, GREEN_ARM);
 //tool green_arm_tool(r_grasper, GREEN_ARM);
@@ -67,7 +64,7 @@ tool green_arm_tool(large_needle,  GREEN_ARM);
 
 
 
-tool blue_arm_tool(ricks_tool, blue);
+tool blue_arm_tool(r_grasper, blue);
 
 tool orange_arm_tool(ricks_tool, orange);
 
@@ -241,7 +238,7 @@ void initDOFs(device *device0) {
   DOF_types[Z_INS_GREEN].TR = Z_INS_TR_GREEN_ARM;
   DOF_types[TOOL_ROT_GREEN].TR = TOOL_ROT_TR_GREEN_ARM;
   DOF_types[WRIST_GREEN].TR = WRIST_TR_GREEN_ARM;
-  DOF_types[GRASP1_GREEN].TR = GRASP1_TR_GOLD_ARM;
+  DOF_types[GRASP1_GREEN].TR = GRASP1_TR_GREEN_ARM;
   DOF_types[GRASP2_GREEN].TR = GRASP2_TR_GREEN_ARM;
 
   DOF_types[SHOULDER_BLUE].TR = SHOULDER_TR_BLUE_ARM;
@@ -476,13 +473,13 @@ void initDOFs(device *device0) {
         if (device0->mech[i].name == gold){
           _joint->homing_dac = gold_joints_homing_max_dac[j];
         }
-        else if (device0->mech[i].type == green){ 
+        else if (device0->mech[i].name == green){ 
           _joint->homing_dac = green_joints_homing_max_dac[j];
         }
-        else if (device0->mech[i].type == blue){ 
+        else if (device0->mech[i].name == blue){ 
           _joint->homing_dac = blue_joints_homing_max_dac[j];
         }
-        else if (device0->mech[i].type == orange){ 
+        else if (device0->mech[i].name == orange){ 
           _joint->homing_dac = orange_joints_homing_max_dac[j];
         }
       } else  // set tool stuff
@@ -669,23 +666,36 @@ int init_ravengains(ros::NodeHandle n, device *device0) {
       (kd_gold.size() != MAX_DOF_PER_MECH) || (ki_gold.size() != MAX_DOF_PER_MECH)) {
     ROS_ERROR("Gains parameters failed.  Setting zero gains");
   } else {
-    bool initgold = 0, initgreen = 0;
+    bool initgold = 0, initgreen = 0, initblue = 0, initorange = 0;
     for (int i = 0; i < NUM_MECH; i++) {
       for (int j = 0; j < MAX_DOF_PER_MECH; j++) {
         int dofindex;
 
         // Set gains for gold and green arms
-        if (device0->mech[i].type == GOLD_ARM) {
+        if (device0->mech[i].name == gold) {
           initgold = true;
           dofindex = j;
-          DOF_types[dofindex].KP =
-              (double)kp_gold[j];  // Cast XMLRPC value to a double and set gain
+          DOF_types[dofindex].KP = (double)kp_gold[j];  // Cast XMLRPC value to a double and set gain
+          DOF_types[dofindex].KD = (double)kd_gold[j];  //   ""
+          DOF_types[dofindex].KI = (double)ki_gold[j];  //   ""
+
+        } else if (device0->mech[i].name == green) {
+          initgreen = true;
+          dofindex = 1 * MAX_DOF_PER_MECH + j;
+          DOF_types[dofindex].KP = (double)kp_green[j];  //   ""
+          DOF_types[dofindex].KD = (double)kd_green[j];  //   ""
+          DOF_types[dofindex].KI = (double)ki_green[j];  //   ""
+
+        } else if (device0->mech[i].name == blue) {
+          initblue = true;
+          dofindex = 2 * MAX_DOF_PER_MECH + j;
+          DOF_types[dofindex].KP = (double)kp_gold[j];  // Cast XMLRPC value to a double and set gain
           DOF_types[dofindex].KD = (double)kd_gold[j];  //   ""
           DOF_types[dofindex].KI = (double)ki_gold[j];  //   ""
           if (device0->mech[i].name == blue) log_msg("blue arm gains set to GOLD gains");
-        } else if (device0->mech[i].type == GREEN_ARM) {
-          initgreen = true;
-          dofindex = 1 * MAX_DOF_PER_MECH + j;
+        } else if (device0->mech[i].name == orange) {
+          initorange = true;
+          dofindex = 3 * MAX_DOF_PER_MECH + j;
           DOF_types[dofindex].KP = (double)kp_green[j];  //   ""
           DOF_types[dofindex].KD = (double)kd_green[j];  //   ""
           DOF_types[dofindex].KI = (double)ki_green[j];  //   ""
@@ -704,24 +714,49 @@ int init_ravengains(ros::NodeHandle n, device *device0) {
                 device0->mech[1].serial, GREEN_ARM_SERIAL);
     }
     log_msg("  PD gains set to");
+    int off = 0;
     log_msg(
         "    gold: %.3lf/%.3lf/%.3lf, %.3lf/%.3lf/%.3lf, "
         "%.3lf/%.3lf/%.3lf, %.3lf/%.3lf/%.3lf, %.3lf/%.3lf/%.3lf, "
         "%.3lf/%.3lf/%.3lf, %.3lf/%.3lf/%.3lf, %.3lf/%.3lf/%.3lf",
-        DOF_types[0].KP, DOF_types[0].KD, DOF_types[0].KI, DOF_types[1].KP, DOF_types[1].KD,
-        DOF_types[1].KI, DOF_types[2].KP, DOF_types[2].KD, DOF_types[2].KI, DOF_types[3].KP,
-        DOF_types[3].KD, DOF_types[3].KI, DOF_types[4].KP, DOF_types[4].KD, DOF_types[4].KI,
-        DOF_types[5].KP, DOF_types[5].KD, DOF_types[5].KI, DOF_types[6].KP, DOF_types[6].KD,
-        DOF_types[6].KI, DOF_types[7].KP, DOF_types[7].KD, DOF_types[7].KI);
+        DOF_types[off + 0].KP, DOF_types[off + 0].KD, DOF_types[off + 0].KI, DOF_types[off + 1].KP, DOF_types[off + 1].KD,
+        DOF_types[off + 1].KI, DOF_types[off + 2].KP, DOF_types[off + 2].KD, DOF_types[off + 2].KI, DOF_types[off + 3].KP,
+        DOF_types[off + 3].KD, DOF_types[off + 3].KI, DOF_types[off + 4].KP, DOF_types[off + 4].KD, DOF_types[off + 4].KI,
+        DOF_types[off + 5].KP, DOF_types[off + 5].KD, DOF_types[off + 5].KI, DOF_types[off + 6].KP, DOF_types[off + 6].KD,
+        DOF_types[off + 6].KI, DOF_types[off + 7].KP, DOF_types[off + 7].KD, DOF_types[off + 7].KI);
+    
+    off = 8;
     log_msg(
-        "    green: %.3lf/%.3lf/%.3lf, %.3lf/%.3lf/%.3lf, %.3lf/%.3lf/%.3lf, "
+        "    gold: %.3lf/%.3lf/%.3lf, %.3lf/%.3lf/%.3lf, "
         "%.3lf/%.3lf/%.3lf, %.3lf/%.3lf/%.3lf, %.3lf/%.3lf/%.3lf, "
-        "%.3lf/%.3lf/%.3lf, %.3lf/%.3lf/%.3lf",
-        DOF_types[8].KP, DOF_types[8].KD, DOF_types[8].KI, DOF_types[9].KP, DOF_types[9].KD,
-        DOF_types[9].KI, DOF_types[10].KP, DOF_types[10].KD, DOF_types[10].KI, DOF_types[11].KP,
-        DOF_types[11].KD, DOF_types[11].KI, DOF_types[12].KP, DOF_types[12].KD, DOF_types[12].KI,
-        DOF_types[13].KP, DOF_types[13].KD, DOF_types[13].KI, DOF_types[14].KP, DOF_types[14].KD,
-        DOF_types[14].KI, DOF_types[15].KP, DOF_types[15].KD, DOF_types[15].KI);
+        "%.3lf/%.3lf/%.3lf, %.3lf/%.3lf/%.3lf, %.3lf/%.3lf/%.3lf",
+        DOF_types[off + 0].KP, DOF_types[off + 0].KD, DOF_types[off + 0].KI, DOF_types[off + 1].KP, DOF_types[off + 1].KD,
+        DOF_types[off + 1].KI, DOF_types[off + 2].KP, DOF_types[off + 2].KD, DOF_types[off + 2].KI, DOF_types[off + 3].KP,
+        DOF_types[off + 3].KD, DOF_types[off + 3].KI, DOF_types[off + 4].KP, DOF_types[off + 4].KD, DOF_types[off + 4].KI,
+        DOF_types[off + 5].KP, DOF_types[off + 5].KD, DOF_types[off + 5].KI, DOF_types[off + 6].KP, DOF_types[off + 6].KD,
+        DOF_types[off + 6].KI, DOF_types[off + 7].KP, DOF_types[off + 7].KD, DOF_types[off + 7].KI);
+
+    off = 16;
+    log_msg(
+        "    blue: %.3lf/%.3lf/%.3lf, %.3lf/%.3lf/%.3lf, "
+        "%.3lf/%.3lf/%.3lf, %.3lf/%.3lf/%.3lf, %.3lf/%.3lf/%.3lf, "
+        "%.3lf/%.3lf/%.3lf, %.3lf/%.3lf/%.3lf, %.3lf/%.3lf/%.3lf",
+        DOF_types[off + 0].KP, DOF_types[off + 0].KD, DOF_types[off + 0].KI, DOF_types[off + 1].KP, DOF_types[off + 1].KD,
+        DOF_types[off + 1].KI, DOF_types[off + 2].KP, DOF_types[off + 2].KD, DOF_types[off + 2].KI, DOF_types[off + 3].KP,
+        DOF_types[off + 3].KD, DOF_types[off + 3].KI, DOF_types[off + 4].KP, DOF_types[off + 4].KD, DOF_types[off + 4].KI,
+        DOF_types[off + 5].KP, DOF_types[off + 5].KD, DOF_types[off + 5].KI, DOF_types[off + 6].KP, DOF_types[off + 6].KD,
+        DOF_types[off + 6].KI, DOF_types[off + 7].KP, DOF_types[off + 7].KD, DOF_types[off + 7].KI);
+
+    off = 24; 
+        log_msg(
+        "    orange: %.3lf/%.3lf/%.3lf, %.3lf/%.3lf/%.3lf, "
+        "%.3lf/%.3lf/%.3lf, %.3lf/%.3lf/%.3lf, %.3lf/%.3lf/%.3lf, "
+        "%.3lf/%.3lf/%.3lf, %.3lf/%.3lf/%.3lf, %.3lf/%.3lf/%.3lf",
+        DOF_types[off + 0].KP, DOF_types[off + 0].KD, DOF_types[off + 0].KI, DOF_types[off + 1].KP, DOF_types[off + 1].KD,
+        DOF_types[off + 1].KI, DOF_types[off + 2].KP, DOF_types[off + 2].KD, DOF_types[off + 2].KI, DOF_types[off + 3].KP,
+        DOF_types[off + 3].KD, DOF_types[off + 3].KI, DOF_types[off + 4].KP, DOF_types[off + 4].KD, DOF_types[off + 4].KI,
+        DOF_types[off + 5].KP, DOF_types[off + 5].KD, DOF_types[off + 5].KI, DOF_types[off + 6].KP, DOF_types[off + 6].KD,
+        DOF_types[off + 6].KI, DOF_types[off + 7].KP, DOF_types[off + 7].KD, DOF_types[off + 7].KI);
   }
 
   return 0;

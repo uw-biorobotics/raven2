@@ -52,6 +52,8 @@ int loop_over_joints(mechanism *_mech, DOF *&_joint, int &jnum);
 
 int toShort(int value, short int *target);
 
+int mech_num_from_name(robot_device*, int);
+
 int is_toolDOF(DOF *);
 int is_toolDOF(int);
 int is_graspDOF(int);

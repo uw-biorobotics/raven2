@@ -253,6 +253,11 @@ int is_toolDOF(int jointType) {
   if (jointType == GRASP1_GOLD || jointType == GRASP1_GREEN) return 1;
   if (jointType == GRASP2_GOLD || jointType == GRASP2_GREEN) return 1;
 
+  if (jointType == TOOL_ROT_BLUE || jointType == TOOL_ROT_ORANGE) return 1;
+  if (jointType == WRIST_BLUE || jointType == WRIST_ORANGE) return 1;
+  if (jointType == GRASP1_BLUE || jointType == GRASP1_ORANGE) return 1;
+  if (jointType == GRASP2_BLUE || jointType == GRASP2_ORANGE) return 1;
+
   return 0;
 }
 
@@ -269,6 +274,9 @@ int is_graspDOF(int jointType) {
 
   if (jointType == GRASP1_GOLD || jointType == GRASP1_GREEN) return 1;
   if (jointType == GRASP2_GOLD || jointType == GRASP2_GREEN) return 1;
+
+  if (jointType == GRASP1_BLUE || jointType == GRASP1_ORANGE) return 1;  
+  if (jointType == GRASP2_BLUE || jointType == GRASP2_ORANGE) return 1;
 
   return 0;
 }
@@ -406,4 +414,13 @@ void set_posd_to_pos(robot_device *device0) {
     for (int k = 0; k < 3; k++)
       for (int j = 0; j < 3; j++) device0->mech[m].ori_d.R[k][j] = device0->mech[m].ori.R[k][j];
   }
+}
+
+int mech_num_from_name(robot_device *dev, int name){
+  for(int i = 0; i < NUM_MECH; i++){
+    if(dev->mech[i].name == name) return i;
+  }
+  
+  ROS_ERROR("matching mech name not found");
+  return -1;
 }

@@ -49,6 +49,6 @@ int getUSBPackets(device *device0);
 void processEncoderPacket(mechanism *mech, unsigned char buffer[]);
 
 int getUSBPacket(int id, device *dev, int index);
-void processJointEncoderPacket(device *dev, unsigned char buffer[]);
+void processJointEncoderPacket(device *dev, unsigned char buffer[], int j_enc_num);
 
 #endif

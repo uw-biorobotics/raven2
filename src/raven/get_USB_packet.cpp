@@ -113,6 +113,7 @@ int getUSBPacket(int id, device *dev, int index) {
   unsigned char buffer[MAX_IN_LENGTH];
 
   char joint_enc = (id == JOINT_ENC_SERIAL) ? 1 : 0;
+  char joint_enc_2 = (id == JOINT_ENC_SERIAL_2) ? 1 : 0;
 
   // Read USB Packet
   result = usb_read(id, buffer, IN_LENGTH);
@@ -131,12 +132,14 @@ int getUSBPacket(int id, device *dev, int index) {
 
   // Load in the data from the USB packet
   switch (type) {
-    // Handle and Encoder USB packet
+    // Handle an Encoder USB packet
     case ENC:
-      if (!joint_enc)
+      if (!joint_enc && !joint_enc_2)
         processEncoderPacket(&(dev->mech[index]), buffer);
       else if (joint_enc)
-        processJointEncoderPacket(dev, buffer);
+        processJointEncoderPacket(dev, buffer, 1);
+      else if (joint_enc_2)
+        processJointEncoderPacket(dev, buffer, 2);
       break;
   }
 
@@ -172,42 +175,59 @@ void processEncoderPacket(mechanism *mech, unsigned char buffer[]) {
   return;
 }
 
-/**\fn void processJointEncoderPacket(device* dev, unsigned char buffer[])
-  \param device		device data structure, joint encoder data will be
-  placed in
-                                        each mechanism of device
-  \param buffer		the USB buffer to parse
- */
-void processJointEncoderPacket(device *dev, unsigned char buffer[]) {
+/** @fn         void processJointEncoderPacket(device* dev, unsigned char buffer[])
+
+ @brief      Processes one of two joint encoder boards and places data into appropriate arms
+
+ @param      dev        device data structure, joint encoder data will be placed
+                        in each mechanism of device
+ @param      buffer     the USB buffer to parse
+ @param[in]  j_enc_num  The j encode number
+*/
+void processJointEncoderPacket(device *dev, unsigned char buffer[], int j_enc_num) {
   int i, numChannels;
   int encVal;
-  mechanism *mech_gold;
-  mechanism *mech_green;
+  mechanism *mech_l;
+  mechanism *mech_r;
+
+  char mech_l_flag = 0, mech_r_flag = 0;
 
   // Determine channels of data received
   numChannels = buffer[1];
+  int l_name, r_name;
+  if (j_enc_num == 1){
+    l_name = gold; r_name = green;
+  } else if (j_enc_num == 2){
+    l_name = blue; r_name = orange;
+  } else ROS_ERROR("incorrect j_enc_num in processJointEncoderPacket (should be 1 or 2)");
 
   // assume that joint encoder boards don't have PLC inputs
   for (i = 0; i < NUM_MECH; i++) {
-    if (dev->mech[i].type == GOLD_ARM) {
-      mech_gold = &(dev->mech[i]);
-    } else if (dev->mech[i].type == GREEN_ARM) {
-      mech_green = &(dev->mech[i]);
+    if (dev->mech[i].name == l_name) {
+      mech_l = &(dev->mech[i]);
+      mech_l_flag = 1; 
+    } else if (dev->mech[i].name == r_name) {
+      mech_r = &(dev->mech[i]);
+      mech_r_flag = 1;
     }
   }
 
   // Loop through and read data for each channel
   // place the values in the appropriate mechanism
-  for (i = 0; i < numChannels / 2; i++) {
-    // Load encoder values
-    encVal = processEncVal(buffer, i);
-    mech_gold->joint[i].joint_enc_val = encVal;
+  if (mech_l_flag){
+    for (i = 0; i < numChannels / 2; i++) {
+      // Load encoder values
+      encVal = processEncVal(buffer, i);
+      mech_l->joint[i].joint_enc_val = encVal;
+    }
   }
 
-  for (i = 0; i < numChannels / 2; i++) {
-    // Load green encoder values (4-7) into mech joints 0-3
-    encVal = processEncVal(buffer, i + numChannels / 2);
-    mech_green->joint[i].joint_enc_val = encVal;
+  if (mech_r_flag){
+    for (i = 0; i < numChannels / 2; i++) {
+      // Load green encoder values (4-7) into mech joints 0-3
+      encVal = processEncVal(buffer, i + numChannels / 2);
+      mech_r->joint[i].joint_enc_val = encVal;
+    }
   }
 
   return;

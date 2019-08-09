@@ -404,13 +404,8 @@ int applyTorque(device *device0, param_pass *currParams) {
 
   for (int i = 0; i < NUM_MECH; i++) {
     for (int j = 0; j < MAX_DOF_PER_MECH; j++) {
-      if (device0->mech[i].type == GOLD_ARM) {
-        device0->mech[i].joint[j].tau_d =
-            (1.0 / 1000.0) * (float)(currParams->torque_vals[j]);  // convert from mNm to Nm
-      } else {
-        device0->mech[i].joint[j].tau_d =
-            (1.0 / 1000.0) * (float)(currParams->torque_vals[MAX_DOF_PER_MECH + j]);
-      }
+      device0->mech[i].joint[j].tau_d =
+          (1.0 / 1000.0) * (float)(currParams->torque_vals[i * MAX_DOF_PER_MECH + j]);  // convert from mNm to Nm
     }
   }
   // gravComp(device0);

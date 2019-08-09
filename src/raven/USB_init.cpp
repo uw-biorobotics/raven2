@@ -184,7 +184,7 @@ int USBInit(device *device0) {
         errno = 0;
       }
 
-      device0->mech[i].type = 0;
+      //device0->mech[i].type = 0;
       // Set mechanism type Green or Gold surgical robot
       if (boardid == GREEN_ARM_SERIAL) {
         okboards++;
@@ -219,7 +219,7 @@ int USBInit(device *device0) {
         log_msg("  Joint Encoder on board #%d.", boardid);
       } else if (boardid == JOINT_ENC_SERIAL_2) {
         okboards++;
-        log_msg("  Joint Encoder on board #%d.", boardid);
+        log_msg("  Joint Encoder 2 on board #%d.", boardid);
       } else {
         log_msg(
             "*** WARNING: USB BOARD #%d NOT CONNECTED TO MECH (update "
