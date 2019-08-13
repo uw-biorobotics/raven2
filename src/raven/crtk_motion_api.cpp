@@ -85,6 +85,10 @@ CRTK_motion_api::CRTK_motion_api(char arm){
     set_base_frame(T_crtk_in_r0_gold);
   else if(arm == 1)
     set_base_frame(T_crtk_in_r0_green);
+  else if(arm == 2) 
+    set_base_frame(T_crtk_in_r0_gold);
+  else if(arm == 3)
+    set_base_frame(T_crtk_in_r0_green);
   else
     ROS_ERROR("Invalid arm type API constructor.");
   pos = tf::Transform(); // measured_cp
@@ -455,6 +459,10 @@ void CRTK_motion_api::set_default_base_frame(char arm){
   if(arm == 0)
     set_base_frame(T_crtk_in_r0_gold);
   else if(arm == 1)
+    set_base_frame(T_crtk_in_r0_green);
+  else if(arm == 2)
+    set_base_frame(T_crtk_in_r0_gold);
+  else if(arm == 3)
     set_base_frame(T_crtk_in_r0_green);
   else
     ROS_ERROR("Invalid arm type default.");

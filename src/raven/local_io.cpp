@@ -83,6 +83,12 @@ CRTK_motion_api crtk_motion_api_green(1); //class to hold robot status flags for
 CRTK_motion_api crtk_motion_api_gold_grasp(0); //class to hold robot status flags for CRTK API
 CRTK_motion_api crtk_motion_api_green_grasp(1); //class to hold robot status flags for CRTK API
 
+
+CRTK_motion_api crtk_motion_api_blue(0); //class to hold robot status flags for CRTK API
+CRTK_motion_api crtk_motion_api_orange(1); //class to hold robot status flags for CRTK API
+CRTK_motion_api crtk_motion_api_blue_grasp(0); //class to hold robot status flags for CRTK API
+CRTK_motion_api crtk_motion_api_orange_grasp(1); //class to hold robot status flags for CRTK API
+
 /**
  * \brief Initialize data arrays to zero and create mutex
  *
@@ -117,6 +123,8 @@ int initLocalioData(device *device0) {
 
   crtk_motion_api_gold.set_default_base_frame(0);
   crtk_motion_api_green.set_default_base_frame(1);
+  crtk_motion_api_blue.set_default_base_frame(2);
+  crtk_motion_api_orange.set_default_base_frame(3);
   return 0;
 }
 
@@ -152,13 +160,22 @@ int receiveUserspace(void *u, int size) {
  */
 void teleopIntoDS1(u_struct *us_t) {
   position p, p_temp;
-  int i, armidx, armtype, loops;
+  int i, armidx, arm_name, loops;
   pthread_mutex_lock(&data1Mutex);
   tf::Quaternion q_temp;
   tf::Matrix3x3 rot_mx_temp;
   tfScalar roll_temp, pitch_temp, yaw_temp;
 
   int debug_camera = 0;
+  int extra_arm_mode = 0;
+
+  static char print_once = 0;
+
+  if(data1.robotControlMode == teleop_34 && print_once){
+    print_once = 0;
+    extra_arm_mode = 1;
+    ROS_INFO("We're in camera teleop mode, now!");
+  }
 
   // TODO:: APPLY TRANSFORM TO INCOMING DATA
 
@@ -167,31 +184,47 @@ void teleopIntoDS1(u_struct *us_t) {
   loops = USBBoards.activeAtStart;
 
   for (i = 0; i < loops; i++) {
-    if (USBBoards.boards[i] == GOLD_ARM_SERIAL) {
-      armtype = GOLD_ARM;
+    if (USBBoards.boards[i] == GOLD_ARM_SERIAL && !extra_arm_mode) {
+      arm_name = gold;
       armidx = 0;
-    } else if (USBBoards.boards[i] == GREEN_ARM_SERIAL) {
-      armtype = GREEN_ARM;
+    } else if (USBBoards.boards[i] == GREEN_ARM_SERIAL && !extra_arm_mode) {
+      arm_name = green;
       armidx = 1;
-    } else if ((USBBoards.boards[i] == JOINT_ENC_SERIAL) 
-              || (USBBoards.boards[i] == BLUE_ARM_SERIAL)
-              || (USBBoards.boards[i] == ORANGE_ARM_SERIAL)
-              || (USBBoards.boards[i] == JOINT_ENC_SERIAL_2)) {
+    } else if (USBBoards.boards[i] == BLUE_ARM_SERIAL && extra_arm_mode) {
+      arm_name = blue;
+      armidx = 2;
+    } else {
       continue;  // don't do any teleop data for joint encoders 
                  // or extra arms, yet
     }
 
-    // apply mapping to teleop data
-    p.x = us_t->delx[armidx];
-    p.y = us_t->dely[armidx];
-    p.z = us_t->delz[armidx];
-
     
-    // set local quaternion from teleop quaternion data
-    q_temp.setX(us_t->Qx[armidx]);
-    q_temp.setY(us_t->Qy[armidx]);
-    q_temp.setZ(us_t->Qz[armidx]);
-    q_temp.setW(us_t->Qw[armidx]);
+    if(!extra_arm_mode){
+      // apply mapping to teleop data
+      p.x = us_t->delx[armidx];
+      p.y = us_t->dely[armidx];
+      p.z = us_t->delz[armidx];
+
+     // set local quaternion from teleop quaternion data
+      q_temp.setX(us_t->Qx[armidx]);
+      q_temp.setY(us_t->Qy[armidx]);
+      q_temp.setZ(us_t->Qz[armidx]);
+      q_temp.setW(us_t->Qw[armidx]);
+    } else if (extra_arm_mode && arm_name == blue) {
+      // apply mapping to teleop data from left controller
+
+      p.x = us_t->delx[0];
+      p.y = us_t->dely[0];
+      p.z = us_t->delz[0];
+
+     // set local quaternion from teleop quaternion data
+      q_temp.setX(us_t->Qx[0]);
+      q_temp.setY(us_t->Qy[0]);
+      q_temp.setZ(us_t->Qz[0]);
+      q_temp.setW(us_t->Qw[0]);
+    }
+    
+   
 
     
 
@@ -200,7 +233,7 @@ void teleopIntoDS1(u_struct *us_t) {
     if(data1.param_tool_type[armidx] == qut_camera){ 
       cameraTransform(q_temp, p, armidx);
     }else
-      fromITP(&p, q_temp, armtype);
+      fromITP(&p, q_temp, arm_name);
 
 
     data1.xd[armidx].x += p.x;
@@ -483,83 +516,21 @@ void setSurgeonMode(int pedalstate) {
   log_msg("surgeon mode: %d", data1.surgeon_mode);
 }
 
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ///
 /// PUBLISH ROS DATA
 ///
-#include <tf/transform_datatypes.h>
 #include <raven_2/raven_state.h>
 #include <raven_2/raven_automove.h>
-#include <crtk_msgs/StringStamped.h>
-#include <crtk_msgs/operating_state.h>
-#include <geometry_msgs/TransformStamped.h>
-#include <geometry_msgs/TwistStamped.h>
-#include <sensor_msgs/JointState.h>
-#include <std_msgs/String.h>
 
+#include "crtk_io.h"
 
 void publish_joints(robot_device *);
 void autoincrCallback(raven_2::raven_automove);
 
 
 using namespace raven_2;
-// Global publisher and subscribers for raven data
-ros::Publisher pub_ravenstate;
-ros::Subscriber sub_automove;
-ros::Subscriber sub_crtkCommand;
-ros::Subscriber sub_crtkCommand_arm1;
-ros::Subscriber sub_crtkCommand_arm2;
-ros::Publisher joint_publisher;
 
-//CRTK publishers and subscribers
-ros::Publisher pub_crtk_state;
-ros::Publisher pub_crtk_state_arm1;
-ros::Publisher pub_crtk_state_arm2;
-
-ros::Publisher pub_crtk_measured_js_gold;
-ros::Publisher pub_crtk_measured_js_green;
-ros::Publisher pub_crtk_measured_cp_gold;
-ros::Publisher pub_crtk_measured_cp_green;
-ros::Publisher pub_crtk_measured_cv_gold;
-ros::Publisher pub_crtk_measured_cv_green;
-
-ros::Publisher pub_crtk_setpoint_js_gold;
-ros::Publisher pub_crtk_setpoint_js_green;
-ros::Publisher pub_crtk_setpoint_cp_gold;
-ros::Publisher pub_crtk_setpoint_cp_green;
-ros::Publisher pub_crtk_setpoint_cv_gold;
-ros::Publisher pub_crtk_setpoint_cv_green;
-
-ros::Publisher pub_crtk_measured_js_gold_grasper;
-ros::Publisher pub_crtk_measured_js_green_grasper;
-ros::Publisher pub_crtk_setpoint_js_gold_grasper;
-ros::Publisher pub_crtk_setpoint_js_green_grasper;
-
-ros::Subscriber sub_servo_jp_gold;
-ros::Subscriber sub_servo_jv_gold;
-ros::Subscriber sub_servo_jf_gold;
-ros::Subscriber sub_servo_jr_gold;
-ros::Subscriber sub_servo_cp_gold;
-ros::Subscriber sub_servo_cv_gold;
-// ros::Subscriber sub_servo_cf_gold;
-ros::Subscriber sub_servo_cr_gold;
-
-ros::Subscriber sub_servo_jp_green;
-ros::Subscriber sub_servo_jv_green;
-ros::Subscriber sub_servo_jf_green;
-ros::Subscriber sub_servo_jr_green;
-ros::Subscriber sub_servo_cp_green;
-ros::Subscriber sub_servo_cv_green;
-// ros::Subscriber sub_servo_cf_green;
-ros::Subscriber sub_servo_cr_green;
-
-ros::Subscriber sub_servo_jp_green_grasper;
-ros::Subscriber sub_servo_jv_green_grasper;
-ros::Subscriber sub_servo_jf_green_grasper;
-ros::Subscriber sub_servo_jr_green_grasper;
-ros::Subscriber sub_servo_jp_gold_grasper;
-ros::Subscriber sub_servo_jv_gold_grasper;
-ros::Subscriber sub_servo_jf_gold_grasper;
-ros::Subscriber sub_servo_jr_gold_grasper;
 
 /**
  *  \brief Initiates all ROS publishers and subscribers
@@ -585,19 +556,28 @@ int init_ravenstate_publishing(robot_device *dev, ros::NodeHandle &n) {
   //CRTK publishers and subscribers
   sub_crtkCommand = n.subscribe<crtk_msgs::StringStamped>("state_command", 1, &CRTK_state::crtk_cmd_cb
                                              ,&dev->crtk_state);
-  sub_crtkCommand_arm1 = n.subscribe<crtk_msgs::StringStamped>("arm1/state_command", 1, &CRTK_state::crtk_cmd_cb
+  sub_crtkCommand_arm1 = n.subscribe<crtk_msgs::StringStamped>("/arm1/state_command", 1, &CRTK_state::crtk_cmd_cb
                                              ,&dev->crtk_state);
-  sub_crtkCommand_arm2 = n.subscribe<crtk_msgs::StringStamped>("arm2/state_command", 1, &CRTK_state::crtk_cmd_cb
+  sub_crtkCommand_arm2 = n.subscribe<crtk_msgs::StringStamped>("/arm2/state_command", 1, &CRTK_state::crtk_cmd_cb
+                                             ,&dev->crtk_state);
+  sub_crtkCommand_arm3 = n.subscribe<crtk_msgs::StringStamped>("/arm3/state_command", 1, &CRTK_state::crtk_cmd_cb
+                                             ,&dev->crtk_state);
+  sub_crtkCommand_arm4 = n.subscribe<crtk_msgs::StringStamped>("/arm4/state_command", 1, &CRTK_state::crtk_cmd_cb
                                              ,&dev->crtk_state);
 
-  sub_servo_cr_gold = n.subscribe<geometry_msgs::TransformStamped>("arm1/servo_cr", 1, &CRTK_motion_api::crtk_servo_cr_cb
+  sub_servo_cr_gold = n.subscribe<geometry_msgs::TransformStamped>("/arm1/servo_cr", 1, &CRTK_motion_api::crtk_servo_cr_cb
                                              ,&crtk_motion_api_gold);
-  sub_servo_cr_green = n.subscribe<geometry_msgs::TransformStamped>("arm2/servo_cr", 1, &CRTK_motion_api::crtk_servo_cr_cb
+  sub_servo_cr_green = n.subscribe<geometry_msgs::TransformStamped>("/arm2/servo_cr", 1, &CRTK_motion_api::crtk_servo_cr_cb
                                              ,&crtk_motion_api_green);
+  sub_servo_cr_gold = n.subscribe<geometry_msgs::TransformStamped>("/arm1/servo_cr", 1, &CRTK_motion_api::crtk_servo_cr_cb
+                                             ,&crtk_motion_api_blue);
+  sub_servo_cr_green = n.subscribe<geometry_msgs::TransformStamped>("/arm2/servo_cr", 1, &CRTK_motion_api::crtk_servo_cr_cb
+                                             ,&crtk_motion_api_orange);
+
 
   sub_servo_cp_gold = n.subscribe<geometry_msgs::TransformStamped>("/arm1/servo_cp", 1, 
      &CRTK_motion_api::crtk_servo_cp_cb, &crtk_motion_api_gold);
-  sub_servo_cp_green = n.subscribe<geometry_msgs::TransformStamped>("arm2/servo_cp", 1, &CRTK_motion_api::crtk_servo_cp_cb
+  sub_servo_cp_green = n.subscribe<geometry_msgs::TransformStamped>("/arm2/servo_cp", 1, &CRTK_motion_api::crtk_servo_cp_cb
                                              ,&crtk_motion_api_green);
 
 

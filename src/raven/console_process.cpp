@@ -190,7 +190,7 @@ void *console_process(void *) {
         printf(
             "\n\nEnter new control mode: 0=NULL, 1=NULL, 2=joint_velocity, "
             "3=apply_torque, 4=homing, 5=motor_pd, 6=cartesian_space_motion, "
-            "7=multi_dof_sinusoid \t");
+            "7=multi_dof_sinusoid 8=teleop_third_arm\t");
         cin.getline(inputbuffer, 100);
         t_controlmode _cmode = (t_controlmode)(atoi(inputbuffer));
         log_msg("received control mode:%d\n\n", _cmode);

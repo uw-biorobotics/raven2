@@ -150,6 +150,11 @@ int controlRaven(device *device0, param_pass *currParams) {
       ret = raven_cartesian_space_command(device0, currParams);
       break;
 
+    // Cartesian Space Control is called to control the robot in cartesian space
+    case teleop_34:
+      ret = raven_cartesian_space_command(device0, currParams);
+      break;
+
     // Motor PD control runs PD control on motor position
     case motor_pd_control:
       initialized = false;

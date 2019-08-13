@@ -43,7 +43,7 @@ float xRot_rad = -25 * d2r;
  * \param armserial - an integer number of of mechanisam id
  * \question why post multiply with R inverse?
 */
-void fromITP(position *delpos, tf::Quaternion &delrot, int armtype) {
+void fromITP(position *delpos, tf::Quaternion &delrot, int arm_name) {
 #ifdef ORIENTATION_V
 
   const tf::Transform ITP2Gold(tf::Matrix3x3(0, 0, -1, 0, 1, 0, 1, 0, 0), tf::Vector3(0, 0, 0));
@@ -70,14 +70,14 @@ void fromITP(position *delpos, tf::Quaternion &delrot, int armtype) {
 
   tf::Transform incr(delrot, tf::Vector3(delpos->x, delpos->y, delpos->z));
 
-  if (armtype == GOLD_ARM) {
+  if (arm_name == gold || arm_name == blue) {
     incr = ITP2Gold * incr * ITP2Gold.inverse();
   } else {
     incr = ITP2Green * incr * ITP2Green.inverse();
   }
 
 #ifdef ORIENTATION_V
-  if (armtype == GOLD_ARM) {
+  if (arm_name == gold || arm_name == orange) {
     incr = GoldZ25 * incr * GoldZ25.inverse();
   } else {
     incr = GreenZ25 * incr * GreenZ25.inverse();
