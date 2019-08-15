@@ -177,6 +177,20 @@ void CRTK_motion_api::crtk_servo_cr_cb(geometry_msgs::TransformStamped msg){
 
 }
 
+
+/**
+ * @brief      callback function for cartesian velocity servo commands
+ *
+ * @param[in]  msg   The message from ROS
+ */
+void CRTK_motion_api::crtk_servo_cv_cb(geometry_msgs::TransformStamped msg){
+
+  tf::Transform vel;
+  tf::transformMsgToTF(msg.transform, vel);
+  set_setpoint_in(CRTK_servo, CRTK_cv, vel);
+}
+
+
 /**
  * @brief      callback function for absolute cartesian servo commands
  * 
@@ -290,7 +304,7 @@ void CRTK_motion_api::crtk_servo_jr_cb(sensor_msgs::JointState in){
   static int count = 2;
   count++;
 
-  if (in.position.size() == 7){
+  if (in.position.size() >= 7){
     for(int i=0;i<7;i++){
       if(get_setpoint_update_flag(CRTK_servo, CRTK_jr))
         setpoint_in[CRTK_servo].jr[i] = in.position[i] + get_setpoint_in(CRTK_servo).jr[i];
@@ -318,6 +332,37 @@ void CRTK_motion_api::crtk_servo_jr_cb(sensor_msgs::JointState in){
   setpoint_in[CRTK_servo].update_flags[CRTK_jr] = 1;
   setpoint_in[CRTK_servo].updated = 1;
 }
+
+/**
+ * @brief      callback function for joint velocity servo commands
+ *
+ * @param[in]  msg   The message from ROS
+ */
+void CRTK_motion_api::crtk_servo_jv_cb(sensor_msgs::JointState in){
+
+  static int count = 2;
+  count++;
+
+  if (in.velocity.size() >= 7){
+    for(int i=0;i<7;i++){
+      setpoint_in[CRTK_servo].jv[i] = in.velocity[i];
+    }
+  }
+  else if (in.velocity.size() == 1){
+    for(int i=1;i<7;i++){
+      setpoint_in[CRTK_servo].jv[0] = in.velocity[0];
+      setpoint_in[CRTK_servo].jv[i] = 0;
+    }
+  }
+  else{
+    ROS_INFO("unusual # of inputs to servo_jv.");
+    return;
+  }
+
+  setpoint_in[CRTK_servo].update_flags[CRTK_jv] = 1;
+  setpoint_in[CRTK_servo].updated = 1;
+}
+
 
 /**
  * @brief      callback function for absolute joint servo commands
@@ -752,8 +797,9 @@ char CRTK_motion_api::set_goal_out_js(CRTK_motion_level level, CRTK_motion_type 
         goal_out_js.position[i] = in[i];
       else if(type == CRTK_jp)
         goal_out_js.position[i] = in[i];
-      else if(type == CRTK_jv)
+      else if(type == CRTK_jv){
         goal_out_js.velocity[i] = in[i];
+      }
       else if(type == CRTK_jf)
         goal_out_js.effort[i] = in[i];
     }

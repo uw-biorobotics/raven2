@@ -300,6 +300,8 @@ int update_device_crtk_motion_tf(device* dev, int arm){
 
   float max_dist_per_ms = 0.1;   // m/ms
   float max_radian_per_ms = 0.5;  // rad/ms
+  // float max_dist_per_s = 0.1 * SECOND;   // m/s
+  // float max_radian_per_s = 0.5 * SECOND;  // rad/s
   // static int count = 0;
   int out = 0;
   CRTK_motion_type  type = dev->crtk_motion_planner.crtk_motion_api[arm].get_setpoint_out_type(); 
@@ -339,14 +341,6 @@ int update_device_crtk_motion_tf(device* dev, int arm){
       static int count = 0;
       count ++;
 
-      static float incr_rot_angle_prev = 0;
-      tf::Quaternion incr_rot = incr_tf.getRotation();
-
-      tf::Vector3 incr_rot_axis = incr_rot.getAxis().normalize();
-      
-      float incr_rot_angle = incr_rot.getAngle();
-
-
       tf::Matrix3x3 t1 = dev->crtk_motion_planner.crtk_motion_api[arm].get_base_frame().inverse().getBasis();
       tf::Matrix3x3 t2 = incr_tf.getBasis();
       tf::Matrix3x3 q_temp = t1*t2*t1.inverse();
@@ -363,8 +357,6 @@ int update_device_crtk_motion_tf(device* dev, int arm){
         for (int j = 0; j < 3; j++)
           for (int k = 0; k < 3; k++) 
             dev->mech[arm].ori_d.R[j][k] = rot_mx_temp[j][k];
-
-        tf::Quaternion test = tf::Transform(rot_mx_temp).getRotation();
       }
 
       else{
@@ -391,7 +383,7 @@ int update_device_crtk_motion_tf(device* dev, int arm){
         out = 1;
       }
       else if (fabs((new_pos-curr_pos).length()) <= 5 * max_dist_per_ms * MICRON_PER_M){
-        tf::Vector3 vec_threshed = (new_pos-curr_pos).normalized() * max_dist_per_ms * MICRON_PER_M;
+        // tf::Vector3 vec_threshed = (new_pos-curr_pos).normalized() * max_dist_per_ms * MICRON_PER_M;
         dev->mech[arm].pos_d.x = (int)(new_pos.x());
         dev->mech[arm].pos_d.y = (int)(new_pos.y());
         dev->mech[arm].pos_d.z = (int)(new_pos.z());
@@ -432,7 +424,64 @@ int update_device_crtk_motion_tf(device* dev, int arm){
       break;
     }
     case CRTK_cv:{
-      // TODO later:D
+      tf::Transform vel_tf = dev->crtk_motion_planner.crtk_motion_api[arm].get_setpoint_out_tf();
+
+      // (1) for translation
+      tf::Vector3 incr = vel_tf.getOrigin() * ONE_MS;
+    
+      // rotate to RAVEN frame and scale from meters to microns
+      incr = dev->crtk_motion_planner.crtk_motion_api[arm].get_base_frame().inverse() * incr;
+      incr = incr * MICRON_PER_M;
+      
+
+      if(incr.length() <= max_dist_per_ms * MICRON_PER_M){
+        dev->mech[arm].pos_d.x += (int)(incr.x());
+        dev->mech[arm].pos_d.y += (int)(incr.y());
+        dev->mech[arm].pos_d.z += (int)(incr.z());
+        out = 1;
+      }
+      else{
+        ROS_INFO("Cartesian velocity translation scaled to max speed. (length= %f m per ms)",incr.length()/MICRON_PER_M);
+
+        incr = incr.normalized() * max_dist_per_ms * MICRON_PER_M;
+
+        dev->mech[arm].pos_d.x += (int)(incr.x());
+        dev->mech[arm].pos_d.y += (int)(incr.y());
+        dev->mech[arm].pos_d.z += (int)(incr.z());
+        out = 1;
+      }
+
+      // (2) for rotation!
+      tf::Quaternion vel_rot = vel_tf.getRotation();
+      tf::Vector3 incr_rot_axis = vel_rot.getAxis().normalize();
+      float incr_rot_angle = vel_rot.getAngle() * ONE_MS;
+      tf::Quaternion incr_rot = tf::Quaternion(incr_rot_axis,incr_rot_angle);
+
+      tf::Matrix3x3 t1 = dev->crtk_motion_planner.crtk_motion_api[arm].get_base_frame().inverse().getBasis();
+      tf::Matrix3x3 t2 = tf::Matrix3x3(incr_rot);
+      tf::Matrix3x3 q_temp = t1*t2*t1.inverse();
+      tf::Matrix3x3 mx_temp = tf::Transform(tf::Matrix3x3(dev->mech[arm].ori_d.R[0][0], dev->mech[arm].ori_d.R[0][1], dev->mech[arm].ori_d.R[0][2], 
+                                                        dev->mech[arm].ori_d.R[1][0], dev->mech[arm].ori_d.R[1][1], dev->mech[arm].ori_d.R[1][2], 
+                                                        dev->mech[arm].ori_d.R[2][0], dev->mech[arm].ori_d.R[2][1], dev->mech[arm].ori_d.R[2][2])).getBasis();
+
+
+      if (tf::Transform(t2).getRotation() != tf::Quaternion::getIdentity()) {
+        q_temp = q_temp * mx_temp;
+        tf::Matrix3x3 rot_mx_temp(q_temp);
+
+
+        for (int j = 0; j < 3; j++)
+          for (int k = 0; k < 3; k++) 
+            dev->mech[arm].ori_d.R[j][k] = rot_mx_temp[j][k];
+
+        tf::Quaternion test = tf::Transform(rot_mx_temp).getRotation();
+      }
+
+      else{
+        out = 0;
+      }
+      return out;
+      break;
       break;
     }
     default:{
@@ -450,6 +499,8 @@ int update_device_crtk_motion_js(device* dev, int arm){
 
   float max_radian_per_ms = 0.0025;    // rad/ms
   float max_meters_per_ms = 0.00005;  // meters/ms
+  float max_radian_per_s = max_radian_per_ms * SECOND;  // rad/m
+  float max_meters_per_s = max_meters_per_ms * SECOND;  // meters/m
   static int count=0;
   static int limit_count=0;
   int index_offset =0;
@@ -529,7 +580,30 @@ int update_device_crtk_motion_js(device* dev, int arm){
       break;
 
     case CRTK_jv:
-        // TODO:
+        double incr;
+        for(int i=0; i<7;i++){
+          index_offset = (i>=3) ? 1 : 0;
+          limit = (i==2) ? max_meters_per_s : max_radian_per_s;
+          if(fabs(setpoint.velocity[i]) <= limit){ 
+            incr = setpoint.velocity[i] * ONE_MS;
+            dev->mech[arm].joint[i+index_offset].jpos_d += incr;
+            out = 1;
+          }
+          else 
+          {
+            float sign = (setpoint.velocity[i] > 0) ? 1 : -1;
+            dev->mech[arm].joint[i+index_offset].jpos_d += sign * limit * ONE_MS;
+
+            limit_count ++;
+            out = 1;
+            if(limit_count%500 == 0){
+              ROS_ERROR("THAT WAS TOO FAR! joint %i jpos_d - %f, in %f ",
+              i+index_offset, dev->mech[arm].joint[i+index_offset].jpos_d , setpoint.velocity[i] * ONE_MS);
+              out = -1;
+            }
+            
+          }
+        }
       break;
 
     case CRTK_jf:

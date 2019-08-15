@@ -88,8 +88,10 @@ class CRTK_motion_api
     // callbacks
     void crtk_servo_cr_cb(geometry_msgs::TransformStamped);
     void crtk_servo_cp_cb(geometry_msgs::TransformStamped); 
+    void crtk_servo_cv_cb(geometry_msgs::TransformStamped); 
     void crtk_servo_jr_cb(sensor_msgs::JointState);
     void crtk_servo_jp_cb(sensor_msgs::JointState);
+    void crtk_servo_jv_cb(sensor_msgs::JointState);
 
     // checking functions
     char check_goal_updates();                // for mid level controller      

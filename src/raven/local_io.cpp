@@ -569,9 +569,9 @@ int init_ravenstate_publishing(robot_device *dev, ros::NodeHandle &n) {
                                              ,&crtk_motion_api_gold);
   sub_servo_cr_green = n.subscribe<geometry_msgs::TransformStamped>("/arm2/servo_cr", 1, &CRTK_motion_api::crtk_servo_cr_cb
                                              ,&crtk_motion_api_green);
-  sub_servo_cr_gold = n.subscribe<geometry_msgs::TransformStamped>("/arm1/servo_cr", 1, &CRTK_motion_api::crtk_servo_cr_cb
+  sub_servo_cr_blue = n.subscribe<geometry_msgs::TransformStamped>("/arm3/servo_cr", 1, &CRTK_motion_api::crtk_servo_cr_cb
                                              ,&crtk_motion_api_blue);
-  sub_servo_cr_green = n.subscribe<geometry_msgs::TransformStamped>("/arm2/servo_cr", 1, &CRTK_motion_api::crtk_servo_cr_cb
+  sub_servo_cr_orange = n.subscribe<geometry_msgs::TransformStamped>("/arm4/servo_cr", 1, &CRTK_motion_api::crtk_servo_cr_cb
                                              ,&crtk_motion_api_orange);
 
 
@@ -579,6 +579,16 @@ int init_ravenstate_publishing(robot_device *dev, ros::NodeHandle &n) {
      &CRTK_motion_api::crtk_servo_cp_cb, &crtk_motion_api_gold);
   sub_servo_cp_green = n.subscribe<geometry_msgs::TransformStamped>("/arm2/servo_cp", 1, &CRTK_motion_api::crtk_servo_cp_cb
                                              ,&crtk_motion_api_green);
+
+  sub_servo_cv_gold = n.subscribe<geometry_msgs::TransformStamped>("/arm1/servo_cv", 1,  &CRTK_motion_api::crtk_servo_cv_cb
+                                             ,&crtk_motion_api_gold);
+  sub_servo_cv_green = n.subscribe<geometry_msgs::TransformStamped>("/arm2/servo_cv", 1, &CRTK_motion_api::crtk_servo_cv_cb
+                                             ,&crtk_motion_api_green);
+  sub_servo_cv_blue = n.subscribe<geometry_msgs::TransformStamped>("/arm3/servo_cv", 1,  &CRTK_motion_api::crtk_servo_cv_cb
+                                             ,&crtk_motion_api_blue);
+  sub_servo_cv_orange = n.subscribe<geometry_msgs::TransformStamped>("/arm4/servo_cv", 1, &CRTK_motion_api::crtk_servo_cv_cb
+                                             ,&crtk_motion_api_orange);
+
 
 
   sub_servo_jr_gold = n.subscribe<sensor_msgs::JointState>("/arm1/servo_jr", 1, 
@@ -592,18 +602,35 @@ int init_ravenstate_publishing(robot_device *dev, ros::NodeHandle &n) {
      &CRTK_motion_api::crtk_servo_jp_cb, &crtk_motion_api_green);
 
 
+  sub_servo_jv_gold = n.subscribe<sensor_msgs::JointState>("/arm1/servo_jv", 1, 
+     &CRTK_motion_api::crtk_servo_jv_cb, &crtk_motion_api_gold);
+  sub_servo_jv_green = n.subscribe<sensor_msgs::JointState>("/arm2/servo_jv", 1, 
+     &CRTK_motion_api::crtk_servo_jv_cb, &crtk_motion_api_green);
+  sub_servo_jv_blue = n.subscribe<sensor_msgs::JointState>("/arm3/servo_jv", 1, 
+     &CRTK_motion_api::crtk_servo_jv_cb, &crtk_motion_api_blue);
+  sub_servo_jv_orange = n.subscribe<sensor_msgs::JointState>("/arm4/servo_jv", 1, 
+     &CRTK_motion_api::crtk_servo_jv_cb, &crtk_motion_api_orange);
+
+
+  sub_servo_jv_orange_grasper = n.subscribe<sensor_msgs::JointState>("grasp4/servo_jv", 1, &CRTK_motion_api::crtk_servo_jv_cb
+                                               ,&crtk_motion_api_orange_grasp);
+  sub_servo_jv_blue_grasper = n.subscribe<sensor_msgs::JointState>("grasp3/servo_jv", 1, &CRTK_motion_api::crtk_servo_jv_cb
+                                               ,&crtk_motion_api_blue_grasp);
+  sub_servo_jv_green_grasper = n.subscribe<sensor_msgs::JointState>("grasp2/servo_jv", 1, &CRTK_motion_api::crtk_servo_jv_cb
+                                           ,&crtk_motion_api_green_grasp);
+  sub_servo_jv_gold_grasper = n.subscribe<sensor_msgs::JointState>("grasp1/servo_jv", 1, &CRTK_motion_api::crtk_servo_jv_cb
+                                          ,&crtk_motion_api_gold_grasp);
+
   // sub_servo_jp_green_grasper = n.subscribe<sensor_msgs::JointState>("grasp2/servo_jp", 1, &CRTK_motion_api::crtk_servo_jp_cb
   //                                            ,&crtk_motion_api_green_grasp);
-  // sub_servo_jv_green_grasper = n.subscribe<sensor_msgs::JointState>("grasp2/servo_jv", 1, &CRTK_motion_api::crtk_servo_jv_cb
-  //                                            ,&crtk_motion_api_green_grasp);
+
   // sub_servo_jf_green_grasper = n.subscribe<sensor_msgs::JointState>("grasp2/servo_jf", 1, &CRTK_motion_api::crtk_servo_jf_cb
   //                                            ,&crtk_motion_api_green_grasp);
   sub_servo_jr_green_grasper = n.subscribe<sensor_msgs::JointState>("grasp2/servo_jr", 1, &CRTK_motion_api::crtk_servo_jr_cb
                                              ,&crtk_motion_api_green_grasp);
   // sub_servo_jp_gold_grasper = n.subscribe<sensor_msgs::JointState>("grasp1/servo_jp", 1, &CRTK_motion_api::crtk_servo_jp_cb
   //                                            ,&crtk_motion_api_gold_grasp);
-  // sub_servo_jv_gold_grasper = n.subscribe<sensor_msgs::JointState>("grasp1/servo_jv", 1, &CRTK_motion_api::crtk_servo_jv_cb
-  //                                            ,&crtk_motion_api_gold_grasp);
+
   // sub_servo_jf_gold_grasper = n.subscribe<sensor_msgs::JointState>("grasp1/servo_jf", 1, &CRTK_motion_api::crtk_servo_jf_cb
   //                                            ,&crtk_motion_api_gold_grasp);
   sub_servo_jr_gold_grasper = n.subscribe<sensor_msgs::JointState>("grasp1/servo_jr", 1, &CRTK_motion_api::crtk_servo_jr_cb
@@ -938,14 +965,14 @@ void publish_crtk_measured_js(robot_device *dev) {
   DOF *_joint = NULL;
   int i, j;
   while (loop_over_7_joints(dev, _mech, _joint, i, j)) {
-    if (_mech->type == GOLD_ARM_SERIAL) {
+    if (_mech->name == green) {
 
         msg1.position.push_back(_joint->jpos);
         msg1.velocity.push_back(_joint->jvel);
         msg1.effort.push_back(_joint->tau);
         msg1.name.push_back(gold_names[j]);
     }
-    else if (_mech->type == GREEN_ARM_SERIAL) {
+    else if (_mech->name == gold) {
 
         msg2.position.push_back(_joint->jpos);
         msg2.velocity.push_back(_joint->jvel);
@@ -989,8 +1016,8 @@ void publish_crtk_measured_cp(robot_device *dev) {
 
   tf::transformTFToMsg(pos1,msg1.transform);
   tf::transformTFToMsg(pos2,msg2.transform);
-  pub_crtk_measured_cp_gold.publish(msg1);
-  pub_crtk_measured_cp_green.publish(msg2);
+  pub_crtk_measured_cp_gold.publish(msg2);
+  pub_crtk_measured_cp_green.publish(msg1);
 }
 
 void publish_crtk_measured_cv(robot_device *dev) {
