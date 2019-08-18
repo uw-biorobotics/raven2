@@ -21,4 +21,12 @@ home_jpos:
 - 0.0598
 - 0.736
 - 0.844
+is_prismatic:
+- 0
+- 0
+- 1
+- 0
+- 0
+- 0
+- 0
 grasper_name: grasp2
