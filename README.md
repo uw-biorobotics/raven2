@@ -6,6 +6,8 @@
 1. Raven User guide - a work in progress: [link](https://docs.google.com/document/d/1_21dWhSnXXl0f1e8hjI8vc1neqhOySVY7MGV3GLBImw/edit)
 1. Raven Doxygen page: [link](http://astro.ee.washington.edu/raven2docs/annotated.html)  (this old server may go down in which case see below).
 1. [ Contributor's Guide ](https://github.com/uw-biorobotics/raven2/wiki/Contributors-Guide)
+1. [ User Guide document ](https://docs.google.com/document/d/1_21dWhSnXXl0f1e8hjI8vc1neqhOySVY7MGV3GLBImw/edit?usp=sharing)
+
  
 ## To build and read the documentation, 
 
