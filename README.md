@@ -4,7 +4,7 @@
 
 1. Raven YouTube tutorial series (step by step videos on how a new Raven user can get started with Raven): [link](https://www.youtube.com/playlist?list=PLxMsr-mRZng81BdDTaUX0sueXWeVOX0qd)
 1. Raven User guide - a work in progress: [link](https://docs.google.com/document/d/1_21dWhSnXXl0f1e8hjI8vc1neqhOySVY7MGV3GLBImw/edit)
-1. Raven Doxygen page: [link](http://astro.ee.washington.edu/raven2docs/annotated.html)  (this old server may go down in which case see below).
+1. Raven Doxygen - see below
 1. [ Contributor's Guide ](https://github.com/uw-biorobotics/raven2/wiki/Contributors-Guide)
 1. [ User Guide document ](https://docs.google.com/document/d/1_21dWhSnXXl0f1e8hjI8vc1neqhOySVY7MGV3GLBImw/edit?usp=sharing)
 
@@ -28,4 +28,4 @@
 For info about using, interfacing with, or purchasing a RAVEN, contact: info {at} applieddexterity {dot} com
 http://applieddexterity.com/
 
-To view the RAVEN wiki, visit http://astro.ee.washington.edu/ravenIIwiki and ask Applied Dexterity for a login account.
+
