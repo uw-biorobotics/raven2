@@ -269,7 +269,7 @@ void teleopIntoDS1(u_struct *us_t) {
     //add grasp value to data1
     // if(isCamera(data1.param_tool_type[armidx])) 
     if(data1.param_tool_type[armidx] == r_grasper) 
-      data1.rd[armidx].grasp += 0; 
+      data1.rd[armidx].grasp -= grasp_gain * us_t->grasp[armidx];
     else  
       data1.rd[armidx].grasp -= grasp_gain * us_t->grasp[armidx];
 
