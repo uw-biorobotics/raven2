@@ -230,15 +230,15 @@ void teleopIntoDS1(u_struct *us_t) {
 
     //tool is a camera tool, only take z comp
     //TODO make this a separate function
-    if(data1.param_tool_type[armidx] == qut_camera){ 
+    if(data1.param_tool_type[i] == qut_camera){ 
       cameraTransform(q_temp, p, armidx);
     }else
       fromITP(&p, q_temp, arm_name);
 
 
-    data1.xd[armidx].x += p.x;
-    data1.xd[armidx].y += p.y;
-    data1.xd[armidx].z += p.z;
+    data1.xd[i].x += p.x;
+    data1.xd[i].y += p.y;
+    data1.xd[i].z += p.z;
 
     // Add quaternion increment
     Q_ori[armidx] = q_temp * Q_ori[armidx];
@@ -246,7 +246,7 @@ void teleopIntoDS1(u_struct *us_t) {
 
     // Set rotation command
     for (int j = 0; j < 3; j++)
-      for (int k = 0; k < 3; k++) data1.rd[armidx].R[j][k] = rot_mx_temp[j][k];
+      for (int k = 0; k < 3; k++) data1.rd[i].R[j][k] = rot_mx_temp[j][k];
 
 
     // set grasp command
@@ -268,16 +268,16 @@ void teleopIntoDS1(u_struct *us_t) {
 
     //add grasp value to data1
     // if(isCamera(data1.param_tool_type[armidx])) 
-    if(data1.param_tool_type[armidx] == r_grasper) 
-      data1.rd[armidx].grasp -= grasp_gain * us_t->grasp[armidx];
+    if(data1.param_tool_type[i] == r_grasper) 
+      data1.rd[i].grasp -= grasp_gain * us_t->grasp[armidx];
     else  
-      data1.rd[armidx].grasp -= grasp_gain * us_t->grasp[armidx];
+      data1.rd[i].grasp -= grasp_gain * us_t->grasp[armidx];
 
     //limit grasping to safe max and min limits  
-    if (data1.rd[armidx].grasp > graspmax)
-      data1.rd[armidx].grasp = graspmax;
-    else if (data1.rd[armidx].grasp < graspmin)
-      data1.rd[armidx].grasp = graspmin;
+    if (data1.rd[i].grasp > graspmax)
+      data1.rd[i].grasp = graspmax;
+    else if (data1.rd[i].grasp < graspmin)
+      data1.rd[i].grasp = graspmin;
 
   }
 
