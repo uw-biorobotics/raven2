@@ -43,6 +43,8 @@
 #include <iomanip>
 #include <termios.h>  // needed for terminal settings in getkey()
 #include <queue>
+#include <unistd.h>
+
 
 #include "rt_process_preempt.h"
 #include "rt_raven.h"
@@ -243,7 +245,10 @@ int getkey() {
 
   /* read a character from the stdin stream without blocking */
   /*   returns EOF (-1) if no character is available */
-  character = fgetc(stdin);
+  read(STDIN_FILENO, &character, 1);
+  if (ferror(stdin))
+    log_msg("i/O error when reading from keyboard");
+
 
   /* restore the original terminal attributes */
   tcsetattr(fileno(stdin), TCSANOW, &orig_term_attr);
