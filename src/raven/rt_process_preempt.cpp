@@ -47,7 +47,9 @@
 #include <sys/time.h>      // needed for getrusage
 #include <sys/resource.h>  // needed for getrusage
 #include <sched.h>
+#if HAVE_STROPTS_H
 #include <stropts.h>
+#endif
 #include <ctime>
 #include <pthread.h>
 #include <cstring>
