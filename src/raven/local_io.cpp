@@ -172,9 +172,9 @@ void teleopIntoDS1(u_struct *us_t) {
 
     fromITP(&p, q_temp, armserial);
 
-    data1.xd[armidx].x += p.x;
-    data1.xd[armidx].y += p.y;
-    data1.xd[armidx].z += p.z;
+    data1.xd[i].x += p.x;
+    data1.xd[i].y += p.y;
+    data1.xd[i].z += p.z;
 
     // Add quaternion increment
     Q_ori[armidx] = q_temp * Q_ori[armidx];
@@ -182,7 +182,7 @@ void teleopIntoDS1(u_struct *us_t) {
 
     // Set rotation command
     for (int j = 0; j < 3; j++)
-      for (int k = 0; k < 3; k++) data1.rd[armidx].R[j][k] = rot_mx_temp[j][k];
+      for (int k = 0; k < 3; k++) data1.rd[i].R[j][k] = rot_mx_temp[j][k];
 
 #ifdef OMNI_GAIN
     const int grasp_gain = OMNI_GAIN;
@@ -201,11 +201,11 @@ void teleopIntoDS1(u_struct *us_t) {
 #ifdef SCISSOR_RIGHT
     if (armserial == GREEN_ARM_SERIAL) graspmin = (-40.0 * 1000.0 DEG2RAD);
 #endif
-    data1.rd[armidx].grasp -= grasp_gain * us_t->grasp[armidx];
-    if (data1.rd[armidx].grasp > graspmax)
-      data1.rd[armidx].grasp = graspmax;
-    else if (data1.rd[armidx].grasp < graspmin)
-      data1.rd[armidx].grasp = graspmin;
+    data1.rd[i].grasp -= grasp_gain * us_t->grasp[armidx];
+    if (data1.rd[i].grasp > graspmax)
+      data1.rd[i].grasp = graspmax;
+    else if (data1.rd[i].grasp < graspmin)
+      data1.rd[i].grasp = graspmin;
   }
 
   /// \question HK: why is this a hack?
