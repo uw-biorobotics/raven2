@@ -19,7 +19,7 @@
  */
 
 #include <dynamic_reconfigure/server.h>
-#include <raven_2/Raven2Config.h>
+#include <raven_2_crtk/Raven2Config.h>
 #include <ros/ros.h>
 #include "reconfigure.h"
 
@@ -27,7 +27,7 @@ offsets offsets_l;
 offsets offsets_r;
 
 // Dynamic reconfigure callback
-void reconfigure_callback(raven_2::Raven2Config &config, uint32_t level) {
+void reconfigure_callback(raven_2_crtk::Raven2Config &config, uint32_t level) {
   ROS_INFO("Reconfigure request : %f  ", config.shoulder_l);
   offsets_l.shoulder_off = config.shoulder_l * M_PI / 180.0;
   offsets_l.elbow_off = config.elbow_l * M_PI / 180.0;

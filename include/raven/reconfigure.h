@@ -22,7 +22,7 @@
 #define __RECONFIGURE_H__
 
 #include <dynamic_reconfigure/server.h>
-#include <raven_2/Raven2Config.h>
+#include <raven_2_crtk/Raven2Config.h>
 
 struct offsets {
   double shoulder_off;
@@ -34,6 +34,6 @@ struct offsets {
   double grasp2_off;
 };
 
-void reconfigure_callback(raven_2::Raven2Config &config, uint32_t level);
+void reconfigure_callback(raven_2_crtk::Raven2Config &config, uint32_t level);
 
 #endif

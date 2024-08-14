@@ -30,7 +30,7 @@
 
 #include <tf/transform_datatypes.h>
 #include <crtk_msgs/StringStamped.h>
-#include <crtk_msgs/operating_state.h>
+#include <crtk_msgs/OperatingState.h>
 #include <geometry_msgs/TransformStamped.h>
 #include <geometry_msgs/TwistStamped.h>
 #include <sensor_msgs/JointState.h>

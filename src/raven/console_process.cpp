@@ -43,12 +43,16 @@
 #include <iomanip>
 #include <termios.h>  // needed for terminal settings in getkey()
 #include <queue>
-#include <unistd.h>
 
 #include "console_process.h"
 #include "local_io.h"
 #include "rt_process_preempt.h"
 #include "rt_raven.h"
+
+#ifdef UBUNTU_20
+  #include <unistd.h> // needed for getkey on Ubuntu 20
+#else
+#endif
 
 
 using namespace std;
@@ -248,9 +252,13 @@ int getkey() {
 
   /* read a character from the stdin stream without blocking */
   /*   returns EOF (-1) if no character is available */
+#ifdef UBUNTU_20
   read(STDIN_FILENO, &character, 1);
   if (ferror(stdin))
     log_msg("i/O error when reading from keyboard");
+#else
+  character = fgetc(stdin);
+#endif
 
 
   /* restore the original terminal attributes */

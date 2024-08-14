@@ -520,16 +520,16 @@ void setSurgeonMode(int pedalstate) {
 ///
 /// PUBLISH ROS DATA
 ///
-#include <raven_2/raven_state.h>
-#include <raven_2/raven_automove.h>
+#include <raven_2_crtk/raven_state.h>
+#include <raven_2_crtk/raven_automove.h>
 
 #include "crtk_io.h"
 
 void publish_joints(robot_device *);
-void autoincrCallback(raven_2::raven_automove);
+void autoincrCallback(raven_2_crtk::raven_automove);
 
 
-using namespace raven_2;
+using namespace raven_2_crtk;
 
 
 /**
@@ -565,28 +565,28 @@ int init_ravenstate_publishing(robot_device *dev, ros::NodeHandle &n) {
   sub_crtkCommand_arm4 = n.subscribe<crtk_msgs::StringStamped>("/arm4/state_command", 1, &CRTK_state::crtk_cmd_cb
                                              ,&dev->crtk_state);
 
-  sub_servo_cr_gold = n.subscribe<geometry_msgs::TransformStamped>("/arm1/servo_cr", 1, &CRTK_motion_api::crtk_servo_cr_cb
+  sub_servo_cr_gold = n.subscribe<geometry_msgs::PoseStamped>("/arm1/servo_cr", 1, &CRTK_motion_api::crtk_servo_cr_cb
                                              ,&crtk_motion_api_gold);
-  sub_servo_cr_green = n.subscribe<geometry_msgs::TransformStamped>("/arm2/servo_cr", 1, &CRTK_motion_api::crtk_servo_cr_cb
+  sub_servo_cr_green = n.subscribe<geometry_msgs::PoseStamped>("/arm2/servo_cr", 1, &CRTK_motion_api::crtk_servo_cr_cb
                                              ,&crtk_motion_api_green);
-  sub_servo_cr_blue = n.subscribe<geometry_msgs::TransformStamped>("/arm3/servo_cr", 1, &CRTK_motion_api::crtk_servo_cr_cb
+  sub_servo_cr_blue = n.subscribe<geometry_msgs::PoseStamped>("/arm3/servo_cr", 1, &CRTK_motion_api::crtk_servo_cr_cb
                                              ,&crtk_motion_api_blue);
-  sub_servo_cr_orange = n.subscribe<geometry_msgs::TransformStamped>("/arm4/servo_cr", 1, &CRTK_motion_api::crtk_servo_cr_cb
+  sub_servo_cr_orange = n.subscribe<geometry_msgs::PoseStamped>("/arm4/servo_cr", 1, &CRTK_motion_api::crtk_servo_cr_cb
                                              ,&crtk_motion_api_orange);
 
 
-  sub_servo_cp_gold = n.subscribe<geometry_msgs::TransformStamped>("/arm1/servo_cp", 1, 
-     &CRTK_motion_api::crtk_servo_cp_cb, &crtk_motion_api_gold);
-  sub_servo_cp_green = n.subscribe<geometry_msgs::TransformStamped>("/arm2/servo_cp", 1, &CRTK_motion_api::crtk_servo_cp_cb
+  sub_servo_cp_gold = n.subscribe<geometry_msgs::PoseStamped>("/arm1/servo_cp", 1, &CRTK_motion_api::crtk_servo_cp_cb
+                                             ,&crtk_motion_api_gold);
+  sub_servo_cp_green = n.subscribe<geometry_msgs::PoseStamped>("/arm2/servo_cp", 1, &CRTK_motion_api::crtk_servo_cp_cb
                                              ,&crtk_motion_api_green);
 
-  sub_servo_cv_gold = n.subscribe<geometry_msgs::TransformStamped>("/arm1/servo_cv", 1,  &CRTK_motion_api::crtk_servo_cv_cb
+  sub_servo_cv_gold = n.subscribe<geometry_msgs::TwistStamped>("/arm1/servo_cv", 1,  &CRTK_motion_api::crtk_servo_cv_cb
                                              ,&crtk_motion_api_gold);
-  sub_servo_cv_green = n.subscribe<geometry_msgs::TransformStamped>("/arm2/servo_cv", 1, &CRTK_motion_api::crtk_servo_cv_cb
+  sub_servo_cv_green = n.subscribe<geometry_msgs::TwistStamped>("/arm2/servo_cv", 1, &CRTK_motion_api::crtk_servo_cv_cb
                                              ,&crtk_motion_api_green);
-  sub_servo_cv_blue = n.subscribe<geometry_msgs::TransformStamped>("/arm3/servo_cv", 1,  &CRTK_motion_api::crtk_servo_cv_cb
+  sub_servo_cv_blue = n.subscribe<geometry_msgs::TwistStamped>("/arm3/servo_cv", 1,  &CRTK_motion_api::crtk_servo_cv_cb
                                              ,&crtk_motion_api_blue);
-  sub_servo_cv_orange = n.subscribe<geometry_msgs::TransformStamped>("/arm4/servo_cv", 1, &CRTK_motion_api::crtk_servo_cv_cb
+  sub_servo_cv_orange = n.subscribe<geometry_msgs::TwistStamped>("/arm4/servo_cv", 1, &CRTK_motion_api::crtk_servo_cv_cb
                                              ,&crtk_motion_api_orange);
 
 
@@ -639,20 +639,20 @@ int init_ravenstate_publishing(robot_device *dev, ros::NodeHandle &n) {
                                              ,&crtk_motion_api_gold_grasp);
 
 
-  pub_crtk_state              = n.advertise<crtk_msgs::operating_state>("operating_state", 1);
-  pub_crtk_state_arm1         = n.advertise<crtk_msgs::operating_state>("/arm1/operating_state", 1);
-  pub_crtk_state_arm2         = n.advertise<crtk_msgs::operating_state>("/arm2/operating_state", 1);
+  pub_crtk_state              = n.advertise<crtk_msgs::OperatingState>("operating_state", 1);
+  pub_crtk_state_arm1         = n.advertise<crtk_msgs::OperatingState>("/arm1/operating_state", 1);
+  pub_crtk_state_arm2         = n.advertise<crtk_msgs::OperatingState>("/arm2/operating_state", 1);
   pub_crtk_measured_js_gold   = n.advertise<sensor_msgs::JointState>("arm1/measured_js", 1);
   pub_crtk_measured_js_green  = n.advertise<sensor_msgs::JointState>("arm2/measured_js", 1);
-  pub_crtk_measured_cp_gold   = n.advertise<geometry_msgs::TransformStamped>("arm1/measured_cp", 1);
-  pub_crtk_measured_cp_green  = n.advertise<geometry_msgs::TransformStamped>("arm2/measured_cp", 1);
+  pub_crtk_measured_cp_gold   = n.advertise<geometry_msgs::PoseStamped>("arm1/measured_cp", 1);
+  pub_crtk_measured_cp_green  = n.advertise<geometry_msgs::PoseStamped>("arm2/measured_cp", 1);
   pub_crtk_measured_cv_gold   = n.advertise<geometry_msgs::TwistStamped>("arm1/measured_cv", 1);
   pub_crtk_measured_cv_green  = n.advertise<geometry_msgs::TwistStamped>("arm2/measured_cv", 1);
 
   pub_crtk_setpoint_js_gold   = n.advertise<sensor_msgs::JointState>("arm1/setpoint_js", 1);
   pub_crtk_setpoint_js_green  = n.advertise<sensor_msgs::JointState>("arm2/setpoint_js", 1);
-  pub_crtk_setpoint_cp_gold   = n.advertise<geometry_msgs::TransformStamped>("arm1/setpoint_cp", 1);
-  pub_crtk_setpoint_cp_green  = n.advertise<geometry_msgs::TransformStamped>("arm2/setpoint_cp", 1);
+  pub_crtk_setpoint_cp_gold   = n.advertise<geometry_msgs::PoseStamped>("arm1/setpoint_cp", 1);
+  pub_crtk_setpoint_cp_green  = n.advertise<geometry_msgs::PoseStamped>("arm2/setpoint_cp", 1);
   pub_crtk_setpoint_cv_gold   = n.advertise<geometry_msgs::TwistStamped>("arm1/setpoint_cv", 1);
   pub_crtk_setpoint_cv_green  = n.advertise<geometry_msgs::TwistStamped>("arm2/setpoint_cv", 1);
 
@@ -693,7 +693,7 @@ void publish_crtk(robot_device *device0){
  * \ingroup ROS
  *
  */
-void autoincrCallback(raven_2::raven_automove msg) {
+void autoincrCallback(raven_2_crtk::raven_automove msg) {
   tf::Transform in_incr[2];
   tf::transformMsgToTF(msg.tf_incr[0], in_incr[0]);
   tf::transformMsgToTF(msg.tf_incr[1], in_incr[1]);
@@ -861,7 +861,7 @@ void publish_ravenstate_ros(robot_device *dev, param_pass *currParams) {
  * @ingroup    CRTK
  */
 void publish_crtk_state(robot_device *dev) {
-  static crtk_msgs::operating_state msg_state;
+  static crtk_msgs::OperatingState msg_state;
 
   msg_state.state = dev->crtk_state.get_state_string();
   msg_state.is_homed = dev->crtk_state.get_homed();
@@ -884,7 +884,7 @@ void publish_crtk_state(robot_device *dev) {
  * @ingroup    CRTK
  */
 void publish_crtk_state_arms(robot_device *dev) {
-  static crtk_msgs::operating_state msg_state;
+  static crtk_msgs::OperatingState msg_state;
 
   msg_state.state = dev->crtk_state.get_state_string();
   msg_state.is_homed = dev->crtk_state.get_homed();
@@ -965,14 +965,14 @@ void publish_crtk_measured_js(robot_device *dev) {
   DOF *_joint = NULL;
   int i, j;
   while (loop_over_7_joints(dev, _mech, _joint, i, j)) {
-    if (_mech->name == green) {
+    if (_mech->name == gold) {
 
         msg1.position.push_back(_joint->jpos);
         msg1.velocity.push_back(_joint->jvel);
         msg1.effort.push_back(_joint->tau);
         msg1.name.push_back(gold_names[j]);
     }
-    else if (_mech->name == gold) {
+    else if (_mech->name == green) {
 
         msg2.position.push_back(_joint->jpos);
         msg2.velocity.push_back(_joint->jvel);
@@ -993,7 +993,7 @@ void publish_crtk_measured_js(robot_device *dev) {
  * @param      dev   the robot device
  */
 void publish_crtk_measured_cp(robot_device *dev) {
-  static geometry_msgs::TransformStamped msg1, msg2;
+  static geometry_msgs::PoseStamped msg1, msg2;
 // Header header
 // string child_frame_id # the frame id of the child frame
 // Transform transform
@@ -1014,10 +1014,16 @@ void publish_crtk_measured_cp(robot_device *dev) {
   pos1.setRotation(norm1); 
   pos2.setRotation(norm2);
 
-  tf::transformTFToMsg(pos1,msg1.transform);
-  tf::transformTFToMsg(pos2,msg2.transform);
-  pub_crtk_measured_cp_gold.publish(msg2);
-  pub_crtk_measured_cp_green.publish(msg1);
+  tf::Pose pose1;
+  tf::Pose pose2;
+
+  tf_to_pose(pos1, pose1);
+  tf_to_pose(pos2, pose2);
+
+  tf::poseTFToMsg(pose1,msg1.pose);
+  tf::poseTFToMsg(pose2,msg2.pose);
+  pub_crtk_measured_cp_gold.publish(msg1);
+  pub_crtk_measured_cp_green.publish(msg2);
 }
 
 void publish_crtk_measured_cv(robot_device *dev) {
@@ -1059,7 +1065,7 @@ void publish_crtk_setpoint_js(robot_device *dev) {
 }
 
 void publish_crtk_setpoint_cp(robot_device *dev) {
-  static geometry_msgs::TransformStamped msg1, msg2;
+  static geometry_msgs::PoseStamped msg1, msg2;
 // Header header
 // string child_frame_id # the frame id of the child frame
 // Transform transform
@@ -1089,8 +1095,14 @@ void publish_crtk_setpoint_cp(robot_device *dev) {
   trans1.setRotation(norm1); 
   trans2.setRotation(norm2);
 
-  tf::transformTFToMsg(trans1,msg1.transform);
-  tf::transformTFToMsg(trans2,msg2.transform);
+  tf::Pose pose1;
+  tf::Pose pose2;
+
+  tf_to_pose(trans1, pose1);
+  tf_to_pose(trans2, pose2);
+
+  tf::poseTFToMsg(pose1,msg1.pose);
+  tf::poseTFToMsg(pose2,msg2.pose);
   
   pub_crtk_setpoint_cp_gold.publish(msg1);
   pub_crtk_setpoint_cp_green.publish(msg2);

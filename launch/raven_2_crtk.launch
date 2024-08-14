@@ -1,0 +1,10 @@
+<launch>
+    <rosparam file="$(find raven_2_crtk)/params/r2params.yaml" command="load" />
+    <group ns="/arm1">
+    	<rosparam file="$(find raven_2_crtk)/params/raven_gold_crtk.yaml" command="load" />
+    </group>
+    <group ns="/arm2">
+    	<rosparam file="$(find raven_2_crtk)/params/raven_green_crtk.yaml" command="load" />
+    </group>
+    <node name ="r2_control_crtk" pkg="raven_2_crtk" type="r2_control_crtk" output="screen"/>
+</launch>

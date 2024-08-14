@@ -153,7 +153,7 @@ char is_type_valid(CRTK_motion_level level, CRTK_motion_type type){
  *
  * @param[in]  msg   The message from ROS
  */
-void CRTK_motion_api::crtk_servo_cr_cb(geometry_msgs::TransformStamped msg){
+void CRTK_motion_api::crtk_servo_cr_cb(geometry_msgs::PoseStamped msg){
 
   static int count = 0; // check length of incoming translation
   // if(count%250 == 0){
@@ -161,8 +161,12 @@ void CRTK_motion_api::crtk_servo_cr_cb(geometry_msgs::TransformStamped msg){
   // }
   count ++;
 
+  // get message and convert from pose to transform
+  tf::Pose in_pose;
+  tf::poseMsgToTF(msg.pose, in_pose);
+
   tf::Transform in_incr;
-  tf::transformMsgToTF(msg.transform, in_incr);
+  pose_to_tf(in_pose, in_incr);
 
   if(get_setpoint_update_flag(CRTK_servo, CRTK_cr)){
     in_incr.setOrigin(  get_setpoint_in(CRTK_servo).cr.getOrigin()   + in_incr.getOrigin());
@@ -183,10 +187,17 @@ void CRTK_motion_api::crtk_servo_cr_cb(geometry_msgs::TransformStamped msg){
  *
  * @param[in]  msg   The message from ROS
  */
-void CRTK_motion_api::crtk_servo_cv_cb(geometry_msgs::TransformStamped msg){
+void CRTK_motion_api::crtk_servo_cv_cb(geometry_msgs::TwistStamped msg){
+
+  // get command and convert from pose to transform
 
   tf::Transform vel;
-  tf::transformMsgToTF(msg.transform, vel);
+  tf::Quaternion in_rot;
+  in_rot.setEuler(msg.twist.angular.y, msg.twist.angular.x, msg.twist.angular.z);
+
+  vel.setOrigin(tf::Vector3(msg.twist.linear.x, msg.twist.linear.y, msg.twist.linear.z));
+  vel.setRotation(in_rot);
+
   set_setpoint_in(CRTK_servo, CRTK_cv, vel);
 }
 
@@ -200,7 +211,7 @@ void CRTK_motion_api::crtk_servo_cv_cb(geometry_msgs::TransformStamped msg){
  *
  * @param[in]  msg   The message from ROS
  */
-void CRTK_motion_api::crtk_servo_cp_cb(geometry_msgs::TransformStamped msg){
+void CRTK_motion_api::crtk_servo_cp_cb(geometry_msgs::PoseStamped msg){
 
 
   static int count = 0;
@@ -211,12 +222,15 @@ void CRTK_motion_api::crtk_servo_cp_cb(geometry_msgs::TransformStamped msg){
   char thresh_pos, thresh_rot;
   tf::Vector3 thresh_vec;
 
+  //get command and convert from pose to transform
+  tf::Pose in_pose;
+  tf::poseMsgToTF(msg.pose, in_pose);
 
-  //get command
   tf::Transform in_tf, curr_tf;
+  pose_to_tf(in_pose, in_tf);
+
   tf::Quaternion in_rot, curr_rot, diff_rot;
   tf::Vector3 in_pos, curr_pos;
-  tf::transformMsgToTF(msg.transform, in_tf);
 
   in_pos = in_tf.getOrigin();
   in_rot = in_tf.getRotation();

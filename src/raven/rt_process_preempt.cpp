@@ -107,7 +107,7 @@ int r2_kill = 0;
 *     \ingroup Control
 */
 void sigTrap(int sig) {
-  log_msg("r2_control terminating on signal %d\n", sig);
+  log_msg("r2_control_crtk terminating on signal %d\n", sig);
   r2_kill = 1;
   if (ros::ok()) ros::shutdown();
 }
@@ -363,7 +363,7 @@ int init_ros(int argc, char **argv) {
   /**
    * Initialize ros and rosrt
    */
-  ros::init(argc, argv, "r2_control", ros::init_options::NoSigintHandler);
+  ros::init(argc, argv, "r2_control_crtk", ros::init_options::NoSigintHandler);
   ros::NodeHandle n;
   //    rosrt::init();
   init_ravenstate_publishing(&device0, n);
@@ -397,8 +397,8 @@ int main(int argc, char **argv) {
   }
 
   // init reconfigure
-  dynamic_reconfigure::Server<raven_2::Raven2Config> srv;
-  dynamic_reconfigure::Server<raven_2::Raven2Config>::CallbackType f;
+  dynamic_reconfigure::Server<raven_2_crtk::Raven2Config> srv;
+  dynamic_reconfigure::Server<raven_2_crtk::Raven2Config>::CallbackType f;
   f = boost::bind(&reconfigure_callback, _1, _2);
   srv.setCallback(f);
 

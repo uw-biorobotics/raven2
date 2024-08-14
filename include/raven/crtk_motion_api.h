@@ -86,9 +86,9 @@ class CRTK_motion_api
     ~CRTK_motion_api(){};
 
     // callbacks
-    void crtk_servo_cr_cb(geometry_msgs::TransformStamped);
-    void crtk_servo_cp_cb(geometry_msgs::TransformStamped); 
-    void crtk_servo_cv_cb(geometry_msgs::TransformStamped); 
+    void crtk_servo_cr_cb(geometry_msgs::PoseStamped);
+    void crtk_servo_cp_cb(geometry_msgs::PoseStamped);
+    void crtk_servo_cv_cb(geometry_msgs::TwistStamped);
     void crtk_servo_jr_cb(sensor_msgs::JointState);
     void crtk_servo_jp_cb(sensor_msgs::JointState);
     void crtk_servo_jv_cb(sensor_msgs::JointState);
@@ -187,5 +187,16 @@ char pos_in_workspace(tf::Vector3);
 char is_tf_type(CRTK_motion_type);
 char is_js_type(CRTK_motion_type);
 char is_type_valid(CRTK_motion_level, CRTK_motion_type);
+
+static inline void tf_to_pose(tf::Transform& tf_in, tf::Pose& pose_out) {
+ pose_out.setOrigin(tf_in.getOrigin());
+ pose_out.setRotation(tf_in.getRotation().normalized());
+}
+
+
+static inline void pose_to_tf(tf::Pose& pose_in, tf::Transform& tf_out) {
+ tf_out.setOrigin(pose_in.getOrigin());
+ tf_out.setRotation(pose_in.getRotation().normalized());
+}
 
 #endif

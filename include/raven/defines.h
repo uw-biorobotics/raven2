@@ -31,13 +31,14 @@
 #include <cmath>
 
 #define RAVEN_MODULE_VERSION RAVEN_II_RELEASE_18_05
+#define UBUNTU_20  // used to switch between methods of getting keyboard inputs in getkey() in console_process.cpp
 
 #define SURGICAL_ROBOT 1
 #define RAVEN_II 1
 //#define KIST
 #define JOINT_ENCODERS 0  // 1 indicates that there is a USB board for joint encoders
                           // 0 if no joint encoders
-#define EXTRA_ARMS 1  // 1 indicates that there are more than 2 arms
+#define EXTRA_ARMS 0  // 1 indicates that there are more than 2 arms
                       // 0 if 2 or fewer arms
 
 //~~~~~~~~~ tool adapter definition ~~~~~~~~~~~~~~~~

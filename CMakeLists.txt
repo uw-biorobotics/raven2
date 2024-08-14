@@ -1,5 +1,5 @@
 cmake_minimum_required (VERSION 2.8.3)
-project(raven_2)
+project(raven_2_crtk)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules/")
 
@@ -45,7 +45,7 @@ if(CMAKE_COMPILER_IS_GNUCXX)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
 endif()
 
-set(r2_control_sources
+set(r2_control_crtk_sources
   src/raven/console_process.cpp
   src/raven/dof.cpp
   src/raven/fwd_cable_coupling.cpp
@@ -81,6 +81,6 @@ set(r2_control_sources
   src/raven/utils.cpp
 )
 
-add_executable(r2_control ${r2_control_sources})
-add_dependencies(r2_control ${${PROJECT_NAME}_EXPORTED_TARGETS})
-target_link_libraries(r2_control ${catkin_LIBRARIES})
+add_executable(r2_control_crtk ${r2_control_crtk_sources})
+add_dependencies(r2_control_crtk ${${PROJECT_NAME}_EXPORTED_TARGETS})
+target_link_libraries(r2_control_crtk ${catkin_LIBRARIES})

@@ -45,8 +45,8 @@
 
 /**************** tool selection ********************/
 // tool gold_arm_tool (bipolar_forceps, GOLD_ARM);
-//tool gold_arm_tool(large_needle, GOLD_ARM);
- tool gold_arm_tool(r_grasper, GOLD_ARM);
+tool gold_arm_tool(large_needle, GOLD_ARM);
+ // tool gold_arm_tool(r_grasper, GOLD_ARM);
 // tool gold_arm_tool(micro_forceps, GOLD_ARM);
 //tool gold_arm_tool(ricks_tool, gold);
 //tool gold_arm_tool(qut_camera, GOLD_ARM);
